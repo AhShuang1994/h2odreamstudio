@@ -1,0 +1,14 @@
+
+User-agent: *
+Allow: /
+
+
+Disallow: /js/
+Disallow: /css/
+Disallow: /assets/fonts/
+
+
+# Disallow: /temp/
+
+
+Sitemap: https://www.h2o-dreamer-studio.com/sitemap.xml
