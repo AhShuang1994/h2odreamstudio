@@ -69,8 +69,20 @@
   <main>
     <section class="hero" id="hero">
       <div class="hero-bg-glow"></div>
-      <img src="assets/bg-1.webp" class="bg-orb bg-orb-hero" alt="Hero Background" fetchpriority="high" aria-hidden="true">
-      <img src="assets/bg-1.webp" class="bg-orb bg-orb-hero-left" alt="Hero Background Left" aria-hidden="true">
+      <!-- <img src="assets/bg-1.webp" class="bg-orb bg-orb-hero" alt="Hero Background" fetchpriority="high" aria-hidden="true"> -->
+      <picture class="bg-orb bg-orb-hero">
+		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
+		  <source srcset="assets/bg-1-400.webp" media="(max-width: 768px)">
+		  <!-- 其他情况（电脑端）使用大图 -->
+		  <img src="assets/bg-1.webp" alt="Hero Background" fetchpriority="high" aria-hidden="true">
+	  </picture>
+	  <picture class="bg-orb bg-orb-hero-left">
+		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
+		  <source srcset="assets/bg-1-400.webp" media="(max-width: 768px)">
+		  <!-- 其他情况（电脑端）使用大图 -->
+		  <img src="assets/bg-1.webp" alt="Hero Background Left" aria-hidden="true">
+		</picture>
+	  <!-- <img src="assets/bg-1.webp" class="bg-orb bg-orb-hero-left" alt="Hero Background Left" aria-hidden="true"> -->
       <div class="floating-blobs" aria-hidden="true">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
@@ -202,8 +214,20 @@
     </div>
 
     <section class="services" id="services">
-      <img src="assets/bg-2.webp" class="bg-orb bg-orb-services-tl" alt="" aria-hidden="true">
-      <img src="assets/bg-2.webp" class="bg-orb bg-orb-services-br" alt="" aria-hidden="true">
+      <!-- <img src="assets/bg-2.webp" class="bg-orb bg-orb-services-tl" alt="" aria-hidden="true"> -->
+	   <picture class="bg-orb bg-orb-services-tl">
+		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
+		  <source srcset="assets/bg-2-400.webp" media="(max-width: 768px)">
+		  <!-- 其他情况（电脑端）使用大图 -->
+		  <img src="assets/bg-2.webp" alt="services background" aria-hidden="true">
+	  </picture>
+	   <picture class="bg-orb bg-orb-services-br">
+		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
+		  <source srcset="assets/bg-2-400.webp" media="(max-width: 768px)">
+		  <!-- 其他情况（电脑端）使用大图 -->
+		  <img src="assets/bg-2.webp" alt="services background right" aria-hidden="true">
+	  </picture>
+      <!-- <img src="assets/bg-2.webp" class="bg-orb bg-orb-services-br" alt="" aria-hidden="true"> -->
       <div class="section-inner">
         <div class="section-label"
              data-lang-en="What We Do"
@@ -419,7 +443,13 @@
     </div>
 
     <section class="contact" id="contact">
-      <img src="assets/bg-3.webp" class="bg-orb bg-orb-contact" alt="" aria-hidden="true">
+	 <picture class="bg-orb bg-orb-contact">
+		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
+		  <source srcset="assets/bg-3-400.webp" media="(max-width: 768px)">
+		  <!-- 其他情况（电脑端）使用大图 -->
+		  <img src="assets/bg-3.webp" alt="contact background" aria-hidden="true">
+	  </picture>
+      <!-- <img src="assets/bg-3.webp" class="bg-orb bg-orb-contact" alt="" aria-hidden="true"> -->
       <div class="section-inner">
         <h2 class="section-title"
             data-lang-en="Ready to take your <em>first step</em>?"
