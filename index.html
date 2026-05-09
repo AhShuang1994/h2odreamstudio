@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>H2ODreamer Studio · 网站设计 · Web Design Malaysia</title>
+  <meta name="description" content="H2ODreamer Studio — 帮你迈出梦想的第一步。专业网站设计、Shopify 迁移、婚礼电子请柬。Web design agency in Malaysia helping dreamers take their first step online.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="H2ODreamer Studio · Your Dream, Our First Drop.">
+  <meta property="og:description" content="From a single drop, to an ocean. We help dreamers build their first website.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale:alternate" content="en_US">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="H2ODreamer Studio">
+  <meta name="twitter:description" content="From a single drop, to an ocean.">
+
+  <!-- Theme color -->
+  <meta name="theme-color" content="#020818">
+
+  <!-- Favicon (placeholder until logo ready) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💧</text></svg>">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">H2O<span>Dreamer</span> Studio</a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#story" data-lang-en="Why Us" data-lang-cn="为什么选我们">Why Us</a></li>
+        <li><a href="#services" data-lang-en="Services" data-lang-cn="服务">Services</a></li>
+        <li><a href="#portfolio" data-lang-en="Portfolio" data-lang-cn="作品集">Portfolio</a></li>
+        <li><a href="#faq" data-lang-en="FAQ" data-lang-cn="常见问题">FAQ</a></li>
+        <li><a href="#contact" data-lang-en="Contact" data-lang-cn="联系">Contact</a></li>
+      </ul>
+
+      <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
+        <span class="lang-en">EN</span> / <span class="lang-cn">中文</span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero" id="hero">
+      <div class="hero-bg-glow"></div>
+      <img src="assets/bg-1.webp" class="bg-orb bg-orb-hero" alt="" aria-hidden="true">
+      <img src="assets/bg-1.webp" class="bg-orb bg-orb-hero-left" alt="" aria-hidden="true">
+      <div class="floating-blobs" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
+        <div class="blob blob-5"></div>
+      </div>
+      <div class="hero-inner">
+        <div class="hero-drop">💧</div>
+        <div class="hero-eyebrow">H2ODreamer Studio</div>
+        <h1 class="hero-title">
+          <span data-lang-en="Your Dream," data-lang-cn="你的梦想，">你的梦想，</span>
+          <br>
+          <em data-lang-en="Our First Drop." data-lang-cn="我们的第一滴水。">我们的第一滴水。</em>
+        </h1>
+        <p class="hero-tagline">细水长流 · 从一滴水到一片海</p>
+        <p class="hero-body"
+           data-lang-en="Have a dream but don't know where to start? We build your website, shape your brand, and help your dream begin to flow."
+           data-lang-cn="有梦想，却不知道如何踏出第一步？我们帮你建立网站，打造品牌形象，让梦想从这里开始流动。">
+          有梦想，却不知道如何踏出第一步？我们帮你建立网站，打造品牌形象，让梦想从这里开始流动。
+        </p>
+        <a href="#contact" class="btn-primary"
+           data-lang-en="💬 WhatsApp Us — Free Consultation"
+           data-lang-cn="💬 WhatsApp 咨询，免费顾问">
+          💬 WhatsApp 咨询，免费顾问
+        </a>
+        <p class="hero-subnote"
+           data-lang-en="Usually replies within 1 hour"
+           data-lang-cn="通常在 1 小时内回复">
+          通常在 1 小时内回复
+        </p>
+      </div>
+    </section>
+
+    <section class="story" id="story">
+      <div class="section-inner">
+        <div class="section-label"
+             data-lang-en="Our Philosophy"
+             data-lang-cn="我们的理念">我们的理念</div>
+        <h2 class="section-title"
+            data-lang-en="From <em>one drop</em>, to <em>an ocean</em>."
+            data-lang-cn="从<em>一滴水</em>，到<em>一片海</em>。">
+          从<em>一滴水</em>，到<em>一片海</em>。
+        </h2>
+        <p class="section-body"
+           data-lang-en="Every great company started as a small idea in someone's mind. We believe everyone with a dream deserves a starting point. H2ODreamer Studio is that first drop — helping you build from zero, growing steadily, drop by drop."
+           data-lang-cn="每一家大公司，都曾经是某人脑海里的一个小念头。我们相信，每一个有梦想的人，都值得一个属于自己的起点。H2ODreamer Studio 就是那第一滴水 — 帮你从零开始，细水长流，慢慢积累。">
+          每一家大公司，都曾经是某人脑海里的一个小念头。我们相信，每一个有梦想的人，都值得一个属于自己的起点。H2ODreamer Studio 就是那第一滴水 — 帮你从零开始，细水长流，慢慢积累。
+        </p>
+        <div class="journey">
+          <div class="journey-item journey-step">
+            <div class="journey-icon">💧</div>
+            <h4 data-lang-en="The First Drop" data-lang-cn="第一滴水">第一滴水</h4>
+            <p data-lang-en="Build your website, give your dream a home"
+               data-lang-cn="建立你的网站，让梦想有个家">建立你的网站，让梦想有个家</p>
+          </div>
+          <div class="journey-item journey-arrow">→</div>
+          <div class="journey-item journey-step">
+            <div class="journey-icon">🌊</div>
+            <h4 data-lang-en="The Current" data-lang-cn="汇成细流">汇成细流</h4>
+            <p data-lang-en="Shape your brand, build your online presence"
+               data-lang-cn="打造品牌形象，建立网络存在感">打造品牌形象，建立网络存在感</p>
+          </div>
+          <div class="journey-item journey-arrow">→</div>
+          <div class="journey-item journey-step">
+            <div class="journey-icon">🌏</div>
+            <h4 data-lang-en="The Ocean" data-lang-cn="流向大海">流向大海</h4>
+            <p data-lang-en="SEO · Analytics · Real business results"
+               data-lang-cn="SEO · 数据分析 · 带来真实业绩">SEO · 数据分析 · 带来真实业绩</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wave-divider wave-2-over" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,0 L0,40 C240,80 480,20 720,50 C960,80 1200,25 1440,45 L1440,0Z" fill="var(--color-bg-mid)"/></svg>
+    </div>
+
+    <section class="pain" id="pain">
+      <div class="section-inner">
+        <div class="section-label"
+             data-lang-en="Sound Familiar?"
+             data-lang-cn="是不是这样的你？">是不是这样的你？</div>
+        <h2 class="section-title"
+            data-lang-en="You have the dream.<br>You just haven't started yet."
+            data-lang-cn="你有梦想。<br>只是还没踏出那一步。">
+          你有梦想。<br>只是还没踏出那一步。
+        </h2>
+        <div class="pain-grid">
+          <div class="pain-card">
+            <div class="pain-icon">💭</div>
+            <p data-lang-en="&ldquo;I've been thinking about building a website for years, but I don't know where to begin.&rdquo;"
+               data-lang-cn="「想做网站想了很久，但不知道从哪里开始。」">
+              「想做网站想了很久，但不知道从哪里开始。」
+            </p>
+          </div>
+          <div class="pain-card">
+            <div class="pain-icon">🛠</div>
+            <p data-lang-en="&ldquo;I tried to DIY it, but the result didn't look the way I imagined.&rdquo;"
+               data-lang-cn="「自己做过，但做出来不是我想要的样子。」">
+              「自己做过，但做出来不是我想要的样子。」
+            </p>
+          </div>
+          <div class="pain-card">
+            <div class="pain-icon">⏰</div>
+            <p data-lang-en="&ldquo;I don't have time to learn all this tech stuff on top of running my business.&rdquo;"
+               data-lang-cn="「生意已经够忙了，没时间再去学这些技术。」">
+              「生意已经够忙了，没时间再去学这些技术。」
+            </p>
+          </div>
+          <div class="pain-card">
+            <div class="pain-icon">💸</div>
+            <p data-lang-en="&ldquo;I'm worried the cost will be too high, or I won't know what I'm paying for.&rdquo;"
+               data-lang-cn="「怕花了钱，做出来不值得。」">
+              「怕花了钱，做出来不值得。」
+            </p>
+          </div>
+        </div>
+        <p class="pain-closing"
+           data-lang-en="If any of these sound like you — you're in the right place."
+           data-lang-cn="如果你有以上任何一个感觉，你来对地方了。">
+          如果你有以上任何一个感觉，你来对地方了。
+        </p>
+      </div>
+    </section>
+
+    <div class="wave-divider wave-3" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,50 C180,10 360,70 540,30 C720,0 900,60 1080,25 C1260,0 1380,45 1440,30 L1440,80 L0,80Z"/></svg>
+    </div>
+
+    <section class="services" id="services">
+      <img src="assets/bg-2.webp" class="bg-orb bg-orb-services-tl" alt="" aria-hidden="true">
+      <img src="assets/bg-2.webp" class="bg-orb bg-orb-services-br" alt="" aria-hidden="true">
+      <div class="section-inner">
+        <div class="section-label"
+             data-lang-en="What We Do"
+             data-lang-cn="我们的服务">我们的服务</div>
+        <h2 class="section-title"
+            data-lang-en="Our Services"
+            data-lang-cn="服务与定价">服务与定价</h2>
+        <p class="section-body"
+           data-lang-en="Each service is part of your dream's journey."
+           data-lang-cn="每一个服务，都是你梦想旅程的一部分">
+          每一个服务，都是你梦想旅程的一部分
+        </p>
+
+        <div class="service-grid">
+
+          <article class="service-card">
+            <h3 class="service-name">Wedding E-Invitation</h3>
+            <p class="service-tagline"
+               data-lang-en="&ldquo;Turn your story into the most beautiful first page.&rdquo;"
+               data-lang-cn="「把你们的故事，变成最美的第一页。」">
+              「把你们的故事，变成最美的第一页。」
+            </p>
+            <p class="service-desc"
+               data-lang-en="Custom digital wedding invitations designed for couples. Mobile-friendly, beautiful, and personal."
+               data-lang-cn="专为新人打造的数字婚礼请柬，精美设计 + 移动端友好，让宾客感受你们的用心。">
+              专为新人打造的数字婚礼请柬，精美设计 + 移动端友好，让宾客感受你们的用心。
+            </p>
+            <div class="service-badges">
+              <span class="badge badge-no" data-lang-en="✗ SEO" data-lang-cn="✗ SEO">✗ SEO</span>
+              <span class="badge badge-no" data-lang-en="✗ GA" data-lang-cn="✗ GA">✗ GA</span>
+              <span class="badge badge-yes"
+                    data-lang-en="Short-term deployment"
+                    data-lang-cn="短期上线">短期上线</span>
+            </div>
+            <p class="service-warning"
+               data-lang-en="⚠ Background music must use copyright-safe audio."
+               data-lang-cn="⚠ 背景音乐须使用版权安全素材">
+              ⚠ 背景音乐须使用版权安全素材
+            </p>
+            <div class="service-price">
+              <span data-lang-en="From" data-lang-cn="起价">起价</span>
+              <strong>RM [TBD]</strong>
+            </div>
+          </article>
+
+          <article class="service-card">
+            <h3 class="service-name">Landing Page</h3>
+            <p class="service-tagline"
+               data-lang-en="&ldquo;Turn the first glance into the first sale.&rdquo;"
+               data-lang-cn="「让第一眼，变成第一笔生意。」">
+              「让第一眼，变成第一笔生意。」
+            </p>
+            <p class="service-desc"
+               data-lang-en="High-converting landing pages for MY/SG SMEs. Built to turn visitors into leads."
+               data-lang-cn="高转化率落地页，专为 MY/SG 中小企业设计，配合 SEO 和数据追踪，让流量变客源。">
+              高转化率落地页，专为 MY/SG 中小企业设计，配合 SEO 和数据追踪，让流量变客源。
+            </p>
+            <div class="service-badges">
+              <span class="badge badge-yes"
+                    data-lang-en="✓ SEO (optional)"
+                    data-lang-cn="✓ SEO（可选）">✓ SEO（可选）</span>
+              <span class="badge badge-yes" data-lang-en="✓ GA4" data-lang-cn="✓ GA4">✓ GA4</span>
+            </div>
+            <div class="service-price">
+              <span data-lang-en="From" data-lang-cn="起价">起价</span>
+              <strong>RM [TBD]</strong>
+            </div>
+          </article>
+
+          <article class="service-card">
+            <h3 class="service-name">Shopify Migration</h3>
+            <p class="service-tagline"
+               data-lang-en="&ldquo;Let your business run at full speed, online.&rdquo;"
+               data-lang-cn="「让你的生意，在网上全速运转。」">
+              「让你的生意，在网上全速运转。」
+            </p>
+            <p class="service-desc"
+               data-lang-en="Migrate your existing site to Shopify with zero downtime. SEO preserved with 301 redirects. GA4 ecommerce tracking included."
+               data-lang-cn="将现有网站迁移到 Shopify，保留 SEO 排名，接入 GA4 电商追踪，零停机时间切换。">
+              将现有网站迁移到 Shopify，保留 SEO 排名，接入 GA4 电商追踪，零停机时间切换。
+            </p>
+            <div class="service-badges">
+              <span class="badge badge-yes"
+                    data-lang-en="✓ SEO (mandatory)"
+                    data-lang-cn="✓ SEO（必含）">✓ SEO（必含）</span>
+              <span class="badge badge-yes"
+                    data-lang-en="✓ GA4 Ecommerce"
+                    data-lang-cn="✓ GA4 电商">✓ GA4 电商</span>
+              <span class="badge badge-yes" data-lang-en="301 Redirect" data-lang-cn="301 Redirect">301 Redirect</span>
+            </div>
+            <div class="service-price">
+              <span data-lang-en="From" data-lang-cn="起价">起价</span>
+              <strong>RM [TBD]</strong>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <div class="wave-divider wave-4" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,30 C320,70 640,0 960,50 C1120,65 1300,20 1440,40 L1440,80 L0,80Z"/></svg>
+    </div>
+
+    <section class="portfolio" id="portfolio">
+      <div class="section-inner">
+        <div class="portfolio-placeholder">
+          <div class="portfolio-icon">🖼</div>
+          <p data-lang-en="Our Portfolio · Coming Soon"
+             data-lang-cn="作品集 · 即将上线">作品集 · 即将上线</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="wave-divider wave-5" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,45 C200,10 400,70 600,25 C800,0 1000,55 1200,30 C1340,15 1420,50 1440,40 L1440,80 L0,80Z"/></svg>
+    </div>
+
+    <section class="faq" id="faq">
+      <div class="section-inner">
+        <div class="section-label"
+             data-lang-en="Questions"
+             data-lang-cn="常见问题">常见问题</div>
+        <h2 class="section-title"
+            data-lang-en="Got questions?<br>We've got answers."
+            data-lang-cn="你想知道的，<br>我们都为你准备好了。">
+          你想知道的，<br>我们都为你准备好了。
+        </h2>
+        <div class="faq-list">
+          <details class="faq-item" open>
+            <summary>
+              <span data-lang-en="How long does it take?"
+                    data-lang-cn="做一个网站要多久？">做一个网站要多久？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="Landing page: 1–2 weeks. Wedding e-invite: 3–5 days. Shopify migration: 2–4 weeks depending on complexity."
+                 data-lang-cn="落地页：1–2 周。婚礼请柬：3–5 天。Shopify 迁移：2–4 周，视复杂程度而定。">
+              落地页：1–2 周。婚礼请柬：3–5 天。Shopify 迁移：2–4 周，视复杂程度而定。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="What do I need to provide?"
+                    data-lang-cn="我需要准备什么？">我需要准备什么？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="A brief about your business, any logos or photos you have, and your preferred color direction. We'll guide you through the rest."
+                 data-lang-cn="提供业务简介、现有 logo 或照片、偏好的色调方向。其余部分我们会引导你一步步完成。">
+              提供业务简介、现有 logo 或照片、偏好的色调方向。其余部分我们会引导你一步步完成。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="Do you provide hosting?"
+                    data-lang-cn="你们提供主机服务吗？">你们提供主机服务吗？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="We help you set up hosting on your preferred platform (e.g. Shopify, Hostinger). Hosting fees are paid directly to the provider."
+                 data-lang-cn="我们协助你在合适的平台（如 Shopify、Hostinger）设置主机，主机费用直接向服务商支付。">
+              我们协助你在合适的平台（如 Shopify、Hostinger）设置主机，主机费用直接向服务商支付。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="Can I update the content myself after?"
+                    data-lang-cn="完成后我可以自己更新内容吗？">完成后我可以自己更新内容吗？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="Yes. We build with easy editing in mind and provide a short handover guide. Shopify clients can edit products and pages directly from the dashboard."
+                 data-lang-cn="可以。我们会考虑到易于编辑，并提供简单的交接指南。Shopify 客户可直接在后台编辑产品和页面。">
+              可以。我们会考虑到易于编辑，并提供简单的交接指南。Shopify 客户可直接在后台编辑产品和页面。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="What if I'm not happy with the design?"
+                    data-lang-cn="如果我对设计不满意怎么办？">如果我对设计不满意怎么办？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="We show you a design spec before building and include revision rounds in every package. We don't start coding until you approve the direction."
+                 data-lang-cn="我们在正式开发前会先呈上设计规格，每个套餐包含修改轮次。在你确认方向之前，我们不会开始写代码。">
+              我们在正式开发前会先呈上设计规格，每个套餐包含修改轮次。在你确认方向之前，我们不会开始写代码。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="Do you offer ongoing maintenance?"
+                    data-lang-cn="你们有提供后续维护服务吗？">你们有提供后续维护服务吗？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="Yes, maintenance packages are available. Ask us for details during your consultation."
+                 data-lang-cn="有，我们提供维护套餐。咨询时可向我们了解详情。">
+              有，我们提供维护套餐。咨询时可向我们了解详情。
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <div class="wave-divider wave-6-over" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,0 L0,35 C360,70 720,10 1080,50 C1260,65 1380,30 1440,40 L1440,0Z" fill="var(--color-bg-mid)"/></svg>
+    </div>
+
+    <section class="contact" id="contact">
+      <img src="assets/bg-3.webp" class="bg-orb bg-orb-contact" alt="" aria-hidden="true">
+      <div class="section-inner">
+        <h2 class="section-title"
+            data-lang-en="Ready to take your <em>first step</em>?"
+            data-lang-cn="准备好迈出<em>第一步</em>了吗？">
+          准备好迈出<em>第一步</em>了吗？
+        </h2>
+        <p class="section-body"
+           data-lang-en="Not sure where to start? That's exactly why we're here."
+           data-lang-cn="不知道从哪里开始？没关系，我们来陪你想清楚。">
+          不知道从哪里开始？没关系，我们来陪你想清楚。
+        </p>
+        <div class="contact-buttons">
+          <a href="https://wa.me/60XXXXXXXXX" class="btn-wa"
+             target="_blank" rel="noopener"
+             data-lang-en="💬 WhatsApp Us"
+             data-lang-cn="💬 WhatsApp 我们">
+            💬 WhatsApp 我们
+          </a>
+          <a href="mailto:hello@h2odreamer.studio" class="btn-email"
+             data-lang-en="📧 Email Us"
+             data-lang-cn="📧 发送邮件">
+            📧 发送邮件
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>© 2026 H2ODreamer Studio · Malaysia</p>
+      <a href="#"
+         data-lang-en="Privacy Policy"
+         data-lang-cn="隐私政策">隐私政策</a>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
