@@ -1,0 +1,287 @@
+// H2ODreamer Studio — main.js (Organic Fluid + Micro-interactions)
+
+// Navbar scroll background
+(function () {
+  const navbar = document.getElementById('navbar');
+  if (!navbar) return;
+  const onScroll = () => {
+    if (window.scrollY > 20) navbar.classList.add('scrolled');
+    else navbar.classList.remove('scrolled');
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+
+// Mobile hamburger toggle
+(function () {
+  const toggle = document.getElementById('navToggle');
+  const links = document.getElementById('navLinks');
+  if (!toggle || !links) return;
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    links.classList.toggle('open');
+  });
+  links.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+  links.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => links.classList.remove('open'));
+  });
+  document.addEventListener('click', () => {
+    links.classList.remove('open');
+  });
+})();
+
+// FAQ accordion — only one open at a time
+(function () {
+  const items = document.querySelectorAll('.faq-item');
+  if (!items.length) return;
+  items.forEach(item => {
+    item.addEventListener('toggle', () => {
+      if (item.open) {
+        items.forEach(other => {
+          if (other !== item && other.open) other.open = false;
+        });
+      }
+    });
+  });
+})();
+
+// Mobile lang-toggle: clone into burger menu
+(function () {
+  const mq = window.matchMedia('(max-width: 768px)');
+  const langBtn = document.getElementById('langToggle');
+  const navLinks = document.getElementById('navLinks');
+  if (!langBtn || !navLinks) return;
+
+  let clone = null;
+  function sync() {
+    if (mq.matches && !clone) {
+      clone = langBtn.cloneNode(true);
+      clone.removeAttribute('id');
+      clone.classList.add('lang-toggle-mobile');
+      const li = document.createElement('li');
+      li.appendChild(clone);
+      navLinks.appendChild(li);
+      clone.addEventListener('click', () => langBtn.click());
+    } else if (!mq.matches && clone) {
+      clone.closest('li').remove();
+      clone = null;
+    }
+  }
+  mq.addEventListener('change', sync);
+  sync();
+})();
+
+// Language toggle
+(function () {
+  const STORAGE_KEY = 'h2od-lang';
+  const toggle = document.getElementById('langToggle');
+  if (!toggle) return;
+
+  function applyLang(lang) {
+    document.documentElement.setAttribute('data-lang', lang);
+    document.documentElement.lang = lang === 'cn' ? 'zh' : 'en';
+
+    document.querySelectorAll('[data-lang-en], [data-lang-cn]').forEach(el => {
+      const en = el.getAttribute('data-lang-en');
+      const cn = el.getAttribute('data-lang-cn');
+      if (lang === 'en' && en !== null) el.innerHTML = en;
+      else if (lang === 'cn' && cn !== null) el.innerHTML = cn;
+    });
+
+    toggle.querySelector('.lang-en').classList.toggle('active', lang === 'en');
+    toggle.querySelector('.lang-cn').classList.toggle('active', lang === 'cn');
+    try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) {}
+  }
+
+  let initialLang = 'cn';
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === 'en' || stored === 'cn') initialLang = stored;
+  } catch (e) {}
+  applyLang(initialLang);
+
+  toggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-lang') || 'cn';
+    applyLang(current === 'cn' ? 'en' : 'cn');
+  });
+})();
+
+// Scroll reveal with varied entrance directions
+(function () {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return;
+
+  const sections = document.querySelectorAll(
+    '.story, .pain, .services, .portfolio, .faq, .contact'
+  );
+  sections.forEach(s => {
+    s.classList.add('reveal', 'reveal-up');
+  });
+
+  // Journey items — stagger left to right (handled by CSS .journey-item)
+  const journeyObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const items = entry.target.querySelectorAll('.journey-item');
+          items.forEach(item => item.classList.add('revealed'));
+          journeyObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.5 }
+  );
+  const journey = document.querySelector('.journey');
+  if (journey) journeyObserver.observe(journey);
+
+  // Pain cards — scale in
+  document.querySelectorAll('.pain-card').forEach(el => {
+    el.classList.add('reveal', 'reveal-scale');
+  });
+
+  // Service cards — rotate entrance
+  document.querySelectorAll('.service-card').forEach(el => {
+    el.classList.add('reveal', 'reveal-rotate');
+  });
+
+  // FAQ items — slide from right
+  document.querySelectorAll('.faq-item').forEach(el => {
+    el.classList.add('reveal', 'reveal-right');
+  });
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const parent = entry.target.closest('.section-inner, .journey, .pain-grid, .service-grid, .faq-list');
+          if (parent) {
+            const siblings = parent.querySelectorAll('.reveal:not(.revealed)');
+            siblings.forEach((sib, idx) => {
+              sib.style.transitionDelay = (idx * 120) + 'ms';
+            });
+          }
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+  );
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+})();
+
+// 3D Card Tilt on hover (service cards + pain cards)
+(function () {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return;
+
+  const cards = document.querySelectorAll('.service-card, .pain-card');
+  cards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -8;
+      const rotateY = ((x - centerX) / centerX) * 8;
+      card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+      card.style.transition = 'transform 400ms cubic-bezier(0.16, 1, 0.3, 1)';
+      setTimeout(() => { card.style.transition = ''; }, 400);
+    });
+  });
+})();
+
+// Parallax floating blobs + hero elements
+(function () {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return;
+
+  const blobs = document.querySelectorAll('.blob');
+  const heroDrop = document.querySelector('.hero-drop');
+  const heroInner = document.querySelector('.hero-inner');
+  if (!blobs.length && !heroDrop) return;
+
+  const rates = [0.15, 0.25, 0.1, 0.2, 0.12];
+  let ticking = false;
+
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const scrollY = window.scrollY;
+      blobs.forEach((blob, i) => {
+        const rate = rates[i] || 0.15;
+        blob.style.transform = `translateY(${scrollY * rate}px)`;
+      });
+      if (heroDrop && scrollY < window.innerHeight) {
+        heroDrop.style.transform = `translateY(${scrollY * -0.3}px)`;
+      }
+      if (heroInner && scrollY < window.innerHeight) {
+        heroInner.style.transform = `translateY(${scrollY * 0.15}px)`;
+        heroInner.style.opacity = Math.max(0, 1 - scrollY / (window.innerHeight * 0.8));
+      }
+      ticking = false;
+    });
+  }, { passive: true });
+})();
+
+// Magnetic cursor effect on CTA buttons
+(function () {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return;
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+
+  const buttons = document.querySelectorAll('.btn-primary, .btn-wa, .btn-email');
+  const PULL_DISTANCE = 80;
+  const MAX_SHIFT = 6;
+
+  buttons.forEach(btn => {
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < PULL_DISTANCE) {
+        const strength = 1 - dist / PULL_DISTANCE;
+        btn.style.transform = `translate(${dx * strength * 0.15}px, ${dy * strength * 0.15}px)`;
+      }
+    });
+
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = '';
+    });
+  });
+})();
+
+// Ripple on CTA button click
+(function () {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return;
+
+  const buttons = document.querySelectorAll('.btn-primary, .btn-wa, .btn-email');
+  buttons.forEach(btn => {
+    btn.classList.add('ripple-container');
+    btn.addEventListener('click', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width * 100);
+      const y = ((e.clientY - rect.top) / rect.height * 100);
+      btn.style.setProperty('--ripple-x', x + '%');
+      btn.style.setProperty('--ripple-y', y + '%');
+      btn.classList.remove('rippling');
+      void btn.offsetWidth;
+      btn.classList.add('rippling');
+      setTimeout(() => btn.classList.remove('rippling'), 600);
+    });
+  });
+})();
