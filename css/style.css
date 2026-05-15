@@ -99,6 +99,10 @@ a { color: inherit; text-decoration: none; }
   position: absolute;
   mix-blend-mode: screen;
   pointer-events: none;
+}
+.bg-orb img {
+  width: 100%;
+  height: auto;
   z-index: 0;
   object-fit: contain;
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
