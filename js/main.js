@@ -79,7 +79,18 @@
   const toggle = document.getElementById('langToggle');
   if (!toggle) return;
 
+  let cjkFontLoaded = false;
+  function loadCJKFont() {
+    if (cjkFontLoaded) return;
+    cjkFontLoaded = true;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap';
+    document.head.appendChild(link);
+  }
+
   function applyLang(lang) {
+    if (lang === 'cn') loadCJKFont();
     document.documentElement.setAttribute('data-lang', lang);
     document.documentElement.lang = lang === 'cn' ? 'zh' : 'en';
 
