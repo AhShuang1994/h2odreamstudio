@@ -15,8 +15,8 @@
   --color-danger: #ef4444;
 
   /* Typography */
-  --font-display: 'Space Grotesk', 'Noto Sans SC', sans-serif;
-  --font-body: 'DM Sans', 'Noto Sans SC', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-body: 'DM Sans', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
 
   /* Layout */
   --max-width: 1200px;
