@@ -279,9 +279,12 @@
       btn.style.setProperty('--ripple-x', x + '%');
       btn.style.setProperty('--ripple-y', y + '%');
       btn.classList.remove('rippling');
-      void btn.offsetWidth;
-      btn.classList.add('rippling');
-      setTimeout(() => btn.classList.remove('rippling'), 600);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          btn.classList.add('rippling');
+          setTimeout(() => btn.classList.remove('rippling'), 600);
+        });
+      });
     });
   });
 })();
