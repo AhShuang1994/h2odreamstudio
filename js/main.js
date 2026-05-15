@@ -95,7 +95,7 @@
     try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) {}
   }
 
-  let initialLang = 'cn';
+  let initialLang = 'en';
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === 'en' || stored === 'cn') initialLang = stored;
@@ -284,4 +284,82 @@
       setTimeout(() => btn.classList.remove('rippling'), 600);
     });
   });
+})();
+
+// GA4 Event Tracking for Lead Generation
+(function () {
+  function ga(event, params) {
+    if (typeof gtag === 'function') gtag('event', event, params);
+  }
+
+  // CTA clicks — WhatsApp (hero)
+  var heroWa = document.querySelector('.hero .btn-primary');
+  if (heroWa) heroWa.addEventListener('click', function () {
+    ga('cta_whatsapp_hero', { event_category: 'lead', event_label: 'hero' });
+  });
+
+  // CTA clicks — WhatsApp (footer)
+  var footerWa = document.querySelector('.contact .btn-wa');
+  if (footerWa) footerWa.addEventListener('click', function () {
+    ga('cta_whatsapp_footer', { event_category: 'lead', event_label: 'footer' });
+  });
+
+  // CTA clicks — Email
+  var emailBtn = document.querySelector('.contact .btn-email');
+  if (emailBtn) emailBtn.addEventListener('click', function () {
+    ga('cta_email', { event_category: 'lead', event_label: 'email' });
+  });
+
+  // Nav clicks
+  document.querySelectorAll('#navLinks a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      ga('nav_click', { event_category: 'navigation', event_label: a.getAttribute('href') });
+    });
+  });
+
+  // FAQ opens
+  document.querySelectorAll('.faq-item').forEach(function (item, i) {
+    item.addEventListener('toggle', function () {
+      if (item.open) {
+        var q = item.querySelector('summary');
+        ga('faq_open', { event_category: 'engagement', event_label: q ? q.textContent.trim().slice(0, 80) : 'faq_' + i });
+      }
+    });
+  });
+
+  // Language switch
+  var langToggle = document.getElementById('langToggle');
+  if (langToggle) langToggle.addEventListener('click', function () {
+    var current = document.documentElement.getAttribute('data-lang') || 'en';
+    ga('lang_switch', { event_category: 'engagement', event_label: current === 'cn' ? 'to_en' : 'to_cn' });
+  });
+
+  // Section visibility — high-intent sections
+  var tracked = {};
+  var sectionObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting && !tracked[entry.target.id]) {
+        tracked[entry.target.id] = true;
+        ga('section_view', { event_category: 'engagement', event_label: entry.target.id });
+        sectionObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  ['services', 'portfolio', 'contact'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+
+  // Scroll depth
+  var depthFired = {};
+  window.addEventListener('scroll', function () {
+    var pct = Math.round((window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100);
+    [25, 50, 75, 100].forEach(function (milestone) {
+      if (pct >= milestone && !depthFired[milestone]) {
+        depthFired[milestone] = true;
+        ga('scroll_depth', { event_category: 'engagement', event_label: milestone + '%' });
+      }
+    });
+  }, { passive: true });
 })();
