@@ -9,7 +9,7 @@
   --color-accent: #7B61FF;
   --color-text: #F0F6FF;
   --color-text-secondary: #8BA4C4;
-  --color-text-muted: #506882;
+  --color-text-muted: #7A8FA6;
   --color-border: #1A3352;
   --color-wa: #25D366;
   --color-danger: #ef4444;
@@ -1119,7 +1119,7 @@ a { color: inherit; text-decoration: none; }
 /* Language toggle active state */
 .lang-toggle .lang-en,
 .lang-toggle .lang-cn {
-  opacity: 0.5;
+  opacity: 0.65;
   transition: opacity 200ms var(--ease-out-expo);
 }
 .lang-toggle .active { opacity: 1; }
