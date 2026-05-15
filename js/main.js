@@ -324,6 +324,17 @@
     ga('cta_email', { event_category: 'lead', event_label: 'email' });
   });
 
+  // CTA clicks — Service cards
+  document.querySelectorAll('.service-cta').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var card = btn.closest('.service-card');
+      var name = card ? card.querySelector('.service-name') : null;
+      var tier = card ? card.getAttribute('data-tier') : '';
+      var label = (name ? name.textContent.trim() : 'unknown') + (tier ? ' (' + tier + ')' : '');
+      ga('cta_whatsapp_service', { event_category: 'lead', event_label: label });
+    });
+  });
+
   // Nav clicks
   document.querySelectorAll('#navLinks a').forEach(function (a) {
     a.addEventListener('click', function () {
