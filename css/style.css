@@ -558,13 +558,13 @@ a { color: inherit; text-decoration: none; }
 .hero-body, .btn-primary, .hero-subnote {
   opacity: 0;
 }
-.hero-drop { animation: heroFloat 5s var(--ease-out-expo) infinite, heroRevealScale 800ms var(--ease-spring) 100ms forwards; }
-.hero-eyebrow { animation: heroRevealLetterSpace 700ms var(--ease-out-expo) 200ms forwards; }
-.hero-title { animation: heroRevealClip 800ms var(--ease-out-expo) 350ms forwards; }
-.hero-tagline { animation: heroRevealFade 700ms var(--ease-out-expo) 550ms forwards; }
-.hero-body { animation: fadeUp 700ms var(--ease-out-expo) 700ms forwards; }
-.btn-primary { animation: heroRevealSpring 600ms var(--ease-spring) 900ms forwards, glowBreathe 3s ease-in-out 1.5s infinite; }
-.hero-subnote { animation: fadeUp 600ms var(--ease-out-expo) 1100ms forwards; }
+.hero-drop { animation: heroFloat 5s var(--ease-out-expo) infinite, heroRevealScale 500ms var(--ease-spring) forwards; }
+.hero-eyebrow { animation: heroRevealLetterSpace 500ms var(--ease-out-expo) 50ms forwards; }
+.hero-title { animation: heroRevealClip 500ms var(--ease-out-expo) 100ms forwards; }
+.hero-tagline { animation: heroRevealFade 500ms var(--ease-out-expo) 200ms forwards; }
+.hero-body { animation: fadeUp 500ms var(--ease-out-expo) 300ms forwards; }
+.btn-primary { animation: heroRevealSpring 400ms var(--ease-spring) 400ms forwards, glowBreathe 3s ease-in-out 1.5s infinite; }
+.hero-subnote { animation: fadeUp 400ms var(--ease-out-expo) 500ms forwards; }
 
 @keyframes heroFloat {
   0%, 100% { transform: translateY(0); }
