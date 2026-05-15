@@ -28,8 +28,9 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- English fonts — render-critical for LCP -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap">
+  <!-- English fonts — async to avoid render-blocking; display=swap ensures text renders immediately -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap"></noscript>
   <!-- Chinese font — loaded on demand by JS when user switches to CN -->
 
   <link rel="stylesheet" href="css/style.min.css">
@@ -136,21 +137,21 @@
         <div class="journey">
           <div class="journey-item journey-step">
             <div class="journey-icon">💧</div>
-            <h4 data-lang-en="The First Drop" data-lang-cn="第一滴水">第一滴水</h4>
+            <h3 data-lang-en="The First Drop" data-lang-cn="第一滴水">第一滴水</h3>
             <p data-lang-en="Build your website, give your dream a home"
                data-lang-cn="建立你的网站，让梦想有个家">建立你的网站，让梦想有个家</p>
           </div>
           <div class="journey-item journey-arrow">→</div>
           <div class="journey-item journey-step">
             <div class="journey-icon">🌊</div>
-            <h4 data-lang-en="The Current" data-lang-cn="汇成细流">汇成细流</h4>
+            <h3 data-lang-en="The Current" data-lang-cn="汇成细流">汇成细流</h3>
             <p data-lang-en="Shape your brand, build your online presence"
                data-lang-cn="打造品牌形象，建立网络存在感">打造品牌形象，建立网络存在感</p>
           </div>
           <div class="journey-item journey-arrow">→</div>
           <div class="journey-item journey-step">
             <div class="journey-icon">🌏</div>
-            <h4 data-lang-en="The Ocean" data-lang-cn="流向大海">流向大海</h4>
+            <h3 data-lang-en="The Ocean" data-lang-cn="流向大海">流向大海</h3>
             <p data-lang-en="SEO · Analytics · Real business results"
                data-lang-cn="SEO · 数据分析 · 带来真实业绩">SEO · 数据分析 · 带来真实业绩</p>
           </div>
