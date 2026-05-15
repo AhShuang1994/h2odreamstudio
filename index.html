@@ -35,8 +35,7 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap"></noscript>
 
-  <link rel="preload" href="css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="css/style.css"></noscript>
+  <link rel="stylesheet" href="css/style.css">
   
   <!-- Google tag (gtag.js) -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=G-45NTTZBZC4"></script>
@@ -79,13 +78,13 @@
 		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
 		  <source srcset="assets/bg-1-400.webp" media="(max-width: 768px)">
 		  <!-- 其他情况（电脑端）使用大图 -->
-		  <img src="assets/bg-1.webp" alt="Hero Background" fetchpriority="high" aria-hidden="true">
+		  <img src="assets/bg-1.webp" alt="Hero Background" width="700" height="700" fetchpriority="high" aria-hidden="true">
 	  </picture>
 	  <picture class="bg-orb bg-orb-hero-left">
 		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
 		  <source srcset="assets/bg-1-400.webp" media="(max-width: 768px)">
 		  <!-- 其他情况（电脑端）使用大图 -->
-		  <img src="assets/bg-1.webp" alt="Hero Background Left" aria-hidden="true">
+		  <img src="assets/bg-1.webp" alt="Hero Background Left" width="700" height="700" aria-hidden="true">
 		</picture>
 	  <!-- <img src="assets/bg-1.webp" class="bg-orb bg-orb-hero-left" alt="Hero Background Left" aria-hidden="true"> -->
       <div class="floating-blobs" aria-hidden="true">
