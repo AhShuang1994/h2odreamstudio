@@ -387,4 +387,26 @@
       }
     });
   }, { passive: true });
+
+  // Demo button clicks (detail pages)
+  document.querySelectorAll('.demo-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.showcase-item');
+      var caption = item ? item.querySelector('.showcase-item-caption span') : null;
+      ga('demo_click', { event_category: 'engagement', event_label: caption ? caption.textContent.trim() : 'unknown' });
+    });
+  });
+
+  // Detail page CTA
+  var detailWa = document.querySelector('.detail-cta .btn-wa');
+  if (detailWa) detailWa.addEventListener('click', function () {
+    ga('detail_cta_whatsapp', { event_category: 'lead', event_label: document.title });
+  });
+
+  // Service detail link clicks (homepage)
+  document.querySelectorAll('.service-detail-link').forEach(function (link) {
+    link.addEventListener('click', function () {
+      ga('service_detail_click', { event_category: 'navigation', event_label: link.getAttribute('href') });
+    });
+  });
 })();
