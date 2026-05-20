@@ -410,3 +410,75 @@
     });
   });
 })();
+
+// Portfolio: image protection + filter tabs + dynamic bento layout
+(function () {
+  var grid = document.querySelector('.portfolio-grid');
+  var btns = document.querySelectorAll('.filter-btn');
+  var items = document.querySelectorAll('.portfolio-grid .bento-item');
+  if (!grid || !btns.length || !items.length) return;
+
+  grid.addEventListener('contextmenu', function (e) {
+    if (e.target.tagName === 'IMG') e.preventDefault();
+  });
+  grid.addEventListener('dragstart', function (e) {
+    if (e.target.tagName === 'IMG') e.preventDefault();
+  });
+
+  function pickRandom(arr, n) {
+    var copy = arr.slice();
+    var result = [];
+    for (var i = 0; i < n && copy.length; i++) {
+      var idx = Math.floor(Math.random() * copy.length);
+      result.push(copy.splice(idx, 1)[0]);
+    }
+    return result;
+  }
+
+  function applyLayout(filter) {
+    var visible = [];
+    items.forEach(function (item) {
+      item.classList.remove('bento-hero', 'bento-wide', 'hidden');
+      if (filter === 'all' || item.getAttribute('data-category') === filter) {
+        visible.push(item);
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+
+    var count = visible.length;
+    if (count === 0) return;
+
+    var indices = [];
+    for (var i = 0; i < count; i++) indices.push(i);
+    var isCategory = filter !== 'all';
+
+    if (isCategory) {
+      grid.classList.add('bento-grid--category');
+      var picked = pickRandom(indices, Math.min(2, count));
+      visible[picked[0]].classList.add('bento-hero');
+      if (picked[1] !== undefined) visible[picked[1]].classList.add('bento-wide');
+    } else {
+      // All: 3-col grid, 1 hero + dynamic wide to fill grid
+      grid.classList.remove('bento-grid--category');
+      var cells = count + 3;
+      var wideNeeded = (3 - (cells % 3)) % 3;
+      var picked = pickRandom(indices, 1 + wideNeeded);
+      visible[picked[0]].classList.add('bento-hero');
+      for (var i = 1; i < picked.length; i++) {
+        visible[picked[i]].classList.add('bento-wide');
+      }
+    }
+  }
+
+  applyLayout('all');
+
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var filter = btn.getAttribute('data-filter');
+      btns.forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      applyLayout(filter);
+    });
+  });
+})();
