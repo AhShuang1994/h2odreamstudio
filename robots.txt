@@ -2,13 +2,11 @@
 User-agent: *
 Allow: /
 
-
 Disallow: /js/
 Disallow: /css/
-Disallow: /assets/fonts/
-
-
-# Disallow: /temp/
+Disallow: /demos/
+Disallow: /assets/
+Disallow: /scripts/
 
 
 Sitemap: https://www.h2o-dreamer-studio.com/sitemap.xml
