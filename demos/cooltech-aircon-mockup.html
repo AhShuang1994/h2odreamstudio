@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoolTech Aircon Services — Landing Page Mockup</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;500&display=swap">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+
+    :root {
+      --bg: #0B1120;
+      --surface: #131B2E;
+      --border: rgba(255,255,255,0.06);
+      --text: #F1F5F9;
+      --text-muted: #94A3B8;
+      --primary: #1A73E8;
+      --accent: #38BDF8;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    .mockup-header {
+      text-align: center;
+      padding: 64px 24px 48px;
+    }
+
+    .mockup-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(26,115,232,0.15);
+      color: var(--primary);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+
+    .mockup-header h1 {
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      font-weight: 700;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .mockup-header h1 span {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .mockup-header p {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 1.0625rem;
+      color: var(--text-muted);
+      max-width: 540px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Device section ── */
+    .device-section {
+      padding: 40px 24px 80px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .device-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 24px;
+      padding-left: 4px;
+    }
+
+    .device-label svg { opacity: 0.5 }
+
+    /* ── Laptop frame ── */
+    .laptop-wrapper {
+      max-width: 1100px;
+      margin: 0 auto 80px;
+    }
+
+    .laptop-screen {
+      background: #1E293B;
+      border-radius: 12px 12px 0 0;
+      border: 2px solid rgba(255,255,255,0.08);
+      border-bottom: none;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .laptop-topbar {
+      background: #1E293B;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .laptop-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .laptop-dot.red { background: #FF5F56 }
+    .laptop-dot.yellow { background: #FFBD2E }
+    .laptop-dot.green { background: #27C93F }
+
+    .laptop-url {
+      flex: 1;
+      margin-left: 12px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: 'SF Mono', 'Consolas', monospace;
+    }
+
+    .laptop-viewport {
+      width: 100%;
+      aspect-ratio: 16/10;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .laptop-viewport iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      transform-origin: top left;
+    }
+
+    .laptop-base {
+      background: linear-gradient(to bottom, #2A3447, #1E293B);
+      height: 20px;
+      border-radius: 0 0 4px 4px;
+      position: relative;
+    }
+
+    .laptop-base::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 0 0 4px 4px;
+    }
+
+    .laptop-stand {
+      width: 300px;
+      height: 12px;
+      margin: 0 auto;
+      background: linear-gradient(to bottom, #2A3447, #1E293B);
+      border-radius: 0 0 8px 8px;
+      border: 1px solid rgba(255,255,255,0.04);
+      border-top: none;
+    }
+
+    /* ── Phone frames ── */
+    .phones-row {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .phone-group {
+      text-align: center;
+    }
+
+    .phone-group-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .phone-frame {
+      width: 300px;
+      background: #1E293B;
+      border-radius: 36px;
+      border: 3px solid rgba(255,255,255,0.08);
+      padding: 12px;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .phone-notch {
+      width: 100px;
+      height: 24px;
+      background: #1E293B;
+      border-radius: 0 0 16px 16px;
+      margin: 0 auto;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .phone-viewport {
+      width: 100%;
+      aspect-ratio: 9/19.5;
+      border-radius: 24px;
+      overflow: hidden;
+      position: relative;
+      background: #fff;
+    }
+
+    .phone-viewport iframe {
+      width: 375px;
+      height: 812px;
+      border: none;
+      transform-origin: top left;
+    }
+
+    .phone-home-bar {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
+      z-index: 2;
+    }
+
+    /* ── Features strip ── */
+    .features-strip {
+      max-width: 900px;
+      margin: 80px auto 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      padding: 0 24px;
+    }
+
+    .feature-item {
+      text-align: center;
+      padding: 24px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(26,115,232,0.12);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+
+    .feature-icon svg { color: var(--primary) }
+
+    .feature-item h3 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .feature-item p {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ── Footer ── */
+    .mockup-footer {
+      text-align: center;
+      padding: 60px 24px 40px;
+      border-top: 1px solid var(--border);
+      margin-top: 80px;
+    }
+
+    .mockup-footer p {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .mockup-footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .features-strip { grid-template-columns: repeat(2, 1fr) }
+      .phones-row { gap: 32px }
+      .phone-frame { width: 260px }
+      .phone-viewport iframe { width: 325px; height: 703px }
+    }
+
+    @media (max-width: 480px) {
+      .features-strip { grid-template-columns: 1fr }
+      .phone-frame { width: 240px }
+      .phone-viewport iframe { width: 300px; height: 650px }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition-duration: 0.01ms !important }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="mockup-header">
+    <div class="mockup-tag">Client Preview</div>
+    <h1>CoolTech Aircon Services<br><span>Landing Page</span></h1>
+    <p>Professional landing page designed to convert visitors into WhatsApp leads. Fully responsive across all devices.</p>
+  </header>
+
+  <!-- Device Showcases -->
+  <div class="device-section">
+
+    <!-- Desktop -->
+    <div class="device-label">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Desktop View
+    </div>
+
+    <div class="laptop-wrapper">
+      <div class="laptop-screen">
+        <div class="laptop-topbar">
+          <span class="laptop-dot red"></span>
+          <span class="laptop-dot yellow"></span>
+          <span class="laptop-dot green"></span>
+          <div class="laptop-url">cooltech-aircon.com.my</div>
+        </div>
+        <div class="laptop-viewport">
+          <iframe src="cooltech-aircon.html" title="CoolTech Aircon desktop preview" loading="lazy"></iframe>
+        </div>
+      </div>
+      <div class="laptop-base"></div>
+      <div class="laptop-stand"></div>
+    </div>
+
+    <!-- Mobile -->
+    <div class="device-label">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      Mobile View
+    </div>
+
+    <div class="phones-row">
+
+      <div class="phone-group">
+        <p class="phone-group-label">Hero &amp; Services</p>
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-viewport">
+            <iframe src="cooltech-aircon.html" title="CoolTech Aircon mobile preview — hero section" loading="lazy"></iframe>
+          </div>
+          <div class="phone-home-bar"></div>
+        </div>
+      </div>
+
+      <div class="phone-group">
+        <p class="phone-group-label">Gallery &amp; Reviews</p>
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-viewport">
+            <iframe src="cooltech-aircon.html#gallery" title="CoolTech Aircon mobile preview — gallery section" loading="lazy"></iframe>
+          </div>
+          <div class="phone-home-bar"></div>
+        </div>
+      </div>
+
+      <div class="phone-group">
+        <p class="phone-group-label">Pricing &amp; Contact</p>
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-viewport">
+            <iframe src="cooltech-aircon.html#pricing" title="CoolTech Aircon mobile preview — pricing section" loading="lazy"></iframe>
+          </div>
+          <div class="phone-home-bar"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Features strip -->
+    <div class="features-strip">
+      <div class="feature-item">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <h3>Fully Responsive</h3>
+        <p>Looks great on phone, tablet and desktop</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <h3>Fast Loading</h3>
+        <p>Optimized for speed and Core Web Vitals</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        </div>
+        <h3>WhatsApp CTA</h3>
+        <p>One-tap lead capture via floating button</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h3>SEO Ready</h3>
+        <p>Meta tags, schema and semantic HTML</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="mockup-footer">
+    <p>Designed by <a href="https://h2odreamstudio.com" target="_blank" rel="noopener noreferrer">H2ODreamer Studio</a></p>
+  </footer>
+
+  <script>
+    // Scale phone iframes to fit the phone viewport
+    function scalePhones() {
+      document.querySelectorAll('.phone-viewport iframe').forEach(function(iframe) {
+        var vw = iframe.parentElement.clientWidth;
+        var scale = vw / 375;
+        iframe.style.transform = 'scale(' + scale + ')';
+        iframe.style.width = '375px';
+        iframe.style.height = '812px';
+      });
+    }
+
+    window.addEventListener('load', scalePhones);
+    window.addEventListener('resize', scalePhones);
+  </script>
+
+</body>
+</html>
