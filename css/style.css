@@ -2050,3 +2050,57 @@ a { color: inherit; text-decoration: none; }
     padding: var(--section-padding-y) 24px;
   }
 }
+
+/* ============ MOBILE PERFORMANCE — reduce GPU / layout cost ============ */
+@media (max-width: 768px) {
+  .bg-orb,
+  .bg-orb-hero,
+  .bg-orb-services-tl,
+  .bg-orb-services-br,
+  .bg-orb-contact {
+    animation: none !important;
+  }
+  .blob {
+    animation: blobFadeIn 2s ease forwards !important;
+    filter: blur(40px);
+  }
+  .hero-drop {
+    animation: heroRevealScale 500ms var(--ease-spring) forwards !important;
+  }
+  .hero-drop::before,
+  .hero-drop::after {
+    display: none;
+  }
+  .btn-primary {
+    animation: heroRevealSpring 400ms var(--ease-spring) 400ms forwards !important;
+    box-shadow: 0 0 20px rgba(0,229,255,0.2);
+  }
+  .service-card::before {
+    animation: none !important;
+    background-size: 100% 100%;
+  }
+  .portfolio-placeholder {
+    animation: none !important;
+    border-radius: 40% 60% 60% 40% / 50% 40% 60% 50%;
+  }
+  .portfolio-placeholder::before,
+  .portfolio-placeholder::after {
+    display: none;
+  }
+  .journey-step,
+  .pain-card,
+  .portfolio-placeholder,
+  .included-item,
+  .section-label {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
