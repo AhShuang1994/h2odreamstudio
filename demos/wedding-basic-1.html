@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HH &amp; MY — Protocol Archive</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&amp;display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<link id="all-fonts-link-font-geist" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-geist">.font-geist { font-family: 'Geist', sans-serif !important; }</style>
+    <style>html::-webkit-scrollbar{display:none}html{scrollbar-width:none}</style></head>
+<body class="bg-[#F4F2EC] font-['Inter'] antialiased selection:bg-amber-200 selection:text-amber-900 md:p-6 p-2 lg:p-8 text-stone-700">
+
+    <!-- Main Container with Gradient Border Treatment -->
+    <div class="max-w-[1600px] mx-auto rounded-[2rem] md:rounded-[2.5rem] shadow-[0_16px_40px_-12px_rgba(200,190,180,0.5)] min-h-[95vh] flex flex-col relative overflow-hidden" style="background: linear-gradient(#FCFBFA, #FCFBFA) padding-box, linear-gradient(135deg, rgba(217,119,6,0.4), rgba(217,119,6,0.05)) border-box; border: 1px solid transparent;">
+
+        <!-- Header / Navigation -->
+        <header class="grid grid-cols-2 md:grid-cols-12 p-6 md:px-8 items-center backdrop-blur-sm z-20 relative bg-white/40">
+            <div class="col-span-1 md:col-span-4">
+                <span class="text-xs uppercase tracking-[0.2em] font-normal font-geist text-stone-500">No. 001</span>
+            </div>
+            <div class="col-span-1 md:col-span-4 text-right md:text-center">
+                <span class="text-xs uppercase tracking-[0.2em] font-normal text-stone-700 font-geist">HH & MY</span>
+            </div>
+            <div class="hidden md:block col-span-4 text-right">
+                <span class="text-xs uppercase tracking-[0.2em] font-normal text-stone-700 font-geist">28.12.2026</span>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="grid grid-cols-1 md:grid-cols-12 min-h-[80vh] relative">
+            <!-- Aura Asset Background Image -->
+            <div class="absolute inset-0 z-0">
+                <img src="../assets/wedding/ZEN-1674.webp" alt="Hero Background" class="w-full h-full object-cover opacity-60 mix-blend-multiply pointer-events-none">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-br to-transparent pointer-events-none z-0 from-amber-50/10"></div>
+            
+            <div class="col-span-1 md:col-span-3 p-6 md:p-8 flex flex-col justify-end backdrop-blur-[2px] z-10 relative bg-white/10">
+                <div class="overflow-hidden mb-2">
+                    <p class="reveal-up text-xs uppercase tracking-[0.2em] font-normal translate-y-full font-geist text-stone-500">We're Getting Married</p>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="reveal-up text-xs uppercase tracking-[0.2em] font-normal translate-y-full text-stone-700 font-geist">Save the Date</p>
+                </div>
+            </div>
+            
+            <div class="col-span-1 md:col-span-9 p-6 md:p-16 flex flex-col justify-center relative z-10">
+                <div class="max-w-5xl relative">
+                    <!-- Floating ambient detail -->
+                    <div class="absolute -left-12 top-4 w-6 h-6 rounded-full hidden lg:flex items-center justify-center backdrop-blur-md bg-amber-50/50" style="background: linear-gradient(rgba(255,251,235,0.5), rgba(255,251,235,0.5)) padding-box, linear-gradient(135deg, rgba(217,119,6,0.5), transparent) border-box; border: 1px solid transparent;">
+                        <div class="w-1.5 h-1.5 bg-amber-600 rounded-full"></div>
+                    </div>
+                    
+                    <!-- Masked Staggered Word Reveal -->
+                    <h1 class="text-6xl md:text-8xl lg:text-9xl font-normal tracking-tighter leading-[0.85] flex flex-col items-start hero-title text-stone-700">
+                        <div class="overflow-hidden py-1 flex">
+                            <span class="block word-reveal translate-y-full mr-4 md:mr-6 font-geist font-semibold">Hui</span>
+                            <span class="block word-reveal translate-y-full font-geist font-semibold">Huang</span>
+                        </div>
+                        <div class="overflow-hidden py-1 flex">
+                            <span class="block word-reveal translate-y-full font-geist font-semibold text-amber-600">&</span>
+                        </div>
+                        <div class="overflow-hidden py-1 flex">
+                            <span class="block word-reveal translate-y-full font-geist font-semibold">Mayyi</span>
+                        </div>
+                    </h1>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline / Event Details -->
+        <section class="grid grid-cols-1 md:grid-cols-12 relative z-10">
+            <div class="col-span-1 md:col-span-3 p-6 md:p-8 bg-[#FDFCFB]/80 backdrop-blur-sm">
+                <div class="sticky top-8 overflow-hidden flex items-center gap-3">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                    <h2 class="reveal-up text-xs uppercase tracking-[0.2em] translate-y-full text-stone-700 font-geist font-semibold">01 / The Day</h2>
+                </div>
+            </div>
+
+            <div class="col-span-1 md:col-span-9 grid grid-cols-1 md:grid-cols-2">
+                <div class="p-6 md:p-16 flex flex-col justify-between aspect-square md:aspect-auto">
+                    <div class="overflow-hidden mb-12">
+                        <h3 class="reveal-up text-3xl md:text-4xl tracking-tight translate-y-full text-stone-700 font-geist font-semibold">December 28<br>2026</h3>
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="reveal-up text-sm font-light leading-relaxed max-w-sm translate-y-full font-geist text-stone-500">A Saturday we've chosen to begin forever. We'd love for you to be there when we say "I do."</p>
+                    </div>
+                </div>
+                <div class="p-6 md:p-16 flex flex-col justify-between aspect-square md:aspect-auto bg-[#FDFCFB]/80 backdrop-blur-sm">
+                    <div class="overflow-hidden mb-12">
+                        <h3 class="reveal-up text-3xl md:text-4xl tracking-tight translate-y-full text-stone-700 font-geist font-semibold">7:00 PM</h3>
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="reveal-up text-sm font-light leading-relaxed max-w-sm translate-y-full font-geist text-stone-500">Dinner reception and celebration. Smart casual attire. Come hungry, leave happy.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Location / Venue -->
+        <section class="grid grid-cols-1 md:grid-cols-12 relative z-10">
+            <div class="col-span-1 md:col-span-4 p-6 md:p-12 flex flex-col justify-between min-h-[50vh] bg-[#FDFCFB]/80 backdrop-blur-sm">
+                <div>
+                    <div class="overflow-hidden mb-16 flex items-center gap-3">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                        <h2 class="reveal-up text-xs uppercase tracking-[0.2em] translate-y-full text-stone-700 font-geist font-semibold">02 / Venue</h2>
+                    </div>
+                    <div class="overflow-hidden mb-6">
+                        <h3 class="reveal-up text-4xl md:text-5xl tracking-tight leading-[1.1] translate-y-full text-stone-700 font-geist font-semibold">The Majestic<br>Hotel KL</h3>
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="reveal-up text-sm font-light leading-relaxed max-w-xs translate-y-full font-geist text-stone-500">5, Jalan Sultan Hishamuddin, 50000 Kuala Lumpur. Colonial grandeur meets modern celebration — the Orchid Ballroom, Level 3.</p>
+                    </div>
+                </div>
+
+                <div class="overflow-hidden mt-16">
+                    <div class="reveal-up translate-y-full">
+                        <a href="https://maps.google.com/?q=The+Majestic+Hotel+Kuala+Lumpur" target="_blank" rel="noopener" class="group inline-flex items-center gap-4 text-xs uppercase tracking-[0.2em] font-normal transition-opacity hover:opacity-80 font-geist text-stone-500">
+                            <span class="w-10 h-10 rounded-full flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all shadow-sm bg-gray-50 text-stone-500" style="background: linear-gradient(#fffbeb, #fffbeb) padding-box, linear-gradient(135deg, rgba(217,119,6,0.4), transparent) border-box; border: 1px solid transparent;">
+                                <iconify-icon icon="solar:routing-2-linear" style="stroke-width: 1.5;" class="text-lg"></iconify-icon>
+                            </span>
+                            Get Directions
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-span-1 md:col-span-8 p-6 md:p-12 bg-[#FCFBFA]/80 backdrop-blur-sm">
+                <div class="w-full h-full min-h-[50vh] p-2 md:p-3 rounded-2xl md:rounded-[2rem] shadow-sm relative group bg-white" style="background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(135deg, rgba(217,119,6,0.3), transparent) border-box; border: 1px solid transparent;">
+                    <div class="w-full h-full rounded-xl md:rounded-[1.5rem] overflow-hidden relative bg-amber-50">
+                        <img src="../assets/wedding/ZEN-1852.webp" alt="Venue Spatial View" class="reveal-img w-full h-full object-cover grayscale opacity-0 scale-105 group-hover:scale-100 group-hover:grayscale-0 transition-all duration-1000 ease-out origin-bottom mix-blend-multiply">
+                        
+                        <div class="absolute top-4 right-4 backdrop-blur shadow-[0_4px_16px_-4px_rgba(0,0,0,0.05)] rounded-full px-4 py-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-300 bg-white/90" style="background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)) padding-box, linear-gradient(135deg, rgba(217,119,6,0.3), transparent) border-box; border: 1px solid transparent;">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse"></span>
+                            <span class="text-xs font-normal tracking-tight text-stone-700 font-geist">Orchid Ballroom</span>
+                        </div>
+
+                        <div class="absolute bottom-4 left-4 right-4 flex justify-between backdrop-blur-md px-4 py-2 rounded-full mx-4 shadow-sm bg-white/80 text-stone-500" style="background: linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)) padding-box, linear-gradient(135deg, rgba(217,119,6,0.3), transparent) border-box; border: 1px solid transparent;">
+                            <span class="text-xs uppercase tracking-[0.2em] font-normal text-stone-700 font-geist">Fig. 01</span>
+                            <span class="text-xs uppercase tracking-[0.2em] font-normal font-geist">Elevation</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visual Index -->
+        <section class="grid grid-cols-1 md:grid-cols-12 bg-[#FCFBFA]/80 backdrop-blur-sm relative z-10">
+            <div class="col-span-1 md:col-span-12 p-6 md:px-8 md:py-6 bg-[#FDFCFB]/90 flex items-center gap-3">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                <h2 class="text-xs uppercase tracking-[0.2em] text-stone-700 font-geist font-semibold">03 / Our Story</h2>
+            </div>
+            
+            <div class="col-span-12 grid grid-cols-1 md:grid-cols-2">
+                <!-- Image 1 -->
+                <div class="p-6 md:p-12 flex flex-col gap-4">
+                    <div class="aspect-[3/4] p-2 rounded-2xl shadow-sm relative group bg-white" style="background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(135deg, rgba(217,119,6,0.3), transparent) border-box; border: 1px solid transparent;">
+                        <div class="w-full h-full rounded-xl overflow-hidden relative bg-gray-50">
+                            <img src="../assets/wedding/ZEN-2120.webp" alt="First Date" class="reveal-img w-full h-full object-cover grayscale opacity-0 scale-105 group-hover:grayscale-0 transition-all duration-700 mix-blend-multiply">
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-xs uppercase tracking-[0.2em] font-normal px-2 text-stone-700">
+                        <span class="text-amber-600/80 font-geist">Fig. 01</span>
+                        <span class="font-geist">First Date</span>
+                    </div>
+                </div>
+                <!-- Image 2 -->
+                <div class="p-6 md:p-12 flex flex-col gap-4 bg-[#FDFCFB]/80 backdrop-blur-sm">
+                    <div class="aspect-[3/4] p-2 rounded-2xl shadow-sm relative group md:mt-16 bg-white" style="background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(135deg, rgba(217,119,6,0.3), transparent) border-box; border: 1px solid transparent;">
+                        <div class="w-full h-full rounded-xl overflow-hidden relative bg-gray-50">
+                            <img src="../assets/wedding/ZEN-1949.webp" alt="The Proposal" class="reveal-img w-full h-full object-cover grayscale opacity-0 scale-105 group-hover:grayscale-0 transition-all duration-700 mix-blend-multiply">
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-xs uppercase tracking-[0.2em] font-normal px-2 text-stone-700">
+                        <span class="text-amber-600/80 font-geist">Fig. 02</span>
+                        <span class="font-geist">The Proposal</span>
+                    </div>
+                </div>
+                <!-- Image 3 -->
+                <div class="p-6 md:p-12 flex flex-col gap-4 bg-[#FDFCFB]/80 backdrop-blur-sm">
+                    <div class="aspect-[3/4] p-2 rounded-2xl shadow-sm relative group md:-mt-16 bg-white" style="background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(135deg, rgba(217,119,6,0.3), transparent) border-box; border: 1px solid transparent;">
+                        <div class="w-full h-full rounded-xl overflow-hidden relative bg-gray-50">
+                            <img src="../assets/wedding/ZEN-1582.webp" alt="Pre-wedding" class="reveal-img w-full h-full object-cover grayscale opacity-0 scale-105 group-hover:grayscale-0 transition-all duration-700 mix-blend-multiply">
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-xs uppercase tracking-[0.2em] font-normal px-2 text-stone-700">
+                        <span class="text-amber-600/80 font-geist">Fig. 03</span>
+                        <span class="font-geist">Pre-Wedding</span>
+                    </div>
+                </div>
+                <!-- Image 4 -->
+                <div class="p-6 md:p-12 flex flex-col gap-4">
+                    <div class="aspect-[3/4] p-2 rounded-2xl shadow-sm relative group bg-white" style="background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(135deg, rgba(217,119,6,0.3), transparent) border-box; border: 1px solid transparent;">
+                        <div class="w-full h-full rounded-xl overflow-hidden relative bg-gray-50">
+                            <img src="../assets/wedding/ZEN-1787.webp" alt="Us, Always" class="reveal-img w-full h-full object-cover grayscale opacity-0 scale-105 group-hover:grayscale-0 transition-all duration-700 mix-blend-multiply">
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-xs uppercase tracking-[0.2em] font-normal px-2 text-stone-700">
+                        <span class="text-amber-600/80 font-geist">Fig. 04</span>
+                        <span class="font-geist">Us, Always</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA / Registration -->
+        <section class="py-32 px-6 md:px-12 flex flex-col items-center justify-center text-center relative bg-gradient-to-b from-transparent z-10 to-amber-50/40">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-16 bg-gradient-to-b to-transparent from-amber-200"></div>
+            
+            <div class="overflow-hidden mb-6 flex items-center gap-3">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                <h2 class="reveal-up text-xs uppercase tracking-[0.2em] translate-y-full text-stone-700 font-geist font-semibold">04 / RSVP</h2>
+            </div>
+
+            <div class="overflow-hidden mb-8">
+                <h3 class="reveal-up text-4xl md:text-5xl tracking-tight translate-y-full text-stone-700 font-geist font-semibold">Will You Be There?</h3>
+            </div>
+
+            <div class="overflow-hidden mb-16">
+                <p class="reveal-up text-sm font-light max-w-md mx-auto leading-relaxed translate-y-full font-geist text-stone-500">
+                    Kindly confirm your attendance by November 15, 2026 so we can save you the perfect seat. We can't wait to celebrate with you.
+                </p>
+            </div>
+
+            <div class="overflow-hidden">
+                <div class="reveal-up translate-y-full">
+                    <a href="#" class="group relative inline-flex items-center justify-center px-8 py-4 bg-amber-600 rounded-full overflow-hidden shadow-[0_8px_24px_-6px_rgba(180,83,9,0.4)] hover:shadow-[0_12px_28px_-6px_rgba(180,83,9,0.5)] transition-all duration-300 transform hover:-translate-y-0.5 text-white hover:bg-amber-700">
+                        <span class="text-xs uppercase tracking-[0.2em] font-normal flex items-center gap-3 font-geist text-white">
+                            Confirm Attendance
+                            <iconify-icon icon="solar:arrow-right-up-linear" style="stroke-width: 1.5;" class="text-lg"></iconify-icon>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="p-6 flex flex-col md:flex-row justify-between items-center gap-4 backdrop-blur-sm text-xs uppercase tracking-[0.2em] font-normal relative z-10 text-stone-700 bg-white/40">
+            <div class="font-geist">Hui Huang & Mayyi · 28.12.2026</div>
+            <div class="flex items-center gap-2 font-geist">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse"></span>
+                Made with Love
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Standard Text Line Reveals
+        const revealTexts = document.querySelectorAll('.reveal-up');
+        revealTexts.forEach(el => {
+            gsap.to(el, {
+                scrollTrigger: {
+                    trigger: el.closest('.overflow-hidden'),
+                    start: "top 95%",
+                },
+                y: "0%",
+                duration: 1.2,
+                ease: "power4.out"
+            });
+        });
+
+        // Masked Staggered Word Reveal (Hero)
+        gsap.to('.word-reveal', {
+            scrollTrigger: {
+                trigger: '.hero-title',
+                start: "top 90%",
+            },
+            y: "0%",
+            duration: 1.2,
+            stagger: 0.1,
+            ease: "power4.out"
+        });
+
+        // Image Settle Reveals
+        const revealImages = document.querySelectorAll('.reveal-img');
+        revealImages.forEach(img => {
+            gsap.to(img, {
+                scrollTrigger: {
+                    trigger: img.parentElement,
+                    start: "top 85%",
+                },
+                opacity: 1,
+                scale: 1,
+                duration: 2,
+                ease: "expo.out"
+            });
+        });
+    </script>
+
+
+</body></html>

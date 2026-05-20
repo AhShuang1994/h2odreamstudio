@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hui Huang & Mayyi | 08.08.2027</title>
+    
+    <!-- Fonts: Playfair Display & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<!-- 
+  Theme Colors:
+  bg: #0A1628
+  text: #F5F0E8
+  accent: #D4AF37
+-->
+<style>::-webkit-scrollbar{display:none}html{scrollbar-width:none;-ms-overflow-style:none}</style>
+<body class="bg-[#0A1628] text-[#F5F0E8] font-['Inter',sans-serif] font-light antialiased m-0 p-0 overflow-x-hidden selection:bg-[#D4AF37]/30 selection:text-white relative" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.03%22/%3E%3C/svg%3E'); background-attachment: fixed;">
+
+    <!-- Audio Element -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://assets.mixkit.co/music/657/657.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Floating Music Toggle -->
+    <button id="music-toggle" class="fixed bottom-6 right-6 md:bottom-8 md:right-10 z-50 w-12 h-12 rounded-full bg-white/5 backdrop-blur-md border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] transition-all hover:bg-white/10 hover:scale-105 hover:border-[#D4AF37]/60 shadow-[0_0_20px_rgba(212,175,55,0.15)] group" aria-label="Toggle Music">
+        <iconify-icon icon="solar:music-note-linear" stroke-width="1.5" class="text-xl group-[.playing]:hidden"></iconify-icon>
+        <iconify-icon icon="solar:pause-linear" stroke-width="1.5" class="text-xl hidden group-[.playing]:block"></iconify-icon>
+    </button>
+
+    <main class="w-full relative">
+        
+        <!-- HERO SECTION -->
+        <section class="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden px-6 md:px-20">
+            <!-- Background Image -->
+            <div id="hero-bg" class="absolute inset-0 bg-cover w-full h-[120%] -top-[10%]"
+                 style="background-image: url('../assets/wedding/ZEN-1852.webp'); background-position: center 26%;">
+            </div>
+            <!-- Gradient Overlay -->
+            <div class="absolute inset-0 z-10" style="background: linear-gradient(to bottom, rgba(10,22,40,0.4) 0%, rgba(10,22,40,0.95) 100%);"></div>
+            <!-- Sparkle Canvas -->
+            <canvas id="sparkles-canvas" class="absolute inset-0 z-20 pointer-events-none w-full h-full opacity-80"></canvas>
+
+            <!-- Hero Content -->
+            <div class="relative z-30 flex flex-col items-center text-center pt-12 pb-8 w-full max-w-4xl">
+                <p class="text-[#D4AF37] text-xs md:text-sm uppercase tracking-[0.2em] font-medium mb-6 fade-up-item">We Joyfully Announce</p>
+                <h1 class="font-['Playfair_Display',serif] font-semibold text-5xl md:text-7xl text-[#D4AF37] tracking-tight mb-8 drop-shadow-lg mask-text">Hui Huang & Mayyi</h1>
+                
+                <div class="flex items-center gap-4 mb-10 fade-up-item">
+                    <div class="h-px w-12 bg-[#D4AF37]/50"></div>
+                    <p class="text-sm md:text-base tracking-[0.1em] text-white/90">08 · 08 · 2027</p>
+                    <div class="h-px w-12 bg-[#D4AF37]/50"></div>
+                </div>
+
+                <!-- Countdown -->
+                <div class="grid grid-cols-4 gap-4 md:gap-12 w-full max-w-2xl px-4 fade-up-item">
+                    <div class="flex flex-col items-center p-4 bg-white/5 backdrop-blur-sm border border-[#D4AF37]/20 rounded-xl">
+                        <span id="cd-days" class="font-['Playfair_Display',serif] text-3xl md:text-5xl text-[#D4AF37] mb-1">00</span>
+                        <span class="text-[10px] md:text-xs uppercase tracking-[0.15em] text-white/60">Days</span>
+                    </div>
+                    <div class="flex flex-col items-center p-4 bg-white/5 backdrop-blur-sm border border-[#D4AF37]/20 rounded-xl">
+                        <span id="cd-hours" class="font-['Playfair_Display',serif] text-3xl md:text-5xl text-[#D4AF37] mb-1">00</span>
+                        <span class="text-[10px] md:text-xs uppercase tracking-[0.15em] text-white/60">Hours</span>
+                    </div>
+                    <div class="flex flex-col items-center p-4 bg-white/5 backdrop-blur-sm border border-[#D4AF37]/20 rounded-xl">
+                        <span id="cd-minutes" class="font-['Playfair_Display',serif] text-3xl md:text-5xl text-[#D4AF37] mb-1">00</span>
+                        <span class="text-[10px] md:text-xs uppercase tracking-[0.15em] text-white/60">Minutes</span>
+                    </div>
+                    <div class="flex flex-col items-center p-4 bg-white/5 backdrop-blur-sm border border-[#D4AF37]/20 rounded-xl">
+                        <span id="cd-seconds" class="font-['Playfair_Display',serif] text-3xl md:text-5xl text-[#D4AF37] mb-1">00</span>
+                        <span class="text-[10px] md:text-xs uppercase tracking-[0.15em] text-white/60">Seconds</span>
+                    </div>
+                </div>
+                
+                <div class="mt-12 animate-bounce fade-up-item">
+                    <iconify-icon icon="solar:arrow-down-linear" stroke-width="1.5" class="text-2xl text-[#D4AF37]/70"></iconify-icon>
+                </div>
+            </div>
+        </section>
+
+        <!-- STORY SECTION -->
+        <section class="w-full py-24 md:py-32 px-6 md:px-20 relative z-10">
+            <div class="max-w-5xl mx-auto flex flex-col items-center">
+                <div class="text-center mb-20">
+                    <p class="text-[#D4AF37] text-xs uppercase tracking-[0.2em] font-medium mb-4 fade-up-item">The Journey</p>
+                    <h2 class="font-['Playfair_Display',serif] font-medium text-4xl md:text-5xl tracking-tight mask-text">Our Love Story</h2>
+                </div>
+
+                <!-- Vertical Timeline Container -->
+                <div class="relative w-full max-w-4xl">
+                    <!-- Center Line -->
+                    <div class="absolute left-[24px] md:left-1/2 top-0 bottom-0 w-px -translate-x-1/2" style="background: linear-gradient(to bottom, transparent, rgba(212,175,55,0.3) 10%, rgba(212,175,55,0.3) 90%, transparent);"></div>
+
+                    <!-- Milestone 1 -->
+                    <div class="relative flex flex-col md:flex-row items-start md:items-center justify-between mb-24 md:mb-32 w-full pl-[56px] md:pl-0 group timeline-item">
+                        <!-- Node -->
+                        <div class="absolute left-[24px] md:left-1/2 top-0 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-3 h-3 rounded-full bg-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.8)] z-10 transition-transform duration-500 group-hover:scale-150"></div>
+                        
+                        <div class="w-full md:w-[42%] mb-6 md:mb-0 text-left md:text-right pr-0 md:pr-10">
+                            <h3 class="font-['Playfair_Display',serif] font-medium text-2xl mb-2 text-[#D4AF37]">When We First Met</h3>
+                            <p class="text-xs uppercase tracking-widest text-white/50 mb-4">March 2022</p>
+                            <p class="text-sm md:text-base text-white/70 leading-relaxed">A mutual friend's gathering turned into something neither of us expected. We talked until the last person left, and then kept talking in the parking lot for another hour.</p>
+                        </div>
+                        <div class="w-full md:w-[42%] pl-0 md:pl-10">
+                            <div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden border border-white/10 group-hover:border-[#D4AF37]/30 transition-colors duration-500">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105" style="background-image: url('../assets/wedding/ZEN-1574.webp');"></div>
+                                <div class="absolute inset-0 bg-[#0A1628]/20 group-hover:bg-transparent transition-colors duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 2 -->
+                    <div class="relative flex flex-col md:flex-row-reverse items-start md:items-center justify-between mb-24 md:mb-32 w-full pl-[56px] md:pl-0 group timeline-item">
+                        <div class="absolute left-[24px] md:left-1/2 top-0 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-3 h-3 rounded-full bg-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.8)] z-10 transition-transform duration-500 group-hover:scale-150"></div>
+
+                        <div class="w-full md:w-[42%] mb-6 md:mb-0 text-left pl-0 md:pl-10">
+                            <h3 class="font-['Playfair_Display',serif] font-medium text-2xl mb-2 text-[#D4AF37]">The Proposal</h3>
+                            <p class="text-xs uppercase tracking-widest text-white/50 mb-4">January 2027</p>
+                            <p class="text-sm md:text-base text-white/70 leading-relaxed">On a quiet rooftop overlooking the city lights, he got down on one knee with the ring he'd been hiding for weeks. She said yes before he even finished the question.</p>
+                        </div>
+                        <div class="w-full md:w-[42%] pr-0 md:pr-10">
+                            <div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden border border-white/10 group-hover:border-[#D4AF37]/30 transition-colors duration-500">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105" style="background-image: url('../assets/wedding/ZEN-1949.webp');"></div>
+                                <div class="absolute inset-0 bg-[#0A1628]/20 group-hover:bg-transparent transition-colors duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- EVENT DETAILS SECTION -->
+        <section class="w-full py-24 md:py-32 px-6 md:px-20 relative z-10 bg-[#0A1628]/80 backdrop-blur-sm">
+            <div class="max-w-6xl mx-auto flex flex-col items-center">
+                <div class="text-center mb-16 md:mb-24">
+                    <p class="text-[#D4AF37] text-xs uppercase tracking-[0.2em] font-medium mb-4 fade-up-item">The Details</p>
+                    <h2 class="font-['Playfair_Display',serif] font-medium text-4xl md:text-5xl tracking-tight mask-text">Celebrate With Us</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 w-full">
+                    
+                    <!-- Card 1 (Holy Ceremony) -->
+                    <div class="relative group fade-up-item h-full">
+                        <!-- Border Gradient Wrapper -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/40 via-transparent to-[#D4AF37]/10 rounded-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <!-- Glass Content -->
+                        <div class="relative h-full m-[1px] bg-[#0A1628]/90 backdrop-blur-xl rounded-2xl p-8 md:p-12 flex flex-col border border-white/5">
+                            <iconify-icon icon="solar:church-linear" stroke-width="1.5" class="text-4xl text-[#D4AF37] mb-6"></iconify-icon>
+                            <h3 class="font-['Playfair_Display',serif] font-medium text-3xl mb-2">Holy Ceremony</h3>
+                            <div class="w-12 h-px bg-[#D4AF37]/50 mb-8 mt-4"></div>
+
+                            <div class="space-y-6 flex-grow text-white/80 text-sm md:text-base">
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-widest text-[#D4AF37] mb-1">Time</p>
+                                    <p>10:00 AM — 12:00 PM</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-widest text-[#D4AF37] mb-1">Venue</p>
+                                    <p>The RuMa Hotel and Residences<br>7 Jalan Kia Peng, Kuala Lumpur</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-widest text-[#D4AF37] mb-1">Dress Code</p>
+                                    <p>Morning Suits or Formal Daywear</p>
+                                </div>
+                            </div>
+
+                            <a href="#" class="inline-flex items-center gap-3 mt-12 text-sm tracking-widest uppercase text-[#D4AF37] hover:text-white transition-colors group/link w-max">
+                                <span>Get Directions</span>
+                                <iconify-icon icon="solar:arrow-right-linear" class="text-lg group-hover/link:translate-x-2 transition-transform"></iconify-icon>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 (Dinner Reception) -->
+                    <div class="relative group fade-up-item h-full">
+                        <div class="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/40 via-transparent to-[#D4AF37]/10 rounded-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="relative h-full m-[1px] bg-[#0A1628]/90 backdrop-blur-xl rounded-2xl p-8 md:p-12 flex flex-col border border-white/5">
+                            <iconify-icon icon="solar:glass-water-linear" stroke-width="1.5" class="text-4xl text-[#D4AF37] mb-6"></iconify-icon>
+                            <h3 class="font-['Playfair_Display',serif] font-medium text-3xl mb-2">Dinner Reception</h3>
+                            <div class="w-12 h-px bg-[#D4AF37]/50 mb-8 mt-4"></div>
+                            
+                            <div class="space-y-6 flex-grow text-white/80 text-sm md:text-base">
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-widest text-[#D4AF37] mb-1">Time</p>
+                                    <p>6:30 PM — Midnight</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-widest text-[#D4AF37] mb-1">Venue</p>
+                                    <p>Grand Ballroom, The RuMa<br>Level 2</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-widest text-[#D4AF37] mb-1">Dress Code</p>
+                                    <p>Black Tie / Evening Gowns</p>
+                                </div>
+                            </div>
+
+                            <a href="#" class="inline-flex items-center gap-3 mt-12 text-sm tracking-widest uppercase text-[#D4AF37] hover:text-white transition-colors group/link w-max">
+                                <span>Get Directions</span>
+                                <iconify-icon icon="solar:arrow-right-linear" class="text-lg group-hover/link:translate-x-2 transition-transform"></iconify-icon>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- RSVP SECTION -->
+        <section class="w-full py-24 md:py-32 px-6 md:px-20 relative z-10 flex justify-center">
+            <div class="relative w-full max-w-2xl group fade-up-item">
+                <div class="absolute inset-0 bg-gradient-to-b from-[#D4AF37]/20 to-transparent rounded-3xl opacity-30"></div>
+                
+                <div class="relative m-[1px] bg-white/5 backdrop-blur-2xl rounded-3xl p-8 md:p-16 border border-white/10 shadow-2xl">
+                    <div class="text-center mb-12">
+                        <h2 class="font-['Playfair_Display',serif] font-medium text-4xl md:text-5xl tracking-tight mb-4">RSVP</h2>
+                        <p class="text-sm text-white/60">Kindly reply by the 1st of July, 2027</p>
+                    </div>
+
+                    <form onsubmit="event.preventDefault(); alert('Form submitted virtually!');" class="space-y-8">
+                        
+                        <!-- Name -->
+                        <div class="relative">
+                            <input type="text" id="name" required class="w-full bg-transparent border-b border-white/20 py-3 text-white text-base focus:outline-none focus:border-[#D4AF37] transition-colors peer placeholder-transparent" placeholder="Full Name">
+                            <label for="name" class="absolute left-0 top-3 text-white/50 text-sm transition-all peer-focus:-top-4 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-valid:-top-4 peer-valid:text-xs peer-valid:text-white/50 cursor-text">Full Name</label>
+                        </div>
+
+                        <!-- Guests -->
+                        <div class="relative pt-4">
+                            <label class="block text-xs uppercase tracking-widest text-white/50 mb-3">Number of Guests</label>
+                            <div class="flex gap-4">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="guests" value="1" class="peer sr-only" checked>
+                                    <div class="w-full text-center py-3 border border-white/20 rounded-lg peer-checked:border-[#D4AF37] peer-checked:bg-[#D4AF37]/10 text-white/70 peer-checked:text-[#D4AF37] transition-all">1</div>
+                                </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="guests" value="2" class="peer sr-only">
+                                    <div class="w-full text-center py-3 border border-white/20 rounded-lg peer-checked:border-[#D4AF37] peer-checked:bg-[#D4AF37]/10 text-white/70 peer-checked:text-[#D4AF37] transition-all">2</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Attendance -->
+                        <div class="relative pt-4">
+                            <label class="block text-xs uppercase tracking-widest text-white/50 mb-3">Attendance</label>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="attendance" value="accept" class="peer sr-only" checked>
+                                    <div class="w-full py-3 px-4 border border-white/20 rounded-lg peer-checked:border-[#D4AF37] peer-checked:bg-[#D4AF37]/10 flex items-center justify-between transition-all group">
+                                        <span class="text-sm text-white/70 group-peer-checked:text-white">Joyfully Accept</span>
+                                        <div class="w-4 h-4 rounded-full border border-white/40 flex items-center justify-center group-peer-checked:border-[#D4AF37]">
+                                            <div class="w-2 h-2 rounded-full bg-[#D4AF37] opacity-0 group-peer-checked:opacity-100 transition-opacity"></div>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="attendance" value="decline" class="peer sr-only">
+                                    <div class="w-full py-3 px-4 border border-white/20 rounded-lg peer-checked:border-[#D4AF37] peer-checked:bg-[#D4AF37]/10 flex items-center justify-between transition-all group">
+                                        <span class="text-sm text-white/70 group-peer-checked:text-white">Regretfully Decline</span>
+                                        <div class="w-4 h-4 rounded-full border border-white/40 flex items-center justify-center group-peer-checked:border-[#D4AF37]">
+                                            <div class="w-2 h-2 rounded-full bg-[#D4AF37] opacity-0 group-peer-checked:opacity-100 transition-opacity"></div>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Dietary -->
+                        <div class="relative pt-2">
+                            <input type="text" id="dietary" class="w-full bg-transparent border-b border-white/20 py-3 text-white text-base focus:outline-none focus:border-[#D4AF37] transition-colors peer placeholder-transparent" placeholder="Dietary Restrictions (Optional)">
+                            <label for="dietary" class="absolute left-0 top-5 text-white/50 text-sm transition-all peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-valid:-top-2 peer-valid:text-xs peer-valid:text-white/50 cursor-text">Dietary Restrictions (Optional)</label>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="pt-8 text-center">
+                            <button type="submit" class="relative overflow-hidden w-full md:w-auto px-12 py-4 bg-transparent border border-[#D4AF37] text-[#D4AF37] text-sm uppercase tracking-widest font-medium group transition-colors hover:text-[#0A1628]">
+                                <span class="relative z-10">Send My Reply</span>
+                                <div class="absolute inset-0 bg-[#D4AF37] translate-y-[101%] group-hover:translate-y-0 transition-transform duration-300 ease-out z-0"></div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- GALLERY SECTION -->
+        <section class="w-full py-24 md:py-32 px-4 md:px-12 relative z-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16 md:mb-24">
+                    <p class="text-[#D4AF37] text-xs uppercase tracking-[0.2em] font-medium mb-4 fade-up-item">Moments</p>
+                    <h2 class="font-['Playfair_Display',serif] font-medium text-4xl md:text-5xl tracking-tight mask-text">Our Gallery</h2>
+                </div>
+
+                <!-- Responsive Grid: 1 col mobile, 3 cols desktop -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                    
+                    <div class="aspect-[4/5] rounded-xl overflow-hidden group relative fade-up-item">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110" style="background-image: url('../assets/wedding/ZEN-1625.webp');"></div>
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500"></div>
+                    </div>
+
+                    <div class="aspect-[4/5] rounded-xl overflow-hidden group relative fade-up-item">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110" style="background-image: url('../assets/wedding/ZEN-1582.webp');"></div>
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500"></div>
+                    </div>
+
+                    <div class="aspect-[4/5] rounded-xl overflow-hidden group relative fade-up-item">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110" style="background-image: url('../assets/wedding/ZEN-2178.webp');"></div>
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500"></div>
+                    </div>
+
+                    <div class="aspect-[4/5] rounded-xl overflow-hidden group relative fade-up-item">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110" style="background-image: url('../assets/wedding/ZEN-1834.webp');"></div>
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500"></div>
+                    </div>
+
+                    <div class="aspect-[4/5] rounded-xl overflow-hidden group relative fade-up-item">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110" style="background-image: url('../assets/wedding/ZEN-1927.webp');"></div>
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500"></div>
+                    </div>
+
+                    <div class="aspect-[4/5] rounded-xl overflow-hidden group relative fade-up-item">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110" style="background-image: url('../assets/wedding/ZEN-2120.webp');"></div>
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500"></div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="w-full py-12 border-t border-white/5 relative z-10 bg-[#0A1628]">
+            <div class="flex flex-col items-center justify-center gap-4">
+                <p class="font-['Playfair_Display',serif] text-xl md:text-2xl text-[#D4AF37] tracking-wider">#HuiHuangAndMayyi2027</p>
+                <p class="text-xs text-white/40 uppercase tracking-widest">Made with <span class="text-[#D4AF37]">♥</span></p>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Script Logic -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // --- 1. Utilities for Masked Text Reveal (Without Premium Plugins) ---
+            const splitTextElements = document.querySelectorAll('.mask-text');
+            
+            splitTextElements.forEach(el => {
+                const text = el.innerText;
+                const words = text.split(' ');
+                el.innerHTML = '';
+                
+                words.forEach((word, i) => {
+                    // Create an inline-block wrapper that hides overflow
+                    const wrapper = document.createElement('span');
+                    wrapper.className = 'inline-block overflow-hidden pb-2 mr-2 md:mr-3';
+                    
+                    // Create the inner text element that will be animated
+                    const inner = document.createElement('span');
+                    inner.className = 'inline-block translate-y-[110%] reveal-word';
+                    inner.innerText = word;
+                    
+                    wrapper.appendChild(inner);
+                    el.appendChild(wrapper);
+                });
+            });
+
+            // --- 2. GSAP Animations ---
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Animate masked text reveals on scroll
+            const headings = document.querySelectorAll('.mask-text');
+            headings.forEach(heading => {
+                const words = heading.querySelectorAll('.reveal-word');
+                gsap.to(words, {
+                    scrollTrigger: {
+                        trigger: heading,
+                        start: "top 85%",
+                    },
+                    y: "0%",
+                    duration: 0.8,
+                    stagger: 0.1,
+                    ease: "power3.out"
+                });
+            });
+
+            // Generic fade-up staggered animations
+            const fadeItems = document.querySelectorAll('.fade-up-item');
+            fadeItems.forEach(item => {
+                gsap.fromTo(item, 
+                    { y: 30, opacity: 0 },
+                    {
+                        scrollTrigger: {
+                            trigger: item,
+                            start: "top 90%",
+                        },
+                        y: 0,
+                        opacity: 1,
+                        duration: 1,
+                        ease: "power2.out"
+                    }
+                );
+            });
+
+            // Timeline line draw and nodes fade
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            timelineItems.forEach((item, index) => {
+                gsap.fromTo(item, 
+                    { opacity: 0, x: index % 2 === 0 ? -30 : 30 },
+                    {
+                        scrollTrigger: {
+                            trigger: item,
+                            start: "top 80%",
+                        },
+                        opacity: 1,
+                        x: 0,
+                        duration: 1,
+                        ease: "power2.out"
+                    }
+                );
+            });
+
+            // Hero Parallax Background
+            gsap.to("#hero-bg", {
+                scrollTrigger: {
+                    trigger: "body",
+                    start: "top top",
+                    end: "bottom top",
+                    scrub: true
+                },
+                y: "20%",
+                ease: "none"
+            });
+
+            // --- 3. Live Countdown Timer ---
+            const targetDate = new Date('2027-08-08T00:00:00').getTime();
+            
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+
+                if (distance < 0) return; // Stop if date passed
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById('cd-days').innerText = String(days).padStart(2, '0');
+                document.getElementById('cd-hours').innerText = String(hours).padStart(2, '0');
+                document.getElementById('cd-minutes').innerText = String(minutes).padStart(2, '0');
+                document.getElementById('cd-seconds').innerText = String(seconds).padStart(2, '0');
+            }
+            
+            setInterval(updateCountdown, 1000);
+            updateCountdown(); // initial call
+
+            // --- 4. Audio Toggle Logic ---
+            const audio = document.getElementById('bg-music');
+            const toggleBtn = document.getElementById('music-toggle');
+            let isPlaying = false;
+
+            toggleBtn.addEventListener('click', () => {
+                if (isPlaying) {
+                    audio.pause();
+                    toggleBtn.classList.remove('playing');
+                } else {
+                    audio.play().catch(e => console.log("Audio play blocked by browser."));
+                    toggleBtn.classList.add('playing');
+                }
+                isPlaying = !isPlaying;
+            });
+
+            // --- 5. Three.js Subtle Gold Sparkles ---
+            initThreeJS();
+
+        });
+
+        function initThreeJS() {
+            const canvas = document.getElementById('sparkles-canvas');
+            if (!canvas) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 15;
+
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            // Create low-density particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particleCount = window.innerWidth < 768 ? 20 : 40; // Less on mobile
+            const posArray = new Float32Array(particleCount * 3);
+            const speedArray = new Float32Array(particleCount); // custom attribute for slight variation
+
+            for(let i = 0; i < particleCount; i++) {
+                // X: spread across screen
+                posArray[i*3] = (Math.random() - 0.5) * 40;
+                // Y: spread vertically
+                posArray[i*3+1] = (Math.random() - 0.5) * 40;
+                // Z: depth variation
+                posArray[i*3+2] = (Math.random() - 0.5) * 10;
+                
+                speedArray[i] = Math.random() * 0.02 + 0.005;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            particlesGeometry.setAttribute('aSpeed', new THREE.BufferAttribute(speedArray, 1));
+
+            // Create circular texture procedurally for particles
+            const createCircleTexture = () => {
+                const size = 64;
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const context = canvas.getContext('2d');
+                
+                context.beginPath();
+                context.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+                context.fillStyle = '#ffffff';
+                context.fill();
+                
+                return new THREE.CanvasTexture(canvas);
+            };
+
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.15,
+                color: 0xD4AF37, // Champagne Gold
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending,
+                map: createCircleTexture(),
+                depthWrite: false
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+
+            const clock = new THREE.Clock();
+            
+            // Mouse tracking for subtle parallax
+            let mouseX = 0;
+            let mouseY = 0;
+            
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            });
+
+            function animate() {
+                requestAnimationFrame(animate);
+                const elapsedTime = clock.getElapsedTime();
+
+                // Drift upwards slowly
+                const positions = particlesGeometry.attributes.position.array;
+                const speeds = particlesGeometry.attributes.aSpeed.array;
+
+                for(let i = 0; i < particleCount; i++) {
+                    let yIndex = i * 3 + 1;
+                    let xIndex = i * 3;
+                    
+                    // Move up
+                    positions[yIndex] += speeds[i];
+                    
+                    // Slight sine wave sway
+                    positions[xIndex] += Math.sin(elapsedTime * 0.5 + i) * 0.005;
+
+                    // Reset if too high
+                    if(positions[yIndex] > 20) {
+                        positions[yIndex] = -20;
+                        positions[xIndex] = (Math.random() - 0.5) * 40;
+                    }
+                }
+                particlesGeometry.attributes.position.needsUpdate = true;
+
+                // Subtle camera movement based on mouse
+                camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
+                camera.position.y += (mouseY * 2 - camera.position.y) * 0.05;
+                camera.lookAt(scene.position);
+
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // Resize handling
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+    </script>
+</body>
+</html>
