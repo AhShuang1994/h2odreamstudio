@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MUSE Apparel — SS27 Collection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #F8F6F3;
+      --text: #111111;
+      --gold: #B8965A;
+      --gold-light: #D4B97C;
+      --gold-dark: #9A7A45;
+      --white: #FFFFFF;
+      --gray-100: #F0EDEA;
+      --gray-200: #E5E0DA;
+      --gray-400: #A09890;
+      --gray-600: #6B6460;
+      --pastel-pink: #F5EDE8;
+      --font-heading: 'Playfair Display', Georgia, serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ── Announcement Bar ── */
+    .announcement-bar {
+      background: var(--text);
+      color: var(--white);
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* ── Header / Nav ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .header-nav a {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .header-nav a:hover { color: var(--gold); }
+
+    .logo {
+      font-family: var(--font-heading);
+      font-size: 28px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .header-icons button {
+      background: none;
+      border: none;
+      color: var(--text);
+      padding: 4px;
+    }
+
+    .header-icons svg { width: 20px; height: 20px; }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      height: 90vh;
+      min-height: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      background: #D5CEC6;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(17,17,17,0.35);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      color: var(--white);
+      max-width: 700px;
+      padding: 0 24px;
+    }
+
+    .hero-subtitle {
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 400;
+      margin-bottom: 20px;
+      opacity: 0.85;
+    }
+
+    .hero-title {
+      font-family: var(--font-heading);
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    .hero-desc {
+      font-size: 15px;
+      font-weight: 300;
+      opacity: 0.8;
+      margin-bottom: 36px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--white);
+      color: var(--text);
+      padding: 16px 48px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: none;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .btn-primary:hover {
+      background: var(--gold);
+      color: var(--white);
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: var(--white);
+      border: none;
+    }
+
+    .btn-gold:hover {
+      background: var(--gold-dark);
+      color: var(--white);
+    }
+
+    .btn-outline {
+      display: inline-block;
+      background: transparent;
+      color: var(--text);
+      padding: 14px 40px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: 1px solid var(--text);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .btn-outline:hover {
+      background: var(--text);
+      color: var(--white);
+    }
+
+    /* ── Section Commons ── */
+    .section {
+      padding: 80px 48px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-label {
+      font-size: 12px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: clamp(28px, 3vw, 40px);
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .section-divider {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      margin: 16px auto 0;
+    }
+
+    /* ── Featured Collections ── */
+    .collections-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .collection-card {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+      background: var(--gray-200);
+    }
+
+    .collection-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+
+    .collection-card:hover .collection-card-img {
+      transform: scale(1.05);
+    }
+
+    .collection-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 50%, rgba(17,17,17,0.6) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 32px;
+    }
+
+    .collection-card-title {
+      font-family: var(--font-heading);
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .collection-card-link {
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--white);
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .collection-card-link:hover { opacity: 1; }
+
+    /* ── Product Grid ── */
+    .products-section { background: var(--white); }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .product-card { text-align: center; }
+
+    .product-image {
+      aspect-ratio: 3/4;
+      background: var(--gray-100);
+      margin-bottom: 16px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .product-card:hover .product-image img {
+      transform: scale(1.03);
+    }
+
+    .product-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--gold);
+      color: var(--white);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      z-index: 2;
+    }
+
+    .product-name {
+      font-size: 15px;
+      font-weight: 400;
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    .product-price {
+      font-size: 14px;
+      color: var(--gray-600);
+      margin-bottom: 14px;
+    }
+
+    .product-price .original {
+      text-decoration: line-through;
+      margin-right: 8px;
+      color: var(--gray-400);
+    }
+
+    .btn-add-cart {
+      display: inline-block;
+      background: transparent;
+      color: var(--text);
+      padding: 10px 28px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border: 1px solid var(--text);
+      transition: all 0.3s;
+    }
+
+    .btn-add-cart:hover {
+      background: var(--text);
+      color: var(--white);
+    }
+
+    /* ── Free Shipping Banner ── */
+    .banner {
+      background: var(--pastel-pink);
+      text-align: center;
+      padding: 48px 24px;
+    }
+
+    .banner-icon {
+      margin-bottom: 12px;
+    }
+
+    .banner-icon svg {
+      width: 32px;
+      height: 32px;
+      color: var(--gold);
+    }
+
+    .banner-title {
+      font-family: var(--font-heading);
+      font-size: 24px;
+      font-weight: 400;
+      margin-bottom: 8px;
+    }
+
+    .banner-text {
+      font-size: 14px;
+      color: var(--gray-600);
+      font-weight: 300;
+    }
+
+    /* ── Testimonials ── */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .testimonial-card {
+      text-align: center;
+      padding: 0 16px;
+    }
+
+    .testimonial-stars {
+      color: var(--gold);
+      font-size: 14px;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+
+    .testimonial-text {
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--gray-600);
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .testimonial-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--gray-200);
+      margin: 0 auto 10px;
+      object-fit: cover;
+    }
+
+    .testimonial-name {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .testimonial-location {
+      font-size: 12px;
+      color: var(--gray-400);
+    }
+
+    /* ── Newsletter ── */
+    .newsletter {
+      background: var(--text);
+      color: var(--white);
+      text-align: center;
+      padding: 80px 24px;
+    }
+
+    .newsletter .section-label { color: var(--gold-light); }
+
+    .newsletter .section-title {
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+
+    .newsletter-desc {
+      font-size: 14px;
+      font-weight: 300;
+      opacity: 0.7;
+      margin-bottom: 32px;
+    }
+
+    .newsletter-form {
+      display: flex;
+      gap: 0;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .newsletter-input {
+      flex: 1;
+      padding: 14px 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .newsletter-input::placeholder { color: rgba(255,255,255,0.4); }
+    .newsletter-input:focus { border-color: var(--gold); }
+
+    .newsletter-btn {
+      padding: 14px 32px;
+      background: var(--gold);
+      color: var(--white);
+      border: 1px solid var(--gold);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .newsletter-btn:hover { background: var(--gold-dark); }
+
+    .newsletter-note {
+      font-size: 11px;
+      opacity: 0.4;
+      margin-top: 12px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      background: var(--text);
+      color: rgba(255,255,255,0.6);
+      padding: 48px 48px 32px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      max-width: 1200px;
+      margin: 0 auto 40px;
+    }
+
+    .footer-brand-name {
+      font-family: var(--font-heading);
+      font-size: 20px;
+      color: var(--white);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .footer-brand-desc {
+      font-size: 13px;
+      line-height: 1.7;
+      max-width: 280px;
+    }
+
+    .footer-col-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 16px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--gold-light); }
+
+    .footer-social {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .footer-social a {
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.3s, color 0.3s;
+    }
+
+    .footer-social a:hover {
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+
+    .footer-social svg { width: 16px; height: 16px; }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .payment-icons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .payment-icon {
+      background: rgba(255,255,255,0.1);
+      padding: 4px 10px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .section { padding: 64px 32px; }
+      .header { padding: 16px 24px; }
+    }
+
+    @media (max-width: 768px) {
+      .header-nav { display: none; }
+      .section { padding: 48px 20px; }
+      .hero { height: 70vh; min-height: 480px; }
+
+      .collections-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .collection-card { aspect-ratio: 4/3; }
+
+      .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .newsletter-form {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .newsletter-btn { width: 100%; }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .products-grid {
+        grid-template-columns: 1fr;
+        max-width: 320px;
+        margin: 0 auto;
+      }
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Animations ── */
+    @media (prefers-reduced-motion: no-preference) {
+      .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+      }
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    Free Shipping on Orders Above RM200 &nbsp;&bull;&nbsp; Use Code: <strong>MUSE10</strong> for 10% Off
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <nav>
+      <ul class="header-nav">
+        <li><a href="#collections">New In</a></li>
+        <li><a href="#products">Shop</a></li>
+        <li><a href="#collections">Collections</a></li>
+      </ul>
+    </nav>
+    <a href="#" class="logo">Muse</a>
+    <div class="header-icons">
+      <button aria-label="Search">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+      </button>
+      <button aria-label="Account">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
+      </button>
+      <button aria-label="Cart">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <img class="hero-bg" src="https://images.unsplash.com/photo-1587003484867-ba695bd4e4ac?w=1600&h=900&fit=crop&q=80" alt="Fashion editorial - woman in elegant white outfit">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-subtitle">SS27 Collection</p>
+      <h1 class="hero-title">New Season, <em>New You</em></h1>
+      <p class="hero-desc">Discover modest-friendly fashion that moves with you.</p>
+      <a href="#products" class="btn-primary">Shop Now</a>
+    </div>
+  </section>
+
+  <!-- Featured Collections -->
+  <section class="section" id="collections">
+    <div class="section-header fade-in">
+      <p class="section-label">Curated For You</p>
+      <h2 class="section-title">Shop by Collection</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="collections-grid">
+      <div class="collection-card fade-in">
+        <img class="collection-card-img" src="https://images.unsplash.com/photo-1759229874914-c1ffdb3ebd0c?w=800&h=1066&fit=crop&q=80" alt="Everyday Essentials collection">
+        <div class="collection-card-overlay">
+          <h3 class="collection-card-title">Everyday Essentials</h3>
+          <a href="#" class="collection-card-link">Shop Collection &rarr;</a>
+        </div>
+      </div>
+      <div class="collection-card fade-in">
+        <img class="collection-card-img" src="https://images.unsplash.com/photo-1606776627650-454d6d7bd7bf?w=800&h=1066&fit=crop&q=80" alt="Workwear Edit collection">
+        <div class="collection-card-overlay">
+          <h3 class="collection-card-title">Workwear Edit</h3>
+          <a href="#" class="collection-card-link">Shop Collection &rarr;</a>
+        </div>
+      </div>
+      <div class="collection-card fade-in">
+        <img class="collection-card-img" src="https://images.unsplash.com/photo-1617088532175-0b26866c1d5f?w=800&h=1066&fit=crop&q=80" alt="Weekend Looks collection">
+        <div class="collection-card-overlay">
+          <h3 class="collection-card-title">Weekend Looks</h3>
+          <a href="#" class="collection-card-link">Shop Collection &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products -->
+  <section class="section products-section" id="products">
+    <div class="section-header fade-in">
+      <p class="section-label">New Arrivals</p>
+      <h2 class="section-title">Trending This Season</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="products-grid">
+
+      <div class="product-card fade-in">
+        <div class="product-image">
+          <span class="product-badge">New</span>
+          <img src="https://images.unsplash.com/photo-1590399830217-8db7489f911e?w=600&h=800&fit=crop&q=80" alt="Aira Wide-Leg Pants" loading="lazy">
+        </div>
+        <h3 class="product-name">Aira Wide-Leg Pants</h3>
+        <p class="product-price">RM 129</p>
+        <button class="btn-add-cart">Add to Cart</button>
+      </div>
+
+      <div class="product-card fade-in">
+        <div class="product-image">
+          <img src="https://images.unsplash.com/photo-1575915002992-ae1d3e0892f7?w=600&h=800&fit=crop&q=80" alt="Nadia Satin Blouse" loading="lazy">
+        </div>
+        <h3 class="product-name">Nadia Satin Blouse</h3>
+        <p class="product-price">RM 99</p>
+        <button class="btn-add-cart">Add to Cart</button>
+      </div>
+
+      <div class="product-card fade-in">
+        <div class="product-image">
+          <span class="product-badge">Bestseller</span>
+          <img src="https://images.unsplash.com/photo-1685703204758-c37561dff8d0?w=600&h=800&fit=crop&q=80" alt="Lina Pleated Skirt" loading="lazy">
+        </div>
+        <h3 class="product-name">Lina Pleated Skirt</h3>
+        <p class="product-price">RM 109</p>
+        <button class="btn-add-cart">Add to Cart</button>
+      </div>
+
+      <div class="product-card fade-in">
+        <div class="product-image">
+          <img src="https://images.unsplash.com/photo-1610288311735-39b7facbd095?w=600&h=800&fit=crop&q=80" alt="Zara Knit Cardigan" loading="lazy">
+        </div>
+        <h3 class="product-name">Zara Knit Cardigan</h3>
+        <p class="product-price">RM 149</p>
+        <button class="btn-add-cart">Add to Cart</button>
+      </div>
+
+      <div class="product-card fade-in">
+        <div class="product-image">
+          <img src="https://images.unsplash.com/photo-1589572597185-498c5ea0a731?w=600&h=800&fit=crop&q=80" alt="Hana Cotton Tee" loading="lazy">
+        </div>
+        <h3 class="product-name">Hana Cotton Tee</h3>
+        <p class="product-price">RM 79</p>
+        <button class="btn-add-cart">Add to Cart</button>
+      </div>
+
+      <div class="product-card fade-in">
+        <div class="product-image">
+          <span class="product-badge">Limited</span>
+          <img src="https://images.unsplash.com/photo-1592960362714-0e753879ace5?w=600&h=800&fit=crop&q=80" alt="Raya Blazer Dress" loading="lazy">
+        </div>
+        <h3 class="product-name">Raya Blazer Dress</h3>
+        <p class="product-price"><span class="original">RM 219</span>RM 189</p>
+        <button class="btn-add-cart">Add to Cart</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Free Shipping Banner -->
+  <section class="banner fade-in">
+    <div class="banner-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
+    </div>
+    <h2 class="banner-title">Enjoy Free Shipping</h2>
+    <p class="banner-text">On all orders above RM200 &mdash; delivered to your doorstep across Malaysia.</p>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section">
+    <div class="section-header fade-in">
+      <p class="section-label">What Our Customers Say</p>
+      <h2 class="section-title">Loved by Women Across Malaysia</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card fade-in">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testimonial-text">"The quality is amazing for the price. I love how the fabrics are breathable and modest-friendly. Perfect for our Malaysian weather!"</p>
+        <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1622031174422-4a7bcfad82c3?w=96&h=96&fit=crop&crop=face&q=80" alt="Sarah A.">
+        <p class="testimonial-name">Sarah A.</p>
+        <p class="testimonial-location">Kuala Lumpur</p>
+      </div>
+      <div class="testimonial-card fade-in">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testimonial-text">"Finally found a brand that understands modern modest fashion. The Workwear Edit collection is now my go-to for office outfits."</p>
+        <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1574201635302-388dd92a4c3f?w=96&h=96&fit=crop&crop=face&q=80" alt="Nurul H.">
+        <p class="testimonial-name">Nurul H.</p>
+        <p class="testimonial-location">Penang</p>
+      </div>
+      <div class="testimonial-card fade-in">
+        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testimonial-text">"Fast delivery and beautiful packaging. The wide-leg pants fit perfectly. Already ordered two more colours!"</p>
+        <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1754315052701-0b98f6ba786b?w=96&h=96&fit=crop&crop=face&q=80" alt="Aisyah R.">
+        <p class="testimonial-name">Aisyah R.</p>
+        <p class="testimonial-location">Johor Bahru</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="newsletter">
+    <div class="section-label">Join the MUSE Family</div>
+    <h2 class="section-title" style="font-size: clamp(24px, 3vw, 36px);">Get 10% Off Your First Order</h2>
+    <p class="newsletter-desc">Subscribe for exclusive drops, styling tips, and member-only offers.</p>
+    <form class="newsletter-form" onsubmit="return false;">
+      <label for="newsletter-email" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Email address</label>
+      <input type="email" id="newsletter-email" class="newsletter-input" placeholder="Enter your email address" required>
+      <button type="submit" class="newsletter-btn">Subscribe</button>
+    </form>
+    <p class="newsletter-note">No spam, unsubscribe anytime.</p>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-name">Muse</div>
+        <p class="footer-brand-desc">Modern modest fashion for the everyday woman. Designed in Malaysia, made with love.</p>
+        <div class="footer-social" style="margin-top: 20px;">
+          <a href="#" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href="#" aria-label="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="#" aria-label="TikTok">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1 0-5.78 2.92 2.92 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.57 6.33 6.33 0 0 0 9.37 22a6.33 6.33 0 0 0 6.38-6.22V9.4a8.16 8.16 0 0 0 4.84 1.58v-3.4a4.85 4.85 0 0 1-1-.89z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <h4 class="footer-col-title">Shop</h4>
+        <ul class="footer-links">
+          <li><a href="#">New Arrivals</a></li>
+          <li><a href="#">Bestsellers</a></li>
+          <li><a href="#">Collections</a></li>
+          <li><a href="#">Sale</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-col-title">Help</h4>
+        <ul class="footer-links">
+          <li><a href="#">Shipping Policy</a></li>
+          <li><a href="#">Returns & Exchange</a></li>
+          <li><a href="#">Size Guide</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-col-title">About</h4>
+        <ul class="footer-links">
+          <li><a href="#">Our Story</a></li>
+          <li><a href="#">Sustainability</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2027 MUSE Apparel. All rights reserved.</p>
+      <div class="payment-icons">
+        <span class="payment-icon">VISA</span>
+        <span class="payment-icon">MC</span>
+        <span class="payment-icon">FPX</span>
+        <span class="payment-icon">GrabPay</span>
+        <span class="payment-icon">TNG</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll fade-in animation
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>

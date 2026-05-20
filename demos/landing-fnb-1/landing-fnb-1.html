@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Wok & Flame — Modern Malaysian, Bangsar KL</title>
+<meta name="description" content="Wok & Flame — Modern Malaysian Fusion in Bangsar. Premium wok-fired dishes, craft cocktails, and an unforgettable dining experience." />
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        bg: '#1A1A1A',
+        'bg-2': '#141414',
+        'bg-3': '#222222',
+        ink: '#F5EFE6',
+        'ink-dim': '#B8AFA3',
+        'ink-muted': '#7A7268',
+        flame: '#E85D2C',
+        'flame-deep': '#C34518',
+        gold: '#D4A84B',
+        'gold-soft': '#E8C875',
+        leaf: '#2E6F4F',
+        whatsapp: '#25D366',
+        line: 'rgba(245,239,230,0.10)',
+        'line-strong': 'rgba(245,239,230,0.22)',
+      },
+      fontFamily: {
+        display: ['"Bricolage Grotesque"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        body: ['"Manrope"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
+    }
+  }
+}
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 700ms ease, transform 700ms cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  @keyframes pulse-ring { 0% { transform: scale(0.95); opacity: 0.7; } 100% { transform: scale(1.25); opacity: 0; } }
+  @keyframes pulse-pin { 0% { transform: translate(-50%,-50%) scale(0.6); opacity: 0.8; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+  .animate-pulse-ring { animation: pulse-ring 2.2s ease-out infinite; }
+  .animate-pulse-pin { animation: pulse-pin 2.4s ease-out infinite; }
+  nav.scrolled { background: rgba(20,20,20,0.78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom-color: rgba(245,239,230,0.10); }
+</style>
+</head>
+<body class="bg-bg text-ink font-body overflow-x-hidden">
+
+<!-- NAV -->
+<nav id="nav" class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-[clamp(20px,4vw,64px)] py-[18px] border-b border-transparent transition-all duration-200">
+  <a href="#top" class="inline-flex items-center gap-2.5 font-display font-extrabold text-[19px] tracking-tight">
+    <span class="w-7 h-7 rounded-lg bg-[radial-gradient(circle_at_30%_30%,#E8C875,#E85D2C_55%,#C34518)] shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_6px_22px_-8px_#E85D2C] grid place-items-center text-[#1a1a1a] text-sm">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 3-3 4-3 8a3 3 0 0 0 6 0c0-1 0-1.5-.5-2.5C16 9.5 18 11 18 14a6 6 0 1 1-12 0c0-4 4-6 4-9 0-1 1-2 2-3z"/></svg>
+    </span>
+    Wok &amp; Flame
+  </a>
+  <div class="hidden md:flex items-center gap-7 text-sm text-ink-dim font-medium">
+    <a href="#menu" class="hover:text-ink transition-colors">Menu</a>
+    <a href="#story" class="hover:text-ink transition-colors">Story</a>
+    <a href="#reviews" class="hover:text-ink transition-colors">Reviews</a>
+    <a href="#visit" class="hover:text-ink transition-colors">Visit</a>
+  </div>
+  <a href="#visit" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-flame text-white font-semibold text-sm shadow-[0_8px_24px_-10px_#E85D2C] hover:bg-[#f06a39] hover:-translate-y-px transition-all">
+    <span class="hidden sm:inline">Reserve</span>
+    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  </a>
+</nav>
+
+<!-- HERO -->
+<header id="top" class="relative min-h-screen min-h-[100svh] flex flex-col justify-end px-[clamp(20px,4vw,64px)] pb-[clamp(56px,8vw,96px)] pt-[140px] overflow-hidden isolate">
+  <div class="absolute inset-0 -z-20 overflow-hidden">
+    <img src="../../assets/Landing/hero-fnb.webp" alt="Wok & Flame kitchen" class="w-full h-full object-cover object-center" />
+  </div>
+  <div class="absolute inset-0 -z-10 bg-gradient-to-b from-black/55 via-black/15 to-black/85 pointer-events-none"></div>
+
+  <div class="reveal flex flex-wrap gap-x-7 gap-y-3 items-center font-mono text-[11px] tracking-[0.18em] uppercase text-ink-dim mb-7">
+    <span>Bangsar · Kuala Lumpur</span>
+    <span class="w-1 h-1 bg-flame rounded-full"></span>
+    <span>Est. 2024</span>
+    <span class="w-1 h-1 bg-flame rounded-full"></span>
+    <span>Halal · Reservations open</span>
+  </div>
+
+  <h1 class="reveal font-display font-extrabold text-[clamp(54px,10vw,148px)] leading-[0.92] tracking-[-0.045em] mb-7" style="text-wrap:balance">
+    Wok <span class="italic font-normal text-gold" style="font-family:'Bricolage Grotesque',serif;margin:0 -0.04em">&amp;</span> Flame
+  </h1>
+
+  <p class="reveal text-[clamp(18px,2vw,24px)] text-ink font-normal leading-relaxed max-w-[38ch] mb-10" style="text-wrap:balance">
+    Modern Malaysian flavours, <strong class="text-flame font-semibold">crafted with fire.</strong> A small kitchen in Bangsar cooking the food we grew up with — sharper, slower, and built around the grill.
+  </p>
+
+  <div class="reveal flex flex-wrap gap-3.5 items-center">
+    <a href="#menu" class="inline-flex items-center gap-2.5 px-[26px] py-4 rounded-full bg-flame text-white font-semibold text-[15px] shadow-[0_14px_36px_-12px_#E85D2C,inset_0_1px_0_rgba(255,255,255,0.18)] hover:-translate-y-0.5 hover:bg-[#f06a39] transition-all whitespace-nowrap">
+      View the menu
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+    <a href="#visit" class="inline-flex items-center gap-2.5 px-[26px] py-4 rounded-full border border-line-strong text-ink font-semibold text-[15px] hover:border-gold hover:text-gold transition-all whitespace-nowrap">
+      Book a table
+    </a>
+  </div>
+
+  <!-- Hero strip -->
+  <div class="hidden lg:flex absolute left-0 right-0 bottom-0 px-[clamp(20px,4vw,64px)] py-[18px] gap-9 items-center justify-between border-t border-line bg-black/40 backdrop-blur-lg font-mono text-[11px] tracking-[0.16em] uppercase text-ink-dim">
+    <div class="flex items-center gap-2.5"><svg class="text-gold w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 22 Jalan Telawi 3 · Bangsar Baru</div>
+    <div class="flex items-center gap-2.5"><svg class="text-gold w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Tue – Sun · 11:30 – 22:00</div>
+    <div class="flex items-center gap-2.5"><svg class="text-gold w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg> +60 3-2284 5577</div>
+    <div class="flex items-center gap-2.5">★ 4.9 on Google · 412 reviews</div>
+  </div>
+</header>
+
+<!-- ABOUT / STORY -->
+<section id="story" class="max-w-[1280px] mx-auto px-[clamp(20px,4vw,64px)] py-[clamp(72px,10vw,140px)] grid grid-cols-1 md:grid-cols-2 gap-[clamp(40px,6vw,96px)] items-start">
+  <div class="reveal md:sticky md:top-[100px]">
+    <span class="inline-flex items-center gap-2.5 font-mono text-[11px] tracking-[0.18em] uppercase text-gold font-medium mb-[18px] before:content-[''] before:w-[22px] before:h-px before:bg-gold">Our story</span>
+    <h2 class="font-display font-bold text-[clamp(34px,5vw,56px)] leading-[1.05] tracking-tight mb-[18px]" style="text-wrap:balance">A neighbourhood kitchen <em class="italic text-flame font-semibold">built around the grill.</em></h2>
+  </div>
+  <div class="reveal">
+    <p class="text-[clamp(17px,1.5vw,19px)] text-ink leading-[1.65] mb-[22px] first-letter:font-display first-letter:font-bold first-letter:float-left first-letter:text-[4.2em] first-letter:leading-[0.85] first-letter:mr-3 first-letter:mt-1.5 first-letter:text-flame">
+      Wok &amp; Flame started as a series of Sunday suppers in a Bangsar shophouse. Chef Aiman cooked the food his grandmother taught him — rendang, sambal, satay — but on a grill hot enough to coax char from a fingerling banana, smoke from a charred coconut husk.
+    </p>
+    <p class="text-[clamp(17px,1.5vw,19px)] text-ink leading-[1.65] mb-[22px]">
+      Two years on, the suppers have a permanent room. The rempah is still pounded by hand each morning. The grill still runs on Bintulu charcoal. We source heritage chillies from a co-op in Cameron Highlands, and our coconut milk is pressed the same day it lands in the kitchen.
+    </p>
+    <p class="text-[clamp(17px,1.5vw,19px)] text-ink leading-[1.65] mb-0">
+      It's the food we grew up with — sharper, slower, and uncompromising about heat.
+    </p>
+    <div class="mt-9 pt-7 border-t border-line grid grid-cols-3 gap-5">
+      <div>
+        <div class="font-display font-bold text-[clamp(28px,3vw,40px)] tracking-tight leading-none text-gold">14</div>
+        <div class="font-mono text-[10px] tracking-[0.16em] uppercase text-ink-muted mt-2">Hours of daily prep</div>
+      </div>
+      <div>
+        <div class="font-display font-bold text-[clamp(28px,3vw,40px)] tracking-tight leading-none text-gold">8</div>
+        <div class="font-mono text-[10px] tracking-[0.16em] uppercase text-ink-muted mt-2">Small-farm suppliers</div>
+      </div>
+      <div>
+        <div class="font-display font-bold text-[clamp(28px,3vw,40px)] tracking-tight leading-none text-gold">1,200°</div>
+        <div class="font-mono text-[10px] tracking-[0.16em] uppercase text-ink-muted mt-2">Grill temperature, °F</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DISHES -->
+<section id="menu" class="max-w-[1280px] mx-auto px-[clamp(20px,4vw,64px)] py-[clamp(72px,10vw,140px)]">
+  <div class="flex flex-wrap justify-between items-end gap-10 mb-14">
+    <div class="reveal">
+      <span class="inline-flex items-center gap-2.5 font-mono text-[11px] tracking-[0.18em] uppercase text-gold font-medium mb-[18px] before:content-[''] before:w-[22px] before:h-px before:bg-gold">Signature plates</span>
+      <h2 class="font-display font-bold text-[clamp(34px,5vw,56px)] leading-[1.05] tracking-tight" style="text-wrap:balance">A small menu, <em class="italic text-flame font-semibold">cooked properly.</em></h2>
+    </div>
+    <div class="reveal">
+      <p class="text-[clamp(15px,1.4vw,17px)] text-ink-dim max-w-[56ch] leading-relaxed">
+        Twelve dishes on the menu at any time. These four anchor it — and they're the reason most guests come back.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+    <!-- Dish 1 -->
+    <div class="reveal group h-full">
+      <article class="relative bg-bg-2 border border-line rounded-[18px] overflow-hidden flex flex-col w-full h-full transition-all duration-300 hover:-translate-y-1.5 hover:border-line-strong hover:shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)]">
+        <div class="aspect-[4/5] relative overflow-hidden">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJvhRXOv1sDFk6u4b0Vr5oAFwfshBZ45MARp-r3F_ocx0cFETiIETo6i0xdKIMEqFsWTcRmX7KViteUz7wJjhY4-Lb3KpcY8bM8LSNMFq3Ydcvi8RNU8sq89I2JC-I7dmHGLgw_Xh87tgsrv31ZAX6KLJTL2YNwS8TGQTt5kvE0cEmRrt8vJIdI7TxepUfWelqZjOT0k2tVTmdXvgfbaLSYIQbxA_wZR9yHIKfU9Hzd2o5l0PYwilUgGBZ9JN4XDqgNJRK8xYWY3nr" alt="Nasi Lemak Wagyu" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        </div>
+        <span class="absolute top-3 left-3 z-10 font-mono text-[10px] tracking-[0.14em] uppercase bg-bg text-gold px-2.5 py-1 rounded border border-line-strong">Signature</span>
+        <div class="p-[22px] pb-6 flex-1 flex flex-col">
+          <h3 class="font-display font-bold text-[22px] tracking-tight leading-[1.15] mb-2.5">Nasi Lemak Wagyu</h3>
+          <p class="text-sm text-ink-dim leading-relaxed flex-1 mb-[18px]">Pandan-coconut rice, A4 wagyu rendang, crispy anchovies, sambal hijau, soft-boiled egg.</p>
+          <div class="flex justify-between items-center pt-4 border-t border-line">
+            <div class="font-display font-bold text-xl tracking-tight"><span class="font-mono text-[11px] text-ink-muted mr-1 align-[2px]">RM</span>38</div>
+            <button class="w-9 h-9 rounded-full bg-bg-3 text-ink grid place-items-center transition-all group-hover:bg-flame group-hover:text-white hover:rotate-45" aria-label="Add Nasi Lemak Wagyu">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Dish 2 -->
+    <div class="reveal group" style="transition-delay:80ms">
+      <article class="relative bg-bg-2 border border-line rounded-[18px] overflow-hidden flex flex-col w-full h-full transition-all duration-300 hover:-translate-y-1.5 hover:border-line-strong hover:shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)]">
+        <div class="aspect-[4/5] relative overflow-hidden">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDubANG57aKNapM_3qtNc1aD5SuDbbZff6rEPLy0WipM7SG1Tt55XbgC01zNm1QDmRGD5z8dXj0GXCj55WwBKXWUUzUGMUfbzGzUdCZKDmQTmy08Z1hHegmHyWsrpt_hcoPccBrKoojhAhdciUyrll5ngvildephzCoyVAOspA4RJaWWdtlP7Uyv23m6JV0ruXJysiW8dqQARj9gv3ZaTNK1jDQHhOYpZ4xVlhbivo_H7fYgcPU-o9rJiZzeZIVd8ikxtzSD6dvgqFL" alt="Rendang Lamb Shank" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        </div>
+        <span class="absolute top-3 left-3 z-10 font-mono text-[10px] tracking-[0.14em] uppercase bg-bg text-gold px-2.5 py-1 rounded border border-line-strong">Chef's pick</span>
+        <div class="p-[22px] pb-6 flex-1 flex flex-col">
+          <h3 class="font-display font-bold text-[22px] tracking-tight leading-[1.15] mb-2.5">Rendang Lamb Shank</h3>
+          <p class="text-sm text-ink-dim leading-relaxed flex-1 mb-[18px]">Slow-braised 8 hours in toasted kerisik and rempah. Falls off the bone.</p>
+          <div class="flex justify-between items-center pt-4 border-t border-line">
+            <div class="font-display font-bold text-xl tracking-tight"><span class="font-mono text-[11px] text-ink-muted mr-1 align-[2px]">RM</span>55</div>
+            <button class="w-9 h-9 rounded-full bg-bg-3 text-ink grid place-items-center transition-all group-hover:bg-flame group-hover:text-white hover:rotate-45" aria-label="Add Rendang Lamb Shank">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Dish 3 -->
+    <div class="reveal group" style="transition-delay:160ms">
+      <article class="relative bg-bg-2 border border-line rounded-[18px] overflow-hidden flex flex-col w-full h-full transition-all duration-300 hover:-translate-y-1.5 hover:border-line-strong hover:shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)]">
+        <div class="aspect-[4/5] relative overflow-hidden">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOQ3IRpQ1Ol-QwYRIYlOcsyE4zTJ5cVIG-HjRT5aUwtFyyy_4TT8ivG8FbTWKkYFpIm7VzO2VUyHaF4wUwQwlY-4v570GVGYq2R1nS0QGOWC68m42xWcIc7pHrI32guRK92A7FfQsWsu5KDYYXHHm-RuqZNgn86v-19vRIwZGy0u-cG-bw0-9G62nafgUU8Q9s8rVtPxXX3RplPhOHa2lSslBK7PARDf1a7ielxdAGhUJtm-wkyciCzGhhiFu2XWaa403Ir_edYW7b" alt="Charcoal Satay Platter" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        </div>
+        <span class="absolute top-3 left-3 z-10 font-mono text-[10px] tracking-[0.14em] uppercase bg-bg text-gold px-2.5 py-1 rounded border border-line-strong">Sharing</span>
+        <div class="p-[22px] pb-6 flex-1 flex flex-col">
+          <h3 class="font-display font-bold text-[22px] tracking-tight leading-[1.15] mb-2.5">Charcoal Satay Platter</h3>
+          <p class="text-sm text-ink-dim leading-relaxed flex-1 mb-[18px]">Wagyu, chicken thigh, lamb. Smoked over Bintulu charcoal, peanut sauce, ketupat.</p>
+          <div class="flex justify-between items-center pt-4 border-t border-line">
+            <div class="font-display font-bold text-xl tracking-tight"><span class="font-mono text-[11px] text-ink-muted mr-1 align-[2px]">RM</span>42</div>
+            <button class="w-9 h-9 rounded-full bg-bg-3 text-ink grid place-items-center transition-all group-hover:bg-flame group-hover:text-white hover:rotate-45" aria-label="Add Charcoal Satay Platter">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Dish 4 (gradient placeholder) -->
+    <div class="reveal group" style="transition-delay:240ms">
+      <article class="relative bg-bg-2 border border-line rounded-[18px] overflow-hidden flex flex-col w-full h-full transition-all duration-300 hover:-translate-y-1.5 hover:border-line-strong hover:shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)]">
+        <div class="aspect-[4/5] relative overflow-hidden">
+          <div class="absolute inset-0" style="background:radial-gradient(120% 80% at 30% 25%,#E8D27A,#7A8C3A 55%,#1E2A14)"></div>
+          <span class="absolute bottom-3 left-3 z-10 font-mono text-[10px] text-white/65 bg-black/40 border border-white/12 px-2 py-1 rounded tracking-wide">/// cracked sugar top</span>
+        </div>
+        <span class="absolute top-3 left-3 z-10 font-mono text-[10px] tracking-[0.14em] uppercase bg-bg text-gold px-2.5 py-1 rounded border border-line-strong">Dessert</span>
+        <div class="p-[22px] pb-6 flex-1 flex flex-col">
+          <h3 class="font-display font-bold text-[22px] tracking-tight leading-[1.15] mb-2.5">Pandan Crème Brûlée</h3>
+          <p class="text-sm text-ink-dim leading-relaxed flex-1 mb-[18px]">Single-origin pandan custard, gula melaka caramel, toasted coconut crisp.</p>
+          <div class="flex justify-between items-center pt-4 border-t border-line">
+            <div class="font-display font-bold text-xl tracking-tight"><span class="font-mono text-[11px] text-ink-muted mr-1 align-[2px]">RM</span>22</div>
+            <button class="w-9 h-9 rounded-full bg-bg-3 text-ink grid place-items-center transition-all group-hover:bg-flame group-hover:text-white hover:rotate-45" aria-label="Add Pandan Crème Brûlée">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<div id="reviews" class="border-t border-b border-line" style="background:radial-gradient(70% 50% at 50% 0%,rgba(232,93,44,0.07),transparent 60%),#141414">
+  <section class="max-w-[1280px] mx-auto px-[clamp(20px,4vw,64px)] py-[clamp(72px,9vw,120px)]">
+    <div class="reveal">
+      <span class="inline-flex items-center gap-2.5 font-mono text-[11px] tracking-[0.18em] uppercase text-gold font-medium mb-[18px] before:content-[''] before:w-[22px] before:h-px before:bg-gold">What guests say</span>
+      <h2 class="font-display font-bold text-[clamp(34px,5vw,56px)] leading-[1.05] tracking-tight" style="text-wrap:balance">412 reviews. <em class="italic text-flame font-semibold">4.9 stars.</em></h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-14">
+      <!-- Review 1 -->
+      <article class="reveal p-[28px_24px_32px] border border-line rounded-2xl bg-white/[0.015] flex flex-col transition-all hover:border-line-strong hover:-translate-y-0.5">
+        <div class="flex gap-[3px] mb-[18px] text-gold">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="font-display font-normal text-[19px] leading-[1.45] tracking-tight text-ink flex-1 mb-6" style="text-wrap:pretty">"The rendang lamb shank is the best modern Malaysian dish I've had in KL — full stop. Every detail is considered."</p>
+        <div class="flex items-center gap-3 pt-5 border-t border-line">
+          <div class="w-10 h-10 rounded-full bg-flame grid place-items-center font-display font-bold text-[15px] text-bg">AR</div>
+          <div><span class="font-semibold text-sm text-ink block">Aisyah R.</span><span class="font-mono text-[10px] tracking-[0.12em] uppercase text-ink-muted">Mont Kiara · Dined Apr 2026</span></div>
+        </div>
+      </article>
+      <!-- Review 2 -->
+      <article class="reveal p-[28px_24px_32px] border border-line rounded-2xl bg-white/[0.015] flex flex-col transition-all hover:border-line-strong hover:-translate-y-0.5" style="transition-delay:100ms">
+        <div class="flex gap-[3px] mb-[18px] text-gold">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="font-display font-normal text-[19px] leading-[1.45] tracking-tight text-ink flex-1 mb-6" style="text-wrap:pretty">"Brought clients here for dinner. The room is moody and grown-up, the satay platter stole the show. We're regulars now."</p>
+        <div class="flex items-center gap-3 pt-5 border-t border-line">
+          <div class="w-10 h-10 rounded-full bg-gold grid place-items-center font-display font-bold text-[15px] text-bg">JT</div>
+          <div><span class="font-semibold text-sm text-ink block">Jonathan T.</span><span class="font-mono text-[10px] tracking-[0.12em] uppercase text-ink-muted">KLCC · Dined Mar 2026</span></div>
+        </div>
+      </article>
+      <!-- Review 3 -->
+      <article class="reveal p-[28px_24px_32px] border border-line rounded-2xl bg-white/[0.015] flex flex-col transition-all hover:border-line-strong hover:-translate-y-0.5" style="transition-delay:200ms">
+        <div class="flex gap-[3px] mb-[18px] text-gold">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="font-display font-normal text-[19px] leading-[1.45] tracking-tight text-ink flex-1 mb-6" style="text-wrap:pretty">"That pandan brûlée. The crack of the caramel and the gula melaka underneath — I genuinely thought about it the next morning."</p>
+        <div class="flex items-center gap-3 pt-5 border-t border-line">
+          <div class="w-10 h-10 rounded-full bg-leaf grid place-items-center font-display font-bold text-[15px] text-bg">PM</div>
+          <div><span class="font-semibold text-sm text-ink block">Priya M.</span><span class="font-mono text-[10px] tracking-[0.12em] uppercase text-ink-muted">TTDI · Dined Apr 2026</span></div>
+        </div>
+      </article>
+    </div>
+  </section>
+</div>
+
+<!-- LOCATION -->
+<section id="visit" class="max-w-[1280px] mx-auto px-[clamp(20px,4vw,64px)] py-[clamp(72px,10vw,140px)]">
+  <div class="reveal">
+    <span class="inline-flex items-center gap-2.5 font-mono text-[11px] tracking-[0.18em] uppercase text-gold font-medium mb-[18px] before:content-[''] before:w-[22px] before:h-px before:bg-gold">Find us</span>
+    <h2 class="font-display font-bold text-[clamp(34px,5vw,56px)] leading-[1.05] tracking-tight mb-[18px]" style="text-wrap:balance">22 Jalan Telawi 3, <em class="italic text-flame font-semibold">Bangsar Baru.</em></h2>
+    <p class="text-[clamp(15px,1.4vw,17px)] text-ink-dim max-w-[56ch] leading-relaxed">Two doors down from the old bakery, just off Jalan Telawi. Valet at the corner; LRT Bangsar is a six-minute walk.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-8 mt-14 items-stretch">
+    <!-- Info Card -->
+    <div class="reveal bg-bg-2 border border-line rounded-[18px] p-9 flex flex-col gap-7">
+      <div class="flex gap-[18px] items-start">
+        <div class="shrink-0 w-[42px] h-[42px] rounded-xl bg-flame/10 text-flame grid place-items-center border border-flame/25">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div>
+          <div class="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-muted mb-1.5">Address</div>
+          <div class="text-base text-ink leading-normal"><strong class="font-semibold">Wok &amp; Flame</strong><br>22 Jalan Telawi 3<br>Bangsar Baru, 59100 Kuala Lumpur</div>
+        </div>
+      </div>
+      <div class="flex gap-[18px] items-start">
+        <div class="shrink-0 w-[42px] h-[42px] rounded-xl bg-flame/10 text-flame grid place-items-center border border-flame/25">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="flex-1">
+          <div class="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-muted mb-1.5">Hours</div>
+          <div class="flex flex-col gap-1 text-sm text-ink-dim tabular-nums">
+            <div class="flex justify-between max-w-[240px]"><span class="text-ink-muted">Mon</span><span class="text-ink-muted">Closed</span></div>
+            <div class="flex justify-between max-w-[240px]"><span>Tue</span><span>11:30 – 22:00</span></div>
+            <div class="flex justify-between max-w-[240px]"><span>Wed</span><span>11:30 – 22:00</span></div>
+            <div class="flex justify-between max-w-[240px]"><span>Thu</span><span>11:30 – 22:00</span></div>
+            <div class="flex justify-between max-w-[240px]"><span>Fri</span><span>11:30 – 22:00</span></div>
+            <div class="flex justify-between max-w-[240px]"><span>Sat</span><span>11:30 – 22:00</span></div>
+            <div class="flex justify-between max-w-[240px]"><span>Sun</span><span>11:30 – 22:00</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-[18px] items-start">
+        <div class="shrink-0 w-[42px] h-[42px] rounded-xl bg-flame/10 text-flame grid place-items-center border border-flame/25">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div>
+          <div class="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-muted mb-1.5">Reservations</div>
+          <div class="text-base text-ink leading-normal"><strong class="font-semibold">+60 3-2284 5577</strong><br><span class="text-ink-dim text-sm">Or message us on WhatsApp — usually a reply within 10 minutes.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map placeholder -->
+    <div class="reveal relative bg-bg-2 border border-line rounded-[18px] overflow-hidden min-h-[460px] isolate">
+      <svg class="absolute inset-0 w-full h-full" viewBox="0 0 600 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <pattern id="mg" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(245,239,230,0.04)" stroke-width="1"/></pattern>
+          <radialGradient id="mgw" cx="50%" cy="50%" r="40%"><stop offset="0%" stop-color="rgba(232,93,44,0.18)"/><stop offset="100%" stop-color="rgba(232,93,44,0)"/></radialGradient>
+        </defs>
+        <rect width="600" height="460" fill="#181818"/><rect width="600" height="460" fill="url(#mg)"/><rect width="600" height="460" fill="url(#mgw)"/>
+        <g stroke="rgba(245,239,230,0.10)" stroke-width="2" fill="none"><path d="M-20 120Q200 140 620 110"/><path d="M-20 250Q300 270 620 240"/><path d="M-20 360Q280 340 620 380"/><path d="M120-20Q140 200 110 480"/><path d="M360-20Q380 240 350 480"/></g>
+        <path d="M-20 230Q300 230 620 230" stroke="rgba(212,168,75,0.35)" stroke-width="2.5" fill="none"/>
+        <text x="20" y="222" fill="rgba(212,168,75,0.55)" font-size="10" font-family="JetBrains Mono,monospace" letter-spacing="2">JLN TELAWI 3</text>
+        <g fill="rgba(245,239,230,0.025)"><rect x="60" y="140" width="200" height="80" rx="4"/><rect x="280" y="140" width="160" height="80" rx="4"/><rect x="60" y="260" width="180" height="80" rx="4"/><rect x="260" y="260" width="200" height="80" rx="4"/><rect x="480" y="140" width="100" height="80" rx="4"/><rect x="480" y="260" width="100" height="80" rx="4"/></g>
+      </svg>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center gap-2 z-10">
+        <div class="relative">
+          <div class="absolute top-1/2 left-1/2 w-11 h-11 rounded-full bg-flame/35 -translate-x-1/2 -translate-y-1/2 -z-10 animate-pulse-pin"></div>
+          <div class="w-11 h-11 rounded-[50%_50%_50%_4px] bg-flame -rotate-45 shadow-[0_14px_30px_-10px_rgba(232,93,44,0.8),0_0_0_4px_rgba(232,93,44,0.18)] grid place-items-center">
+            <div class="w-3 h-3 rounded-full bg-bg rotate-45"></div>
+          </div>
+        </div>
+        <div class="mt-4 bg-bg border border-line-strong px-3.5 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap">Wok &amp; Flame</div>
+      </div>
+      <a class="absolute top-3.5 right-3.5 z-10 inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-black/65 border border-line-strong text-[13px] font-medium backdrop-blur-lg hover:bg-bg hover:border-gold hover:text-gold transition-all" href="https://maps.google.com/?q=22+Jalan+Telawi+3+Bangsar" target="_blank" rel="noopener noreferrer">
+        Open in Maps
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="border-t border-line bg-bg-2 px-[clamp(20px,4vw,64px)] pt-16 pb-8">
+  <div class="max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-10">
+    <div>
+      <div class="inline-flex items-center gap-2.5 font-display font-extrabold text-[19px] tracking-tight">
+        <span class="w-7 h-7 rounded-lg bg-[radial-gradient(circle_at_30%_30%,#E8C875,#E85D2C_55%,#C34518)] grid place-items-center text-[#1a1a1a] text-sm">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 3-3 4-3 8a3 3 0 0 0 6 0c0-1 0-1.5-.5-2.5C16 9.5 18 11 18 14a6 6 0 1 1-12 0c0-4 4-6 4-9 0-1 1-2 2-3z"/></svg>
+        </span>
+        Wok &amp; Flame
+      </div>
+      <p class="text-ink-dim text-sm leading-relaxed max-w-[36ch] mt-[18px] mb-6">Modern Malaysian, cooked with fire. A neighbourhood kitchen in Bangsar Baru.</p>
+      <div class="flex gap-2.5">
+        <a href="#" class="w-[38px] h-[38px] rounded-full border border-line-strong grid place-items-center text-ink-dim hover:text-flame hover:border-flame hover:-translate-y-0.5 transition-all" aria-label="Instagram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/></svg>
+        </a>
+        <a href="#" class="w-[38px] h-[38px] rounded-full border border-line-strong grid place-items-center text-ink-dim hover:text-flame hover:border-flame hover:-translate-y-0.5 transition-all" aria-label="Facebook">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="#" class="w-[38px] h-[38px] rounded-full border border-line-strong grid place-items-center text-ink-dim hover:text-flame hover:border-flame hover:-translate-y-0.5 transition-all" aria-label="TikTok">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 3v3.5a4.5 4.5 0 0 0 4.5 4.5V14a7.5 7.5 0 0 1-4.5-1.5V16a5.5 5.5 0 1 1-5.5-5.5h.5v3a2.5 2.5 0 1 0 2 2.45V3h3z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div>
+      <h4 class="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-muted font-medium mt-1.5 mb-[18px]">Menu</h4>
+      <ul class="flex flex-col gap-2.5"><li><a href="#menu" class="text-sm text-ink-dim hover:text-ink transition-colors">Signatures</a></li><li><a href="#menu" class="text-sm text-ink-dim hover:text-ink transition-colors">Tasting menu</a></li><li><a href="#menu" class="text-sm text-ink-dim hover:text-ink transition-colors">Drinks &amp; wine</a></li><li><a href="#menu" class="text-sm text-ink-dim hover:text-ink transition-colors">Private dining</a></li></ul>
+    </div>
+    <div>
+      <h4 class="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-muted font-medium mt-1.5 mb-[18px]">Visit</h4>
+      <ul class="flex flex-col gap-2.5"><li><a href="#visit" class="text-sm text-ink-dim hover:text-ink transition-colors">Bangsar</a></li><li><a href="#visit" class="text-sm text-ink-dim hover:text-ink transition-colors">Hours</a></li><li><a href="#visit" class="text-sm text-ink-dim hover:text-ink transition-colors">Reservations</a></li><li><a href="#visit" class="text-sm text-ink-dim hover:text-ink transition-colors">Directions</a></li></ul>
+    </div>
+    <div>
+      <h4 class="font-mono text-[10px] tracking-[0.18em] uppercase text-ink-muted font-medium mt-1.5 mb-[18px]">Company</h4>
+      <ul class="flex flex-col gap-2.5"><li><a href="#story" class="text-sm text-ink-dim hover:text-ink transition-colors">Our story</a></li><li><a href="#" class="text-sm text-ink-dim hover:text-ink transition-colors">Press</a></li><li><a href="#" class="text-sm text-ink-dim hover:text-ink transition-colors">Careers</a></li><li><a href="#" class="text-sm text-ink-dim hover:text-ink transition-colors">Gift cards</a></li></ul>
+    </div>
+  </div>
+  <div class="max-w-[1280px] mx-auto mt-14 pt-6 border-t border-line flex flex-wrap justify-between items-center gap-3 font-mono text-[11px] tracking-[0.1em] uppercase text-ink-muted">
+    <span>&copy; 2026 Wok &amp; Flame Sdn Bhd · Reg. 202301045678</span>
+    <span>Bangsar · Kuala Lumpur</span>
+  </div>
+</footer>
+
+<!-- WHATSAPP FAB -->
+<a class="fixed bottom-6 right-6 z-[60] inline-flex items-center gap-2.5 pl-4 pr-5 py-3.5 rounded-full bg-whatsapp text-white font-semibold text-sm shadow-[0_18px_40px_-12px_rgba(37,211,102,0.55),0_4px_10px_rgba(0,0,0,0.3)] hover:-translate-y-0.5 hover:scale-[1.02] transition-all before:content-[''] before:absolute before:inset-[-6px] before:rounded-full before:bg-whatsapp/35 before:-z-10 before:animate-pulse-ring max-sm:px-3.5 max-sm:py-3.5"
+   href="https://wa.me/60322845577?text=Hi%20Wok%20%26%20Flame%2C%20I%27d%20like%20to%20book%20a%20table" target="_blank" rel="noopener noreferrer" aria-label="Book a table on WhatsApp">
+  <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.6.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.5-1.9-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2.1-.4 0-.5 0-.1-.6-1.5-.8-2.1-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2 0 1.3.9 2.6 1.1 2.7.1.2 1.8 2.9 4.5 4 .6.3 1.1.4 1.5.6.6.2 1.2.2 1.7.1.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.1-.3-.2-.6-.3zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 4.9L2 22l5.3-1.3c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm5.9 14.2c-.3.6-1.4 1.3-1.9 1.4-.5.1-1.1.2-1.7 0-.4-.1-.9-.3-1.5-.6-2.6-1.1-4.3-3.7-4.4-3.9-.1-.2-1.1-1.5-1.1-2.8 0-1.4.7-2 .9-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4-.1.6.5l.8 2c.1.1.1.3 0 .5l-.3.5c-.1.2-.2.4-.4.5-.1.1-.3.3-.1.5.1.3.7 1.2 1.5 1.9 1 .9 1.9 1.2 2.2 1.4.3.1.4.1.6-.1.2-.2.6-.8.8-1.1.2-.3.3-.2.6-.1.3.1 1.7.8 2 .9.3.1.5.2.6.3.1.1.1.7-.2 1.3z"/></svg>
+  <span class="max-sm:hidden">Book a Table</span>
+</a>
+
+<!-- JS: Nav scroll + reveal animations -->
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', scrollY > 24);
+  }, { passive: true });
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const d = parseInt(e.target.style.transitionDelay) || 0;
+        setTimeout(() => e.target.classList.add('in'), d);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) { e.preventDefault(); window.scrollTo({ top: el.offsetTop - 60, behavior: 'smooth' }); }
+    });
+  });
+</script>
+</body>
+</html>
