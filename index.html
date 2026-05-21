@@ -124,11 +124,13 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:768px){.hero{padding:120px 20px 60px}.hero-drop{font-size:48px}.hero-eyebrow{letter-spacing:.3em;font-size:10px}.hero-body{font-size:15px}.btn-primary{font-size:14px;padding:14px 28px}.blob-1{width:250px;height:250px}.blob-2{width:200px;height:200px}.blob-3{width:150px;height:150px}.blob-4{display:none}.blob-5{display:none}}
 @media(max-width:768px){.bg-orb,.bg-orb-hero{animation:none!important}.blob{animation:blobFadeIn 2s ease forwards!important;filter:blur(40px)}.hero-drop{animation:heroRevealScale 500ms var(--ease-spring) forwards!important}.hero-drop::before,.hero-drop::after{display:none}.btn-primary{animation:heroRevealSpring 400ms var(--ease-spring) 400ms forwards!important;box-shadow:0 0 20px rgba(0,229,255,.2)}}
+.stats-bar{position:relative;z-index:2;margin-top:-40px;padding:0 24px}.stats-inner{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);background:rgba(12,30,58,.8);border:1px solid var(--color-border);border-radius:16px;padding:24px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.stat-item{text-align:center;padding:0 8px}.stat-item+.stat-item{border-left:1px solid var(--color-border)}.stat-number{font-family:var(--font-display);font-size:clamp(20px,4vw,28px);font-weight:700;background:linear-gradient(135deg,var(--color-primary),var(--color-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2}.stat-label{font-size:12px;color:var(--color-text-secondary);margin-top:4px;line-height:1.3}
+@media(max-width:768px){.stats-bar{margin-top:-28px}.stats-inner{grid-template-columns:repeat(2,1fr);gap:16px 0;padding:20px 12px}.stat-item:nth-child(1),.stat-item:nth-child(2){padding-bottom:16px;border-bottom:1px solid var(--color-border)}.stat-item:nth-child(2){border-left:1px solid var(--color-border)}.stat-item:nth-child(3){border-left:none}.stat-item:nth-child(4){border-left:1px solid var(--color-border)}}
   </style>
 
   <!-- Full CSS — preloaded async, not render-blocking -->
-  <link rel="preload" href="css/style.min.css?v=0607cb35" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="css/style.min.css?v=0607cb35"></noscript>
+  <link rel="preload" href="css/style.min.css?v=72ddfae4" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="css/style.min.css?v=72ddfae4"></noscript>
   
 </head>
 <body>
@@ -205,6 +207,27 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
       </div>
     </section>
 
+    <div class="stats-bar">
+      <div class="stats-inner">
+        <div class="stat-item">
+          <div class="stat-number">4</div>
+          <div class="stat-label" data-lang-en="Service Types" data-lang-cn="种服务类型">种服务类型</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">100%</div>
+          <div class="stat-label" data-lang-en="Custom Design" data-lang-cn="客制化设计">客制化设计</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" data-lang-en="7 Days" data-lang-cn="7 天">7 天</div>
+          <div class="stat-label" data-lang-en="Delivery" data-lang-cn="内交付">内交付</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" data-lang-en="Free" data-lang-cn="免费">免费</div>
+          <div class="stat-label" data-lang-en="Consultation" data-lang-cn="咨询">咨询</div>
+        </div>
+      </div>
+    </div>
+
     <section class="story" id="story">
       <div class="section-inner">
         <div class="section-label"
@@ -240,6 +263,21 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
             <h3 data-lang-en="The Ocean" data-lang-cn="流向大海">流向大海</h3>
             <p data-lang-en="SEO · Analytics · Real business results"
                data-lang-cn="SEO · 数据分析 · 带来真实业绩">SEO · 数据分析 · 带来真实业绩</p>
+          </div>
+        </div>
+
+        <div class="founder">
+          <div class="founder-avatar">
+            <img src="assets/founder-avatar.webp?v=71670249" alt="Hui Huang — Founder of H2ODreamer Studio" width="120" height="120" loading="lazy">
+          </div>
+          <div class="founder-info">
+            <h3 class="founder-name">Hui Huang</h3>
+            <p class="founder-role" data-lang-en="Founder · Developer · Designer" data-lang-cn="创办人 · 开发者 · 设计师">创办人 · 开发者 · 设计师</p>
+            <p class="founder-bio"
+               data-lang-en="After years building websites for companies, I realized what truly excites me is helping dreamers — small business owners and couples — turn their ideas into something real. Every project is someone's first step."
+               data-lang-cn="在企业做了几年网站开发后，我发现最让我兴奋的，是帮有梦想的人 — 小老板和准新人 — 把想法变成现实。每一个项目，都是某人梦想的第一步。">
+              在企业做了几年网站开发后，我发现最让我兴奋的，是帮有梦想的人 — 小老板和准新人 — 把想法变成现实。每一个项目，都是某人梦想的第一步。
+            </p>
           </div>
         </div>
       </div>
@@ -297,6 +335,53 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
       </div>
     </section>
 
+    <section class="process" id="process">
+      <div class="section-inner">
+        <div class="section-label"
+             data-lang-en="How It Works"
+             data-lang-cn="合作流程">合作流程</div>
+        <h2 class="section-title"
+            data-lang-en="From <em>chat</em> to <em>launch</em>,<br>we walk you through every step."
+            data-lang-cn="从<em>咨询</em>到<em>上线</em>，<br>我们陪你走完每一步。">
+          从<em>咨询</em>到<em>上线</em>，<br>我们陪你走完每一步。
+        </h2>
+        <div class="process-timeline">
+          <div class="process-step">
+            <div class="process-number">1</div>
+            <h3 data-lang-en="Free Consultation" data-lang-cn="免费咨询">免费咨询</h3>
+            <p data-lang-en="Chat with us on WhatsApp about your needs and budget. We'll give you honest advice — no hard sell."
+               data-lang-cn="WhatsApp 聊聊你的需求和预算，我们给你专业建议 — 不强推。">
+              WhatsApp 聊聊你的需求和预算，我们给你专业建议 — 不强推。
+            </p>
+          </div>
+          <div class="process-step">
+            <div class="process-number">2</div>
+            <h3 data-lang-en="Design Direction" data-lang-cn="设计确认">设计确认</h3>
+            <p data-lang-en="We show you the design direction first. Development only starts after you approve."
+               data-lang-cn="先看设计方向，你确认满意后才开始开发。">
+              先看设计方向，你确认满意后才开始开发。
+            </p>
+          </div>
+          <div class="process-step">
+            <div class="process-number">3</div>
+            <h3 data-lang-en="Build + Revise" data-lang-cn="开发 + 修改">开发 + 修改</h3>
+            <p data-lang-en="First draft in 5–7 days. Includes 2 rounds of revisions to get it just right."
+               data-lang-cn="5–7 天交付初版，包含 2 轮修改，改到你满意。">
+              5–7 天交付初版，包含 2 轮修改，改到你满意。
+            </p>
+          </div>
+          <div class="process-step">
+            <div class="process-number">4</div>
+            <h3 data-lang-en="Launch + Handover" data-lang-cn="上线交付">上线交付</h3>
+            <p data-lang-en="We deploy your site, set up analytics, and hand over a simple guide so you can manage it yourself."
+               data-lang-cn="帮你部署上线、设置数据追踪，附赠操作指南让你自己也能管理。">
+              帮你部署上线、设置数据追踪，附赠操作指南让你自己也能管理。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <div class="wave-divider wave-3" aria-hidden="true">
       <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,50 C180,10 360,70 540,30 C720,0 900,60 1080,25 C1260,0 1380,45 1440,30 L1440,80 L0,80Z"/></svg>
     </div>
@@ -351,7 +436,8 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
             <a class="service-cta" href="https://wa.me/60166897835?text=Hi%20H2ODreamer!%20I'm%20interested%20in%20the%20Standard%20Wedding%20E-Invitation%20(from%20RM%20800).%20My%20wedding%20date%20is%20%5Bdate%5D.%20Can%20we%20chat%20about%20the%20design?" target="_blank" rel="noopener" data-lang-en="💬 Design My Invite" data-lang-cn="💬 定制我的喜帖">💬 Design My Invite</a>
           </article>
 
-          <article class="service-card" data-tier="premium">
+          <article class="service-card service-card--highlighted" data-tier="premium">
+            <div class="service-badge" data-lang-en="Popular" data-lang-cn="热门">热门</div>
             <div class="service-tier" data-lang-en="Premium" data-lang-cn="定制版">Premium</div>
             <h3 class="service-name" data-lang-en="Wedding E-Invitation" data-lang-cn="电子喜帖">Wedding E-Invitation</h3>
             <p class="service-tagline" data-lang-en="An invitation your guests won't stop sharing." data-lang-cn="让宾客忍不住转发的喜帖。">An invitation your guests won't stop sharing.</p>
@@ -372,7 +458,8 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
             <a class="service-cta" href="https://wa.me/60166897835?text=Hi%20H2ODreamer!%20I'd%20love%20to%20know%20more%20about%20the%20Premium%20Wedding%20E-Invitation%20(from%20RM%201%2C500).%20My%20wedding%20date%20is%20%5Bdate%5D." target="_blank" rel="noopener" data-lang-en="💬 Design My Premium Invite" data-lang-cn="💬 定制我的高级喜帖">💬 Design My Premium Invite</a>
           </article>
 
-          <article class="service-card">
+          <article class="service-card service-card--highlighted">
+            <div class="service-badge service-badge--recommended" data-lang-en="Recommended" data-lang-cn="推荐">推荐</div>
             <h3 class="service-name" data-lang-en="Landing Page" data-lang-cn="着陆页">Landing Page</h3>
             <p class="service-tagline" data-lang-en="Turn visitors into paying customers." data-lang-cn="把访客变成真正的客户。">Turn visitors into paying customers.</p>
             <p class="service-desc" data-lang-en="A conversion-focused landing page with WhatsApp integration, SEO basics &amp; analytics — built to bring you real enquiries." data-lang-cn="以转化为核心的着陆页，内建 WhatsApp 集成、SEO 基础 &amp; 数据追踪 — 帮你带来真实询盘。">A conversion-focused landing page with WhatsApp integration, SEO basics &amp; analytics — built to bring you real enquiries.</p>
@@ -654,6 +741,10 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
     </section>
   </main>
 
+  <a href="https://wa.me/60166897835" class="wa-fab" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.019-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
   <footer class="footer">
     <div class="footer-inner">
       <p>© 2026 H2ODreamer Studio · Malaysia</p>
@@ -663,7 +754,7 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
     </div>
   </footer>
 
-  <script src="js/main.min.js?v=8b0815bb" defer></script>
+  <script src="js/main.min.js?v=a6d077a5" defer></script>
 
   <!-- Google Analytics — moved out of <head> to avoid blocking first paint -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-45NTTZBZC4"></script>
