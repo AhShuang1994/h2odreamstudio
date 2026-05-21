@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/favicon.svg?v=609fce45" type="image/svg+xml">
   <link rel="canonical" href="https://www.h2o-dreamer-studio.com/">
   <title>H2ODreamer Studio · 网站设计 · Web Design Malaysia</title>
   <meta name="description" content="H2ODreamer Studio — 帮你迈出梦想的第一步。专业网站设计、Shopify 迁移、婚礼电子请柬。Web design agency in Malaysia helping dreamers take their first step online.">
@@ -59,7 +59,76 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap"></noscript>
   <!-- Chinese font — loaded on demand by JS when user switches to CN -->
 
-  <link rel="stylesheet" href="css/style.min.css">
+  <!-- Critical CSS — above-the-fold only, inlined to avoid render-blocking -->
+  <style>
+:root{--color-bg-deep:#030B1A;--color-bg-mid:#071428;--color-bg-card:#0C1E3A;--color-primary:#00E5FF;--color-primary-glow:#00BCD4;--color-secondary:#06D6A0;--color-accent:#7B61FF;--color-text:#F0F6FF;--color-text-secondary:#8BA4C4;--color-text-muted:#7A8FA6;--color-border:#1A3352;--font-display:'Space Grotesk','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--font-body:'DM Sans','Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif;--max-width:1200px;--section-padding-y:100px;--section-padding-y-mobile:56px;--ease-out-expo:cubic-bezier(0.16,1,0.3,1);--ease-spring:cubic-bezier(0.34,1.56,0.64,1);--stagger-base:600ms}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:var(--font-body);background:var(--color-bg-deep);color:var(--color-text);line-height:1.75;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px}
+img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
+.wave-divider{position:relative;width:100%;line-height:0;margin-top:-1px;z-index:2}.wave-divider svg{display:block;width:100%;height:60px}
+.bg-orb{position:absolute;mix-blend-mode:screen;pointer-events:none}.bg-orb img{width:100%;height:auto;z-index:0;object-fit:contain;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
+.bg-orb-hero{width:min(700px,80vw);height:auto;top:50%;right:-5%;transform:translateY(-50%);opacity:.85;animation:orbFloat 16s ease-in-out infinite}
+@keyframes orbFloat{0%,100%{transform:translateY(-50%) rotate(0deg) scale(1)}33%{transform:translateY(-53%) rotate(3deg) scale(1.03)}66%{transform:translateY(-47%) rotate(-2deg) scale(.97)}}
+@media(max-width:768px){.bg-orb-hero{width:min(400px,90vw);right:-15%;opacity:.6}}
+.floating-blobs{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:0;animation:blobFloat 20s var(--ease-out-expo) infinite,blobFadeIn 2s ease forwards}
+.blob-1{width:400px;height:400px;background:radial-gradient(circle,rgba(0,229,255,.12),transparent 70%);top:10%;left:-5%;animation-duration:22s;animation-delay:0s}
+.blob-2{width:300px;height:300px;background:radial-gradient(circle,rgba(6,214,160,.10),transparent 70%);top:30%;right:-8%;animation-duration:18s;animation-delay:.5s}
+.blob-3{width:250px;height:250px;background:radial-gradient(circle,rgba(123,97,255,.08),transparent 70%);bottom:20%;left:15%;animation-duration:25s;animation-delay:1s}
+@keyframes blobFloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(30px,-40px) scale(1.05)}50%{transform:translate(-20px,20px) scale(.95)}75%{transform:translate(15px,35px) scale(1.02)}}
+@keyframes blobFadeIn{from{opacity:0}to{opacity:1}}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 24px;background:transparent;transition:background 300ms var(--ease-out-expo),backdrop-filter 300ms var(--ease-out-expo)}
+.navbar.scrolled{background:rgba(3,11,26,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.nav-inner{max-width:var(--max-width);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;position:relative}
+.nav-logo{font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:-.5px;color:var(--color-text)}
+.nav-logo span{background:linear-gradient(135deg,var(--color-primary),var(--color-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-links{display:flex;gap:32px;list-style:none;flex:1;justify-content:center;align-items:center}
+.nav-links a{font-size:13px;color:var(--color-text-secondary);letter-spacing:.5px;transition:color 200ms var(--ease-out-expo);position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:50%;right:50%;height:2px;background:var(--color-primary);border-radius:1px;transition:left 300ms var(--ease-out-expo),right 300ms var(--ease-out-expo)}
+.nav-links a:hover{color:var(--color-primary)}.nav-links a:hover::after{left:0;right:0}
+.lang-toggle{background:rgba(255,255,255,.04);border:1px solid rgba(0,229,255,.2);color:var(--color-primary);padding:6px 16px;border-radius:30% 70% 70% 30%/60% 40% 60% 40%;font-size:13px;font-family:var(--font-body);cursor:pointer;transition:background 200ms var(--ease-out-expo),border-radius 500ms var(--ease-out-expo)}
+.lang-toggle:hover{background:rgba(0,229,255,.08);border-radius:70% 30% 30% 70%/40% 60% 40% 60%}
+.nav-toggle{display:none;background:transparent;border:none;cursor:pointer;width:32px;height:32px;flex-direction:column;justify-content:space-around;align-items:center;position:relative;z-index:101}
+.nav-toggle span{display:block;width:24px;height:2px;background:var(--color-text);border-radius:2px;transition:transform 250ms var(--ease-out-expo),opacity 250ms var(--ease-out-expo)}
+@media(max-width:768px){.nav-toggle{display:flex}.nav-inner>.lang-toggle{display:none}.nav-links{position:fixed;top:0;right:0;width:80%;max-width:320px;height:100vh;background:var(--color-bg-deep);flex-direction:column;justify-content:center;align-items:center;gap:32px;transform:translateX(100%);transition:transform 300ms var(--ease-out-expo);border-left:1px solid var(--color-border);z-index:100}.nav-links.open{transform:translateX(0)}.nav-links a{font-size:18px}.nav-links .lang-toggle-mobile{margin-top:16px;padding-top:24px;border-top:1px solid var(--color-border);font-size:16px;padding:12px 32px;border-radius:50px}}
+.hero{position:relative;min-height:100vh;background:linear-gradient(170deg,var(--color-bg-deep) 0%,#071428 30%,#0C2D5A 60%,#064E6E 82%,var(--color-bg-mid) 100%);display:flex;align-items:center;justify-content:center;text-align:center;padding:140px 24px 80px;overflow:hidden}
+.hero-inner{position:relative;max-width:720px;z-index:1}
+.hero-drop{font-size:60px;margin-bottom:24px;filter:drop-shadow(0 0 24px rgba(0,229,255,.5)) drop-shadow(0 0 80px rgba(6,214,160,.2));position:relative;display:inline-block}
+.hero-drop::before,.hero-drop::after{content:'';position:absolute;top:50%;left:50%;width:80px;height:80px;border:1px solid rgba(0,229,255,.15);border-radius:50%;transform:translate(-50%,-50%) scale(.5);animation:rippleRing 3s ease-out infinite}
+.hero-drop::after{animation-delay:1.5s}
+@keyframes rippleRing{0%{transform:translate(-50%,-50%) scale(.5);opacity:1}100%{transform:translate(-50%,-50%) scale(3);opacity:0}}
+.hero-eyebrow{font-size:12px;letter-spacing:.5em;color:var(--color-secondary);text-transform:uppercase;margin-bottom:20px;opacity:.9}
+.hero-title{font-family:var(--font-display);font-size:clamp(44px,8vw,88px);font-weight:700;line-height:1.0;letter-spacing:-.04em;margin-bottom:20px}
+.hero-title em{background:linear-gradient(135deg,var(--color-primary),var(--color-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-style:normal}
+.hero-tagline{font-family:var(--font-display);font-size:clamp(14px,2vw,18px);color:var(--color-primary);font-style:italic;opacity:.85;margin-bottom:16px}
+.hero-body{font-size:16px;color:var(--color-text-secondary);line-height:1.75;max-width:560px;margin:0 auto 40px}
+.btn-primary{display:inline-block;background:linear-gradient(135deg,var(--color-primary),var(--color-secondary));color:var(--color-bg-deep);font-weight:700;font-size:15px;padding:16px 36px;border-radius:50px;box-shadow:0 0 30px rgba(0,229,255,.3),0 0 60px rgba(6,214,160,.15);transition:transform 300ms var(--ease-spring),box-shadow 300ms var(--ease-out-expo);position:relative;animation:glowBreathe 3s ease-in-out infinite}
+@keyframes glowBreathe{0%,100%{box-shadow:0 0 30px rgba(0,229,255,.3),0 0 60px rgba(6,214,160,.15)}50%{box-shadow:0 0 40px rgba(0,229,255,.45),0 0 80px rgba(6,214,160,.25)}}
+.hero-subnote{margin-top:16px;font-size:12px;color:var(--color-text-muted)}
+.hero-drop,.hero-eyebrow,.hero-title,.hero-tagline,.hero-body,.btn-primary,.hero-subnote{opacity:0}
+.hero-drop{animation:heroFloat 5s var(--ease-out-expo) infinite,heroRevealScale 500ms var(--ease-spring) forwards}
+.hero-eyebrow{animation:heroRevealLetterSpace 500ms var(--ease-out-expo) 50ms forwards}
+.hero-title{animation:heroRevealClip 500ms var(--ease-out-expo) 100ms forwards}
+.hero-tagline{animation:heroRevealFade 500ms var(--ease-out-expo) 200ms forwards}
+.hero-body{animation:fadeUp 500ms var(--ease-out-expo) 300ms forwards}
+.btn-primary{animation:heroRevealSpring 400ms var(--ease-spring) 400ms forwards,glowBreathe 3s ease-in-out 1.5s infinite}
+.hero-subnote{animation:fadeUp 400ms var(--ease-out-expo) 500ms forwards}
+@keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes heroRevealScale{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+@keyframes heroRevealLetterSpace{from{opacity:0;letter-spacing:1em}to{opacity:.9;letter-spacing:.5em}}
+@keyframes heroRevealClip{from{opacity:0;clip-path:inset(100% 0 0 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
+@keyframes heroRevealFade{from{opacity:0}to{opacity:.85}}
+@keyframes heroRevealSpring{from{opacity:0;transform:scale(.8)}60%{opacity:1;transform:scale(1.06)}to{opacity:1;transform:scale(1)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){.hero{padding:120px 20px 60px}.hero-drop{font-size:48px}.hero-eyebrow{letter-spacing:.3em;font-size:10px}.hero-body{font-size:15px}.btn-primary{font-size:14px;padding:14px 28px}.blob-1{width:250px;height:250px}.blob-2{width:200px;height:200px}.blob-3{width:150px;height:150px}.blob-4{display:none}.blob-5{display:none}}
+@media(max-width:768px){.bg-orb,.bg-orb-hero{animation:none!important}.blob{animation:blobFadeIn 2s ease forwards!important;filter:blur(40px)}.hero-drop{animation:heroRevealScale 500ms var(--ease-spring) forwards!important}.hero-drop::before,.hero-drop::after{display:none}.btn-primary{animation:heroRevealSpring 400ms var(--ease-spring) 400ms forwards!important;box-shadow:0 0 20px rgba(0,229,255,.2)}}
+  </style>
+
+  <!-- Full CSS — preloaded async, not render-blocking -->
+  <link rel="preload" href="css/style.min.css?v=893dd914" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="css/style.min.css?v=893dd914"></noscript>
   
   <!-- Google tag (gtag.js) -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=G-45NTTZBZC4"></script>
@@ -97,20 +166,20 @@
   <main>
     <section class="hero" id="hero">
       <div class="hero-bg-glow"></div>
-      <!-- <img src="assets/bg-1.webp" class="bg-orb bg-orb-hero" alt="Hero Background" fetchpriority="high" aria-hidden="true"> -->
+      <!-- <img src="assets/bg-1.webp?v=bb2dcfe2" class="bg-orb bg-orb-hero" alt="Hero Background" fetchpriority="high" aria-hidden="true"> -->
       <picture class="bg-orb bg-orb-hero">
 		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
-		  <source srcset="assets/bg-1-400.webp" media="(max-width: 768px)">
+		  <source srcset="assets/bg-1-400.webp?v=1f841aa2" media="(max-width: 768px)">
 		  <!-- 其他情况（电脑端）使用大图 -->
-		  <img src="assets/bg-1.webp" alt="Hero Background" width="700" height="700" fetchpriority="high" aria-hidden="true">
+		  <img src="assets/bg-1.webp?v=bb2dcfe2" alt="Hero Background" width="700" height="700" fetchpriority="high" aria-hidden="true">
 	  </picture>
 	  <picture class="bg-orb bg-orb-hero-left">
 		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
-		  <source srcset="assets/bg-1-400.webp" media="(max-width: 768px)">
+		  <source srcset="assets/bg-1-400.webp?v=1f841aa2" media="(max-width: 768px)">
 		  <!-- 其他情况（电脑端）使用大图 -->
-		  <img src="assets/bg-1.webp" alt="Hero Background Left" width="400" height="400" aria-hidden="true">
+		  <img src="assets/bg-1.webp?v=bb2dcfe2" alt="Hero Background Left" width="400" height="400" aria-hidden="true">
 		</picture>
-	  <!-- <img src="assets/bg-1.webp" class="bg-orb bg-orb-hero-left" alt="Hero Background Left" aria-hidden="true"> -->
+	  <!-- <img src="assets/bg-1.webp?v=bb2dcfe2" class="bg-orb bg-orb-hero-left" alt="Hero Background Left" aria-hidden="true"> -->
       <div class="floating-blobs" aria-hidden="true">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
@@ -242,20 +311,20 @@
     </div>
 
     <section class="services" id="services">
-      <!-- <img src="assets/bg-2.webp" class="bg-orb bg-orb-services-tl" alt="" aria-hidden="true"> -->
+      <!-- <img src="assets/bg-2.webp?v=d1241eca" class="bg-orb bg-orb-services-tl" alt="" aria-hidden="true"> -->
 	   <picture class="bg-orb bg-orb-services-tl">
 		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
-		  <source srcset="assets/bg-2-400.webp" media="(max-width: 768px)">
+		  <source srcset="assets/bg-2-400.webp?v=ce0da6eb" media="(max-width: 768px)">
 		  <!-- 其他情况（电脑端）使用大图 -->
-		  <img src="assets/bg-2.webp" alt="services background" aria-hidden="true">
+		  <img src="assets/bg-2.webp?v=d1241eca" alt="services background" aria-hidden="true">
 	  </picture>
 	   <picture class="bg-orb bg-orb-services-br">
 		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
-		  <source srcset="assets/bg-2-400.webp" media="(max-width: 768px)">
+		  <source srcset="assets/bg-2-400.webp?v=ce0da6eb" media="(max-width: 768px)">
 		  <!-- 其他情况（电脑端）使用大图 -->
-		  <img src="assets/bg-2.webp" alt="services background right" aria-hidden="true">
+		  <img src="assets/bg-2.webp?v=d1241eca" alt="services background right" aria-hidden="true">
 	  </picture>
-      <!-- <img src="assets/bg-2.webp" class="bg-orb bg-orb-services-br" alt="" aria-hidden="true"> -->
+      <!-- <img src="assets/bg-2.webp?v=d1241eca" class="bg-orb bg-orb-services-br" alt="" aria-hidden="true"> -->
       <div class="section-inner">
         <div class="section-label"
              data-lang-en="What We Do"
@@ -383,7 +452,7 @@
         <div class="bento-grid portfolio-grid">
 
           <a href="demos/wedding-premium-1.html" class="bento-item reveal reveal-up" data-category="wedding" target="_blank" rel="noopener">
-            <img src="assets/portfolio/wedding-premium-1-desktop.webp" alt="Wedding premium e-invitation" loading="lazy">
+            <img src="assets/portfolio/wedding-premium-1-desktop.webp?v=7881dc55" alt="Wedding premium e-invitation" loading="lazy">
             <div class="bento-overlay">
               <span class="bento-tag" data-lang-en="Wedding Premium" data-lang-cn="婚礼高级版">Wedding Premium</span>
               <span class="bento-label" data-lang-en="Elegant Countdown" data-lang-cn="优雅倒计时">优雅倒计时</span>
@@ -392,7 +461,7 @@
           </a>
 
           <a href="demos/landing-fnb-1/landing-fnb-1.html" class="bento-item reveal reveal-up" data-category="landing" target="_blank" rel="noopener">
-            <img src="assets/portfolio/landing-fnb-1-desktop.webp" alt="F&B Restaurant landing page" loading="lazy">
+            <img src="assets/portfolio/landing-fnb-1-desktop.webp?v=355b3ec2" alt="F&B Restaurant landing page" loading="lazy">
             <div class="bento-overlay">
               <span class="bento-tag" data-lang-en="Landing Page" data-lang-cn="Landing Page">Landing Page</span>
               <span class="bento-label" data-lang-en="F&B / Restaurant" data-lang-cn="餐饮 / 餐厅">餐饮 / 餐厅</span>
@@ -401,7 +470,7 @@
           </a>
 
           <a href="demos/glowseoul-skincare.html" class="bento-item reveal reveal-up" data-category="landing" target="_blank" rel="noopener">
-            <img src="assets/portfolio/landing-beauty-desktop.webp" alt="Beauty Skincare landing page" loading="lazy">
+            <img src="assets/portfolio/landing-beauty-desktop.webp?v=57b13db3" alt="Beauty Skincare landing page" loading="lazy">
             <div class="bento-overlay">
               <span class="bento-tag" data-lang-en="Landing Page" data-lang-cn="Landing Page">Landing Page</span>
               <span class="bento-label" data-lang-en="Beauty / Skincare" data-lang-cn="美容 / 护肤">美容 / 护肤</span>
@@ -410,7 +479,7 @@
           </a>
 
           <a href="demos/wedding-premium-2.html" class="bento-item reveal reveal-up" data-category="wedding" target="_blank" rel="noopener">
-            <img src="assets/portfolio/wedding-premium-2-desktop.webp" alt="Wedding premium e-invitation v2" loading="lazy">
+            <img src="assets/portfolio/wedding-premium-2-desktop.webp?v=6b313584" alt="Wedding premium e-invitation v2" loading="lazy">
             <div class="bento-overlay">
               <span class="bento-tag" data-lang-en="Wedding Premium" data-lang-cn="婚礼高级版">Wedding Premium</span>
               <span class="bento-label" data-lang-en="Cinematic Gallery" data-lang-cn="电影感画廊">电影感画廊</span>
@@ -419,7 +488,7 @@
           </a>
 
           <a href="demos/cooltech-aircon.html" class="bento-item reveal reveal-up" data-category="landing" target="_blank" rel="noopener">
-            <img src="assets/portfolio/landing-aircon-desktop.webp" alt="Home Services Aircon landing page" loading="lazy">
+            <img src="assets/portfolio/landing-aircon-desktop.webp?v=07bfb139" alt="Home Services Aircon landing page" loading="lazy">
             <div class="bento-overlay">
               <span class="bento-tag" data-lang-en="Landing Page" data-lang-cn="Landing Page">Landing Page</span>
               <span class="bento-label" data-lang-en="Home Services / Aircon" data-lang-cn="家居服务 / 冷气">家居服务 / 冷气</span>
@@ -428,7 +497,7 @@
           </a>
 
           <a href="demos/wedding-basic-1.html" class="bento-item reveal reveal-up" data-category="wedding" target="_blank" rel="noopener">
-            <img src="assets/portfolio/wedding-basic-1-desktop.webp" alt="Wedding basic e-invitation" loading="lazy">
+            <img src="assets/portfolio/wedding-basic-1-desktop.webp?v=796b5dc1" alt="Wedding basic e-invitation" loading="lazy">
             <div class="bento-overlay">
               <span class="bento-tag" data-lang-en="Wedding Basic" data-lang-cn="婚礼基础版">Wedding Basic</span>
               <span class="bento-label" data-lang-en="Minimal Protocol" data-lang-cn="极简风格">极简风格</span>
@@ -437,7 +506,7 @@
           </a>
 
           <a href="demos/muse-apparel.html" class="bento-item reveal reveal-up" data-category="shopify" target="_blank" rel="noopener">
-            <img src="assets/portfolio/shopify-fashion-desktop.webp" alt="Shopify fashion store" loading="lazy">
+            <img src="assets/portfolio/shopify-fashion-desktop.webp?v=df467583" alt="Shopify fashion store" loading="lazy">
             <div class="bento-overlay">
               <span class="bento-tag" data-lang-en="Shopify" data-lang-cn="Shopify">Shopify</span>
               <span class="bento-label" data-lang-en="Fashion / Apparel" data-lang-cn="时尚 / 服饰">时尚 / 服饰</span>
@@ -446,7 +515,7 @@
           </a>
 
           <a href="demos/wedding-basic-2.html" class="bento-item reveal reveal-up" data-category="wedding" target="_blank" rel="noopener">
-            <img src="assets/portfolio/wedding-basic-2-desktop.webp" alt="Wedding basic e-invitation v2" loading="lazy">
+            <img src="assets/portfolio/wedding-basic-2-desktop.webp?v=dece8d76" alt="Wedding basic e-invitation v2" loading="lazy">
             <div class="bento-overlay">
               <span class="bento-tag" data-lang-en="Wedding Basic" data-lang-cn="婚礼基础版">Wedding Basic</span>
               <span class="bento-label" data-lang-en="Outdoor Romance" data-lang-cn="户外浪漫">户外浪漫</span>
@@ -561,11 +630,11 @@
     <section class="contact" id="contact">
 	 <picture class="bg-orb bg-orb-contact">
 		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
-		  <source srcset="assets/bg-3-400.webp" media="(max-width: 768px)">
+		  <source srcset="assets/bg-3-400.webp?v=14fa9ba9" media="(max-width: 768px)">
 		  <!-- 其他情况（电脑端）使用大图 -->
-		  <img src="assets/bg-3.webp" alt="contact background" aria-hidden="true">
+		  <img src="assets/bg-3.webp?v=19cfff17" alt="contact background" aria-hidden="true">
 	  </picture>
-      <!-- <img src="assets/bg-3.webp" class="bg-orb bg-orb-contact" alt="" aria-hidden="true"> -->
+      <!-- <img src="assets/bg-3.webp?v=19cfff17" class="bg-orb bg-orb-contact" alt="" aria-hidden="true"> -->
       <div class="section-inner">
         <h2 class="section-title"
             data-lang-en="Ready to take your <em>first step</em>?"
@@ -603,6 +672,6 @@
     </div>
   </footer>
 
-  <script src="js/main.min.js" defer></script>
+  <script src="js/main.min.js?v=751ad7ca" defer></script>
 </body>
 </html>
