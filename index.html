@@ -127,18 +127,9 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
   </style>
 
   <!-- Full CSS — preloaded async, not render-blocking -->
-  <link rel="preload" href="css/style.min.css?v=893dd914" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="css/style.min.css?v=893dd914"></noscript>
+  <link rel="preload" href="css/style.min.css?v=0607cb35" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="css/style.min.css?v=0607cb35"></noscript>
   
-  <!-- Google tag (gtag.js) -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-45NTTZBZC4"></script>
-	<script>
-	  window.dataLayer = window.dataLayer || [];
-	  function gtag(){dataLayer.push(arguments);}
-	  gtag('js', new Date());
-
-	  gtag('config', 'G-45NTTZBZC4');
-	</script>
 </head>
 <body>
   <nav class="navbar" id="navbar">
@@ -171,13 +162,13 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
 		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
 		  <source srcset="assets/bg-1-400.webp?v=1f841aa2" media="(max-width: 768px)">
 		  <!-- 其他情况（电脑端）使用大图 -->
-		  <img src="assets/bg-1.webp?v=bb2dcfe2" alt="Hero Background" width="700" height="700" fetchpriority="high" aria-hidden="true">
+		  <img src="assets/bg-1.webp?v=bb2dcfe2" alt="Hero Background" width="700" height="700" fetchpriority="high" decoding="async" aria-hidden="true">
 	  </picture>
 	  <picture class="bg-orb bg-orb-hero-left">
 		  <!-- 当屏幕小于 768px 时，强制使用小图 -->
 		  <source srcset="assets/bg-1-400.webp?v=1f841aa2" media="(max-width: 768px)">
 		  <!-- 其他情况（电脑端）使用大图 -->
-		  <img src="assets/bg-1.webp?v=bb2dcfe2" alt="Hero Background Left" width="400" height="400" aria-hidden="true">
+		  <img src="assets/bg-1.webp?v=bb2dcfe2" alt="Hero Background Left" width="400" height="400" decoding="async" aria-hidden="true">
 		</picture>
 	  <!-- <img src="assets/bg-1.webp?v=bb2dcfe2" class="bg-orb bg-orb-hero-left" alt="Hero Background Left" aria-hidden="true"> -->
       <div class="floating-blobs" aria-hidden="true">
@@ -672,6 +663,15 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
     </div>
   </footer>
 
-  <script src="js/main.min.js?v=751ad7ca" defer></script>
+  <script src="js/main.min.js?v=8b0815bb" defer></script>
+
+  <!-- Google Analytics — moved out of <head> to avoid blocking first paint -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-45NTTZBZC4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-45NTTZBZC4');
+  </script>
 </body>
 </html>
