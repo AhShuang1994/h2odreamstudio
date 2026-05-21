@@ -159,7 +159,7 @@
   );
 
   function initReveal() {
-    document.querySelectorAll('.story, .pain, .services, .portfolio, .faq, .contact').forEach(s => {
+    document.querySelectorAll('.story, .pain, .process, .services, .portfolio, .faq, .contact').forEach(s => {
       s.classList.add('reveal', 'reveal-up');
     });
     document.querySelectorAll('.pain-card').forEach(el => el.classList.add('reveal', 'reveal-scale'));
