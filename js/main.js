@@ -119,19 +119,11 @@
   });
 })();
 
-// Scroll reveal with varied entrance directions
+// Scroll reveal with varied entrance directions — deferred to avoid blocking first paint
 (function () {
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReduced) return;
 
-  const sections = document.querySelectorAll(
-    '.story, .pain, .services, .portfolio, .faq, .contact'
-  );
-  sections.forEach(s => {
-    s.classList.add('reveal', 'reveal-up');
-  });
-
-  // Journey items — stagger left to right (handled by CSS .journey-item)
   const journeyObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach(entry => {
@@ -147,21 +139,6 @@
   const journey = document.querySelector('.journey');
   if (journey) journeyObserver.observe(journey);
 
-  // Pain cards — scale in
-  document.querySelectorAll('.pain-card').forEach(el => {
-    el.classList.add('reveal', 'reveal-scale');
-  });
-
-  // Service cards — rotate entrance
-  document.querySelectorAll('.service-card').forEach(el => {
-    el.classList.add('reveal', 'reveal-rotate');
-  });
-
-  // FAQ items — slide from right
-  document.querySelectorAll('.faq-item').forEach(el => {
-    el.classList.add('reveal', 'reveal-right');
-  });
-
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach(entry => {
@@ -170,7 +147,7 @@
           if (parent) {
             const siblings = parent.querySelectorAll('.reveal:not(.revealed)');
             siblings.forEach((sib, idx) => {
-              sib.style.transitionDelay = (idx * 120) + 'ms';
+              sib.style.setProperty('--reveal-delay', (idx * 120) + 'ms');
             });
           }
           entry.target.classList.add('revealed');
@@ -181,13 +158,28 @@
     { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
   );
 
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  function initReveal() {
+    document.querySelectorAll('.story, .pain, .services, .portfolio, .faq, .contact').forEach(s => {
+      s.classList.add('reveal', 'reveal-up');
+    });
+    document.querySelectorAll('.pain-card').forEach(el => el.classList.add('reveal', 'reveal-scale'));
+    document.querySelectorAll('.service-card').forEach(el => el.classList.add('reveal', 'reveal-rotate'));
+    document.querySelectorAll('.faq-item').forEach(el => el.classList.add('reveal', 'reveal-right'));
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  }
+
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(initReveal, { timeout: 200 });
+  } else {
+    setTimeout(initReveal, 0);
+  }
 })();
 
 // 3D Card Tilt on hover (service cards + pain cards)
 (function () {
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReduced) return;
+  if (window.matchMedia('(pointer: coarse)').matches) return;
 
   const cards = document.querySelectorAll('.service-card, .pain-card');
   cards.forEach(card => {
@@ -214,6 +206,7 @@
 (function () {
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReduced) return;
+  if (window.matchMedia('(pointer: coarse)').matches) return;
 
   const blobs = document.querySelectorAll('.blob');
   const heroDrop = document.querySelector('.hero-drop');
