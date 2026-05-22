@@ -1616,5 +1616,353 @@ window.addEventListener('scroll', () => {
 </script>
 <script>document.addEventListener('contextmenu',function(e){if(e.target.tagName==='IMG'||getComputedStyle(e.target).backgroundImage!=='none')e.preventDefault()});document.addEventListener('dragstart',function(e){if(e.target.tagName==='IMG')e.preventDefault()});</script>
 
+<!-- GSAP + ScrollTrigger (free, GPU-accelerated) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/ScrollTrigger.min.js"></script>
+
+<!-- ────────────────────────────────────── -->
+<!-- DESIGN ANNOTATIONS v3 — Hand-drawn     -->
+<!-- ────────────────────────────────────── -->
+<style>
+.anno-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 60;
+  pointer-events: none;
+  overflow: visible;
+}
+.anno-path, .anno-path-glow {
+  fill: none;
+  stroke: var(--rose);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.anno-path {
+  stroke-width: 0.35;
+  filter: drop-shadow(0 0 6px rgba(196,135,142,0.4));
+}
+.anno-path-glow {
+  stroke-width: 1;
+  opacity: 0.15;
+  filter: blur(4px);
+}
+.anno-dot {
+  fill: var(--rose);
+  opacity: 0;
+  filter: drop-shadow(0 0 3px var(--rose)) drop-shadow(0 0 8px rgba(196,135,142,0.6));
+}
+.anno-dot-trail {
+  fill: none;
+  stroke: var(--rose);
+  opacity: 0;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.anno-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 59;
+  background: rgba(0,0,0,0.55);
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+}
+.anno-overlay.active { pointer-events: auto; touch-action: manipulation; }
+
+.anno-num {
+  position: absolute;
+  top: 12px;
+  left: 24px;
+  z-index: 62;
+  opacity: 0;
+  transform: translateY(8px);
+}
+.anno-num span {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: var(--rose);
+  padding: 5px 16px;
+  border-radius: 999px;
+  box-shadow: 0 2px 12px rgba(196,135,142,0.3);
+}
+
+.anno-detail {
+  position: absolute;
+  z-index: 63;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.88);
+  width: 380px;
+  max-width: 90%;
+  opacity: 0;
+  pointer-events: none;
+}
+.anno-detail.active { pointer-events: auto; }
+.anno-detail-card {
+  background: rgba(42,36,24,0.96);
+  border: 1.5px solid var(--rose);
+  border-radius: 16px;
+  padding: 32px 28px 28px;
+  color: var(--cream);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+}
+.anno-detail-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--rose), var(--rose-d), var(--forest));
+}
+.anno-detail-close {
+  position: absolute;
+  top: 12px; right: 14px;
+  width: 36px; height: 36px;
+  touch-action: manipulation;
+  border: 1px solid rgba(196,135,142,0.3);
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, border-color 0.2s;
+  line-height: 1;
+}
+.anno-detail-close:hover {
+  color: var(--cream);
+  border-color: var(--rose);
+}
+.anno-detail-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.4em;
+  color: var(--rose);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.anno-detail-title {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 24px;
+  margin: 0 0 12px;
+  color: var(--cream);
+  line-height: 1.2;
+}
+.anno-detail-text {
+  font-family: var(--display);
+  font-size: 15px;
+  color: rgba(253,248,240,0.75);
+  line-height: 1.65;
+  margin: 0 0 16px;
+}
+.anno-detail-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.anno-detail-tag {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--rose);
+  border: 1px solid rgba(196,135,142,0.35);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+@media (max-width: 600px) {
+  .anno-detail { width: 300px; }
+  .anno-detail-card { padding: 24px 20px 20px; }
+  .anno-detail-title { font-size: 20px; }
+  .anno-detail-text { font-size: 13px; }
+  .anno-num { top: 8px; left: 12px; }
+}
+</style>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+(function() {
+  var annoData = [
+    {
+      id: 'hero',
+      section: '.hero',
+      num: '01 · Design',
+      title: 'Magazine-Style First Impression',
+      text: 'Your guests see an elegant full-screen photo with beautifully paired fonts — like opening a luxury wedding magazine. The photo gently reveals itself as the page loads.',
+      tags: ['First Impression', 'Elegant', 'Animated'],
+      delay: 1.5,
+      path: 'M 8,5 C 22,2 40,6 55,3 C 70,0 85,4 95,5 C 98,18 97,35 98,52 C 99,69 97,85 95,95 C 82,98 65,96 50,97 C 35,99 18,96 5,95 C 2,80 3,65 2,50 C 1,35 3,18 8,5 Z',
+    },
+    {
+      id: 'countdown',
+      section: '.countdown-section',
+      num: '02 · Design',
+      title: 'Live Countdown Timer',
+      text: 'A real-time countdown to your big day that updates every second with a smooth flipping animation. Builds excitement every time your guests visit the page!',
+      tags: ['Interactive', 'Real-time', 'Excitement'],
+      delay: 0,
+      path: 'M 6,7 C 20,3 42,5 58,2 C 74,0 88,4 94,6 C 97,22 96,40 97,55 C 98,70 96,88 94,94 C 78,97 60,95 45,97 C 30,99 15,96 6,93 C 3,78 4,60 3,45 C 2,30 4,15 6,7 Z',
+    },
+    {
+      id: 'rsvp',
+      section: '#rsvp',
+      num: '03 · Design',
+      title: 'One-Tap RSVP',
+      text: 'Guests simply tap their meal choice, enter their details, and hit send — no login, no app download. You get all responses collected in one place instantly.',
+      tags: ['Easy', 'No App Needed', 'Instant'],
+      delay: 0,
+      path: 'M 5,4 C 18,1 38,5 52,2 C 68,0 82,3 96,5 C 99,20 97,42 98,58 C 99,74 97,88 95,96 C 80,99 62,96 48,98 C 32,100 16,97 4,95 C 1,80 3,62 2,48 C 1,32 2,16 5,4 Z',
+    },
+    {
+      id: 'photos',
+      section: '#photos',
+      num: '04 · Design',
+      title: 'Photo Gallery with Lightbox',
+      text: 'Showcase your favourite photos in a beautiful layout. Guests can tap any photo to view it full-screen — perfect for sharing your best moments together.',
+      tags: ['Photos', 'Full-screen', 'Beautiful'],
+      delay: 0,
+      path: 'M 7,3 C 25,1 45,5 60,2 C 75,0 90,3 94,6 C 97,20 95,45 97,58 C 99,72 96,90 94,95 C 78,98 58,95 42,97 C 28,99 12,97 5,94 C 2,78 4,58 3,42 C 1,28 3,12 7,3 Z',
+    },
+  ];
+
+  annoData.forEach(function(cfg) {
+    var section = document.querySelector(cfg.section);
+    if (!section) return;
+    section.style.position = 'relative';
+
+    var overlay = document.createElement('div');
+    overlay.className = 'anno-overlay';
+    overlay.dataset.anno = cfg.id;
+    section.appendChild(overlay);
+
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'anno-svg');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.setAttribute('preserveAspectRatio', 'none');
+
+    var glowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    glowPath.setAttribute('class', 'anno-path-glow');
+    glowPath.setAttribute('d', cfg.path);
+
+    var mainPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    mainPath.setAttribute('class', 'anno-path');
+    mainPath.setAttribute('d', cfg.path);
+
+    var trailPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    trailPath.setAttribute('class', 'anno-dot-trail');
+    trailPath.setAttribute('d', cfg.path);
+    trailPath.setAttribute('stroke-width', '2.5');
+
+    var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('class', 'anno-dot');
+    dot.setAttribute('r', '2');
+
+    svg.appendChild(glowPath);
+    svg.appendChild(trailPath);
+    svg.appendChild(mainPath);
+    svg.appendChild(dot);
+    section.appendChild(svg);
+
+    var realLen = mainPath.getTotalLength();
+    var glowLen = glowPath.getTotalLength();
+    var trailLen = trailPath.getTotalLength();
+    var trailVisible = realLen * 0.06;
+
+    gsap.set(mainPath, { strokeDasharray: realLen, strokeDashoffset: realLen });
+    gsap.set(glowPath, { strokeDasharray: glowLen, strokeDashoffset: glowLen });
+    gsap.set(trailPath, { strokeDasharray: trailVisible + ' ' + trailLen, strokeDashoffset: trailVisible });
+
+    var num = document.createElement('div');
+    num.className = 'anno-num';
+    num.innerHTML = '<span>' + cfg.num + '</span>';
+    section.appendChild(num);
+
+    var detail = document.createElement('div');
+    detail.className = 'anno-detail';
+    detail.dataset.anno = cfg.id;
+    detail.innerHTML =
+      '<div class="anno-detail-card">' +
+        '<button class="anno-detail-close" aria-label="Close">&times;</button>' +
+        '<div class="anno-detail-num">' + cfg.num + '</div>' +
+        '<div class="anno-detail-title">' + cfg.title + '</div>' +
+        '<p class="anno-detail-text">' + cfg.text + '</p>' +
+        '<div class="anno-detail-tags">' + cfg.tags.map(function(t) { return '<span class="anno-detail-tag">' + t + '</span>'; }).join('') + '</div>' +
+      '</div>';
+    section.appendChild(detail);
+
+    var startPt = mainPath.getPointAtLength(0);
+    gsap.set(dot, { attr: { cx: startPt.x, cy: startPt.y } });
+
+    var tl = gsap.timeline({
+      paused: true,
+      onReverseComplete: function() {
+        overlay.classList.remove('active');
+        detail.classList.remove('active');
+      },
+    });
+
+    var drawDur = 3;
+
+    tl
+      .to(mainPath, {
+        strokeDashoffset: 0,
+        duration: drawDur,
+        ease: 'power1.inOut',
+        onUpdate: function() {
+          var p = this.progress();
+          var pt = mainPath.getPointAtLength(realLen * p);
+          gsap.set(dot, { attr: { cx: pt.x, cy: pt.y } });
+          gsap.set(trailPath, { strokeDashoffset: trailVisible - (trailLen + trailVisible) * p });
+        },
+      }, 0)
+      .to(glowPath, {
+        strokeDashoffset: 0,
+        duration: drawDur,
+        ease: 'power1.inOut',
+      }, 0)
+      .fromTo(dot, { opacity: 0, attr: { r: 0.5 } }, { opacity: 1, attr: { r: 2 }, duration: 0.3, ease: 'back.out(2)' }, 0)
+      .fromTo(trailPath, { opacity: 0 }, { opacity: 0.5, duration: 0.2 }, 0)
+      .to(dot, { attr: { r: 1.5 }, duration: drawDur - 0.5, ease: 'sine.inOut', yoyo: true, repeat: 3 }, 0.3)
+      .to([dot, trailPath], { opacity: 0, duration: 0.4 }, drawDur - 0.2)
+      .to(overlay, { opacity: 1, duration: 1, ease: 'power2.out', onStart: function() { overlay.classList.add('active'); } }, drawDur * 0.25)
+      .to(num, { opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.7)' }, drawDur * 0.4)
+      .to(detail, { opacity: 1, scale: 1, duration: 0.7, ease: 'back.out(1.5)', onStart: function() { detail.classList.add('active'); } }, drawDur * 0.55);
+
+    function dismissAnno() {
+      overlay.classList.remove('active');
+      detail.classList.remove('active');
+      var speed = window.innerWidth <= 768 ? 4 : 2.5;
+      tl.timeScale(speed).reverse();
+    }
+
+    overlay.addEventListener('click', dismissAnno);
+
+    detail.querySelector('.anno-detail-close').addEventListener('click', function(e) {
+      e.stopPropagation();
+      dismissAnno();
+    });
+
+    detail.addEventListener('click', function(e) { e.stopPropagation(); });
+
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'top 75%',
+      once: true,
+      onEnter: function() {
+        gsap.delayedCall(cfg.delay, function() { tl.timeScale(1).play(); });
+      },
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
