@@ -1973,8 +1973,8 @@ gsap.registerPlugin(ScrollTrigger);
     function dismissAnno() {
       overlay.classList.remove('active');
       detail.classList.remove('active');
-      var speed = window.innerWidth <= 768 ? 4 : 2.5;
-      tl.timeScale(speed).reverse();
+      tl.pause();
+      gsap.to([overlay, num, detail, mainPath, glowPath], { opacity: 0, duration: 0.35, ease: 'power2.in', onComplete: function() { tl.progress(0).pause(); } });
     }
 
     overlay.addEventListener('click', dismissAnno);
