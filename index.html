@@ -67,7 +67,7 @@ html{scroll-behavior:smooth;overflow-x:hidden}
 body{font-family:var(--font-body);background:var(--color-bg-deep);color:var(--color-text);line-height:1.75;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
 body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px}
 img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
-.wave-divider{position:relative;width:100%;line-height:0;margin-top:-1px;z-index:2}.wave-divider svg{display:block;width:100%;height:60px}
+.wave-divider{position:relative;width:100%;line-height:0;margin-top:-2px;margin-bottom:-2px;z-index:2}.wave-divider svg{display:block;width:100%;height:60px}
 .bg-orb{position:absolute;mix-blend-mode:screen;pointer-events:none}.bg-orb img{width:100%;height:auto;z-index:0;object-fit:contain;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
 .bg-orb-hero{width:min(700px,80vw);height:auto;top:50%;right:-5%;transform:translateY(-50%);opacity:.85;animation:orbFloat 16s ease-in-out infinite}
 @keyframes orbFloat{0%,100%{transform:translateY(-50%) rotate(0deg) scale(1)}33%{transform:translateY(-53%) rotate(3deg) scale(1.03)}66%{transform:translateY(-47%) rotate(-2deg) scale(.97)}}
@@ -129,8 +129,8 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
   </style>
 
   <!-- Full CSS — preloaded async, not render-blocking -->
-  <link rel="preload" href="css/style.min.css?v=9c7f8f98" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="css/style.min.css?v=9c7f8f98"></noscript>
+  <link rel="preload" href="css/style.min.css?v=9a405af6" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="css/style.min.css?v=9a405af6"></noscript>
   
 </head>
 <body>
@@ -284,7 +284,7 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
     </section>
 
     <div class="wave-divider wave-2-over" aria-hidden="true">
-      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,0 L0,40 C240,80 480,20 720,50 C960,80 1200,25 1440,45 L1440,0Z" fill="var(--color-bg-mid)"/></svg>
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,0 L0,30 Q360,70 720,40 Q1080,10 1440,35 L1440,0Z" fill="var(--color-bg-mid)"/></svg>
     </div>
 
     <section class="pain" id="pain">
@@ -335,6 +335,10 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
       </div>
     </section>
 
+    <div class="wave-divider wave-2b" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,35 Q360,0 720,40 Q1080,70 1440,25 L1440,80 L0,80Z"/></svg>
+    </div>
+
     <section class="process" id="process">
       <div class="section-inner">
         <div class="section-label"
@@ -383,7 +387,7 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
     </section>
 
     <div class="wave-divider wave-3" aria-hidden="true">
-      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,50 C180,10 360,70 540,30 C720,0 900,60 1080,25 C1260,0 1380,45 1440,30 L1440,80 L0,80Z"/></svg>
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,40 Q360,0 720,35 Q1080,70 1440,30 L1440,80 L0,80Z"/></svg>
     </div>
 
     <section class="services" id="services">
@@ -502,7 +506,7 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
     </section>
 
     <div class="wave-divider wave-4" aria-hidden="true">
-      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,30 C320,70 640,0 960,50 C1120,65 1300,20 1440,40 L1440,80 L0,80Z"/></svg>
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,35 Q360,70 720,30 Q1080,0 1440,40 L1440,80 L0,80Z"/></svg>
     </div>
 
     <section class="portfolio" id="portfolio">
@@ -606,7 +610,7 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
     </section>
 
     <div class="wave-divider wave-5" aria-hidden="true">
-      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,45 C200,10 400,70 600,25 C800,0 1000,55 1200,30 C1340,15 1420,50 1440,40 L1440,80 L0,80Z"/></svg>
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,30 Q360,70 720,25 Q1080,0 1440,45 L1440,80 L0,80Z"/></svg>
     </div>
 
     <section class="faq" id="faq">
@@ -702,7 +706,7 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
     </section>
 
     <div class="wave-divider wave-6-over" aria-hidden="true">
-      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,0 L0,35 C360,70 720,10 1080,50 C1260,65 1380,30 1440,40 L1440,0Z" fill="var(--color-bg-mid)"/></svg>
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,0 L0,35 Q360,70 720,30 Q1080,0 1440,40 L1440,0Z" fill="var(--color-bg-deep)"/></svg>
     </div>
 
     <section class="contact" id="contact">

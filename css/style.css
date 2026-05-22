@@ -64,7 +64,8 @@ a { color: inherit; text-decoration: none; }
   position: relative;
   width: 100%;
   line-height: 0;
-  margin-top: -1px;
+  margin-top: -2px;
+  margin-bottom: -2px;
   z-index: 2;
 }
 .wave-divider svg {
@@ -77,20 +78,27 @@ a { color: inherit; text-decoration: none; }
 }
 
 .wave-2-over {
-  margin-top: 0;
+  margin-top: -2px;
   margin-bottom: -2px;
   position: relative;
   z-index: 3;
+  background: var(--color-bg-deep);
 }
 .wave-2-over svg { height: 70px; }
-.wave-3 path { fill: var(--color-bg-mid); }
-.wave-4 path { fill: var(--color-bg-deep); }
-.wave-5 path { fill: var(--color-bg-mid); }
+.wave-2b { background: var(--color-bg-deep); }
+.wave-2b path { fill: var(--color-bg-mid); }
+.wave-3 { background: var(--color-bg-mid); }
+.wave-3 path { fill: var(--color-bg-deep); }
+.wave-4 { background: var(--color-bg-deep); }
+.wave-4 path { fill: var(--color-bg-mid); }
+.wave-5 { background: var(--color-bg-mid); }
+.wave-5 path { fill: var(--color-bg-deep); }
 .wave-6-over {
-  margin-top: 0;
+  margin-top: -2px;
   margin-bottom: -2px;
   position: relative;
   z-index: 3;
+  background: var(--color-bg-mid);
 }
 .wave-6-over svg { height: 70px; }
 
@@ -976,7 +984,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ============ SERVICES ============ */
 .services {
-  background: var(--color-bg-mid);
+  background: var(--color-bg-deep);
   padding: var(--section-padding-y) 24px;
   position: relative;
 }
@@ -1252,7 +1260,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ============ PORTFOLIO ============ */
 .portfolio {
-  background: var(--color-bg-deep);
+  background: var(--color-bg-mid);
   padding: var(--section-padding-y) 24px;
   position: relative;
 }
@@ -1467,7 +1475,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ============ FAQ ============ */
 .faq {
-  background: var(--color-bg-mid);
+  background: var(--color-bg-deep);
   padding: var(--section-padding-y) 24px;
   position: relative;
 }
@@ -1517,7 +1525,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ============ CONTACT ============ */
 .contact {
-  background: var(--color-bg-deep);
+  background: var(--color-bg-mid);
   padding: var(--section-padding-y) 24px;
   text-align: center;
   position: relative;
