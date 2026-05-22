@@ -420,6 +420,8 @@ a { color: inherit; text-decoration: none; }
   z-index: 2;
   margin-top: -40px;
   padding: 0 24px;
+  padding-bottom: 40px;
+  background: linear-gradient(to bottom, transparent 0%, var(--color-bg-mid) 60%);
 }
 .stats-inner {
   max-width: 720px;
@@ -460,6 +462,7 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 768px) {
   .stats-bar {
     margin-top: -28px;
+    padding-bottom: 28px;
   }
   .stats-inner {
     grid-template-columns: repeat(2, 1fr);
@@ -781,14 +784,16 @@ a { color: inherit; text-decoration: none; }
 /* ============ FOUNDER ============ */
 .founder {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 20px;
+  text-align: center;
+  gap: 16px;
   margin-top: 48px;
-  padding: 24px;
+  padding: 32px 24px;
   background: rgba(12, 30, 58, 0.5);
   border: 1px solid var(--color-border);
   border-radius: 16px;
-  max-width: 600px;
+  max-width: 480px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -820,10 +825,7 @@ a { color: inherit; text-decoration: none; }
 }
 @media (max-width: 768px) {
   .founder {
-    flex-direction: column;
-    text-align: center;
-    gap: 12px;
-    padding: 20px;
+    padding: 24px 20px;
     margin-top: 32px;
   }
 }
