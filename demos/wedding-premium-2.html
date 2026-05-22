@@ -1590,26 +1590,61 @@ window.addEventListener('scroll', () => {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
 })();
 
-// ── Background music toggle ─────────────────────────────────────
+// ── Background music (auto-play on scroll + toggle) ─────────────
 (function() {
   const btn = document.getElementById('music-btn');
   let audio = null;
   let playing = false;
+  let started = false;
+  let manualPause = false;
 
-  btn.addEventListener('click', () => {
+  function initAudio() {
     if (!audio) {
       audio = new Audio();
       audio.loop = true;
       audio.src = 'https://assets.mixkit.co/music/657/657.mp3';
     }
+  }
+
+  // On first touch/click: start audio at volume 0 (browser allows play() inside gesture).
+  // Then scroll listener fades volume up once user scrolls past 100px.
+  function onGesture() {
+    if (started || manualPause) return;
+    initAudio();
+    audio.volume = 0;
+    audio.play().then(() => { started = true; }).catch(() => {});
+  }
+
+  function onScroll() {
+    if (!started || manualPause || !audio) return;
+    if (window.scrollY > 100) {
+      audio.volume = 0.5;
+      btn.classList.remove('paused');
+      playing = true;
+      window.removeEventListener('scroll', onScroll);
+    }
+  }
+
+  ['touchstart', 'pointerdown', 'keydown'].forEach(evt =>
+    document.addEventListener(evt, onGesture, { passive: true })
+  );
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  btn.addEventListener('click', () => {
+    initAudio();
     if (playing) {
       audio.pause();
       btn.classList.add('paused');
+      playing = false;
+      manualPause = true;
     } else {
+      audio.volume = 0.5;
       audio.play().catch(() => {});
       btn.classList.remove('paused');
+      playing = true;
+      manualPause = false;
+      started = true;
     }
-    playing = !playing;
   });
 })();
 </script>
