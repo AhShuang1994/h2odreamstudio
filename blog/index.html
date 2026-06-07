@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://www.h2o-dreamer-studio.com/blog/">
+  <title>Blog · H2ODreamer Studio · 马来西亚网站设计见解</title>
+  <meta name="description" content="H2ODreamer Studio Blog — 分享马来西亚小企业网站设计、品牌建设、SEO 与数字营销的实战见解。Insights on web design, branding, and digital marketing for Malaysian small businesses.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Blog · H2ODreamer Studio">
+  <meta property="og:description" content="Insights on web design, branding & digital marketing for Malaysian small businesses.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.h2o-dreamer-studio.com/blog/">
+  <meta property="og:image" content="https://www.h2o-dreamer-studio.com/assets/og-image.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale:alternate" content="en_US">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Blog · H2ODreamer Studio">
+  <meta name="twitter:description" content="Insights on web design & digital marketing for Malaysian small businesses.">
+
+  <!-- Theme color -->
+  <meta name="theme-color" content="#020818">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "H2ODreamer Studio Blog",
+    "url": "https://www.h2o-dreamer-studio.com/blog/",
+    "description": "Insights on web design, branding & digital marketing for Malaysian small businesses.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "H2ODreamer Studio",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.h2o-dreamer-studio.com/assets/favicon.svg"
+      }
+    }
+  }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap"></noscript>
+
+  <link rel="stylesheet" href="../css/style.min.css">
+
+  <!-- Blog-specific styles -->
+  <style>
+    .blog-hero {
+      min-height: 60vh;
+      padding-top: 140px;
+      padding-bottom: 60px;
+    }
+    @media (max-width: 768px) {
+      .blog-hero { min-height: 50vh; padding-top: 110px; }
+    }
+
+    .blog-list-section {
+      background: var(--color-bg-mid);
+      padding: var(--section-padding-y-mobile) 20px;
+      position: relative;
+    }
+    @media (min-width: 768px) {
+      .blog-list-section { padding: var(--section-padding-y) 24px; }
+    }
+
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 28px;
+      margin-top: 48px;
+    }
+
+    .blog-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: transform 300ms var(--ease-out-expo), border-color 300ms, box-shadow 300ms;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .blog-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0, 229, 255, 0.4);
+      box-shadow: 0 16px 48px rgba(0, 229, 255, 0.08);
+    }
+    .blog-card a {
+      color: inherit;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .blog-card-cover {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg, #0C2D5A 0%, #064E6E 50%, #064E6E 100%);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .blog-card-cover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(0,229,255,0.25), transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(6,214,160,0.20), transparent 50%);
+    }
+    .blog-card-cover-emoji {
+      font-size: 64px;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 0 24px rgba(0,229,255,0.4));
+    }
+
+    .blog-card-body {
+      padding: 24px 24px 28px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .blog-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: var(--color-text-muted);
+      font-family: var(--font-display);
+      letter-spacing: 0.05em;
+    }
+    .blog-card-tag {
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      color: var(--color-primary);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .blog-card h3 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      line-height: 1.3;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    .blog-card p {
+      color: var(--color-text-secondary);
+      font-size: 15px;
+      line-height: 1.65;
+      margin-bottom: 20px;
+      flex: 1;
+    }
+    .blog-card .read-more {
+      color: var(--color-primary);
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: gap 250ms var(--ease-out-expo);
+    }
+    .blog-card:hover .read-more { gap: 12px; }
+
+    .blog-card-placeholder {
+      background: transparent;
+      border: 1px dashed var(--color-border);
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px;
+    }
+    .blog-card-placeholder .placeholder-icon {
+      font-size: 36px;
+      display: block;
+      margin-bottom: 12px;
+      opacity: 0.6;
+    }
+    .blog-card-placeholder p {
+      color: var(--color-text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-45NTTZBZC4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-45NTTZBZC4');
+  </script>
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-back" aria-label="Back to Home">←</a>
+      <a href="../index.html" class="nav-logo">H2O<span>Dreamer</span> Studio</a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html#story" data-lang-en="Why Us" data-lang-cn="为什么选我们">为什么选我们</a></li>
+        <li><a href="../index.html#services" data-lang-en="Services" data-lang-cn="服务">服务</a></li>
+        <li><a href="../index.html#portfolio" data-lang-en="Portfolio" data-lang-cn="作品集">作品集</a></li>
+        <li><a href="index.html" data-lang-en="Blog" data-lang-cn="博客">博客</a></li>
+        <li><a href="../index.html#contact" data-lang-en="Contact" data-lang-cn="联系">联系</a></li>
+      </ul>
+
+      <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
+        <span class="lang-en">EN</span> / <span class="lang-cn">中文</span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ============ BLOG HERO ============ -->
+    <section class="detail-hero blog-hero" id="hero">
+      <div class="floating-blobs" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+      </div>
+      <a href="../index.html" class="back-link"
+         data-lang-en="← Back to Home"
+         data-lang-cn="← 返回首页">← 返回首页</a>
+      <div class="hero-inner">
+        <div class="hero-badge"
+             data-lang-en="Blog & Insights"
+             data-lang-cn="博客 · 见解">博客 · 见解</div>
+        <h1 data-lang-en="Ideas worth <em>reading</em>."
+            data-lang-cn="值得<em>一读</em>的见解。">
+          值得<em>一读</em>的见解。
+        </h1>
+        <p class="hero-sub"
+           data-lang-en="Practical thoughts on web design, branding, SEO, and growing small businesses in Malaysia — written for founders, not agencies."
+           data-lang-cn="关于网站设计、品牌建设、SEO 与小生意增长的实战思考 — 为马来西亚的创业者而写，不是给同行看的。">
+          关于网站设计、品牌建设、SEO 与小生意增长的实战思考 — 为马来西亚的创业者而写，不是给同行看的。
+        </p>
+      </div>
+    </section>
+
+    <div class="wave-divider" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,40 Q360,80 720,40 Q1080,0 1440,40 L1440,80 L0,80 Z" fill="var(--color-bg-mid)"/></svg>
+    </div>
+
+    <!-- ============ BLOG LIST ============ -->
+    <section class="blog-list-section">
+      <div class="section-inner">
+        <div class="section-label"
+             data-lang-en="Latest Articles"
+             data-lang-cn="最新文章">最新文章</div>
+        <h2 class="section-title"
+            data-lang-en="From the <em>studio</em>."
+            data-lang-cn="来自<em>工作室</em>的笔记。">
+          来自<em>工作室</em>的笔记。
+        </h2>
+        <p class="section-body"
+           data-lang-en="Each piece comes from real conversations with our clients — common questions, costly mistakes, and the things we wish more small business owners knew earlier."
+           data-lang-cn="每一篇文章都来自我们与客户的真实对话 — 常见的问题、代价高昂的错误，以及我们希望更多小企业主能更早知道的事。">
+          每一篇文章都来自我们与客户的真实对话 — 常见的问题、代价高昂的错误，以及我们希望更多小企业主能更早知道的事。
+        </p>
+
+        <div class="blog-grid">
+
+          <article class="blog-card">
+            <a href="social-media-vs-website.html">
+              <div class="blog-card-cover">
+                <span class="blog-card-cover-emoji" aria-hidden="true">📱</span>
+              </div>
+              <div class="blog-card-body">
+                <div class="blog-card-meta">
+                  <span class="blog-card-tag"
+                        data-lang-en="Small Business"
+                        data-lang-cn="小生意营销">小生意营销</span>
+                  <time datetime="2026-05-23">2026.05.23</time>
+                  <span data-lang-en="· 8 min read"
+                        data-lang-cn="· 8 分钟">· 8 分钟</span>
+                </div>
+                <h3 data-lang-en="You have FB, IG, Xiaohongshu — so why isn't your small business growing? 5 overlooked truths."
+                    data-lang-cn="FB、IG、小红书都有了，为什么你的小生意还是没起色？5 个被忽略的真相">
+                  FB、IG、小红书都有了，为什么你的小生意还是没起色？5 个被忽略的真相
+                </h3>
+                <p data-lang-en="No matter how many social platforms you run, without your own website you'll still lose business. 5 truths every Malaysian small business owner must know."
+                   data-lang-cn="Facebook、Instagram、小红书、TikTok... 社交平台再多，没有自己的网站还是会输掉生意。5 个马来西亚小企业主必须知道的真相。">
+                  Facebook、Instagram、小红书、TikTok... 社交平台再多，没有自己的网站还是会输掉生意。5 个马来西亚小企业主必须知道的真相。
+                </p>
+                <span class="read-more"
+                      data-lang-en="Read article →"
+                      data-lang-cn="阅读全文 →">阅读全文 →</span>
+              </div>
+            </a>
+          </article>
+
+          <article class="blog-card blog-card-placeholder" aria-hidden="true">
+            <div>
+              <span class="placeholder-icon">✨</span>
+              <p data-lang-en="More articles coming soon. Subscribe via WhatsApp to get notified."
+                 data-lang-cn="更多精彩内容即将上线。通过 WhatsApp 订阅，第一时间收到通知。">
+                更多精彩内容即将上线。通过 WhatsApp 订阅，第一时间收到通知。
+              </p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <a href="https://wa.me/60166897835?text=Hi%20H2ODreamer!%20%E6%88%91%E6%83%B3%E4%BA%86%E8%A7%A3%E6%9B%B4%E5%A4%9A%E5%85%B3%E4%BA%8E%E7%BD%91%E7%AB%99%E8%AE%BE%E8%AE%A1%E7%9A%84%E6%9C%8D%E5%8A%A1%E3%80%82" class="wa-fab" target="_blank" rel="noopener" aria-label="Chat on WhatsApp" onclick="gtag('event','click',{event_category:'WhatsApp',event_label:'Blog Index FAB'})">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.019-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>© 2026 H2ODreamer Studio · Malaysia</p>
+      <a href="../privacy.html"
+         data-lang-en="Privacy Policy"
+         data-lang-cn="隐私政策">隐私政策</a>
+    </div>
+  </footer>
+
+  <script src="../js/main.min.js" defer></script>
+</body>
+</html>
