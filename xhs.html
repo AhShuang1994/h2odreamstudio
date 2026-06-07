@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://www.h2o-dreamer-studio.com/xhs.html">
+  <title>👋 你刷到我们了 · H2ODreamer Studio</title>
+  <meta name="description" content="从小红书来的朋友 — H2ODreamer Studio 是马来西亚的小型网站设计工作室。专做小生意的着陆页、婚礼请柬、Shopify 迁移。WhatsApp 免费聊聊。">
+  <meta name="robots" content="noindex,follow">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="👋 从小红书来的朋友 · H2ODreamer Studio">
+  <meta property="og:description" content="马来西亚网站设计工作室 · 着陆页 RM 2,500 起 · WhatsApp 免费咨询">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.h2o-dreamer-studio.com/xhs.html">
+  <meta property="og:image" content="https://www.h2o-dreamer-studio.com/assets/og-image.png">
+  <meta property="og:locale" content="zh_CN">
+
+  <meta name="theme-color" content="#020818">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap"></noscript>
+
+  <link rel="stylesheet" href="css/style.min.css">
+
+  <!-- XHS landing page styles -->
+  <style>
+    /* ===== XHS HERO ===== */
+    .xhs-hero {
+      min-height: auto;
+      padding-top: 120px;
+      padding-bottom: 56px;
+      text-align: center;
+    }
+    .xhs-hero .hero-inner { max-width: 640px; }
+    .xhs-hero h1 {
+      font-size: clamp(30px, 6vw, 44px);
+      line-height: 1.2;
+      margin-bottom: 18px;
+    }
+    .xhs-hero h1 em {
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-style: normal;
+    }
+    .xhs-hero .hero-sub {
+      font-size: clamp(15px, 3.6vw, 17px);
+      line-height: 1.7;
+      color: var(--color-text-secondary);
+      margin-bottom: 32px;
+    }
+    .xhs-hero .xhs-source-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, rgba(255, 87, 138, 0.12), rgba(0, 229, 255, 0.08));
+      border: 1px solid rgba(255, 87, 138, 0.35);
+      border-radius: 50px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      color: #FF8FB1;
+      margin-bottom: 20px;
+    }
+    .xhs-cta-pair {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      margin: 0 auto;
+      max-width: 420px;
+    }
+    .xhs-cta-pair .btn-primary,
+    .xhs-cta-pair .btn-secondary {
+      width: 100%;
+      text-align: center;
+      justify-content: center;
+    }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      transition: border-color 200ms, transform 200ms var(--ease-out-expo);
+    }
+    .btn-secondary:hover {
+      border-color: var(--color-primary);
+      transform: translateY(-2px);
+    }
+    .xhs-hero .hero-price {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+
+    /* ===== FEATURED BLOG CARD ===== */
+    .xhs-blog-section {
+      background: var(--color-bg-mid);
+      padding: 56px 20px 64px;
+    }
+    @media (min-width: 768px) {
+      .xhs-blog-section { padding: 80px 24px 88px; }
+    }
+    .xhs-section-inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .xhs-section-label {
+      font-family: var(--font-display);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .xhs-section-title {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 4.6vw, 32px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .xhs-section-body {
+      text-align: center;
+      color: var(--color-text-secondary);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+    .blog-feature-card {
+      display: block;
+      padding: 28px 24px;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 250ms var(--ease-out-expo), border-color 250ms;
+    }
+    .blog-feature-card::before {
+      content: '';
+      position: absolute;
+      top: -60%;
+      right: -20%;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(0,229,255,0.12), transparent 60%);
+      pointer-events: none;
+    }
+    .blog-feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0, 229, 255, 0.4);
+    }
+    .blog-feature-card .blog-card-tag {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--color-secondary);
+      background: rgba(6, 214, 160, 0.10);
+      padding: 4px 10px;
+      border-radius: 50px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+    .blog-feature-card h3 {
+      font-family: var(--font-display);
+      font-size: clamp(20px, 4vw, 24px);
+      font-weight: 700;
+      line-height: 1.35;
+      color: var(--color-text);
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .blog-feature-card h3 em {
+      color: var(--color-primary);
+      font-style: normal;
+    }
+    .blog-feature-card p {
+      color: var(--color-text-secondary);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 18px;
+      position: relative;
+    }
+    .blog-feature-card .blog-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      color: var(--color-text-muted);
+      position: relative;
+    }
+    .blog-feature-card .blog-card-meta .read-arrow {
+      margin-left: auto;
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+    .xhs-blog-more {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    /* ===== SERVICES ===== */
+    .xhs-services-section {
+      background: var(--color-bg-deep);
+      padding: 56px 20px 64px;
+    }
+    @media (min-width: 768px) {
+      .xhs-services-section { padding: 80px 24px 88px; }
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 32px;
+    }
+    @media (min-width: 720px) {
+      .services-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .service-card {
+      display: block;
+      padding: 24px 22px;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      transition: transform 200ms var(--ease-out-expo), border-color 200ms;
+    }
+    .service-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(0, 229, 255, 0.35);
+    }
+    .service-card .service-emoji {
+      font-size: 32px;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .service-card h4 {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 6px;
+    }
+    .service-card .service-price {
+      font-family: var(--font-display);
+      font-size: 13px;
+      color: var(--color-primary);
+      margin-bottom: 10px;
+      letter-spacing: 0.04em;
+    }
+    .service-card p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+      margin-bottom: 14px;
+    }
+    .service-card .service-arrow {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    /* ===== PORTFOLIO MINI ===== */
+    .xhs-portfolio-section {
+      background: var(--color-bg-mid);
+      padding: 56px 20px 64px;
+    }
+    @media (min-width: 768px) {
+      .xhs-portfolio-section { padding: 80px 24px 88px; }
+    }
+    .portfolio-mini-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-top: 32px;
+    }
+    @media (min-width: 720px) {
+      .portfolio-mini-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .portfolio-mini-card {
+      display: block;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: 18px;
+      overflow: hidden;
+      transition: transform 200ms var(--ease-out-expo), border-color 200ms;
+    }
+    .portfolio-mini-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(0, 229, 255, 0.35);
+    }
+    .portfolio-mini-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      object-position: top center;
+      background: var(--color-bg-mid);
+    }
+    .portfolio-mini-caption {
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .portfolio-mini-caption span {
+      font-family: var(--font-display);
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+    .portfolio-mini-caption .view-arrow {
+      font-family: var(--font-display);
+      font-size: 12px;
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    /* ===== FINAL CTA ===== */
+    .xhs-final-cta {
+      position: relative;
+      background:
+        linear-gradient(170deg, var(--color-bg-mid) 0%, #0C2D5A 60%, var(--color-bg-deep) 100%);
+      padding: 80px 20px 96px;
+      overflow: hidden;
+      text-align: center;
+    }
+    .xhs-final-cta .section-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .xhs-final-cta h2 {
+      font-family: var(--font-display);
+      font-size: clamp(26px, 5vw, 36px);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+    }
+    .xhs-final-cta h2 em {
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-style: normal;
+    }
+    .xhs-final-cta p.lead {
+      color: var(--color-text-secondary);
+      font-size: 15px;
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+    .xhs-final-cta ul.cta-points {
+      list-style: none;
+      padding: 0;
+      margin: 0 auto 32px;
+      text-align: center;
+    }
+    .xhs-final-cta ul.cta-points li {
+      margin-bottom: 10px;
+      color: var(--color-text-secondary);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .xhs-final-cta ul.cta-points li::before {
+      content: '✓ ';
+      color: var(--color-secondary);
+      font-weight: 700;
+      margin-right: 6px;
+    }
+    .xhs-final-cta .hero-price {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+
+    /* ===== SIMPLE FOOTER ===== */
+    .xhs-footer {
+      background: var(--color-bg-deep);
+      padding: 32px 20px;
+      text-align: center;
+      border-top: 1px solid var(--color-border);
+    }
+    .xhs-footer .footer-links {
+      display: flex;
+      gap: 22px;
+      justify-content: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .xhs-footer .footer-links a {
+      font-family: var(--font-display);
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      transition: color 200ms;
+    }
+    .xhs-footer .footer-links a:hover { color: var(--color-primary); }
+    .xhs-footer p {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    /* ===== MINIMAL NAV ===== */
+    .xhs-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 16px 20px;
+      background: rgba(3, 11, 26, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .xhs-nav-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .xhs-nav .nav-logo {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .xhs-nav .nav-logo span {
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .xhs-nav .nav-main {
+      font-family: var(--font-display);
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      padding: 6px 14px;
+      border: 1px solid var(--color-border);
+      border-radius: 50px;
+      transition: border-color 200ms, color 200ms;
+    }
+    .xhs-nav .nav-main:hover {
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+  </style>
+
+  <!-- Force Chinese for all XHS-sourced traffic — XHS users expect zh content site-wide -->
+  <script>try { localStorage.setItem('h2od-lang', 'cn'); } catch (e) {}</script>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-45NTTZBZC4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    // Attach traffic_source to ALL events fired on this page
+    gtag('set', { traffic_source: 'xiaohongshu', landing_page: 'xhs.html' });
+    gtag('config', 'G-45NTTZBZC4');
+    // Custom event: easy to find in GA4 Realtime + Events report
+    gtag('event', 'xhs_landing_view', {
+      event_category: 'XHS Landing',
+      source_platform: 'xiaohongshu'
+    });
+  </script>
+</head>
+<body>
+
+  <!-- ============ MINIMAL NAV ============ -->
+  <nav class="xhs-nav">
+    <div class="xhs-nav-inner">
+      <a href="index.html" class="nav-logo">H2O<span>Dreamer</span></a>
+      <a href="index.html" class="nav-main">完整网站 →</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ============ HERO ============ -->
+    <section class="detail-hero xhs-hero" id="hero">
+      <div class="floating-blobs" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+      </div>
+      <div class="hero-inner">
+        <div class="xhs-source-badge">🌸 从小红书来的朋友</div>
+        <h1>你刷到我们了 <em>🌊</em><br>欢迎来到 H2ODreamer Studio</h1>
+        <p class="hero-sub">
+          我们是马来西亚的网站设计工作室，专门帮小生意老板、自由职业者、创业新手做<strong>第一个属于自己的网站</strong>。
+        </p>
+        <div class="xhs-cta-pair">
+          <a href="blog/social-media-vs-website.html?utm_source=xiaohongshu&utm_medium=bio&utm_campaign=xhs_landing"
+             class="btn-primary"
+             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Hero — Read Blog'})">
+            📖 先读那篇 5 真相 blog
+          </a>
+          <a href="https://wa.me/60166897835?text=Hi%20H2ODreamer!%20%E6%88%91%E4%BB%8E%E5%B0%8F%E7%BA%A2%E4%B9%A6%E8%BF%87%E6%9D%A5%EF%BC%8C%E6%83%B3%E8%81%8A%E8%81%8A%E7%BD%91%E7%AB%99%E3%80%82"
+             class="btn-secondary" target="_blank" rel="noopener"
+             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Hero — WhatsApp'})">
+            💬 直接 WhatsApp 我
+          </a>
+        </div>
+        <p class="hero-price">通常 1 小时内回复 · 免费 30 分钟咨询</p>
+      </div>
+    </section>
+
+    <!-- ============ FEATURED BLOG ============ -->
+    <section class="xhs-blog-section">
+      <div class="xhs-section-inner">
+        <div class="xhs-section-label">📖 最新文章</div>
+        <h2 class="xhs-section-title">从小生意实战里<br>挖出来的观察</h2>
+        <p class="xhs-section-body">
+          我们写给马来西亚 / 新加坡小生意老板的真心话<br>每一篇都是踩过坑总结出来的，不是教科书。
+        </p>
+        <!-- XHS:FEATURED:START — auto-generated by build.js, do not edit by hand -->
+        <a href="blog/whatsapp-vs-website.html?utm_source=xiaohongshu&utm_medium=bio&utm_campaign=xhs_landing"
+           class="blog-feature-card"
+           onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Featured Blog Card'})">
+          <span class="blog-card-tag">📝 BLOG · 必读</span>
+          <h3>WhatsApp 不是不够用，是不够让你赚钱 — 6 个被忽略的隐性损失</h3>
+          <p>你以为 WhatsApp Business 已经够做生意？6 件每天都在悄悄让你少赚钱的事。</p>
+          <div class="blog-card-meta">
+            <span>📅 2026.6.7</span>
+            <span class="read-arrow">读全文 →</span>
+          </div>
+        </a>
+        <!-- XHS:FEATURED:END -->
+
+        <div class="xhs-blog-more">
+          <a href="blog/index.html?utm_source=xiaohongshu&utm_medium=bio&utm_campaign=xhs_landing"
+             class="btn-secondary"
+             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'See All Articles'})">
+            📚 看所有文章 →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SERVICES ============ -->
+    <section class="xhs-services-section">
+      <div class="xhs-section-inner">
+        <div class="xhs-section-label">我们能帮你</div>
+        <h2 class="xhs-section-title">3 种适合小生意的<br>网站方案</h2>
+        <p class="xhs-section-body">
+          不用大预算，也不用懂代码。我们陪你从零开始。
+        </p>
+        <div class="services-grid">
+
+          <a href="landing-page.html" class="service-card"
+             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Service — Landing Page'})">
+            <span class="service-emoji">🚀</span>
+            <h4>着陆页</h4>
+            <div class="service-price">RM 2,500 起</div>
+            <p>一页式销售网站，含 WhatsApp、SEO 基础、分析。1-2 周交付。</p>
+            <div class="service-arrow">了解更多 →</div>
+          </a>
+
+          <a href="wedding-basic.html" class="service-card"
+             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Service — Wedding'})">
+            <span class="service-emoji">💍</span>
+            <h4>婚礼电子请柬</h4>
+            <div class="service-price">RM 380 起</div>
+            <p>RSVP、Google Maps、双语切换。3-5 天交付，比印纸卡省 70%。</p>
+            <div class="service-arrow">了解更多 →</div>
+          </a>
+
+          <a href="shopify-migration.html" class="service-card"
+             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Service — Shopify'})">
+            <span class="service-emoji">🛒</span>
+            <h4>Shopify 迁移</h4>
+            <div class="service-price">RM 3,500 起</div>
+            <p>把你现有的 IG/FB/WhatsApp 生意搬上 Shopify。完整设置 + 主题客制。</p>
+            <div class="service-arrow">了解更多 →</div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MINI PORTFOLIO ============ -->
+    <section class="xhs-portfolio-section">
+      <div class="xhs-section-inner">
+        <div class="xhs-section-label">真实作品</div>
+        <h2 class="xhs-section-title">我们做过的<br>一些网站</h2>
+        <p class="xhs-section-body">
+          点开看真实的 demo，不是模板，全部手工设计。
+        </p>
+        <div class="portfolio-mini-grid">
+
+          <a href="demos/landing-fnb-1/landing-fnb-1.html" target="_blank" rel="noopener" class="portfolio-mini-card"
+             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Portfolio — FnB'})">
+            <img src="assets/portfolio/landing-fnb-1-mobile.webp" alt="F&B 餐厅 landing page" loading="lazy" width="780" height="1688">
+            <div class="portfolio-mini-caption">
+              <span>🍜 餐饮 / 餐厅</span>
+              <span class="view-arrow">看 demo →</span>
+            </div>
+          </a>
+
+          <a href="demos/glowseoul-skincare.html" target="_blank" rel="noopener" class="portfolio-mini-card"
+             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Portfolio — Beauty'})">
+            <img src="assets/portfolio/landing-beauty-mobile.webp" alt="美容护肤 landing page" loading="lazy" width="280" height="560">
+            <div class="portfolio-mini-caption">
+              <span>✨ 美容 / 护肤</span>
+              <span class="view-arrow">看 demo →</span>
+            </div>
+          </a>
+
+          <a href="demos/cooltech-aircon.html" target="_blank" rel="noopener" class="portfolio-mini-card"
+             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Portfolio — Aircon'})">
+            <img src="assets/portfolio/landing-aircon-mobile.webp" alt="家居服务 aircon landing page" loading="lazy" width="280" height="560">
+            <div class="portfolio-mini-caption">
+              <span>❄️ 家居服务</span>
+              <span class="view-arrow">看 demo →</span>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FINAL CTA ============ -->
+    <section class="xhs-final-cta">
+      <div class="floating-blobs" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+      </div>
+      <div class="section-inner">
+        <div class="hero-badge">免费 30 分钟咨询</div>
+        <h2>想聊聊？<br>我们<em>不会推销</em></h2>
+        <p class="lead">
+          先了解你的生意、预算、需要什么。<br>不适合？我们也会老实告诉你。
+        </p>
+        <ul class="cta-points">
+          <li>100% 客制设计，不用模板</li>
+          <li>透明报价，无隐藏费用</li>
+          <li>中文 / 英文都可以聊</li>
+        </ul>
+        <a href="https://wa.me/60166897835?text=Hi%20H2ODreamer!%20%E6%88%91%E4%BB%8E%E5%B0%8F%E7%BA%A2%E4%B9%A6%E8%BF%87%E6%9D%A5%EF%BC%8C%E6%83%B3%E7%BA%A6%E5%85%8D%E8%B4%B9%2030%20%E5%88%86%E9%92%9F%E5%92%A8%E8%AF%A2%E3%80%82"
+           class="btn-primary" target="_blank" rel="noopener"
+           onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Final CTA — WhatsApp'})">
+          💬 WhatsApp 免费咨询
+        </a>
+        <p class="hero-price">通常 1 小时内回复</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="xhs-footer">
+    <div class="footer-links">
+      <a href="index.html">主站</a>
+      <a href="blog/index.html">所有博客</a>
+      <a href="https://www.instagram.com/h2odreamerstudio/" target="_blank" rel="noopener">Instagram</a>
+      <a href="privacy.html">隐私政策</a>
+    </div>
+    <p>© 2026 H2ODreamer Studio · Malaysia</p>
+  </footer>
+
+  <!-- Floating WhatsApp -->
+  <a href="https://wa.me/60166897835?text=Hi%20H2ODreamer!%20%E6%88%91%E4%BB%8E%E5%B0%8F%E7%BA%A2%E4%B9%A6%E8%BF%87%E6%9D%A5%E3%80%82"
+     class="wa-fab" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"
+     onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Floating WhatsApp'})">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.019-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+</body>
+</html>
