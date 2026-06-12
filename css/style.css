@@ -1018,8 +1018,6 @@ a { color: inherit; text-decoration: none; }
 }
 @media (min-width: 768px) {
   .service-grid { grid-template-columns: repeat(2, 1fr); gap: 28px; }
-}
-@media (min-width: 920px) {
   .service-grid--trio { grid-template-columns: repeat(3, 1fr); }
 }
 .service-card {
