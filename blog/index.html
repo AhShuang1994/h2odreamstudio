@@ -56,12 +56,13 @@
   <!-- Blog-specific styles -->
   <style>
     .blog-hero {
-      min-height: 60vh;
-      padding-top: 140px;
-      padding-bottom: 60px;
+      min-height: 0;
+      padding-top: 160px;
+      padding-bottom: 72px;
+      background: linear-gradient(to bottom, var(--color-bg-deep) 55%, var(--color-bg-mid) 100%);
     }
     @media (max-width: 768px) {
-      .blog-hero { min-height: 50vh; padding-top: 110px; }
+      .blog-hero { padding-top: 120px; padding-bottom: 56px; }
     }
 
     .blog-list-section {
@@ -269,10 +270,6 @@
         </p>
       </div>
     </section>
-
-    <div class="wave-divider" aria-hidden="true">
-      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,40 Q360,80 720,40 Q1080,0 1440,40 L1440,80 L0,80 Z" fill="var(--color-bg-mid)"/></svg>
-    </div>
 
     <!-- ============ BLOG LIST ============ -->
     <section class="blog-list-section">
