@@ -1,12 +1,36 @@
+# robots.txt — H2ODreamer Studio
+# Standard crawlers: index the whole site, skip code / asset / demo folders.
 
 User-agent: *
 Allow: /
-
 Disallow: /js/
 Disallow: /css/
-Disallow: /demos/
 Disallow: /assets/
+Allow: /assets/blog/
+Disallow: /demos/
 Disallow: /scripts/
 
+# AI / LLM crawlers — explicitly welcomed so this site can be discovered and
+# cited by AI answer engines (ChatGPT, Claude, Perplexity, Google AI Overviews,
+# Copilot, etc.). They get the same access as everyone else: all content is
+# open, only the asset / code / demo folders stay private.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: Bytespider
+Allow: /
+Disallow: /js/
+Disallow: /css/
+Disallow: /assets/
+Allow: /assets/blog/
+Disallow: /demos/
+Disallow: /scripts/
 
 Sitemap: https://www.h2o-dreamer-studio.com/sitemap.xml
