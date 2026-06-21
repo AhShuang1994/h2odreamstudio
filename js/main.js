@@ -12,6 +12,74 @@
   requestAnimationFrame(onScroll);
 })();
 
+// Reliable anchor scrolling — offsets the fixed navbar and survives layout
+// shifts from async CSS / web fonts / lazy-loaded images / reveal animations
+// that otherwise leave native hash scroll short of the target.
+(function () {
+  function offset() {
+    const nav = document.querySelector('.navbar');
+    return (nav ? nav.offsetHeight : 64) + 18;
+  }
+  function absTop(el) { // layout position, immune to reveal transforms
+    let y = 0;
+    while (el) { y += el.offsetTop; el = el.offsetParent; }
+    return y;
+  }
+  function go(id, smooth) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const y = absTop(el) - offset();
+    window.scrollTo({ top: y < 0 ? 0 : y, behavior: smooth ? 'smooth' : 'auto' });
+  }
+
+  // Keep the target aligned while the page height keeps changing (lazy images,
+  // fonts), but yield the moment the user scrolls themselves.
+  let pinId = null, deadline = 0, lastH = 0, ro = null, yielded = false;
+  function repin() {
+    if (!pinId || yielded || Date.now() > deadline) return;
+    const h = document.body.scrollHeight;
+    if (h !== lastH) { lastH = h; go(pinId, false); } // only on real layout growth
+  }
+  function pin(id, ms) {
+    pinId = id; deadline = Date.now() + ms; yielded = false;
+    lastH = document.body.scrollHeight;
+    if (window.ResizeObserver) {
+      if (!ro) ro = new ResizeObserver(repin);
+      ro.observe(document.body);
+      setTimeout(function () { if (ro) ro.disconnect(); }, ms);
+    }
+  }
+  ['wheel', 'touchstart', 'keydown'].forEach(function (ev) {
+    window.addEventListener(ev, function () { yielded = true; }, { passive: true });
+  });
+
+  // Intercept same-page hash links (capture phase: nav links stopPropagation on bubble)
+  document.addEventListener('click', function (e) {
+    const a = e.target.closest && e.target.closest('a[href*="#"]');
+    if (!a) return;
+    const m = a.getAttribute('href').match(/#([^#]+)$/);
+    if (!m) return;
+    let url;
+    try { url = new URL(a.href, location.href); } catch (_) { return; }
+    if (url.pathname !== location.pathname) return; // cross-page → let it navigate
+    if (!document.getElementById(m[1])) return;
+    e.preventDefault();
+    history.pushState(null, '', '#' + m[1]);
+    go(m[1], true);
+    pin(m[1], 1400);
+  }, true);
+
+  // Landed on the page with a hash (e.g. index.html#portfolio from another page).
+  if (location.hash.length > 1) {
+    const id = location.hash.slice(1);
+    window.addEventListener('load', function () {
+      go(id, false);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { go(id, false); });
+      pin(id, 3000);
+    });
+  }
+})();
+
 // Mobile hamburger toggle
 (function () {
   const toggle = document.getElementById('navToggle');
