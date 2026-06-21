@@ -80,7 +80,7 @@
   <style>
 :root{--color-bg-deep:#030B1A;--color-bg-mid:#071428;--color-bg-card:#0C1E3A;--color-primary:#00E5FF;--color-primary-glow:#00BCD4;--color-secondary:#06D6A0;--color-accent:#7B61FF;--color-text:#F0F6FF;--color-text-secondary:#8BA4C4;--color-text-muted:#7A8FA6;--color-border:#1A3352;--font-display:'Space Grotesk','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--font-body:'DM Sans','Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif;--max-width:1200px;--section-padding-y:100px;--section-padding-y-mobile:56px;--ease-out-expo:cubic-bezier(0.16,1,0.3,1);--ease-spring:cubic-bezier(0.34,1.56,0.64,1);--stagger-base:600ms}
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;overflow-x:hidden}
+html{scroll-behavior:smooth;overflow-x:hidden;scroll-padding-top:84px}
 body{font-family:var(--font-body);background:var(--color-bg-deep);color:var(--color-text);line-height:1.75;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
 body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px}
 img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
@@ -146,8 +146,8 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
   </style>
 
   <!-- Full CSS — preloaded async, not render-blocking -->
-  <link rel="preload" href="css/style.min.css?v=d4581f79" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="css/style.min.css?v=d4581f79"></noscript>
+  <link rel="preload" href="css/style.min.css?v=e35f030e" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="css/style.min.css?v=e35f030e"></noscript>
   
 </head>
 <body>
@@ -847,6 +847,7 @@ img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
       <a href="privacy.html"
          data-lang-en="Privacy Policy"
          data-lang-cn="隐私政策">隐私政策</a>
+      <a href="terms.html" data-lang-en="Terms of Service" data-lang-cn="服务条款">服务条款</a>
     </div>
   </footer>
 
