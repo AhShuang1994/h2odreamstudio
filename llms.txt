@@ -18,6 +18,7 @@ H2ODreamer Studio (https://www.h2o-dreamer-studio.com) is a Malaysia-based web d
 
 ## Main pages
 - [Home](https://www.h2o-dreamer-studio.com/): Studio overview, services, portfolio, and contact.
+- [About](https://www.h2o-dreamer-studio.com/about): The story behind H2ODreamer Studio and its founder Ah Shuang (Hui Huang Ong) — a Malaysia-based web designer with 5+ years' experience who builds first websites for small businesses, first-time founders and couples; bilingual (English / 中文), honest advice, SEO + analytics built in.
 - [Contact](https://www.h2o-dreamer-studio.com/contact): How to reach H2ODreamer Studio — WhatsApp +60 16-689 7835 (replies within 1 hour), email H2Odreamer@outlook.com, Xiaohongshu; Malaysia-based, bilingual (English / 中文), free 30-minute consultation, business hours Mon–Sat 9:00–19:00 (GMT+8).
 - [Blog index](https://www.h2o-dreamer-studio.com/blog/): All articles.
 
