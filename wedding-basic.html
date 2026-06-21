@@ -56,13 +56,25 @@
       </button>
 
       <ul class="nav-links" id="navLinks">
-        <li><a href="about" data-lang-en="About" data-lang-cn="关于">关于</a></li>
-        <li><a href="index.html#services" data-lang-en="Services" data-lang-cn="服务">Services</a></li>
-        <li><a href="pricing" data-lang-en="Pricing" data-lang-cn="价格">价格</a></li>
-        <li><a href="index.html#portfolio" data-lang-en="Portfolio" data-lang-cn="作品集">Portfolio</a></li>
-        <li><a href="index.html#faq" data-lang-en="FAQ" data-lang-cn="常见问题">FAQ</a></li>
-        <li><a href="blog/index.html" data-lang-en="Blog" data-lang-cn="博客">Blog</a></li>
-        <li><a href="contact" data-lang-en="Contact" data-lang-cn="联系">Contact</a></li>
+        <li class="has-dropdown">
+          <span class="nav-parent" tabindex="0" role="button" aria-expanded="false"><span data-lang-en="Services" data-lang-cn="服务">服务</span><span class="caret" aria-hidden="true">▾</span></span>
+          <ul class="dropdown-menu">
+            <li><a href="landing-page" data-lang-en="Website Design" data-lang-cn="网站设计">网站设计</a></li>
+            <li><a href="wedding-basic" data-lang-en="Wedding E-Invitation" data-lang-cn="婚礼喜帖">婚礼喜帖</a></li>
+            <li><a href="shopify-migration" data-lang-en="Shopify Migration" data-lang-cn="Shopify 迁移">Shopify 迁移</a></li>
+            <li><a href="pricing" data-lang-en="Pricing" data-lang-cn="价格方案">价格方案</a></li>
+          </ul>
+        </li>
+        <li class="has-dropdown">
+          <span class="nav-parent" tabindex="0" role="button" aria-expanded="false"><span data-lang-en="About" data-lang-cn="关于">关于</span><span class="caret" aria-hidden="true">▾</span></span>
+          <ul class="dropdown-menu">
+            <li><a href="about" data-lang-en="About Ah Shuang" data-lang-cn="关于阿爽">关于阿爽</a></li>
+            <li><a href="index.html#portfolio" data-lang-en="Portfolio" data-lang-cn="作品集">作品集</a></li>
+            <li><a href="index.html#faq" data-lang-en="FAQ" data-lang-cn="常见问题">常见问题</a></li>
+          </ul>
+        </li>
+        <li><a href="blog/index.html" data-lang-en="Blog" data-lang-cn="博客">博客</a></li>
+        <li><a href="contact" data-lang-en="Contact" data-lang-cn="联系">联系</a></li>
       </ul>
 
       <button class="lang-toggle" id="langToggle" aria-label="Toggle language">

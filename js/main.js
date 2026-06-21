@@ -32,6 +32,33 @@
   });
 })();
 
+// Nav dropdown: hover on desktop (CSS), tap-to-expand on mobile
+(function () {
+  const parents = document.querySelectorAll('.nav-links .has-dropdown');
+  if (!parents.length) return;
+  const mq = window.matchMedia('(max-width: 768px)');
+  parents.forEach((li) => {
+    const trigger = li.querySelector('.nav-parent');
+    if (!trigger) return;
+    function toggle() {
+      const open = li.classList.toggle('open');
+      trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    trigger.addEventListener('click', (e) => {
+      if (!mq.matches) return; // desktop uses hover
+      e.stopPropagation();
+      toggle();
+    });
+    trigger.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  });
+  // collapse submenus when a submenu link is clicked (mobile menu closes too)
+  document.querySelectorAll('.nav-links .dropdown-menu a').forEach((a) => {
+    a.addEventListener('click', () => parents.forEach((li) => li.classList.remove('open')));
+  });
+})();
+
 // FAQ accordion — only one open at a time
 (function () {
   const items = document.querySelectorAll('.faq-item');
