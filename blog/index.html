@@ -47,6 +47,12 @@
     "blogPost": [
       {
         "@type": "BlogPosting",
+        "headline": "不同生意该做什么网站？餐饮、维修、美容、服装，对号入座",
+        "url": "https://www.h2o-dreamer-studio.com/blog/which-website-for-your-business.html",
+        "datePublished": "2026-06-19"
+      },
+      {
+        "@type": "BlogPosting",
         "headline": "一个网站到底要多少钱？2026 大马实价，拆给做小生意的你看",
         "url": "https://www.h2o-dreamer-studio.com/blog/website-cost-malaysia.html",
         "datePublished": "2026-06-16"
@@ -143,11 +149,13 @@
         radial-gradient(circle at 20% 30%, rgba(0,229,255,0.25), transparent 50%),
         radial-gradient(circle at 80% 70%, rgba(6,214,160,0.20), transparent 50%);
     }
-    .blog-card-cover-emoji {
-      font-size: 64px;
+    .blog-card-cover img {
       position: relative;
       z-index: 1;
-      filter: drop-shadow(0 0 24px rgba(0,229,255,0.4));
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .blog-card-body {
@@ -256,7 +264,7 @@
         <li><a href="../index.html#services" data-lang-en="Services" data-lang-cn="服务">服务</a></li>
         <li><a href="../index.html#portfolio" data-lang-en="Portfolio" data-lang-cn="作品集">作品集</a></li>
         <li><a href="index.html" data-lang-en="Blog" data-lang-cn="博客">博客</a></li>
-        <li><a href="../index.html#contact" data-lang-en="Contact" data-lang-cn="联系">联系</a></li>
+        <li><a href="../contact" data-lang-en="Contact" data-lang-cn="联系">联系</a></li>
       </ul>
 
       <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
@@ -313,9 +321,40 @@
         <div class="blog-grid">
 
           <article class="blog-card">
+            <a href="which-website-for-your-business.html">
+              <div class="blog-card-cover">
+                <img src="../assets/blog/which-website-by-business.webp" width="1440" height="804" loading="lazy"
+                     alt="插画：四类生意（餐饮、维修、美容、服装）对应不同档位网站的阶梯示意" />
+              </div>
+              <div class="blog-card-body">
+                <div class="blog-card-meta">
+                  <span class="blog-card-tag"
+                        data-lang-en="Small Business"
+                        data-lang-cn="小生意营销">小生意营销</span>
+                  <time datetime="2026-06-19">2026.06.19</time>
+                  <span data-lang-en="· 8 min read"
+                        data-lang-cn="· 8 分钟">· 8 分钟</span>
+                </div>
+                <h3 data-lang-en="Which website does your business actually need? F&amp;B, repair, beauty &amp; fashion — find your match"
+                    data-lang-cn="不同生意该做什么网站？餐饮、维修、美容、服装，对号入座">
+                  不同生意该做什么网站？餐饮、维修、美容、服装，对号入座
+                </h3>
+                <p data-lang-en="Single page or multiple? RM 590 or RM 2,500? The by-industry answer — which tier fits what you actually sell, with real examples."
+                   data-lang-cn="单页还是多页？RM 590 还是 RM 2,500？按行业把答案摊开：你的生意该做哪一档，配真实例子。">
+                  单页还是多页？RM 590 还是 RM 2,500？按行业把答案摊开：你的生意该做哪一档，配真实例子。
+                </p>
+                <span class="read-more"
+                      data-lang-en="Read article →"
+                      data-lang-cn="阅读全文 →">阅读全文 →</span>
+              </div>
+            </a>
+          </article>
+
+          <article class="blog-card">
             <a href="website-cost-malaysia.html">
               <div class="blog-card-cover">
-                <span class="blog-card-cover-emoji" aria-hidden="true">💰</span>
+                <img src="../assets/blog/website-cost-onetime-vs-leak.webp" width="1440" height="804" loading="lazy"
+                     alt="插画：左边一次性的建站投入，右边每月不断流失的钱，对比网站成本" />
               </div>
               <div class="blog-card-body">
                 <div class="blog-card-meta">
@@ -344,7 +383,8 @@
           <article class="blog-card">
             <a href="whatsapp-vs-website.html">
               <div class="blog-card-cover">
-                <span class="blog-card-cover-emoji" aria-hidden="true">💬</span>
+                <img src="../assets/blog/whatsapp-rent-vs-own.webp" width="1440" height="804" loading="lazy"
+                     alt="插画：WhatsApp 是租来的摊位，自己的网站才是拥有的店面" />
               </div>
               <div class="blog-card-body">
                 <div class="blog-card-meta">
@@ -373,7 +413,8 @@
           <article class="blog-card">
             <a href="social-media-vs-website.html">
               <div class="blog-card-cover">
-                <span class="blog-card-cover-emoji" aria-hidden="true">📱</span>
+                <img src="../assets/blog/social-booth-vs-store.webp" width="1440" height="804" loading="lazy"
+                     alt="插画：社交平台像临时摊位，自己的网站才是真正的店面" />
               </div>
               <div class="blog-card-body">
                 <div class="blog-card-meta">
