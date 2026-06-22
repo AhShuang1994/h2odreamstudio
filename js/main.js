@@ -332,6 +332,44 @@
   }, { passive: true });
 })();
 
+// Scroll-linked storytelling — maps each section's scroll progress to a CSS
+// var (--p, 0..1). CSS derives per-step --lit from it (see style.css). Pure JS
+// so it works in every browser, unlike native animation-timeline.
+(function () {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return;
+
+  // each target scrubs over (its own height × factor) of scrolling —
+  // a larger factor means the fill rises more slowly
+  const targets = [
+    { sel: '.journey', factor: 1.8 },
+    { sel: '.process-timeline', factor: 1.0 },
+    { sel: '.founder', factor: 0.55 }
+  ]
+    .map(t => ({ el: document.querySelector(t.sel), factor: t.factor }))
+    .filter(t => t.el);
+  if (!targets.length) return;
+
+  let ticking = false;
+  function update() {
+    const vh = window.innerHeight;
+    const trigger = vh * 0.82;  // progress starts when element top crosses this line
+    targets.forEach(({ el, factor }) => {
+      const top = el.getBoundingClientRect().top;
+      const span = Math.min(el.offsetHeight * factor, vh * 1.1) || 1;
+      const p = Math.min(1, Math.max(0, (trigger - top) / span));
+      el.style.setProperty('--p', p.toFixed(3));
+    });
+    ticking = false;
+  }
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }, { passive: true });
+  update();
+})();
+
 // Magnetic cursor effect on CTA buttons
 (function () {
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
