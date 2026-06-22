@@ -1,3 +1,7 @@
 node_modules/
 docs/
 .claude/
+
+# Xiaohongshu (小红书) post working images — deliverables for the XHS
+# platform, not referenced by the website
+assets/blog/xiaohongshu/
