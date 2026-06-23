@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://www.h2o-dreamer-studio.com/404.html">
+  <title>404 · 页面找不到了 · H2ODreamer Studio</title>
+  <meta name="description" content="The page you're looking for has drifted away. Head back to H2ODreamer Studio's homepage.">
+  <meta name="theme-color" content="#030B1A">
+  <meta name="robots" content="noindex">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap"></noscript>
+
+  <link rel="stylesheet" href="css/style.min.css">
+  <style>
+    .nf-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .nf-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,229,255,0.16), transparent 70%);
+      filter: blur(40px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .nf-inner { position: relative; z-index: 1; max-width: 560px; }
+    .nf-code {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(5.5rem, 22vw, 11rem);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary) 55%, var(--color-accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    .nf-title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      color: var(--color-text);
+      margin-bottom: 14px;
+    }
+    .nf-text {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--color-text-secondary);
+      margin-bottom: 36px;
+    }
+    .nf-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+    }
+    .nf-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 26px;
+      border-radius: 999px;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 14px;
+      transition: transform 0.25s var(--ease-out-expo), box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .nf-btn-primary {
+      color: var(--color-bg-deep);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      box-shadow: 0 8px 24px rgba(0,229,255,0.25);
+    }
+    .nf-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,229,255,0.38); }
+    .nf-btn-ghost {
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      background: rgba(12,30,58,0.4);
+    }
+    .nf-btn-ghost:hover { transform: translateY(-2px); border-color: var(--color-primary); }
+    .nf-links {
+      margin-top: 40px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+    .nf-links a { color: var(--color-text-secondary); }
+    .nf-links a:hover { color: var(--color-primary); }
+    .nf-links span { margin: 0 8px; opacity: 0.4; }
+  </style>
+</head>
+<body>
+
+  <main class="nf-page">
+    <div class="nf-glow"></div>
+    <div class="nf-inner">
+      <div class="nf-code">404</div>
+      <h1 class="nf-title">这个页面漂走了 · Page Not Found</h1>
+      <p class="nf-text">
+        你要找的页面可能已经搬家、改名，或从未存在过。<br>
+        The page you're looking for may have moved, been renamed, or never existed.
+      </p>
+      <div class="nf-actions">
+        <a href="index.html" class="nf-btn nf-btn-primary">← 回到首页 · Home</a>
+        <a href="blog/" class="nf-btn nf-btn-ghost">阅读博客 · Blog</a>
+      </div>
+      <p class="nf-links">
+        <a href="about.html">About</a><span>·</span>
+        <a href="pricing.html">Pricing</a><span>·</span>
+        <a href="contact.html">Contact</a>
+      </p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>© 2026 H2ODreamer Studio · Malaysia</p>
+    </div>
+  </footer>
+
+</body>
+</html>
