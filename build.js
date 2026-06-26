@@ -92,11 +92,11 @@ if (blogs.length === 0) {
         <a href="${url}"
            class="blog-feature-card"
            onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Featured Blog Card'})">
-          <span class="blog-card-tag">📝 BLOG · 必读</span>
+          <span class="blog-card-tag">必读 · BLOG</span>
           <h3>${latest.title}</h3>
           <p>${latest.description}</p>
           <div class="blog-card-meta">
-            <span>📅 ${dateFormatted}</span>
+            <span>${dateFormatted}</span>
             <span class="read-arrow">读全文 →</span>
           </div>
         </a>

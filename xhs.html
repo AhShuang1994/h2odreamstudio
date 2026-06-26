@@ -18,453 +18,108 @@
   <meta property="og:image" content="https://www.h2o-dreamer-studio.com/og/og-image.jpg">
   <meta property="og:locale" content="zh_CN">
 
-  <meta name="theme-color" content="#020818">
+  <meta name="theme-color" content="#030B1A">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap"></noscript>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700;900&display=swap"></noscript>
 
   <link rel="stylesheet" href="css/style.min.css">
 
-  <!-- XHS landing page styles -->
+  <!-- XHS landing — editorial design (serif + mono, asymmetric, single solid cyan accent) -->
   <style>
-    /* ===== XHS HERO ===== */
-    .xhs-hero {
-      min-height: auto;
-      padding-top: 120px;
-      padding-bottom: 56px;
-      text-align: center;
-    }
-    .xhs-hero .hero-inner { max-width: 640px; }
-    .xhs-hero h1 {
-      font-size: clamp(30px, 6vw, 44px);
-      line-height: 1.2;
-      margin-bottom: 18px;
-    }
-    .xhs-hero h1 em {
-      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-style: normal;
-    }
-    .xhs-hero .hero-sub {
-      font-size: clamp(15px, 3.6vw, 17px);
-      line-height: 1.7;
-      color: var(--color-text-secondary);
-      margin-bottom: 32px;
-    }
-    .xhs-hero .xhs-source-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      background: linear-gradient(135deg, rgba(255, 87, 138, 0.12), rgba(0, 229, 255, 0.08));
-      border: 1px solid rgba(255, 87, 138, 0.35);
-      border-radius: 50px;
-      font-family: var(--font-display);
-      font-size: 12px;
-      letter-spacing: 0.04em;
-      color: #FF8FB1;
-      margin-bottom: 20px;
-    }
-    .xhs-cta-pair {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      align-items: center;
-      margin: 0 auto;
-      max-width: 420px;
-    }
-    .xhs-cta-pair .btn-primary,
-    .xhs-cta-pair .btn-secondary {
-      width: 100%;
-      text-align: center;
-      justify-content: center;
-    }
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: transparent;
-      color: var(--color-text);
-      border: 1px solid var(--color-border);
-      padding: 14px 28px;
-      border-radius: 50px;
-      font-family: var(--font-display);
-      font-weight: 600;
-      font-size: 15px;
-      text-decoration: none;
-      transition: border-color 200ms, transform 200ms var(--ease-out-expo);
-    }
-    .btn-secondary:hover {
-      border-color: var(--color-primary);
-      transform: translateY(-2px);
-    }
-    .xhs-hero .hero-price {
-      margin-top: 14px;
-      font-size: 13px;
-      color: var(--color-text-muted);
+    :root {
+      --bg-deep: #030B1A;
+      --bg-mid: #071428;
+      --accent: #00E5FF;
+      --btn-text: #020818;
+      --text: #F0F6FF;
+      --text-2: #8BA4C4;
+      --border: #1A3352;
+      --serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
+      --mono: 'JetBrains Mono', ui-monospace, 'Noto Sans SC', monospace;
+      --sans: 'DM Sans', 'Noto Sans SC', system-ui, sans-serif;
     }
 
-    /* ===== FEATURED BLOG CARD ===== */
-    .xhs-blog-section {
-      background: var(--color-bg-mid);
-      padding: 56px 20px 64px;
+    html, body { margin: 0; }
+    body {
+      background: var(--bg-deep);
+      color: var(--text);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
     }
-    @media (min-width: 768px) {
-      .xhs-blog-section { padding: 80px 24px 88px; }
+    h1, h2, h3, p, dl, dd, dt, figure { margin: 0; }
+    ::selection { background: var(--accent); color: var(--btn-text); }
+
+    /* hover states (replaces design-tool style-hover) */
+    .x-cta { transition: filter 180ms; }
+    .x-cta:hover { filter: brightness(1.12); }
+    .x-ghost { transition: border-color 180ms, color 180ms; }
+    .x-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .x-mlink { transition: color 180ms, border-color 180ms; }
+    .x-mlink:hover { color: var(--accent); border-color: var(--accent); }
+    .x-service { transition: background 180ms; }
+    .x-service:hover { background: rgba(0, 229, 255, 0.06); }
+    .x-work-frame { transition: border-color 200ms; }
+    .x-work:hover .x-work-frame { border-color: var(--accent); }
+
+    /* portfolio / hero images inside editorial frames */
+    .x-shot { width: 100%; height: auto; display: block; }
+    .x-work-img {
+      width: 100%; aspect-ratio: 3 / 4; height: auto;
+      object-fit: cover; object-position: top center; display: block;
     }
-    .xhs-section-inner {
-      max-width: 720px;
-      margin: 0 auto;
-    }
-    .xhs-section-label {
-      font-family: var(--font-display);
-      font-size: 12px;
-      letter-spacing: 0.12em;
-      color: var(--color-primary);
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      text-align: center;
-    }
-    .xhs-section-title {
-      font-family: var(--font-display);
-      font-size: clamp(24px, 4.6vw, 32px);
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      line-height: 1.3;
-      text-align: center;
-      margin-bottom: 8px;
-    }
-    .xhs-section-body {
-      text-align: center;
-      color: var(--color-text-secondary);
-      font-size: 15px;
-      line-height: 1.7;
-      margin-bottom: 32px;
-    }
+
+    /* ============================================================
+       FEATURED BLOG CARD — class-based, regenerated by build.js
+       (must stay class-based; do not inline-style this block)
+       ============================================================ */
     .blog-feature-card {
       display: block;
-      padding: 28px 24px;
-      background: var(--color-bg-card);
-      border: 1px solid var(--color-border);
-      border-radius: 24px;
-      position: relative;
-      overflow: hidden;
-      transition: transform 250ms var(--ease-out-expo), border-color 250ms;
+      border: 1px solid var(--border);
+      background: var(--bg-mid);
+      padding: clamp(22px, 3.4vw, 42px);
+      text-decoration: none;
+      transition: border-color 200ms, transform 200ms;
     }
-    .blog-feature-card::before {
-      content: '';
-      position: absolute;
-      top: -60%;
-      right: -20%;
-      width: 320px;
-      height: 320px;
-      background: radial-gradient(circle, rgba(0,229,255,0.12), transparent 60%);
-      pointer-events: none;
-    }
-    .blog-feature-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(0, 229, 255, 0.4);
-    }
-    .blog-feature-card .blog-card-tag {
+    .blog-feature-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .blog-card-tag {
       display: inline-block;
-      font-family: var(--font-display);
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      color: var(--color-secondary);
-      background: rgba(6, 214, 160, 0.10);
-      padding: 4px 10px;
-      border-radius: 50px;
-      margin-bottom: 14px;
-      position: relative;
+      font-family: var(--mono);
+      font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      padding: 6px 11px;
+      margin-bottom: clamp(18px, 2.6vw, 26px);
     }
     .blog-feature-card h3 {
-      font-family: var(--font-display);
-      font-size: clamp(20px, 4vw, 24px);
-      font-weight: 700;
-      line-height: 1.35;
-      color: var(--color-text);
-      margin-bottom: 12px;
-      position: relative;
-    }
-    .blog-feature-card h3 em {
-      color: var(--color-primary);
-      font-style: normal;
+      font-family: var(--serif);
+      font-weight: 900;
+      line-height: 1.22;
+      font-size: clamp(22px, 3.4vw, 32px);
+      letter-spacing: -0.005em;
+      color: var(--text);
+      margin: 0 0 14px;
+      max-width: 28ch;
     }
     .blog-feature-card p {
-      color: var(--color-text-secondary);
-      font-size: 15px;
-      line-height: 1.7;
-      margin-bottom: 18px;
-      position: relative;
+      font-family: var(--sans);
+      font-size: clamp(15px, 1.9vw, 17px);
+      line-height: 1.62;
+      color: var(--text-2);
+      margin: 0 0 clamp(20px, 2.6vw, 26px);
+      max-width: 62ch;
     }
-    .blog-feature-card .blog-card-meta {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      font-family: var(--font-display);
-      font-size: 12px;
-      color: var(--color-text-muted);
-      position: relative;
+    .blog-card-meta {
+      display: flex; align-items: center; gap: 14px;
+      font-family: var(--mono);
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-2);
+      padding-top: 18px; border-top: 1px solid var(--border);
     }
-    .blog-feature-card .blog-card-meta .read-arrow {
-      margin-left: auto;
-      color: var(--color-primary);
-      font-weight: 600;
-    }
-    .xhs-blog-more {
-      text-align: center;
-      margin-top: 24px;
-    }
-
-    /* ===== SERVICES ===== */
-    .xhs-services-section {
-      background: var(--color-bg-deep);
-      padding: 56px 20px 64px;
-    }
-    @media (min-width: 768px) {
-      .xhs-services-section { padding: 80px 24px 88px; }
-    }
-    .services-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      margin-top: 32px;
-    }
-    @media (min-width: 720px) {
-      .services-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-    .service-card {
-      display: block;
-      padding: 24px 22px;
-      background: var(--color-bg-card);
-      border: 1px solid var(--color-border);
-      border-radius: 20px;
-      transition: transform 200ms var(--ease-out-expo), border-color 200ms;
-    }
-    .service-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(0, 229, 255, 0.35);
-    }
-    .service-card .service-emoji {
-      font-size: 32px;
-      margin-bottom: 12px;
-      display: block;
-    }
-    .service-card h4 {
-      font-family: var(--font-display);
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--color-text);
-      margin-bottom: 6px;
-    }
-    .service-card .service-price {
-      font-family: var(--font-display);
-      font-size: 13px;
-      color: var(--color-primary);
-      margin-bottom: 10px;
-      letter-spacing: 0.04em;
-    }
-    .service-card p {
-      font-size: 14px;
-      line-height: 1.6;
-      color: var(--color-text-secondary);
-      margin-bottom: 14px;
-    }
-    .service-card .service-arrow {
-      font-family: var(--font-display);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--color-primary);
-    }
-
-    /* ===== PORTFOLIO MINI ===== */
-    .xhs-portfolio-section {
-      background: var(--color-bg-mid);
-      padding: 56px 20px 64px;
-    }
-    @media (min-width: 768px) {
-      .xhs-portfolio-section { padding: 80px 24px 88px; }
-    }
-    .portfolio-mini-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 18px;
-      margin-top: 32px;
-    }
-    @media (min-width: 720px) {
-      .portfolio-mini-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-    .portfolio-mini-card {
-      display: block;
-      background: var(--color-bg-card);
-      border: 1px solid var(--color-border);
-      border-radius: 18px;
-      overflow: hidden;
-      transition: transform 200ms var(--ease-out-expo), border-color 200ms;
-    }
-    .portfolio-mini-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(0, 229, 255, 0.35);
-    }
-    .portfolio-mini-card img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      object-position: top center;
-      background: var(--color-bg-mid);
-    }
-    .portfolio-mini-caption {
-      padding: 14px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .portfolio-mini-caption span {
-      font-family: var(--font-display);
-      font-size: 13px;
-      color: var(--color-text-secondary);
-    }
-    .portfolio-mini-caption .view-arrow {
-      font-family: var(--font-display);
-      font-size: 12px;
-      color: var(--color-primary);
-      font-weight: 600;
-    }
-
-    /* ===== FINAL CTA ===== */
-    .xhs-final-cta {
-      position: relative;
-      background:
-        linear-gradient(170deg, var(--color-bg-mid) 0%, #0C2D5A 60%, var(--color-bg-deep) 100%);
-      padding: 80px 20px 96px;
-      overflow: hidden;
-      text-align: center;
-    }
-    .xhs-final-cta .section-inner {
-      position: relative;
-      z-index: 1;
-      max-width: 560px;
-      margin: 0 auto;
-    }
-    .xhs-final-cta h2 {
-      font-family: var(--font-display);
-      font-size: clamp(26px, 5vw, 36px);
-      font-weight: 700;
-      line-height: 1.25;
-      letter-spacing: -0.02em;
-      margin-bottom: 14px;
-    }
-    .xhs-final-cta h2 em {
-      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-style: normal;
-    }
-    .xhs-final-cta p.lead {
-      color: var(--color-text-secondary);
-      font-size: 15px;
-      line-height: 1.75;
-      margin-bottom: 28px;
-    }
-    .xhs-final-cta ul.cta-points {
-      list-style: none;
-      padding: 0;
-      margin: 0 auto 32px;
-      text-align: center;
-    }
-    .xhs-final-cta ul.cta-points li {
-      margin-bottom: 10px;
-      color: var(--color-text-secondary);
-      font-size: 14px;
-      line-height: 1.7;
-    }
-    .xhs-final-cta ul.cta-points li::before {
-      content: '✓ ';
-      color: var(--color-secondary);
-      font-weight: 700;
-      margin-right: 6px;
-    }
-    .xhs-final-cta .hero-price {
-      margin-top: 14px;
-      font-size: 13px;
-      color: var(--color-text-muted);
-    }
-
-    /* ===== SIMPLE FOOTER ===== */
-    .xhs-footer {
-      background: var(--color-bg-deep);
-      padding: 32px 20px;
-      text-align: center;
-      border-top: 1px solid var(--color-border);
-    }
-    .xhs-footer .footer-links {
-      display: flex;
-      gap: 22px;
-      justify-content: center;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-    }
-    .xhs-footer .footer-links a {
-      font-family: var(--font-display);
-      font-size: 13px;
-      color: var(--color-text-secondary);
-      transition: color 200ms;
-    }
-    .xhs-footer .footer-links a:hover { color: var(--color-primary); }
-    .xhs-footer p {
-      font-size: 12px;
-      color: var(--color-text-muted);
-    }
-
-    /* ===== MINIMAL NAV ===== */
-    .xhs-nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      padding: 16px 20px;
-      background: rgba(3, 11, 26, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--color-border);
-    }
-    .xhs-nav-inner {
-      max-width: 720px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .xhs-nav .nav-logo {
-      font-family: var(--font-display);
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-    }
-    .xhs-nav .nav-logo span {
-      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .xhs-nav .nav-main {
-      font-family: var(--font-display);
-      font-size: 13px;
-      color: var(--color-text-secondary);
-      padding: 6px 14px;
-      border: 1px solid var(--color-border);
-      border-radius: 50px;
-      transition: border-color 200ms, color 200ms;
-    }
-    .xhs-nav .nav-main:hover {
-      color: var(--color-primary);
-      border-color: var(--color-primary);
-    }
+    .blog-card-meta .read-arrow { margin-left: auto; color: var(--accent); }
   </style>
 
   <!-- Force Chinese for all XHS-sourced traffic — XHS users expect zh content site-wide -->
@@ -488,205 +143,228 @@
 </head>
 <body>
 
-  <!-- ============ MINIMAL NAV ============ -->
-  <nav class="xhs-nav">
-    <div class="xhs-nav-inner">
-      <a href="index.html" class="nav-logo">H2O<span>Dreamer</span></a>
-      <a href="index.html" class="nav-main">完整网站 →</a>
+  <!-- ============ NAV ============ -->
+  <header style="position:sticky;top:0;z-index:30;background:var(--bg-deep);border-bottom:1px solid var(--border)">
+    <div style="max-width:1180px;margin:0 auto;padding:14px clamp(16px,4vw,24px);display:flex;align-items:center;justify-content:space-between;gap:16px">
+      <a href="index.html" style="display:inline-flex;align-items:baseline;gap:9px;text-decoration:none">
+        <span style="font-family:var(--sans);font-weight:700;font-size:18px;letter-spacing:-.015em;color:var(--text)">H2O<span style="color:var(--accent)">Dreamer</span></span>
+        <span style="font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-2)">Studio</span>
+      </a>
+      <a href="index.html" style="display:inline-flex;align-items:center;min-height:44px;padding:0 2px;text-decoration:none">
+        <span class="x-mlink" style="font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:3px">完整网站 ↗</span>
+      </a>
     </div>
-  </nav>
+  </header>
 
   <main>
 
-    <!-- ============ HERO ============ -->
-    <section class="detail-hero xhs-hero" id="hero">
-      <div class="floating-blobs" aria-hidden="true">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
+    <!-- ============ HERO (01) ============ -->
+    <section style="max-width:1180px;margin:0 auto;padding:clamp(26px,4.5vw,60px) clamp(16px,4vw,24px) clamp(56px,8vw,104px)">
+
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:clamp(30px,5.5vw,64px);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-2)">
+        <span>马来西亚 · MY / SG · 中 / EN</span>
       </div>
-      <div class="hero-inner">
-        <div class="xhs-source-badge">🌸 从小红书来的朋友</div>
-        <h1>你刷到我们了 <em>🌊</em><br>欢迎来到 H2ODreamer Studio</h1>
-        <p class="hero-sub">
-          我们是马来西亚的网站设计工作室，专门帮小生意老板、自由职业者、创业新手做<strong>第一个属于自己的网站</strong>。
-        </p>
-        <div class="xhs-cta-pair">
-          <a href="blog/social-media-vs-website.html?utm_source=xiaohongshu&utm_medium=bio&utm_campaign=xhs_landing"
-             class="btn-primary"
-             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Hero — Read Blog'})">
-            📖 先读那篇 5 真相 blog
-          </a>
-          <a href="https://wa.me/60166897835?text=Hi%20H2ODreamer!%20%E6%88%91%E4%BB%8E%E5%B0%8F%E7%BA%A2%E4%B9%A6%E8%BF%87%E6%9D%A5%EF%BC%8C%E6%83%B3%E8%81%8A%E8%81%8A%E7%BD%91%E7%AB%99%E3%80%82"
-             class="btn-secondary" target="_blank" rel="noopener"
-             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Hero — WhatsApp'})">
-            💬 直接 WhatsApp 我
-          </a>
+
+      <div style="display:flex;flex-wrap:wrap;gap:clamp(36px,5vw,72px);align-items:flex-start">
+
+        <div style="flex:7 1 400px;min-width:min(100%,420px);align-self:center">
+          <div style="font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--accent);margin-bottom:clamp(22px,3.4vw,34px)">(01) 你好，从小红书来的朋友</div>
+
+          <h1 style="font-family:var(--serif);font-weight:900;line-height:1.14;font-size:clamp(34px,8.4vw,66px);letter-spacing:-.005em;text-wrap:balance;margin-bottom:clamp(24px,3.4vw,34px)">替小生意，做出第一个<span style="white-space:nowrap">〈<span style="position:relative;color:var(--accent)">拿得出手<svg viewBox="0 0 240 14" preserveAspectRatio="none" aria-hidden="true" style="position:absolute;left:-2%;bottom:-0.2em;width:104%;height:.36em;overflow:visible"><path d="M3 9 C 46 3.5, 92 12.5, 138 7 S 214 3.5, 237 9.5" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"></path></svg></span>〉</span>的网站。</h1>
+
+          <p style="font-family:var(--sans);font-size:clamp(16px,2.1vw,18px);line-height:1.62;color:var(--text-2);max-width:48ch;margin-bottom:clamp(30px,4.2vw,42px)">马来西亚本地小工作室，手工设计、绝不套模板——着陆页、婚礼电子请柬、Shopify 迁移，中英文都能聊。</p>
+
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:clamp(18px,3vw,30px)">
+            <a class="x-cta" href="https://wa.me/60166897835?text=Hi%20H2ODreamer!%20%E6%88%91%E4%BB%8E%E5%B0%8F%E7%BA%A2%E4%B9%A6%E8%BF%87%E6%9D%A5%EF%BC%8C%E6%83%B3%E8%81%8A%E8%81%8A%E7%BD%91%E7%AB%99%E3%80%82" target="_blank" rel="noopener" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Hero — WhatsApp'})" style="display:inline-flex;align-items:center;gap:10px;min-height:52px;background:var(--accent);color:var(--btn-text);font-family:var(--sans);font-weight:700;font-size:16px;letter-spacing:.01em;padding:15px 26px;text-decoration:none;border:1px solid var(--accent);border-radius:6px">WhatsApp 聊聊 →</a>
+            <a href="blog/social-media-vs-website.html?utm_source=xiaohongshu&utm_medium=bio&utm_campaign=xhs_landing" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Hero — Read Blog'})" style="display:inline-flex;align-items:center;min-height:44px;text-decoration:none">
+              <span class="x-mlink" style="font-family:var(--mono);font-size:13px;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:4px">先读那篇「5 个真相」→</span>
+            </a>
+          </div>
         </div>
-        <p class="hero-price">通常 1 小时内回复 · 免费 30 分钟咨询</p>
+
+        <div style="flex:5 1 320px;min-width:min(100%,300px);margin-top:clamp(2px,5vw,76px)">
+          <figure style="border:1px solid var(--border);background:var(--bg-mid);padding:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-2);margin-bottom:10px">
+              <span style="color:var(--accent)">● DEMO</span>
+              <span>真实作品 · 非模板</span>
+            </div>
+            <img class="x-shot" src="assets/portfolio/landing-fnb-1-mobile.webp" alt="H2ODreamer 设计的餐厅着陆页 demo" loading="eager" width="780" height="1688">
+          </figure>
+
+          <dl style="margin-top:24px;border-top:1px solid var(--border)">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:13px 0;border-bottom:1px solid var(--border)">
+              <dt style="font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-2);white-space:nowrap">Base</dt>
+              <dd style="font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--text);text-align:right">马来西亚 · 中 / EN</dd>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:13px 0;border-bottom:1px solid var(--border)">
+              <dt style="font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-2);white-space:nowrap">Reply</dt>
+              <dd style="font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--text);text-align:right">通常 1 小时内</dd>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:13px 0;border-bottom:1px solid var(--border)">
+              <dt style="font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-2);white-space:nowrap">From</dt>
+              <dd style="font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--text);text-align:right">着陆页 <span style="color:var(--accent)">RM 2,500</span></dd>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:13px 0;border-bottom:1px solid var(--border)">
+              <dt style="font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-2);white-space:nowrap">Step 1</dt>
+              <dd style="font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--text);text-align:right">免费 30 分钟咨询</dd>
+            </div>
+          </dl>
+        </div>
+
       </div>
     </section>
 
-    <!-- ============ FEATURED BLOG ============ -->
-    <section class="xhs-blog-section">
-      <div class="xhs-section-inner">
-        <div class="xhs-section-label">📖 最新文章</div>
-        <h2 class="xhs-section-title">从小生意实战里<br>挖出来的观察</h2>
-        <p class="xhs-section-body">
-          我们写给马来西亚 / 新加坡小生意老板的真心话<br>每一篇都是踩过坑总结出来的，不是教科书。
-        </p>
-        <!-- XHS:FEATURED:START — auto-generated by build.js, do not edit by hand -->
+    <!-- ============ BLOG (02) ============ -->
+    <section style="max-width:1180px;margin:0 auto;padding:clamp(48px,7vw,96px) clamp(16px,4vw,24px);border-top:1px solid var(--border)">
+      <div style="font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--accent);margin-bottom:clamp(16px,2.2vw,22px)">(02) 最新文章 / JOURNAL</div>
+      <h2 style="font-family:var(--serif);font-weight:900;line-height:1.16;font-size:clamp(26px,5vw,40px);letter-spacing:-.005em;margin-bottom:clamp(32px,4.5vw,52px)">踩过的坑，都给你写下来了。</h2>
+
+      <!-- XHS:FEATURED:START — auto-generated by build.js, do not edit by hand -->
         <a href="blog/website-no-traffic-loop.html?utm_source=xiaohongshu&utm_medium=bio&utm_campaign=xhs_landing"
            class="blog-feature-card"
            onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Featured Blog Card'})">
-          <span class="blog-card-tag">📝 BLOG · 必读</span>
+          <span class="blog-card-tag">必读 · BLOG</span>
           <h3>网站做好了没人来？问题不在网站，在你还没连成闭环</h3>
           <p>社媒、网站、WhatsApp 都有了还是没人来？因为你把它们当成三座孤岛。把它们连成一个会回流的闭环，流量才进得来。</p>
           <div class="blog-card-meta">
-            <span>📅 2026.6.26</span>
+            <span>2026.6.26</span>
             <span class="read-arrow">读全文 →</span>
           </div>
         </a>
         <!-- XHS:FEATURED:END -->
 
-        <div class="xhs-blog-more">
-          <a href="blog/index.html?utm_source=xiaohongshu&utm_medium=bio&utm_campaign=xhs_landing"
-             class="btn-secondary"
-             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'See All Articles'})">
-            📚 看所有文章 →
-          </a>
-        </div>
-      </div>
+      <a class="x-ghost" href="blog/index.html?utm_source=xiaohongshu&utm_medium=bio&utm_campaign=xhs_landing" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'See All Articles'})" style="display:inline-flex;align-items:center;gap:8px;min-height:50px;margin-top:clamp(28px,3.6vw,40px);font-family:var(--mono);font-size:13px;letter-spacing:.08em;color:var(--text);text-decoration:none;background:transparent;border:1px solid var(--border);padding:15px 24px;border-radius:6px">查看所有文章 →</a>
     </section>
 
-    <!-- ============ SERVICES ============ -->
-    <section class="xhs-services-section">
-      <div class="xhs-section-inner">
-        <div class="xhs-section-label">我们能帮你</div>
-        <h2 class="xhs-section-title">3 种适合小生意的<br>网站方案</h2>
-        <p class="xhs-section-body">
-          不用大预算，也不用懂代码。我们陪你从零开始。
-        </p>
-        <div class="services-grid">
+    <!-- ============ SERVICES (03) ============ -->
+    <section style="max-width:1180px;margin:0 auto;padding:clamp(48px,7vw,96px) clamp(16px,4vw,24px);border-top:1px solid var(--border)">
+      <div style="font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--accent);margin-bottom:clamp(16px,2.2vw,22px)">(03) 服务与报价 / SERVICES</div>
+      <h2 style="font-family:var(--serif);font-weight:900;line-height:1.16;font-size:clamp(26px,5vw,40px);letter-spacing:-.005em;margin-bottom:clamp(28px,4vw,44px)">我们只做三件事。</h2>
 
-          <a href="landing-page.html" class="service-card"
-             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Service — Landing Page'})">
-            <span class="service-emoji">🚀</span>
-            <h4>着陆页</h4>
-            <div class="service-price">RM 2,500 起</div>
-            <p>一页式销售网站，含 WhatsApp、SEO 基础、分析。1-2 周交付。</p>
-            <div class="service-arrow">了解更多 →</div>
-          </a>
-
-          <a href="wedding-basic.html" class="service-card"
-             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Service — Wedding'})">
-            <span class="service-emoji">💍</span>
-            <h4>婚礼电子请柬</h4>
-            <div class="service-price">RM 380 起</div>
-            <p>RSVP、Google Maps、双语切换。3-5 天交付，比印纸卡省 70%。</p>
-            <div class="service-arrow">了解更多 →</div>
-          </a>
-
-          <a href="shopify-migration.html" class="service-card"
-             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Service — Shopify'})">
-            <span class="service-emoji">🛒</span>
-            <h4>Shopify 迁移</h4>
-            <div class="service-price">RM 3,500 起</div>
-            <p>把你现有的 IG/FB/WhatsApp 生意搬上 Shopify。完整设置 + 主题客制。</p>
-            <div class="service-arrow">了解更多 →</div>
-          </a>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ MINI PORTFOLIO ============ -->
-    <section class="xhs-portfolio-section">
-      <div class="xhs-section-inner">
-        <div class="xhs-section-label">真实作品</div>
-        <h2 class="xhs-section-title">我们做过的<br>一些网站</h2>
-        <p class="xhs-section-body">
-          点开看真实的 demo，不是模板，全部手工设计。
-        </p>
-        <div class="portfolio-mini-grid">
-
-          <a href="demos/landing-fnb-1/landing-fnb-1.html" target="_blank" rel="noopener" class="portfolio-mini-card"
-             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Portfolio — FnB'})">
-            <img src="assets/portfolio/landing-fnb-1-mobile.webp" alt="F&B 餐厅 landing page" loading="lazy" width="780" height="1688">
-            <div class="portfolio-mini-caption">
-              <span>🍜 餐饮 / 餐厅</span>
-              <span class="view-arrow">看 demo →</span>
+      <div style="border-top:1px solid var(--border)">
+        <a class="x-service" href="landing-page.html" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Service — Landing Page'})" style="display:flex;flex-wrap:wrap;align-items:baseline;gap:clamp(14px,2.4vw,28px);padding:clamp(22px,3vw,32px) 8px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit">
+          <span style="font-family:var(--mono);font-size:clamp(22px,3vw,30px);font-weight:500;color:var(--accent);min-width:1.8em">01</span>
+          <div style="flex:1 1 320px;min-width:min(100%,300px)">
+            <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:9px">
+              <span style="font-family:var(--serif);font-weight:900;font-size:clamp(20px,2.8vw,28px);letter-spacing:-.005em">着陆页设计</span>
+              <span style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--text-2)">LANDING PAGE</span>
+              <span style="font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);border:1px solid var(--border);padding:4px 8px">主打</span>
             </div>
-          </a>
-
-          <a href="demos/glowseoul-skincare.html" target="_blank" rel="noopener" class="portfolio-mini-card"
-             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Portfolio — Beauty'})">
-            <img src="assets/portfolio/landing-beauty-mobile.webp" alt="美容护肤 landing page" loading="lazy" width="280" height="560">
-            <div class="portfolio-mini-caption">
-              <span>✨ 美容 / 护肤</span>
-              <span class="view-arrow">看 demo →</span>
-            </div>
-          </a>
-
-          <a href="demos/cooltech-aircon.html" target="_blank" rel="noopener" class="portfolio-mini-card"
-             onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Portfolio — Aircon'})">
-            <img src="assets/portfolio/landing-aircon-mobile.webp" alt="家居服务 aircon landing page" loading="lazy" width="280" height="560">
-            <div class="portfolio-mini-caption">
-              <span>❄️ 家居服务</span>
-              <span class="view-arrow">看 demo →</span>
-            </div>
-          </a>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ FINAL CTA ============ -->
-    <section class="xhs-final-cta">
-      <div class="floating-blobs" aria-hidden="true">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-      </div>
-      <div class="section-inner">
-        <div class="hero-badge">免费 30 分钟咨询</div>
-        <h2>想聊聊？<br>我们<em>不会推销</em></h2>
-        <p class="lead">
-          先了解你的生意、预算、需要什么。<br>不适合？我们也会老实告诉你。
-        </p>
-        <ul class="cta-points">
-          <li>100% 客制设计，不用模板</li>
-          <li>透明报价，无隐藏费用</li>
-          <li>中文 / 英文都可以聊</li>
-        </ul>
-        <a href="https://wa.me/60166897835?text=Hi%20H2ODreamer!%20%E6%88%91%E4%BB%8E%E5%B0%8F%E7%BA%A2%E4%B9%A6%E8%BF%87%E6%9D%A5%EF%BC%8C%E6%83%B3%E7%BA%A6%E5%85%8D%E8%B4%B9%2030%20%E5%88%86%E9%92%9F%E5%92%A8%E8%AF%A2%E3%80%82"
-           class="btn-primary" target="_blank" rel="noopener"
-           onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Final CTA — WhatsApp'})">
-          💬 WhatsApp 免费咨询
+            <p style="font-family:var(--sans);font-size:clamp(14px,1.8vw,16px);line-height:1.55;color:var(--text-2)">手写每一行代码、绝不套模板的着陆页。</p>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:16px;margin-left:auto">
+            <span style="font-family:var(--mono);font-size:clamp(14px,1.9vw,16px);letter-spacing:.04em;color:var(--text);white-space:nowrap">RM 2,500 起</span>
+            <span style="font-family:var(--mono);font-size:16px;color:var(--accent)">→</span>
+          </div>
         </a>
-        <p class="hero-price">通常 1 小时内回复</p>
+
+        <a class="x-service" href="wedding-basic.html" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Service — Wedding'})" style="display:flex;flex-wrap:wrap;align-items:baseline;gap:clamp(14px,2.4vw,28px);padding:clamp(22px,3vw,32px) 8px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit">
+          <span style="font-family:var(--mono);font-size:clamp(22px,3vw,30px);font-weight:500;color:var(--accent);min-width:1.8em">02</span>
+          <div style="flex:1 1 320px;min-width:min(100%,300px)">
+            <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:9px">
+              <span style="font-family:var(--serif);font-weight:900;font-size:clamp(20px,2.8vw,28px);letter-spacing:-.005em">婚礼电子请柬</span>
+              <span style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--text-2)">E-INVITE</span>
+            </div>
+            <p style="font-family:var(--sans);font-size:clamp(14px,1.8vw,16px);line-height:1.55;color:var(--text-2)">能转发的婚礼电子请柬，含 RSVP 与地图。</p>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:16px;margin-left:auto">
+            <span style="font-family:var(--mono);font-size:clamp(14px,1.9vw,16px);letter-spacing:.04em;color:var(--text);white-space:nowrap">RM 380 起</span>
+            <span style="font-family:var(--mono);font-size:16px;color:var(--accent)">→</span>
+          </div>
+        </a>
+
+        <a class="x-service" href="shopify-migration.html" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Service — Shopify'})" style="display:flex;flex-wrap:wrap;align-items:baseline;gap:clamp(14px,2.4vw,28px);padding:clamp(22px,3vw,32px) 8px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit">
+          <span style="font-family:var(--mono);font-size:clamp(22px,3vw,30px);font-weight:500;color:var(--accent);min-width:1.8em">03</span>
+          <div style="flex:1 1 320px;min-width:min(100%,300px)">
+            <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:9px">
+              <span style="font-family:var(--serif);font-weight:900;font-size:clamp(20px,2.8vw,28px);letter-spacing:-.005em">Shopify 迁移</span>
+              <span style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--text-2)">MIGRATION</span>
+            </div>
+            <p style="font-family:var(--sans);font-size:clamp(14px,1.8vw,16px);line-height:1.55;color:var(--text-2)">把现有店搬上 Shopify，订单数据不丢。</p>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:16px;margin-left:auto">
+            <span style="font-family:var(--mono);font-size:clamp(14px,1.9vw,16px);letter-spacing:.04em;color:var(--text);white-space:nowrap">RM 3,500 起</span>
+            <span style="font-family:var(--mono);font-size:16px;color:var(--accent)">→</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============ PORTFOLIO (04) ============ -->
+    <section style="max-width:1180px;margin:0 auto;padding:clamp(48px,7vw,96px) clamp(16px,4vw,24px);border-top:1px solid var(--border)">
+      <div style="font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--accent);margin-bottom:clamp(16px,2.2vw,22px)">(04) 作品 / PORTFOLIO</div>
+      <h2 style="font-family:var(--serif);font-weight:900;line-height:1.16;font-size:clamp(26px,5vw,40px);letter-spacing:-.005em;margin-bottom:clamp(28px,4vw,44px)">看真的，别光看说的。</h2>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:clamp(14px,2.4vw,28px)">
+        <a class="x-work" href="demos/landing-fnb-1/landing-fnb-1.html" target="_blank" rel="noopener" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Portfolio — FnB'})" style="text-decoration:none;color:inherit;display:block">
+          <div class="x-work-frame" style="border:1px solid var(--border);background:var(--bg-mid);padding:9px">
+            <img class="x-work-img" src="assets/portfolio/landing-fnb-1-mobile.webp" alt="餐厅 F&amp;B 着陆页 demo" loading="lazy" width="780" height="1688">
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:12px;padding-top:11px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-2)">
+            <span>餐饮 / F&amp;B</span>
+            <span style="color:var(--accent)">查看 →</span>
+          </div>
+        </a>
+
+        <a class="x-work" href="demos/glowseoul-skincare.html" target="_blank" rel="noopener" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Portfolio — Beauty'})" style="text-decoration:none;color:inherit;display:block">
+          <div class="x-work-frame" style="border:1px solid var(--border);background:var(--bg-mid);padding:9px">
+            <img class="x-work-img" src="assets/portfolio/landing-beauty-mobile.webp" alt="美容护肤 着陆页 demo" loading="lazy" width="280" height="560">
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:12px;padding-top:11px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-2)">
+            <span>美容 / Skincare</span>
+            <span style="color:var(--accent)">查看 →</span>
+          </div>
+        </a>
+
+        <a class="x-work" href="demos/cooltech-aircon.html" target="_blank" rel="noopener" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Portfolio — Aircon'})" style="text-decoration:none;color:inherit;display:block">
+          <div class="x-work-frame" style="border:1px solid var(--border);background:var(--bg-mid);padding:9px">
+            <img class="x-work-img" src="assets/portfolio/landing-aircon-mobile.webp" alt="家居服务 aircon 着陆页 demo" loading="lazy" width="280" height="560">
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:12px;padding-top:11px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-2)">
+            <span>家居 / Aircon</span>
+            <span style="color:var(--accent)">查看 →</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============ FINAL CTA (05) ============ -->
+    <section style="max-width:1180px;margin:0 auto;padding:clamp(56px,8vw,110px) clamp(16px,4vw,24px);border-top:1px solid var(--border)">
+      <div style="font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--accent);margin-bottom:clamp(20px,3vw,30px)">(05) 联系 / CONTACT</div>
+      <div style="display:flex;flex-wrap:wrap;gap:clamp(32px,5vw,72px);align-items:flex-start">
+        <div style="flex:7 1 380px;min-width:min(100%,360px)">
+          <h2 style="font-family:var(--serif);font-weight:900;line-height:1.16;font-size:clamp(28px,5.6vw,48px);letter-spacing:-.005em;margin-bottom:clamp(20px,2.8vw,28px)">想聊聊？我们<span style="white-space:nowrap">〈<span style="color:var(--accent)">不推销</span>〉</span>。</h2>
+          <p style="font-family:var(--sans);font-size:clamp(16px,2.1vw,18px);line-height:1.6;color:var(--text-2);max-width:40ch;margin-bottom:clamp(30px,4vw,40px)">先免费聊 30 分钟。不合适，我们会老实告诉你，不硬推。</p>
+          <a class="x-cta" href="https://wa.me/60166897835?text=Hi%20H2ODreamer!%20%E6%88%91%E4%BB%8E%E5%B0%8F%E7%BA%A2%E4%B9%A6%E8%BF%87%E6%9D%A5%EF%BC%8C%E6%83%B3%E7%BA%A6%E5%85%8D%E8%B4%B9%2030%20%E5%88%86%E9%92%9F%E5%92%A8%E8%AF%A2%E3%80%82" target="_blank" rel="noopener" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Final CTA — WhatsApp'})" style="display:inline-flex;align-items:center;gap:10px;min-height:52px;background:var(--accent);color:var(--btn-text);font-family:var(--sans);font-weight:700;font-size:16px;letter-spacing:.01em;padding:15px 26px;text-decoration:none;border:1px solid var(--accent);border-radius:6px">WhatsApp 免费咨询 →</a>
+          <div style="font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--text-2);margin-top:16px">通常 1 小时内回复</div>
+        </div>
+        <div style="flex:5 1 260px;min-width:min(100%,240px);border-top:1px solid var(--border)">
+          <div style="display:flex;gap:12px;padding:15px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:13px;letter-spacing:.03em;color:var(--text)"><span style="color:var(--accent)">—</span>100% 客制，不套模板</div>
+          <div style="display:flex;gap:12px;padding:15px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:13px;letter-spacing:.03em;color:var(--text)"><span style="color:var(--accent)">—</span>透明报价，无隐藏费用</div>
+          <div style="display:flex;gap:12px;padding:15px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:13px;letter-spacing:.03em;color:var(--text)"><span style="color:var(--accent)">—</span>中英文都可以聊</div>
+        </div>
       </div>
     </section>
 
   </main>
 
   <!-- ============ FOOTER ============ -->
-  <footer class="xhs-footer">
-    <div class="footer-links">
-      <a href="index.html">主站</a>
-      <a href="blog/index.html">所有博客</a>
-      <a href="https://www.instagram.com/h2odreamerstudio/" target="_blank" rel="noopener">Instagram</a>
-      <a href="privacy.html">隐私政策</a>
-      <a href="terms.html" data-lang-en="Terms of Service" data-lang-cn="服务条款">服务条款</a>
+  <footer style="border-top:1px solid var(--border)">
+    <div style="max-width:1180px;margin:0 auto;padding:clamp(28px,4vw,40px) clamp(16px,4vw,24px);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:16px 28px">
+      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 22px">
+        <span style="font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-2)">H2ODreamer Studio · 马来西亚</span>
+        <a class="x-mlink" href="index.html" style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border);padding-bottom:2px">主站</a>
+        <a class="x-mlink" href="blog/index.html" style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border);padding-bottom:2px">博客</a>
+        <a class="x-mlink" href="https://www.instagram.com/h2odreamerstudio/" target="_blank" rel="noopener" style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border);padding-bottom:2px">Instagram</a>
+        <a class="x-mlink" href="privacy.html" style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border);padding-bottom:2px">隐私政策</a>
+        <a class="x-mlink" href="terms.html" style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border);padding-bottom:2px">服务条款</a>
+      </div>
+      <span style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--text-2)">© 2026 H2ODreamer Studio · Malaysia</span>
     </div>
-    <p>© 2026 H2ODreamer Studio · Malaysia</p>
   </footer>
 
   <!-- Floating WhatsApp -->
-  <a href="https://wa.me/60166897835?text=Hi%20H2ODreamer!%20%E6%88%91%E4%BB%8E%E5%B0%8F%E7%BA%A2%E4%B9%A6%E8%BF%87%E6%9D%A5%E3%80%82"
-     class="wa-fab" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"
-     onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Floating WhatsApp'})">
-    <svg viewBox="0 0 24 24" width="28" height="28" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.019-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-  </a>
+  <a class="x-cta" href="https://wa.me/60166897835?text=Hi%20H2ODreamer!%20%E6%88%91%E4%BB%8E%E5%B0%8F%E7%BA%A2%E4%B9%A6%E8%BF%87%E6%9D%A5%E3%80%82" target="_blank" rel="noopener" aria-label="Chat on WhatsApp" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Floating WhatsApp'})" style="position:fixed;right:clamp(14px,3vw,24px);bottom:clamp(14px,3vw,24px);z-index:50;display:inline-flex;align-items:center;gap:8px;min-height:48px;background:var(--accent);color:var(--btn-text);font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.1em;padding:14px 16px;text-decoration:none;border:1px solid var(--accent);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.45)">WHATSAPP →</a>
 
 </body>
 </html>
