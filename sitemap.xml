@@ -104,9 +104,15 @@
   </url>
   <url>
     <loc>https://www.h2o-dreamer-studio.com/blog/</loc>
-    <lastmod>2026-06-26</lastmod>
+    <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.h2o-dreamer-studio.com/blog/website-process-what-to-expect.html</loc>
+    <lastmod>2026-06-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.h2o-dreamer-studio.com/blog/website-no-traffic-loop.html</loc>
