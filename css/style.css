@@ -31,7 +31,9 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; overflow-x: hidden; scroll-padding-top: 84px; }
+/* overflow-x: clip (not hidden) — clips horizontal overflow without creating a
+   scroll container, so position: sticky (the pinned process timeline) still works. */
+html { scroll-behavior: smooth; overflow-x: clip; scroll-padding-top: 84px; }
 
 body {
   font-family: var(--font-body);
@@ -40,7 +42,7 @@ body {
   line-height: 1.75;
   -webkit-font-smoothing: antialiased;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ============ NOISE GRAIN OVERLAY ============ */
@@ -1027,6 +1029,26 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   flex-direction: column;
   gap: 0;
+}
+/* Pinned scrollytelling: the heading + timeline sit together inside .pin-stick
+   and "freeze" just under the navbar while the extra-tall track drives --p,
+   revealing each step in turn. Keeping the title in the frozen frame means no
+   gap opens between it and the steps. Gated on min-height so short viewports
+   (where the ~780px block wouldn't fit) fall back to normal, gap-free flow —
+   the JS pin math is gated on the same query. */
+.pin-track { position: relative; }
+@media (min-width: 769px) and (min-height: 860px) and (prefers-reduced-motion: no-preference) {
+  /* height = the pinned frame + the scroll distance the steps reveal over.
+     Bigger = slower/more cinematic; smaller = snappier. */
+  .pin-track { height: 160vh; }
+  .pin-stick {
+    position: sticky;
+    top: 84px;            /* clear the fixed navbar */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .pin-stick .process-timeline { margin: 24px auto 0; }
 }
 /* Equal-height rows → numbers march at an even rhythm regardless of text length */
 .process-timeline .process-step {
