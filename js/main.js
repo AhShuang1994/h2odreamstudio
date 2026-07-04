@@ -339,21 +339,49 @@
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReduced) return;
 
-  // each target scrubs over (its own height × factor) of scrolling —
+  // .journey + .founder scrub simply as they cross the viewport —
   // a larger factor means the fill rises more slowly
   const targets = [
     { sel: '.journey', factor: 1.8 },
-    { sel: '.process-timeline', factor: 1.0 },
     { sel: '.founder', factor: 0.55 }
   ]
     .map(t => ({ el: document.querySelector(t.sel), factor: t.factor }))
     .filter(t => t.el);
-  if (!targets.length) return;
+
+  // The process timeline is pinned (position: sticky) on desktop: its extra-tall
+  // track drives --p while the steps stay frozen on screen and light up one by
+  // one. Same media query as the CSS so the two agree on when pinning is active.
+  const processEl = document.querySelector('.process-timeline');
+  const processTrack = document.querySelector('.pin-track');
+  const processStick = document.querySelector('.pin-stick');
+  const pinnedMQ = window.matchMedia('(min-width: 769px) and (min-height: 860px)');
+  const PIN_TOP = 84;  // matches the CSS `.pin-stick { top: 84px }`
+
+  if (!targets.length && !processEl) return;
 
   let ticking = false;
   function update() {
     const vh = window.innerHeight;
     const trigger = vh * 0.82;  // progress starts when element top crosses this line
+
+    if (processEl && processTrack) {
+      let p;
+      if (pinnedMQ.matches && processStick) {
+        // fraction scrolled through the pinned range (0 when the block freezes,
+        // 1 when it releases). pinnable = how far the block travels while stuck =
+        // track height minus the block's own height; PIN_TOP is where it freezes.
+        const rect = processTrack.getBoundingClientRect();
+        const pinnable = processTrack.offsetHeight - processStick.offsetHeight;
+        p = pinnable > 0 ? (PIN_TOP - rect.top) / pinnable : 0;
+      } else {
+        // mobile: fall back to the plain crossing-the-viewport scrub
+        const top = processEl.getBoundingClientRect().top;
+        const span = Math.min(processEl.offsetHeight * 1.0, vh * 1.1) || 1;
+        p = (trigger - top) / span;
+      }
+      processEl.style.setProperty('--p', Math.min(1, Math.max(0, p)).toFixed(3));
+    }
+
     targets.forEach(({ el, factor }) => {
       const top = el.getBoundingClientRect().top;
       const span = Math.min(el.offsetHeight * factor, vh * 1.1) || 1;
@@ -363,6 +391,11 @@
     ticking = false;
   }
   window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }, { passive: true });
+  window.addEventListener('resize', () => {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(update);
