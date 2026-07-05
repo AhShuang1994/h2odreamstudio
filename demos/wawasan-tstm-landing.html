@@ -80,7 +80,9 @@
   }
   </script>
 </head>
-<body class="bg-paper text-ink font-sans text-[16px] leading-[1.6] antialiased overflow-x-hidden">
+<body class="bg-[#211E1A] text-ink font-sans text-[16px] leading-[1.6] antialiased overflow-x-hidden">
+  <!-- fixed-width canvas: locks the whole layout to the 1440px design width; centered with dark gutters on 2K+ screens -->
+  <div class="mx-auto max-w-[1440px] bg-paper">
 
   <!-- 01 utility bar -->
   <header class="flex justify-between items-center bg-ink text-paper px-4 py-[9px] lg:px-20 lg:py-[10px]">
@@ -320,10 +322,10 @@
           <address class="not-italic text-[15px] lg:text-[16px] leading-[1.55] lg:leading-[1.6] text-ink max-w-[300px] lg:max-w-[380px]">No 3, Jalan 10, Tmn Perindustrian Wawasan, 86000 Kluang, Johor</address>
         </div>
       </div>
-      <div class="tex-light relative mt-5 lg:mt-0 h-[230px] lg:h-[380px] border border-ink">
-        <span class="absolute top-1/2 left-1/2 w-[10px] h-[10px] bg-ink -translate-x-1/2 -translate-y-1/2" aria-hidden="true"></span>
-        <span class="absolute left-[10px] bottom-2 lg:left-3 lg:bottom-[10px] font-mono text-[10px] tracking-[0.06em] uppercase text-stone">[ MAP — Tmn Perindustrian Wawasan, 86000 Kluang ]</span>
-      </div>
+      <a href="https://www.google.com/maps/place/WAWASAN+TSTM+SDN+BHD/data=!4m2!3m1!1s0x0:0xc436f0dbc54b51a1?sa=X&amp;ved=1t:2428&amp;ictx=111" target="_blank" rel="noopener noreferrer" class="group relative block mt-5 lg:mt-0 h-[230px] lg:h-[380px] border border-ink overflow-hidden">
+        <img src="../assets/demos/wawasan/map.webp" alt="Illustrated location map showing Wawasan TSTM Sdn Bhd marked in orange just off Jalan Rambutan (route 172) in Kluang, between CIMB Bank and Prudential and beside Sungai Mengkibol" width="1440" height="1075" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]">
+        <span class="absolute right-3 bottom-3 lg:right-4 lg:bottom-4 inline-flex items-center gap-[6px] min-h-[44px] bg-accent text-ink border border-ink shadow-[3px_3px_0_#141414] px-[15px] font-mono text-[10.5px] lg:text-[11px] font-semibold tracking-[0.08em] uppercase transition-colors group-hover:bg-accent-dark">Open in Google Maps <span aria-hidden="true" class="text-[13px] leading-none">↗</span></span>
+      </a>
     </section>
 
     <!-- constraints card -->
@@ -352,6 +354,8 @@
 
   <!-- spacer so the fixed action bar never covers the footer (mobile only) -->
   <div class="h-[57px] lg:hidden" aria-hidden="true"></div>
+
+  </div><!-- /fixed-width canvas -->
 
   <!-- sticky bottom action bar (mobile only) -->
   <div class="fixed bottom-0 inset-x-0 z-30 grid grid-cols-[1.4fr_1fr] border-t border-ink lg:hidden">
