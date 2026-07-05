@@ -8,3 +8,6 @@ assets/blog/xiaohongshu/
 
 # Raw Gemini PNG sources for blog illustrations (converted to .webp; keep local, do not commit)
 assets/blog/*.png
+
+# Raw PNG sources for demo mockup photos (converted to .webp; keep local, do not commit)
+assets/demos/**/*.png
