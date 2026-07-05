@@ -48,6 +48,9 @@
   <style>
     ::selection { background: #E8551A; color: #141414; }
     @keyframes wtstm-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    /* full-bleed: element's background reaches the screen edges while its inner
+       content stays locked to the centred 1440px column (used on coloured bands) */
+    .bleed { width: 100vw; margin-inline: calc(50% - 50vw); }
     /* photo-placeholder texture (design token: paper + ink hatch) */
     .tex-light {
       background-color: #DCD8CE;
@@ -80,19 +83,21 @@
   }
   </script>
 </head>
-<body class="bg-[#211E1A] text-ink font-sans text-[16px] leading-[1.6] antialiased overflow-x-hidden">
-  <!-- fixed-width canvas: locks the whole layout to the 1440px design width; centered with dark gutters on 2K+ screens -->
+<body class="bg-paper text-ink font-sans text-[16px] leading-[1.6] antialiased overflow-x-hidden">
+  <!-- content locks to the 1440px design column; coloured bands use .bleed so their own colour fills the side gutters on 2K+ screens -->
   <div class="mx-auto max-w-[1440px] bg-paper">
 
   <!-- 01 utility bar -->
-  <header class="flex justify-between items-center bg-ink text-paper px-4 py-[9px] lg:px-20 lg:py-[10px]">
-    <div class="flex w-full items-center justify-between lg:w-auto lg:justify-start lg:gap-7">
-      <a href="tel:+6077722009" class="font-mono text-[11px] lg:text-[11.5px] tracking-[0.08em] uppercase py-[15px] -my-[15px]">07-772 2009</a>
-      <span class="font-mono text-[11px] lg:text-[11.5px] tracking-[0.08em] uppercase text-paper/70 lg:text-paper/[.65]">[VERIFY hours]</span>
-    </div>
-    <div class="hidden lg:flex items-center gap-[26px]">
-      <a href="https://wa.me/6077722009" target="_blank" rel="noopener noreferrer" class="font-mono text-[11.5px] tracking-[0.08em] uppercase text-accent py-[15px] -my-[15px]">WhatsApp the damage →</a>
-      <a href="tel:+6077722009" class="font-mono text-[11.5px] tracking-[0.08em] uppercase text-paper py-[15px] -my-[15px]">Call 07-772 2009</a>
+  <header class="bleed bg-ink text-paper">
+    <div class="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-[9px] lg:px-20 lg:py-[10px]">
+      <div class="flex w-full items-center justify-between lg:w-auto lg:justify-start lg:gap-7">
+        <a href="tel:+6077722009" class="font-mono text-[11px] lg:text-[11.5px] tracking-[0.08em] uppercase py-[15px] -my-[15px]">07-772 2009</a>
+        <span class="font-mono text-[11px] lg:text-[11.5px] tracking-[0.08em] uppercase text-paper/70 lg:text-paper/[.65]">[VERIFY hours]</span>
+      </div>
+      <div class="hidden lg:flex items-center gap-[26px]">
+        <a href="https://wa.me/6077722009" target="_blank" rel="noopener noreferrer" class="font-mono text-[11.5px] tracking-[0.08em] uppercase text-accent py-[15px] -my-[15px]">WhatsApp the damage →</a>
+        <a href="tel:+6077722009" class="font-mono text-[11.5px] tracking-[0.08em] uppercase text-paper py-[15px] -my-[15px]">Call 07-772 2009</a>
+      </div>
     </div>
   </header>
 
@@ -127,7 +132,8 @@
     </section>
 
     <!-- 04 insurer marquee -->
-    <div class="bg-ink overflow-hidden py-[13px] lg:py-[14px] border-b border-ink">
+    <div class="bleed bg-ink border-b border-ink">
+      <div class="mx-auto max-w-[1440px] overflow-hidden py-[13px] lg:py-[14px]">
       <div class="flex w-max animate-[wtstm-marquee_22s_linear_infinite] lg:animate-[wtstm-marquee_30s_linear_infinite]">
         <div class="flex items-center gap-5 lg:gap-6 pr-5 lg:pr-6 whitespace-nowrap">
           <span class="font-mono text-[11px] lg:text-[11.5px] tracking-[0.08em] uppercase text-paper/60">Panel workshop for:</span>
@@ -163,6 +169,7 @@
           <span class="border border-dashed border-paper/40 px-2 lg:px-[9px] py-[2px] font-mono text-[10.5px] lg:text-[11px] tracking-[0.08em] uppercase text-paper/70">{{ insurers }}</span>
           <span class="text-paper/35 text-[12px]">•</span>
         </div>
+      </div>
       </div>
     </div>
 
@@ -252,7 +259,8 @@
     </section>
 
     <!-- 07 workshop -->
-    <section class="relative overflow-hidden bg-night text-paper border-b border-ink px-5 py-11 lg:px-20 lg:py-16">
+    <section class="bleed bg-night text-paper border-b border-ink">
+      <div class="relative mx-auto max-w-[1440px] overflow-hidden px-5 py-11 lg:px-20 lg:py-16">
       <div aria-hidden="true" class="absolute top-[10px] right-[-84px] lg:top-[-16px] lg:right-[-120px] font-display text-[92px] lg:text-[230px] leading-none tracking-[0.01em] text-transparent [-webkit-text-stroke:1px_rgba(244,241,234,0.16)] lg:[-webkit-text-stroke:1px_rgba(244,241,234,0.14)] pointer-events-none select-none">BENGKEL</div>
       <div class="relative z-[1] lg:grid lg:grid-cols-[1fr_460px] lg:gap-14">
         <div>
@@ -294,6 +302,7 @@
             <img src="../assets/demos/wawasan/about-2.webp" alt="Pegboard tool wall with rows of spanners, screwdrivers and an orange pneumatic impact wrench above a workbench with a vice" width="1440" height="1929" loading="lazy" class="absolute inset-0 h-full w-full object-cover">
           </div>
         </div>
+      </div>
       </div>
     </section>
 
@@ -346,10 +355,12 @@
   </main>
 
   <!-- 10 footer -->
-  <footer class="bg-ink text-paper/[.78] px-5 pt-[22px] pb-[26px] flex flex-col gap-[6px] lg:flex-row lg:justify-between lg:items-center lg:gap-6 lg:px-20 lg:py-[22px]">
-    <span class="font-mono text-[11px] lg:text-[11.5px] tracking-[0.08em]">Wawasan TSTM Sdn. Bhd.<span class="hidden lg:inline"> · Panel repairer: AIA [VERIFY] · 2026</span></span>
-    <span class="font-mono text-[11px] lg:text-[11.5px] tracking-[0.08em] text-paper/55">No 3, Jalan 10, Tmn Perindustrian Wawasan, 86000 Kluang, Johor</span>
-    <span class="font-mono text-[11px] tracking-[0.08em] text-paper/55 lg:hidden">Panel repairer: AIA [VERIFY] · 2026</span>
+  <footer class="bleed bg-ink text-paper/[.78]">
+    <div class="mx-auto flex max-w-[1440px] flex-col gap-[6px] px-5 pt-[22px] pb-[26px] lg:flex-row lg:justify-between lg:items-center lg:gap-6 lg:px-20 lg:py-[22px]">
+      <span class="font-mono text-[11px] lg:text-[11.5px] tracking-[0.08em]">Wawasan TSTM Sdn. Bhd.<span class="hidden lg:inline"> · Panel repairer: AIA [VERIFY] · 2026</span></span>
+      <span class="font-mono text-[11px] lg:text-[11.5px] tracking-[0.08em] text-paper/55">No 3, Jalan 10, Tmn Perindustrian Wawasan, 86000 Kluang, Johor</span>
+      <span class="font-mono text-[11px] tracking-[0.08em] text-paper/55 lg:hidden">Panel repairer: AIA [VERIFY] · 2026</span>
+    </div>
   </footer>
 
   <!-- spacer so the fixed action bar never covers the footer (mobile only) -->
