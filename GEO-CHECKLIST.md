@@ -63,18 +63,25 @@
 - [ ] `node build.js` run if assets / CSS / JS changed
 
 ## 9 · Measuring GEO impact — is it working?
-GEO is not instant: AI engines must re-crawl and re-index (days to a few weeks), and citations grow as authority signals accumulate. Track these, ordered by how soon they show signal:
+GEO is not instant: AI engines must re-crawl and re-index (days to a few weeks), and citations grow as authority signals accumulate. **Verify in layers — each layer is a prerequisite for the next.** Run layer 1 after every change, layers 2–3 every 2 weeks with the *same* question set (log results — trends, not vibes), layer 4 monthly.
 
-1. **Validate the foundation (same day).** Run each page through Google's [Rich Results Test](https://search.google.com/test/rich-results) and the [Schema Markup Validator](https://validator.schema.org/) → confirm `BlogPosting`, `FAQPage`, `Person`, `ProfessionalService` + `WebSite` are detected, no errors. Confirm `/robots.txt` and `/llms.txt` load live.
-2. **Ask the AI engines directly (days–weeks).** In ChatGPT (search on), Perplexity, Google AI Overviews, and Copilot, ask the questions each post targets and watch for H2ODreamer being named/linked, or your specific facts ("RM 590", "RM 2,500") appearing. Test queries (EN + 中文):
-   - "马来西亚小生意网站要多少钱" / "how much does a small-business website cost in Malaysia 2026"
-   - "WhatsApp 够做生意吗还要网站吗" / "is WhatsApp enough for a small business or do I need a website"
-   - "有 IG 小红书还需要网站吗" / "do I need a website if I already have social media"
-   Re-run monthly; note the first time you appear.
-3. **AI-referral traffic in GA4 (ongoing — the clearest "it's working" signal).** GA4 (`G-45NTTZBZC4`) → Acquisition → Traffic acquisition (or an Exploration on session source). Watch for referrals from `chatgpt.com`, `perplexity.ai`, `gemini.google.com`, `copilot.microsoft.com`, `bing.com`. A rising trend = AI engines are citing you and sending real visitors.
-4. **Google Search Console (set up if not already).** Add the property, submit `sitemap.xml`, then track target-query impressions/clicks, AI-Overview appearances, indexing status, and the Rich Results report. Best long-horizon dashboard.
+1. **Layer 1 — foundation is live (same day, after every deploy).** `/robots.txt`, `/llms.txt`, `/sitemap.xml`, and the IndexNow key file (`35645bff….txt`) all load. New/changed pages pass Google's [Rich Results Test](https://search.google.com/test/rich-results) and the [Schema Markup Validator](https://validator.schema.org/) → `BlogPosting`, `FAQPage`, `Person`, `ProfessionalService` + `WebSite` detected, no errors.
+2. **Layer 2 — search engines have indexed you (the prerequisite AI retrieval depends on).** AI engines can only cite pages that are in their underlying index: **ChatGPT/Copilot → Bing, Gemini/AI Overviews → Google.** If a page isn't indexed, layer 3 will fail no matter how good the GEO is.
+   - **Bing:** search `site:h2o-dreamer-studio.com` — page count should grow toward sitemap size. Bing Webmaster Tools → IndexNow panel shows submissions. After every deploy of new/changed pages, run `node scripts/indexnow-submit.js`.
+   - **Google:** GSC → Page indexing report; new posts get a manual URL Inspection → Request Indexing (Google does **not** support IndexNow).
+3. **Layer 3 — ask the AI engines (the real GEO test).** **Search/browsing mode must be ON** — without it you're testing the model's training data, which predates the site. Test Perplexity first (fastest to index new sites, clearest source display), then ChatGPT Search, Copilot, and last Gemini / AI Overviews (slowest). **Pass = your domain appears in the answer's cited sources**, not merely a name-drop. Climb the query ladder — each step needs more authority:
+   - ① Brand: "H2ODreamer Studio 是做什么的" → proves indexing works (expect first)
+   - ② Brand + domain: "h2o-dreamer-studio.com 提供什么服务" → proves content is readable
+   - ③ Long-tail (the GEO battleground — what the blog is written for):
+     - "马来西亚小生意网站要多少钱" / "how much does a small-business website cost in Malaysia 2026"
+     - "WhatsApp 够做生意吗还要网站吗" / "is WhatsApp enough for a small business or do I need a website"
+     - "有 IG 小红书还需要网站吗" / "do I need a website if I already have social media"
+   - ④ Competitive: "Malaysia web design 推荐" → needs external authority (directories, GBP, backlinks); don't expect this early
+4. **Layer 4 — passive signals (monthly).**
+   - **AI-referral traffic in GA4 (the clearest "it's working" signal).** GA4 (`G-45NTTZBZC4`) → Acquisition → Traffic acquisition. Referrals from `chatgpt.com`, `perplexity.ai`, `gemini.google.com`, `copilot.microsoft.com`, `bing.com` = AI engines are citing you and sending real visitors.
+   - **GSC**: target-query impressions/clicks, AI-Overview appearances, indexing status, Rich Results report. Best long-horizon dashboard.
 
-Rule of thumb: foundation = same day · first AI citations ≈ 2–6 weeks after crawl · meaningful referral traffic ≈ 1–3 months as authority builds.
+Rule of thumb: foundation = same day · indexed ≈ days (Bing/IndexNow) to 2–8 weeks (Google) · brand-query citations (①②) ≈ 2–4 weeks · long-tail citations (③) ≈ 1–3 months · competitive mentions (④) ≈ 3–6 months as authority builds.
 
 ---
 

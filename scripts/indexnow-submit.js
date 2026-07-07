@@ -31,10 +31,16 @@ const req = https.request(
     headers: { 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': Buffer.byteLength(body) },
   },
   (res) => {
+    responded = true;
+    res.resume();
     console.log(`Submitted ${urls.length} URL(s) — HTTP ${res.statusCode} (200/202 = accepted)`);
     urls.forEach((u) => console.log('  ' + u));
   }
 );
-req.on('error', (e) => console.error('IndexNow submit failed:', e.message));
+let responded = false;
+// The API often resets the socket after responding; only report errors before the response.
+req.on('error', (e) => {
+  if (!responded) console.error('IndexNow submit failed:', e.message);
+});
 req.write(body);
 req.end();
