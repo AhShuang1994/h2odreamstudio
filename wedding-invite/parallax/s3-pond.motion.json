@@ -1,0 +1,34 @@
+{
+  "parent": "project.json",
+  "section": "s3-pond",
+  "kDefinition": "layer scroll speed / page scroll speed; 1=follows content, 0=pinned, >1=rushes past",
+  "scrollNote": "相册入口(池畔),含照片墙,停留略长;scrollDistance 按 ~2.0×viewportH 估值",
+  "breakpoints": {
+    "desktop": {
+      "viewport": { "w": 1440, "h": 900 },
+      "scrollDistance": 1800,
+      "kSpread": [0.10, 1.15],
+      "layers": [
+        { "id": "L0-sky", "z": 0, "k": 0.10, "content": "天空", "canvas": { "w": 1656, "h": 2520 }, "genRatio": "2:3", "padTop": 36, "padStrategy": "outpaint", "anchor": "top", "alpha": false, "blend": "normal" },
+        { "id": "L1-far-trees", "z": 1, "k": 0.25, "content": "远景树影", "canvas": { "w": 1656, "h": 2250 }, "genRatio": "3:4", "padTop": 42, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L2-pond", "z": 2, "k": 0.55, "content": "睡莲池 + 花径绕行 + 水面倒影", "canvas": { "w": 1656, "h": 1710 }, "genRatio": "1:1", "padTop": 54, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L3-near-waterplants", "z": 3, "k": 1.15, "content": "近景水生花叶 / 岸边花", "canvas": { "w": 1656, "h": 1170 }, "genRatio": "3:2", "padTop": 66, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" }
+      ]
+    },
+    "mobile": {
+      "viewport": { "w": 430, "h": 932 },
+      "scrollDistance": 2050,
+      "kSpread": [0.30, 0.90],
+      "layers": [
+        { "id": "L0-sky", "z": 0, "k": 0.30, "content": "天空", "canvas": { "w": 495, "h": 2367 }, "genRatio": null, "padTop": null, "padStrategy": "css-gradient", "gradient": { "type": "linear", "stops": ["#C7D4B8", "#8FA07E", "#6E8268"], "note": "浅绿 → 深叶绿" }, "anchor": "top", "alpha": false, "blend": "normal" },
+        { "id": "L1-far-trees", "z": 1, "k": 0.42, "content": "远景树影", "canvas": { "w": 495, "h": 2121 }, "genRatio": "9:16", "padTop": 1241, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L2-pond", "z": 2, "k": 0.60, "content": "睡莲池 + 花径绕行 + 水面倒影", "canvas": { "w": 495, "h": 1752 }, "genRatio": "9:16", "padTop": 872, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L3-near-waterplants", "z": 3, "k": 0.90, "content": "近景水生花叶 / 岸边花", "canvas": { "w": 495, "h": 1137 }, "genRatio": "9:16", "padTop": 257, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" }
+      ]
+    }
+  },
+  "transition": {
+    "in":  { "type": "continuous", "notes": "承接 s2 花径,视平线 0.60 不变" },
+    "out": { "type": "continuous", "requires": "L0/L1/L2 k 与 s4 背景层一致 (0.10/0.25/0.55);视平线 0.60 保持", "notes": "花径绕过池塘,继续走向花拱" }
+  }
+}

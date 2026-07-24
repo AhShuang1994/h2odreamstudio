@@ -1,0 +1,127 @@
+{
+  "parent": ["project.json", "s3-pond.motion.json"],
+  "section": "s3-pond",
+  "kDefinition": "layer scroll speed / page scroll speed; 1=follows content, 0=pinned to viewport, >1=rushes past",
+  "revision": {
+    "v2": "2026-07-24 回检后定案 —— ①本屏取消 L1-far-trees:出图时模型把远树/对岸/倒影都画进了 L2 池景,再叠一层会出现两条树线(Gate B #1)。让池景兼任远景,顺带彻底消除『树在 L1、倒影在 L2 滚动时分家』的隐患(树与倒影同层,永不撕裂)。s3 实际为 3 层:L0 天空 / L2 池景 / L3 近景水生植物。②L3 改用 scene 抠法(见 cutMode)。",
+    "layerCountNote": "与 s2、s4 的 continuous 转场:s3 无 L1,接缝处由池景的对岸接管远景角色,不构成纵深跳变。"
+  },
+  "gallery": {
+    "decision": "horizontal-pan (档位2 真横摇) — 2026-07-24 用户定案",
+    "rationale": "前四屏镜头都在前进;走到池畔停下脚步、沿岸看回忆,镜头由『推进』切成『横摇』——整站唯一一次横向运动落在相册屏,成为有呼吸的停顿。",
+    "desktop": {
+      "mechanic": "pin + scroll-driven horizontal pan(纵向滚动劫持为横向位移)",
+      "panDistancePx": 1100,
+      "pinLengthViewportHeights": 1.8,
+      "kX": { "L0-sky": 0.10, "L2-pond": 0.40, "L3-near-waterplants": 0.85, "photos": 1.0 },
+      "requiredArtWidthPx": { "L2-pond": 1880, "L3-near-waterplants": 2375 },
+      "photoCount": 5,
+      "photoLayout": { "widthPx": 420, "gapPx": 110, "stripWidthPx": 2540, "note": "2540 − 视口1440 = 1100,正好等于 panDistancePx;视野内同时约 3 张" },
+      "photoEntry": "每张照片进入视野时:opacity 0→1、上浮 12px、scale 0.98→1.00,缓出 —— 像从水面浮起来",
+      "photoStyle": "柔边奶白纸感卡片 + 细描边,微微旋转(±2–4°),垂直方向错落(±30px)浮在池面上,不用玻璃/阴影盒",
+      "uxGuards": [
+        "劫持长度限制在 1.8 屏高以内,到底立刻放开纵向滚动",
+        "prefers-reduced-motion:取消劫持,改为静态错落摆放",
+        "触控板惯性做平滑映射,避免失控"
+      ]
+    },
+    "mobile": {
+      "mechanic": "不做劫持 —— 池面上一条横向滑动照片带,由用户手指控制",
+      "note": "视觉语言与桌面一致(同样从右往左看照片),交互各随其屏"
+    }
+  },
+  "framing": {
+    "_method": "两层都先 trim 到实际内容(getbbox)再定位,不要用带透明边距的整张画布对齐 —— 否则内容会落到屏外或被前景压掉。",
+    "L2-pond": {
+      "type": "full-vista",
+      "note": "池景是一整幅带地平线的远景,**不能贴底裁**(会把对岸与地平线裁掉,只剩一片水)。缩放后开窗,使地平线落在画面上三分之一。",
+      "desktop": { "fitTo": "viewport-width", "windowTopFraction": 0.28 },
+      "mobile": { "contentWidthMultiplier": 1.30, "contentTopAtViewportFraction": 0.30 }
+    },
+    "L3-near-waterplants": {
+      "type": "foreground-band",
+      "note": "近景叶丛只作贴底的前景带(约占画面 25–35%),不可铺满;要压住 L2 底边盖掉横向接缝,并**出血到屏外**,否则屏幕最底会露出背景。",
+      "anchor": "bottom-with-bleed",
+      "bleedPx": 12,
+      "desktop": { "fitTo": "viewport-width", "contentTopAtViewportFraction": 0.68, "overflowsBottom": true },
+      "mobile": { "contentWidthMultiplier": 1.85, "anchor": "bottom", "bleedPx": 12 }
+    },
+    "copyPlacement": "desktop 文案压在池面/左侧沙径的浅色区(避开左上深色树丛);mobile 文案放顶部渐变留白带(池景以上)。"
+  },
+  "styleDelta": {
+    "palette-shift": "浅鼠尾草绿 #C7D4B8 → 鼠尾草绿 #8FA07E → 深叶绿 #6E8268,全站绿意最浓的一屏;水面为奶白偏浅绿的不透明色块",
+    "light-direction": "11:00 近顶的柔和漫射光,略偏左上,无硬阴影、无镜面高光",
+    "fog-density": "极淡,通透",
+    "horizon-y": 0.60
+  },
+  "genPolicy": {
+    "mobileRatio": "3:4",
+    "why": "9:16 出图模型易跑题(为填满高度自行加天空/小路/地面)。改出 3:4,余下高度由 pad_canvas 补透明——补画布按 canvasW 缩放后底部对齐,不挑源图比例,成品一致但生成稳定得多。",
+    "sharedLayers": ["L1-far-trees", "L3-near-waterplants"],
+    "sharedWhy": "水平同质的带状层(远树天际线、贴底的近景水生植物)裁掉两侧仍认得出,一张源图两端各补一份即可(沿用 s1 敞开门的共用判定)。",
+    "generationCount": 5
+  },
+  "styleBibleInline": "Soft botanical watercolor illustration, loose wet-on-wet washes with delicate fine ink linework and dry-brush soft edges; NOT a photograph, NOT thick gouache impasto, NOT a 3D render. Palette: cream #F4EFE4, pale sage #C7D4B8, sage green #8FA07E, deep leaf green #6E8268, warm petal blush #E7C8B0, honey warm light #EBD9B4 — low saturation, cream and green dominant. Light: soft diffuse late-morning light, no hard shadows, gentle diffusion from upper-left. Atmosphere: airy, highly transparent, only the faintest haze for depth. Texture: cold-press watercolor paper grain with light tooth, no digital noise, no HDR, no glow, no glassmorphism. Camera: standing eye-level view, horizon around 40% from the bottom of the frame, mid focal length, gentle aerial perspective, no wide-angle distortion.",
+  "breakpoints": {
+    "desktop": {
+      "viewport": { "w": 1440, "h": 900 }, "scrollDistance": 1800, "kSpread": [0.10, 1.15],
+      "layers": [
+        { "id": "L0-sky", "z": 0, "k": 0.10, "canvas": { "w": 1656, "h": 2520 }, "genRatio": "2:3", "padTop": 36, "padStrategy": "outpaint", "anchor": "top", "alpha": false, "blend": "normal" },
+        { "id": "L1-far-trees", "z": 1, "k": 0.25, "canvas": { "w": 1656, "h": 2250 }, "genRatio": "3:4", "padTop": 42, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L2-pond", "z": 2, "k": 0.55, "canvas": { "w": 1656, "h": 1710 }, "genRatio": "1:1", "padTop": 54, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal", "cutMode": "scene" },
+        { "id": "L3-near-waterplants", "z": 3, "k": 1.15, "canvas": { "w": 1656, "h": 1170 }, "genRatio": "3:2", "padTop": 66, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" }
+      ]
+    },
+    "mobile": {
+      "viewport": { "w": 430, "h": 932 }, "scrollDistance": 2050, "kSpread": [0.30, 0.90],
+      "layers": [
+        { "id": "L0-sky", "z": 0, "k": 0.30, "canvas": { "w": 495, "h": 2367 }, "padStrategy": "css-gradient", "gradient": { "type": "linear", "stops": ["#C7D4B8", "#8FA07E", "#6E8268"], "note": "浅绿 → 深叶绿" }, "anchor": "top", "alpha": false, "blend": "normal" },
+        { "id": "L1-far-trees", "z": 1, "k": 0.42, "canvas": { "w": 495, "h": 2121 }, "genRatio": "3:4", "padTop": 1461, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L2-pond", "z": 2, "k": 0.60, "canvas": { "w": 495, "h": 1752 }, "genRatio": "3:4", "padTop": 1092, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal", "cutMode": "scene" },
+        { "id": "L3-near-waterplants", "z": 3, "k": 0.90, "canvas": { "w": 495, "h": 1137 }, "genRatio": "3:2", "padTop": 807, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" }
+      ]
+    }
+  },
+  "art": [
+    {
+      "id": "L0-sky", "sharedAcross": null,
+      "content": "开阔天空:上浅鼠尾草绿向下渐入鼠尾草绿,通透无物体。desktop 出图(2:3,顶部走 outpaint 补 36px);mobile 走 CSS 线性渐变。",
+      "variants": {
+        "desktop": { "file": "layers/desktop/s3-l0-sky.png", "genCanvas": { "w": 1656, "h": 2484 }, "genRatio": "2:3",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, cold-press watercolor paper grain, no digital noise, no HDR, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. A soft full-frame sky wash: pale sage #C7D4B8 across the top graduating gently downward into sage green #8FA07E near the bottom, with a touch of cream #F4EFE4 near the upper left. Calm late-morning light, airy and atmospheric, no distinct objects, no hard edges, no horizon line. Do not include: trees, water, pond, foliage, flowers, people, text, watermark, hard shapes, cast shadows. Aspect ratio: 2:3" },
+        "mobile": null
+      }
+    },
+    {
+      "id": "L1-far-trees", "sharedAcross": ["desktop", "mobile"],
+      "content": "池对岸的远景树影与低矮绿篱,横带状,提亮偏冷(空气透视)。水平同质,两端共用一张。",
+      "variants": {
+        "shared": { "file": "layers/shared/s3-l1-far-trees.png", "genCanvas": { "w": 1656, "h": 2208 }, "genRatio": "3:4",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, dry-brush soft edges, cold-press watercolor paper grain, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: a soft distant treeline with low hedging along a far bank, forming a low horizontal band, painted in pale sage #C7D4B8 and sage green #8FA07E, lightened and cooler for far-distance atmospheric perspective. Render as solid clustered silhouette masses — no fine twigs, no hair-thin tips at the edges. Composition: a low horizontal band across the lower portion of the frame, anchored to the bottom edge, isolated element only; the rest of the frame empty. Background: solid pure white #FFFFFF, completely flat, no gradient, no vignette, no texture, no horizon line. Do not include: water, pond, reflections, foreground plants, sky, cast shadows, any other depth layer, haze bleeding to edges, depth-of-field blur, motion blur, watermark, text. Edges: crisp, high-contrast silhouette, clean separation from background. Aspect ratio: 3:4" }
+      }
+    },
+    {
+      "id": "L2-pond", "sharedAcross": null,
+      "content": "核心层:一方睡莲池 + 花径绕过近岸。水面必须画成**不透明**色块(不是透明/玻璃质),睡莲叶与花浮在上面;倒影只作为简化的柔和色块**画进本层自身**,不得镜面倒映其他层的树。左上区保持开阔留亮,给文案与相册入口。",
+      "cutMode": "scene",
+      "cutNote": "浅色水面压在奶白背景上,rembg 会误删;必须用 cutout.py --mode scene(顶部泛滥去天空、保留下方全部),同 s2 花径。",
+      "gateBNote": "Gate B #2(跨层倒影=0)与 #6(半透明=抠图杀手)在此层最危险 —— prompt 已明令不透明水、无镜面倒影、无涟漪硬高光。",
+      "variants": {
+        "desktop": { "file": "layers/desktop/s3-l2-pond.png", "genCanvas": { "w": 1656, "h": 1656 }, "genRatio": "1:1",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, dry-brush soft edges, cold-press watercolor paper grain, no glow, no glassmorphism; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: a calm lily pond filling the centre-right and lower part of the frame. The water is painted as flat OPAQUE soft washes of pale sage #C7D4B8 and cream #F4EFE4 — never transparent, never glassy, no see-through areas. A few round lily pads and two or three pale blossoms rest on the surface. A pale sandy garden path curves in from the bottom-left and skirts the near bank; low planting of sage green #8FA07E and deep leaf green #6E8268 edges the far bank. Any reflection is painted INTO the water itself as simplified soft opaque strokes of the same palette — do not mirror any specific tree, object or scenery. Keep the upper-LEFT area of the frame open, low and light so text can sit over it. All foliage as solid clustered silhouette masses — no reeds, no hair-thin stems, no wispy tendrils. Composition: pond and path anchored to the bottom edge, isolated elements only. Background: solid pure white #FFFFFF, completely flat, no gradient, no vignette, no texture, no horizon line. Do not include: transparent or glassy water, mirror-sharp reflections, hard specular highlights, ripple outlines, distant trees, sky, cast shadows on the ground, any other depth layer, haze, depth-of-field blur, motion blur, watermark, text. Edges: crisp, high-contrast silhouette, clean separation from background. Aspect ratio: 1:1" },
+        "mobile": { "file": "layers/mobile/s3-l2-pond.png", "genCanvas": { "w": 495, "h": 660 }, "genRatio": "3:4",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, dry-brush soft edges, cold-press watercolor paper grain, no glow, no glassmorphism; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: a calm lily pond across the lower half of the frame, with the pale sandy garden path skirting its near bank. The water is painted as flat OPAQUE soft washes of pale sage #C7D4B8 and cream #F4EFE4 — never transparent, never glassy. A few round lily pads and a pale blossom rest on the surface; low planting of sage green #8FA07E and deep leaf green #6E8268 edges the far bank. Any reflection is painted INTO the water itself as simplified soft opaque strokes — do not mirror any specific tree or object. Keep the upper part of the frame open and light. Foliage as solid clustered masses — no reeds, no hair-thin stems. Composition: pond and path anchored to the bottom edge; simplify for a narrow portrait viewport — fewer elements, larger pond, tighter crop. Background: solid pure white #FFFFFF, completely flat, no gradient, no texture, no horizon line. Do not include: transparent or glassy water, mirror-sharp reflections, hard specular highlights, distant trees, sky, cast shadows, other depth layers, haze, blur, watermark, text. Edges: crisp, high-contrast silhouette. Aspect ratio: 3:4" }
+      }
+    },
+    {
+      "id": "L3-near-waterplants", "sharedAcross": ["desktop", "mobile"],
+      "content": "贴底边的近景岸生植物:宽叶(玉簪/莲叶)与几朵岸花,最饱和最暗的深叶绿,贴脸掠过(k1.15)。只在底边,画面上方留空。水平同质,两端共用一张。",
+      "cutMode": "scene",
+      "cutNote": "v1 用 object(rembg)抠出来是全透明(不透明像素 0%)—— 这是一条铺满画面的叶丛带,不是独立主体,rembg 找不到主体就整张判为背景。规则:**带状/铺满型的层(路、水面、叶丛带)一律 scene 抠法;只有独立物体(门、拱)才用 object。**",
+      "variants": {
+        "shared": { "file": "layers/shared/s3-l3-near-waterplants.png", "genCanvas": { "w": 1656, "h": 1104 }, "genRatio": "3:2",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, dry-brush soft edges, cold-press watercolor paper grain, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: close-up bankside water plants rising from the very bottom edge of the frame — broad rounded leaves (hosta and lily-pad shapes) with two or three pale blossoms of warm petal blush #E7C8B0, painted in the most saturated and darkest deep leaf green #6E8268. Near, in-focus, framing the lower edge only. Keep the whole upper half of the frame completely empty. Render as solid clustered silhouette masses with broad simple leaf shapes — no reeds, no grass blades, no hair-thin stems, no wispy tips. Composition: plants along the bottom edge, rising a little higher at the bottom-left and bottom-right corners, anchored to the bottom edge, isolated elements only. Background: solid pure white #FFFFFF, completely flat, no gradient, no vignette, no texture, no horizon line. Do not include: water, pond, reflections, the path, distant trees, sky, cast shadows, any other depth layer, haze, depth-of-field blur, motion blur, watermark, text. Edges: crisp, high-contrast silhouette, clean separation from background. Aspect ratio: 3:2" }
+      }
+    }
+  ]
+}

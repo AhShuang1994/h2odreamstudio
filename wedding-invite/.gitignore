@@ -1,0 +1,8 @@
+# 出图与抠图的中间产物,约 300MB —— 靠 Downloads 原图 + scripts/ 可重跑,不进版本库。
+# 进库的是:site/(可部署)、parallax/*.json 规格、scripts/、以及 layers/final/ 下的叠预览 PNG。
+parallax/layers/raw/
+parallax/layers/cut/
+parallax/layers/bg/
+parallax/layers/ref/
+parallax/layers/final/*/
+parallax/assets/

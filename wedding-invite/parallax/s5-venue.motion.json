@@ -1,0 +1,34 @@
+{
+  "parent": "project.json",
+  "section": "s5-venue",
+  "kDefinition": "layer scroll speed / page scroll speed; 1=follows content, 0=pinned, >1=rushes past",
+  "scrollNote": "抵达屏:RSVP 表单 + 导航地图,交互多、作为旅程终点的停留段,最长;scrollDistance 按 ~2.2×viewportH 估值",
+  "breakpoints": {
+    "desktop": {
+      "viewport": { "w": 1440, "h": 900 },
+      "scrollDistance": 2000,
+      "kSpread": [0.10, 1.15],
+      "layers": [
+        { "id": "L0-sky-warm", "z": 0, "k": 0.10, "content": "暖金天空 / 棚顶透光", "canvas": { "w": 1656, "h": 2944 }, "genRatio": "9:16", "padTop": 0, "padStrategy": "integral", "anchor": "top", "alpha": false, "blend": "normal" },
+        { "id": "L1-far-backdrop", "z": 1, "k": 0.25, "content": "远景现场背景 / 树", "canvas": { "w": 1656, "h": 2400 }, "genRatio": "3:4", "padTop": 192, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L2-seats", "z": 2, "k": 0.55, "content": "摆好的席位与桌花", "canvas": { "w": 1656, "h": 1800 }, "genRatio": "1:1", "padTop": 144, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L3-near-petals", "z": 3, "k": 1.15, "content": "近景垂花瓣 / 前景花", "canvas": { "w": 1656, "h": 1200 }, "genRatio": "3:2", "padTop": 96, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" }
+      ]
+    },
+    "mobile": {
+      "viewport": { "w": 430, "h": 932 },
+      "scrollDistance": 2300,
+      "kSpread": [0.30, 0.90],
+      "layers": [
+        { "id": "L0-sky-warm", "z": 0, "k": 0.30, "content": "暖金天空 / 棚顶透光", "canvas": { "w": 495, "h": 2542 }, "genRatio": null, "padTop": null, "padStrategy": "css-gradient", "gradient": { "type": "radial", "stops": ["#EBD9B4", "#E7C8B0", "#6E8268"], "note": "暖金中心 → 边缘园绿,收在最暖" }, "anchor": "top", "alpha": false, "blend": "normal" },
+        { "id": "L1-far-backdrop", "z": 1, "k": 0.42, "content": "远景现场背景 / 树", "canvas": { "w": 495, "h": 2266 }, "genRatio": "9:16", "padTop": 1386, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L2-seats", "z": 2, "k": 0.60, "content": "摆好的席位与桌花", "canvas": { "w": 495, "h": 1852 }, "genRatio": "9:16", "padTop": 972, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L3-near-petals", "z": 3, "k": 0.90, "content": "近景垂花瓣 / 前景花", "canvas": { "w": 495, "h": 1162 }, "genRatio": "9:16", "padTop": 282, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" }
+      ]
+    }
+  },
+  "transition": {
+    "in":  { "type": "zoom-through", "notes": "从 s4 花拱穿入;开场 palette 承接拱内暖金光" },
+    "out": null
+  }
+}

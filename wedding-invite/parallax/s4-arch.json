@@ -1,0 +1,98 @@
+{
+  "parent": ["project.json", "s4-arch.motion.json"],
+  "section": "s4-arch",
+  "kDefinition": "layer scroll speed / page scroll speed; 1=follows content, 0=pinned to viewport, >1=rushes past",
+  "styleDelta": {
+    "palette-shift": "鼠尾草绿 #8FA07E → 深叶绿 #6E8268,暖花瓣粉 #E7C8B0 首次明显渗入(预告抵达)",
+    "light-direction": "15:30 午后偏低的柔光,自右上斜入,较 s3 更暖,仍无硬阴影",
+    "fog-density": "极淡",
+    "horizon-y": 0.60
+  },
+  "genPolicy": {
+    "generationCount": 4,
+    "noPortraitGen": "本屏不出任何 9:16/竖版 —— 极端竖比模型会自行加戏(s3 已验证)。所有共用层出横向或方形,两端由 pad_canvas 各补一份。",
+    "sharedLayers": ["L1-far-trees", "L2-path-end", "L3-flower-arch"],
+    "sharedWhy": "L1/L2 是水平同质的带状层;L3 花拱是左右对称、居中的物体 —— 缩到各端 canvasW 贴底即可,不需要竖版变体(沿用 s1 敞开门的判定)。"
+  },
+  "styleBibleInline": "Soft botanical watercolor illustration, loose wet-on-wet washes with delicate fine ink linework and dry-brush soft edges; NOT a photograph, NOT thick gouache impasto, NOT a 3D render. Palette: cream #F4EFE4, pale sage #C7D4B8, sage green #8FA07E, deep leaf green #6E8268, warm petal blush #E7C8B0, honey warm light #EBD9B4 — low saturation, cream and green dominant. Light: soft diffuse mid-afternoon light, no hard shadows, gentle warm diffusion from upper-right. Atmosphere: airy, highly transparent, faintest haze. Texture: cold-press watercolor paper grain with light tooth, no digital noise, no HDR, no glow, no glassmorphism. Camera: standing eye-level view, horizon around 40% from the bottom of the frame, mid focal length, gentle aerial perspective, no wide-angle distortion.",
+  "framing": {
+    "L3-flower-arch": {
+      "type": "threshold-hole",
+      "note": "第二个 zoom-through 的洞。中央开口必须与背景同为纯白,抠图后成为透明洞。取景同 s1:桌面缩到约 95% 视口高、居中落地,让整座拱一眼看全;手机贴底填宽(约 138%)。",
+      "desktop": { "fitTo": "height", "scaleToViewportH": 0.95, "align": "center-bottom" },
+      "mobile": { "fitTo": "width", "contentWidthMultiplier": 1.38, "align": "center-bottom" }
+    },
+    "L2-path-end": { "type": "foreground-ground-band", "anchor": "bottom-with-bleed", "bleedPx": 12 },
+    "verified": {
+      "date": "2026-07-24",
+      "note": "叠预览已核对(layers/final/s4-desktop-preview.png / s4-mobile-preview.png),以下为实测参数,装站时照抄。",
+      "desktop": { "L1-far-trees": { "widthMultiplier": 1.02, "bboxBottomAt": 0.74 }, "L2-path-end": { "widthMultiplier": 1.02, "bboxBottomAt": "H+12" }, "L3-flower-arch": { "fitTo": "height", "scaleToViewportH": 0.95 }, "copyAt": "拱洞内,约拱高 42% 处" },
+      "mobile": { "L1-far-trees": { "widthMultiplier": 1.50, "bboxBottomAt": 0.79 }, "L2-path-end": { "widthMultiplier": 1.80, "bboxBottomAt": "H+12" }, "L3-flower-arch": { "fitTo": "width", "contentWidthMultiplier": 1.38 }, "copyAt": "上半段留白,顶起 0.14H —— 拱在下半屏,文案不与画面重叠(沿用 s1 手机判定)" }
+    },
+    "postProcess": {
+      "L3-flower-arch": "左右各 12% 做 alpha 斜坡(已烘进 layers/final/s4-*/L3-flower-arch.png)。源图两侧把矮墙与花坛画到了出血边,直接抠会在桌面留下可见直角边。"
+    },
+    "mobileSkyGradientFix": "L0-sky 的 CSS 渐变改为 #EAEEDB → #E7EBD6 → #F3F2E2 → #D9DCBC → #B9CCA4(自 desktop 出图天空取样)。原写的 #8FA07E → #6E8268 → #E7C8B0 比桌面暗太多,两端会明显不是同一屏;底部那段暖粉会从拱洞里透出来变成一块粉色。",
+    "copyPlacement": "文案「花拱下相见」压在拱洞内的留白;日期地点做成拱下方的一张小标注卡,不塞进句子"
+  },
+  "breakpoints": {
+    "desktop": {
+      "viewport": { "w": 1440, "h": 900 }, "scrollDistance": 1700, "kSpread": [0.10, 1.50],
+      "layers": [
+        { "id": "L0-sky", "z": 0, "k": 0.10, "canvas": { "w": 1656, "h": 2484 }, "genRatio": "2:3", "padTop": 0, "padStrategy": "integral", "anchor": "top", "alpha": false, "blend": "normal" },
+        { "id": "L1-far-trees", "z": 1, "k": 0.25, "canvas": { "w": 1656, "h": 2175 }, "genRatio": "3:4", "padTop": 967, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal", "cutMode": "scene" },
+        { "id": "L2-path-end", "z": 2, "k": 0.55, "canvas": { "w": 1656, "h": 1665 }, "genRatio": "3:2", "padTop": 561, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal", "cutMode": "scene" },
+        { "id": "L3-flower-arch", "z": 3, "k": 1.50, "canvas": { "w": 1656, "h": 1750 }, "genRatio": "1:1", "padTop": 94, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal", "cutMode": "object", "isTransitionHole": true }
+      ]
+    },
+    "mobile": {
+      "viewport": { "w": 430, "h": 932 }, "scrollDistance": 1950, "kSpread": [0.30, 1.40],
+      "layers": [
+        { "id": "L0-sky", "z": 0, "k": 0.30, "canvas": { "w": 495, "h": 2297 }, "padStrategy": "css-gradient", "gradient": { "type": "linear", "stops": ["#EAEEDB", "#E7EBD6", "#F3F2E2", "#D9DCBC", "#B9CCA4"], "note": "自 desktop 出图天空取样,两端同调;原来的深绿→暖粉方案已废,见 framing.mobileSkyGradientFix" }, "anchor": "top", "alpha": false, "blend": "normal" },
+        { "id": "L1-far-trees", "z": 1, "k": 0.42, "canvas": { "w": 495, "h": 2063 }, "genRatio": "3:4", "padTop": 1403, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal", "cutMode": "scene" },
+        { "id": "L2-path-end", "z": 2, "k": 0.60, "canvas": { "w": 495, "h": 1712 }, "genRatio": "3:2", "padTop": 1382, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal", "cutMode": "scene" },
+        { "id": "L3-flower-arch", "z": 3, "k": 1.40, "canvas": { "w": 495, "h": 1712 }, "genRatio": "1:1", "padTop": 1217, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal", "cutMode": "object", "isTransitionHole": true }
+      ]
+    }
+  },
+  "art": [
+    {
+      "id": "L0-sky", "sharedAcross": null,
+      "content": "午后天空:上鼠尾草绿向下渐入深叶绿,底缘渗一点暖粉。desktop 出图;mobile 走 CSS 线性渐变。",
+      "variants": {
+        "desktop": { "file": "layers/desktop/s4-l0-sky.png", "genCanvas": { "w": 1656, "h": 2484 }, "genRatio": "2:3",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, cold-press watercolor paper grain, no digital noise, no HDR, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. A soft full-frame afternoon sky wash: pale sage #C7D4B8 at the top graduating gently downward into sage green #8FA07E, with a faint breath of warm petal blush #E7C8B0 near the very bottom edge. Calm mid-afternoon light, airy and atmospheric, no distinct objects, no hard edges, no horizon line. Do not include: trees, arch, path, foliage, flowers, people, text, watermark, hard shapes, cast shadows. Aspect ratio: 2:3" },
+        "mobile": null
+      }
+    },
+    {
+      "id": "L1-far-trees", "sharedAcross": ["desktop", "mobile"],
+      "content": "拱门之外的远景树影,横带状,提亮偏冷(空气透视)。水平同质,两端共用。",
+      "cutMode": "scene",
+      "variants": {
+        "shared": { "file": "layers/shared/s4-l1-far-trees.png", "genCanvas": { "w": 1656, "h": 2208 }, "genRatio": "3:4",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, dry-brush soft edges, cold-press watercolor paper grain, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: a soft distant treeline and low hedging forming a low horizontal band, painted in pale sage #C7D4B8 and sage green #8FA07E, lightened and slightly cooler for far-distance atmospheric perspective. Render as solid clustered silhouette masses — no fine twigs, no hair-thin tips at the edges. Composition: a low horizontal band across the lower portion of the frame, anchored to the bottom edge, isolated element only; the rest of the frame empty. Background: solid pure white #FFFFFF, completely flat, no gradient, no vignette, no texture, no horizon line. Do not include: any arch or gate, the path, foreground plants, sky, cast shadows, any other depth layer, haze bleeding to edges, depth-of-field blur, motion blur, watermark, text. Edges: crisp, high-contrast silhouette, clean separation from background. Aspect ratio: 3:4" }
+      }
+    },
+    {
+      "id": "L2-path-end", "sharedAcross": ["desktop", "mobile"],
+      "content": "花径尽头的地面:浅沙色小径横贯,两侧低矮花坛与草地,通往画面中央的拱门位置。中央要留出通道(拱下要能走过去)。水平同质,两端共用。",
+      "cutMode": "scene",
+      "cutNote": "浅沙色地面压在奶白背景上 —— 必须 scene 抠法,rembg 会把浅色路面误删(s2 花径、s3 池水均已验证)。",
+      "variants": {
+        "shared": { "file": "layers/shared/s4-l2-path-end.png", "genCanvas": { "w": 1656, "h": 1104 }, "genRatio": "3:2",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, dry-brush soft edges, cold-press watercolor paper grain, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: the far end of a garden walk — a pale sandy path running across the frame and opening into a clear passage at the centre, flanked by low flower beds and soft grass in sage green #8FA07E and deep leaf green #6E8268, with small blossoms of warm petal blush #E7C8B0. Keep the CENTRE of the frame open as a walkable gap — nothing blocking it. Render all foliage as solid clustered silhouette masses — no fine wispy tendrils, no grass blades, no hair-thin stems. Composition: ground band anchored to the bottom edge, filling the lower half; the upper half of the frame completely empty. Background: solid pure white #FFFFFF, completely flat, no gradient, no vignette, no texture, no horizon line. Do not include: any arch or gate structure, distant trees, sky, cast shadows on the ground, reflections, any other depth layer, haze, depth-of-field blur, motion blur, watermark, text. Edges: crisp, high-contrast silhouette, clean separation from background. Aspect ratio: 3:2" }
+      }
+    },
+    {
+      "id": "L3-flower-arch", "sharedAcross": ["desktop", "mobile"],
+      "content": "挂满花的木拱 = 全站第二个 zoom-through 的洞。左右对称居中,中央开口宽阔通透且为纯白(抠图后成透明洞)。藤花集中在拱顶与两侧立柱,不侵入开口。",
+      "cutMode": "object",
+      "isTransitionHole": true,
+      "variants": {
+        "shared": { "file": "layers/shared/s4-l3-flower-arch.png", "genCanvas": { "w": 1656, "h": 1656 }, "genRatio": "1:1",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, dry-brush soft edges, cold-press watercolor paper grain, no digital noise, no glow, no glassmorphism; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: a freestanding wooden garden arch seen head-on and perfectly symmetrical — two weathered pale wooden posts carrying a gently curved arched top, thickly garlanded with climbing roses and small blossoms in warm petal blush #E7C8B0 and cream, with deep leaf green #6E8268 foliage. The flowers and foliage cluster on the arched crown and spill a little way down the outer sides of both posts. There are NO gates or doors — it is an open archway. Render all vines, leaves and blossoms as solid clustered silhouette masses — no fine wispy tendrils or stray thin stems. Composition: the whole arch including its crown fills the frame, anchored to the bottom edge, isolated element only, centred and symmetrical; the opening beneath the arch is wide, tall and completely unobstructed. Background: solid pure white #FFFFFF, completely flat, no gradient, no vignette, no texture, no horizon line — and the opening under the arch must be that SAME solid pure white, completely empty (it is a see-through hole; put nothing inside it). Do not include: any garden, path, sky, seating or scenery visible through the opening, gates or doors, cast shadows on the ground, reflections, side flower beds, any other depth layer, haze, depth-of-field blur, motion blur, watermark, text. Edges: crisp, high-contrast silhouette, clean separation from background. Aspect ratio: 1:1" }
+      }
+    }
+  ]
+}

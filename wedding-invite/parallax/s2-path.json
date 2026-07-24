@@ -1,0 +1,78 @@
+{
+  "parent": ["project.json", "s2-path.motion.json"],
+  "section": "s2-path",
+  "kDefinition": "layer scroll speed / page scroll speed; 1=follows content, 0=pinned to viewport, >1=rushes past",
+  "styleDelta": {
+    "palette-shift": "奶白 #F4EFE4 + 浅鼠尾草绿 #C7D4B8 为主,鼠尾草绿 #8FA07E 渐浓(入园绿意加深);明度仍偏高、饱和低",
+    "light-direction": "晨间柔光,从左上约 35° 射入,较 s1 略暖(09:30),无硬阴影",
+    "fog-density": "极淡,通透度略高于 s1(已入园)",
+    "horizon-y": 0.60
+  },
+  "styleBibleInline": "Soft botanical watercolor illustration, loose wet-on-wet washes with delicate fine ink linework and dry-brush soft edges; NOT a photograph, NOT thick gouache impasto, NOT a 3D render. Palette: cream #F4EFE4, pale sage #C7D4B8, sage green #8FA07E, deep leaf green #6E8268, warm petal blush #E7C8B0, honey warm light #EBD9B4 — low saturation, cream and green dominant. Light: soft diffuse morning light, no hard shadows, cool diffusion from upper-left. Atmosphere: airy, highly transparent, only the faintest morning haze for depth. Texture: cold-press watercolor paper grain with light tooth, no digital noise, no HDR, no glow, no glassmorphism. Camera: standing eye-level view, horizon around 40% from the bottom of the frame, mid focal length, gentle aerial perspective, no wide-angle distortion.",
+  "scenePlatePrompt_optional": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, cold-press watercolor paper grain, no glow; NOT a photograph, NOT 3D. Match the exact style, palette and lighting of the s1 master style plate. Scene: a soft sandy garden path receding from the foreground into the distance, flush flower beds of sage green and blush blossoms flanking both sides, a distant soft treeline at the far end, bright open morning sky above; the upper-left kept open and light. Calm, restful, unhurried, 09:30 morning light. Composition: full scene, path leading from bottom-centre to the far centre, horizon at 40% from the bottom. Aspect ratio: 16:9",
+  "breakpoints": {
+    "desktop": {
+      "viewport": { "w": 1440, "h": 900 }, "scrollDistance": 1600, "kSpread": [0.10, 1.15],
+      "layers": [
+        { "id": "L0-sky", "z": 0, "k": 0.10, "canvas": { "w": 1656, "h": 2484 }, "genRatio": "2:3", "padTop": 0, "padStrategy": "integral", "anchor": "top", "alpha": false, "blend": "normal" },
+        { "id": "L1-far-trees", "z": 1, "k": 0.25, "canvas": { "w": 1656, "h": 2100 }, "genRatio": "1:1", "padTop": 444, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L2-path-beds", "z": 2, "k": 0.55, "canvas": { "w": 1656, "h": 1620 }, "genRatio": "4:3", "padTop": 378, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L3-near-drape", "z": 3, "k": 1.15, "canvas": { "w": 1656, "h": 1140 }, "genRatio": "3:2", "padTop": 36, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" }
+      ]
+    },
+    "mobile": {
+      "viewport": { "w": 430, "h": 932 }, "scrollDistance": 1850, "kSpread": [0.30, 0.90],
+      "layers": [
+        { "id": "L0-sky", "z": 0, "k": 0.30, "canvas": { "w": 495, "h": 2227 }, "padStrategy": "css-gradient", "gradient": { "type": "linear", "stops": ["#F4EFE4", "#C7D4B8", "#8FA07E"], "note": "上奶白 → 下园绿" }, "anchor": "top", "alpha": false, "blend": "normal" },
+        { "id": "L1-far-trees", "z": 1, "k": 0.42, "canvas": { "w": 495, "h": 2005 }, "genRatio": "9:16", "padTop": 1125, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L2-path-beds", "z": 2, "k": 0.60, "canvas": { "w": 495, "h": 1672 }, "genRatio": "9:16", "padTop": 792, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" },
+        { "id": "L3-near-drape", "z": 3, "k": 0.90, "canvas": { "w": 495, "h": 1117 }, "genRatio": "9:16", "padTop": 237, "padStrategy": "transparent", "anchor": "bottom", "alpha": true, "blend": "normal" }
+      ]
+    }
+  },
+  "art": [
+    {
+      "id": "L0-sky", "sharedAcross": null,
+      "content": "开阔晨空:上奶白向下渐入浅鼠尾草绿,通透明亮,无物体无地平线。desktop 出图;mobile 走 CSS 线性渐变。",
+      "note": "整幅不透明底层,不抠图;padStrategy=integral,按 2:3 出满幅",
+      "variants": {
+        "desktop": { "file": "layers/desktop/s2-l0-sky.png", "genCanvas": { "w": 1656, "h": 2484 }, "genRatio": "2:3",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, cold-press watercolor paper grain, no digital noise, no HDR, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. A soft full-frame open morning sky wash: pale cream #F4EFE4 across the top graduating gently downward into pale sage #C7D4B8 and a hint of sage green #8FA07E near the bottom. Bright, airy, atmospheric, no distinct objects, no hard edges, no horizon line. Light: soft diffuse, cool from upper-left. Do not include: trees, path, foliage, flowers, people, text, watermark, hard shapes, cast shadows. Aspect ratio: 2:3" },
+        "mobile": null
+      }
+    },
+    {
+      "id": "L1-far-trees", "sharedAcross": null,
+      "content": "花径尽头的远景树影/绿篱顶,横带状,远景提亮偏冷(空气透视),实心块面无细梢。",
+      "variants": {
+        "desktop": { "file": "layers/desktop/s2-l1-far-trees.png", "genCanvas": { "w": 1656, "h": 1656 }, "genRatio": "1:1",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, dry-brush soft edges, cold-press watercolor paper grain, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: a soft distant row of trees and hedge tops forming a low horizontal band, painted in pale sage #C7D4B8 and sage green #8FA07E, lightened and cooler for far-distance atmospheric perspective. Render as solid clustered silhouette masses — no fine wispy twigs or hair-thin tips at the edges. Composition: a low horizontal band across the lower-middle of the frame, anchored to the bottom edge, isolated element only. Background: solid pure white #FFFFFF, completely flat, no gradient, no vignette, no texture, no horizon line. Do not include: the path, foreground flowers, sky, cast shadows, reflections, any other depth layer, haze bleeding to edges, depth-of-field blur, motion blur, watermark, text. Edges: crisp, high-contrast silhouette, clean separation from background. Aspect ratio: 1:1" },
+        "mobile": { "file": "layers/mobile/s2-l1-far-trees.png", "genCanvas": { "w": 495, "h": 880 }, "genRatio": "9:16",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, cold-press watercolor paper grain, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: a small soft cluster of distant trees / hedge tops as a low horizontal band, painted in pale sage #C7D4B8 and sage green #8FA07E, lightened and cooler for atmospheric perspective. Solid clustered silhouette masses — no wispy twigs. Composition: a low band across the lower portion, anchored to the bottom edge, isolated. Simplify for a narrow portrait viewport: fewer trees, larger scale, tighter crop; drop details illegible at small size. Background: solid pure white #FFFFFF, completely flat, no gradient, no texture, no horizon line. Do not include: path, foreground flowers, sky, cast shadows, other depth layers, haze, blur, watermark, text. Edges: crisp, high-contrast silhouette. Aspect ratio: 9:16" }
+      }
+    },
+    {
+      "id": "L2-path-beds", "sharedAcross": null,
+      "content": "核心层:沙石花径从底部中央向纵深退去,两侧花坛(鼠尾草绿+深叶绿+淡粉花);花径把视线引向远处中心。左上区保持开阔留亮,给文案;实心块面无细梢。",
+      "cutMode": "scene",
+      "cutNote": "浅色花径压在奶白背景上,rembg 会误删路与较弱一侧花坛;必须用 scene 抠法(cutout.py --mode scene,顶部泛滥去天空、保留下方全部)。此规则适用于后续所有浅色开阔场景层(s3 睡莲池、s4 地面、s5 席位地面)。",
+      "note": "文字安全区 desktop x[0.12,0.62] y[0.30,0.52] 在左-中偏上,该处只放低矮远景、保持明亮",
+      "variants": {
+        "desktop": { "file": "layers/desktop/s2-l2-path-beds.png", "genCanvas": { "w": 1656, "h": 1242 }, "genRatio": "4:3",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, dry-brush soft edges, cold-press watercolor paper grain, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: a soft pale sandy garden path receding from the bottom-centre into the distance, flanked on both sides by lush flower beds of sage green #8FA07E and deep leaf green #6E8268 with small blossoms of warm petal blush #E7C8B0; the path draws the eye toward the far centre. Keep the upper-LEFT area open, low and light (only distant low beds there) so text can sit over it. Render all foliage as solid clustered silhouette masses — no fine wispy tendrils or stray thin stems. Composition: path from bottom-centre receding to the centre, beds hugging the bottom-left and bottom-right, anchored to the bottom edge, isolated elements only. Background: solid pure white #FFFFFF, completely flat, no gradient, no vignette, no texture, no horizon line. Do not include: sky, distant trees, cast shadows across the path, reflections, any other depth layer, haze, depth-of-field blur, motion blur, watermark, text. Edges: crisp, high-contrast silhouette, clean separation from background. Aspect ratio: 4:3" },
+        "mobile": { "file": "layers/mobile/s2-l2-path-beds.png", "genCanvas": { "w": 495, "h": 880 }, "genRatio": "9:16",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, cold-press watercolor paper grain, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: a soft pale sandy garden path receding from the bottom-centre upward into the distance, narrow flower beds of sage green #8FA07E and deep leaf green #6E8268 with blush #E7C8B0 blossoms hugging both sides of the path. Foliage as solid clustered masses — no wispy tendrils. Composition: a central receding path, beds tight to the bottom-left and bottom-right, anchored to the bottom edge. Simplify for a narrow portrait viewport: fewer elements, larger path and beds, tighter crop; keep the upper area open and light. Background: solid pure white #FFFFFF, completely flat, no gradient, no texture, no horizon line. Do not include: sky, distant trees, cast shadows, reflections, other depth layers, haze, blur, watermark, text. Edges: crisp, high-contrast silhouette. Aspect ratio: 9:16" }
+      }
+    },
+    {
+      "id": "L3-near-drape", "sharedAcross": null,
+      "content": "近景前景花草:贴底边升起的近景花枝/叶片,最饱和最暗的深叶绿+淡粉花,贴脸掠过(k1.15)。只在底部两角/底边,保持画面上方(尤其左上文字区)开阔;实心块面无细梢。",
+      "variants": {
+        "desktop": { "file": "layers/desktop/s2-l3-near-drape.png", "genCanvas": { "w": 1656, "h": 1104 }, "genRatio": "3:2",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, dry-brush soft edges, cold-press watercolor paper grain, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: close-up foreground flower sprays and leaves rising from the very bottom edge of the frame, the most saturated and darkest deep leaf green #6E8268 with a few warm petal blush #E7C8B0 blooms — near, in-focus, framing the lower edge. Keep the whole upper half of the frame empty, especially the upper-left. Render as solid clustered silhouette masses — no hair-thin stems or wispy tips. Composition: foreground sprays along the bottom edge and rising slightly at the bottom-left and bottom-right corners, anchored to the bottom edge, isolated elements only. Background: solid pure white #FFFFFF, completely flat, no gradient, no vignette, no texture, no horizon line. Do not include: the path, distant trees, sky, cast shadows, reflections, any other depth layer, haze, depth-of-field blur, motion blur, watermark, text. Edges: crisp, high-contrast silhouette, clean separation from background. Aspect ratio: 3:2" },
+        "mobile": { "file": "layers/mobile/s2-l3-near-drape.png", "genCanvas": { "w": 495, "h": 880 }, "genRatio": "9:16",
+          "prompt": "Soft botanical watercolor illustration, loose wet-on-wet washes, delicate fine ink linework, cold-press watercolor paper grain, no glow; NOT a photograph, NOT 3D. Match the art style, colour palette, brush texture and lighting of the reference image exactly. Subject: close-up foreground flower sprays and leaves rising from the very bottom edge, the most saturated and darkest deep leaf green #6E8268 with a few blush #E7C8B0 blooms, framing the lower edge. Keep the upper two-thirds empty. Solid clustered masses — no hair-thin stems. Composition: foreground sprays along the bottom edge, anchored to the bottom. Simplify for a narrow portrait viewport: fewer sprays, larger scale, tighter crop. Background: solid pure white #FFFFFF, completely flat, no gradient, no texture, no horizon line. Do not include: path, distant trees, sky, cast shadows, other depth layers, haze, blur, watermark, text. Edges: crisp, high-contrast silhouette. Aspect ratio: 9:16" }
+      }
+    }
+  ]
+}
