@@ -1,0 +1,85 @@
+{
+  "parent": "project.json",
+  "section": "s1-gate",
+  "kDefinition": "layer scroll speed / page scroll speed; 1=follows content, 0=pinned to viewport, >1=moves faster than content (rushes past)",
+  "scrollNote": "封面屏,实际文案仅姓名+婚期(短),不套满 copy.budget 上界;scrollDistance 按 ~1.6-1.8×viewportH 估值",
+  "breakpoints": {
+    "desktop": {
+      "viewport": { "w": 1440, "h": 900 },
+      "scrollDistance": 1450,
+      "kSpread": [0.10, 1.50],
+      "layers": [
+        {
+          "id": "L0-sky-glow", "z": 0, "k": 0.10,
+          "content": "门后园内暖光晕 + 上方天空",
+          "canvas": { "w": 1656, "h": 2208 },
+          "genRatio": "3:4", "padTop": 0, "padStrategy": "integral",
+          "anchor": "top", "alpha": false, "blend": "normal"
+        },
+        {
+          "id": "L1-far-wall", "z": 1, "k": 0.30,
+          "content": "园墙 + 墙头探出的花枝",
+          "canvas": { "w": 1656, "h": 1915 },
+          "genRatio": "1:1", "padTop": 259, "padStrategy": "transparent",
+          "anchor": "bottom", "alpha": true, "blend": "normal"
+        },
+        {
+          "id": "L2-side-foliage", "z": 2, "k": 0.60,
+          "content": "门两侧花丛 / 门柱",
+          "canvas": { "w": 1656, "h": 1480 },
+          "genRatio": "4:3", "padTop": 238, "padStrategy": "transparent",
+          "anchor": "bottom", "alpha": true, "blend": "normal"
+        },
+        {
+          "id": "L3-vine-door", "z": 3, "k": 1.50,
+          "content": "爬藤木门(虚掩,门缝透光)= zoom-through 的洞",
+          "canvas": { "w": 1656, "h": 1656 },
+          "genRatio": "1:1", "padTop": 0, "padStrategy": "transparent",
+          "anchor": "bottom", "alpha": true, "blend": "normal",
+          "isTransitionHole": true
+        }
+      ]
+    },
+    "mobile": {
+      "viewport": { "w": 430, "h": 932 },
+      "scrollDistance": 1700,
+      "kSpread": [0.30, 1.40],
+      "layers": [
+        {
+          "id": "L0-sky-glow", "z": 0, "k": 0.30,
+          "content": "门后园内暖光晕 + 天空",
+          "canvas": { "w": 495, "h": 2122 },
+          "genRatio": null, "padTop": null, "padStrategy": "css-gradient",
+          "gradient": { "type": "radial", "stops": ["#EBD9B4", "#C7D4B8", "#6E8268"], "note": "门缝暖光中心 → 边缘园绿" },
+          "anchor": "top", "alpha": false, "blend": "normal"
+        },
+        {
+          "id": "L1-far-wall", "z": 1, "k": 0.45,
+          "content": "园墙 + 墙头探出的花枝",
+          "canvas": { "w": 495, "h": 1867 },
+          "genRatio": "9:16", "padTop": 987, "padStrategy": "transparent",
+          "anchor": "bottom", "alpha": true, "blend": "normal"
+        },
+        {
+          "id": "L2-side-foliage", "z": 2, "k": 0.62,
+          "content": "门两侧花丛 / 门柱",
+          "canvas": { "w": 495, "h": 1578 },
+          "genRatio": "9:16", "padTop": 698, "padStrategy": "transparent",
+          "anchor": "bottom", "alpha": true, "blend": "normal"
+        },
+        {
+          "id": "L3-vine-door", "z": 3, "k": 1.40,
+          "content": "爬藤木门(虚掩,门缝透光)= zoom-through 的洞",
+          "canvas": { "w": 495, "h": 1612 },
+          "genRatio": "9:16", "padTop": 732, "padStrategy": "transparent",
+          "anchor": "bottom", "alpha": true, "blend": "normal",
+          "isTransitionHole": true
+        }
+      ]
+    }
+  },
+  "transition": {
+    "in":  { "type": "enter", "notes": "首屏,页面载入即呈现,无入场转场" },
+    "out": { "type": "zoom-through", "requires": "L3-vine-door k>1 (desktop 1.50 / mobile 1.40)", "notes": "穿过门缝进入 s2-path;下屏 s2 开场 palette 需与门内透出的暖绿光晕一致" }
+  }
+}
