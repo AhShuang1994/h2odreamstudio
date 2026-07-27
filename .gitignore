@@ -1,13 +1,21 @@
 node_modules/
-docs/
+docs/*
+!docs/adr/
+!docs/agents/
 .claude/
 
 # Xiaohongshu (小红书) post working images — deliverables for the XHS
 # platform, not referenced by the website
-assets/blog/xiaohongshu/
+public/assets/blog/xiaohongshu/
 
 # Raw Gemini PNG sources for blog illustrations (converted to .webp; keep local, do not commit)
-assets/blog/*.png
+public/assets/blog/*.png
 
 # Raw PNG sources for demo mockup photos (converted to .webp; keep local, do not commit)
-assets/demos/**/*.png
+public/assets/demos/**/*.png
+
+# Next.js / build output
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo

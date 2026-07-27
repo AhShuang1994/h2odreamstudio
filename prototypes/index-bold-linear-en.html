@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="assets/favicon.svg?v=43282a1f" type="image/svg+xml">
+  <meta name="robots" content="noindex">
+  <title>H2ODreamer Studio · A web design studio for dreamers · Malaysia</title>
+  <meta name="description" content="A web design studio in Malaysia for dreamers taking their first step online — landing pages, corporate sites, wedding e-invitations and Shopify migration. From a single drop, to an ocean.">
+  <meta name="theme-color" content="#07080B">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
+
+  <style>
+  :root{
+    --bg:#07080B;
+    --surface-1:#0E1015;
+    --surface-2:#14161D;
+    --hairline:rgba(255,255,255,.09);
+    --hairline-2:rgba(255,255,255,.17);
+    --ink:#F3F5F9;
+    --ink-muted:#A2A9B6;
+    --ink-subtle:#6C7382;
+    --accent:#7C82F0;
+    --accent-hover:#9AA0FF;
+    --accent-soft:rgba(124,130,240,.16);
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Noto Sans SC',system-ui,sans-serif;
+    --wrap:1200px;
+    --pad:clamp(20px,5vw,48px);
+    --sec:clamp(80px,11vw,140px);
+    --ease:cubic-bezier(.16,1,.3,1);
+    --irid:conic-gradient(from 130deg,#79c6ff,#b79dff,#ffd18a,#8dffcb,#ff9ecf,#79c6ff);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-size-adjust:100%}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink-muted);line-height:1.6;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--accent);color:#fff}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding-inline:var(--pad)}
+
+  /* type */
+  .eyebrow{display:inline-block;font-size:12.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-subtle)}
+  .eyebrow::before{content:"";display:inline-block;width:20px;height:1px;background:var(--accent);vertical-align:middle;margin-right:11px;transform:translateY(-3px)}
+  h1,h2,h3{color:var(--ink);font-weight:600;letter-spacing:-.02em;line-height:1.12}
+  .display{font-size:clamp(40px,6vw,74px);font-weight:600;line-height:1.06;letter-spacing:-.03em}
+  .h2{font-size:clamp(27px,3.6vw,42px);letter-spacing:-.025em}
+  .lead{font-size:clamp(16px,1.4vw,18.5px);color:var(--ink-muted);line-height:1.6;font-weight:400}
+  .accent{color:var(--accent)}
+  .section-head{max-width:720px;margin-bottom:clamp(40px,6vw,60px)}
+  .section-head .eyebrow{margin-bottom:20px}
+  .section-head .h2{margin-bottom:18px}
+
+  /* iridescent orb (GPU-cheap) */
+  .orb{position:absolute;aspect-ratio:1;border-radius:34%/40%;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(120% 120% at 30% 22%, rgba(255,255,255,.9), rgba(255,255,255,0) 42%),
+      radial-gradient(130% 130% at 72% 80%, rgba(8,8,16,0), rgba(6,6,12,.9) 78%),
+      var(--irid);
+    box-shadow:inset -10px -14px 34px rgba(0,0,0,.55), inset 12px 14px 28px rgba(255,255,255,.24),
+      0 44px 100px -30px rgba(124,130,240,.5);
+    animation:float 15s var(--ease) infinite}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-22px) rotate(6deg)}}
+
+  /* nav */
+  .nav{position:fixed;inset:0 0 auto 0;z-index:100;transition:background .4s var(--ease),border-color .4s var(--ease);border-bottom:1px solid transparent}
+  .nav.scrolled{background:rgba(7,8,11,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom-color:var(--hairline)}
+  .nav-in{max-width:var(--wrap);margin:0 auto;padding:15px var(--pad);display:flex;align-items:center;justify-content:space-between;gap:26px}
+  .logo{font-size:16px;font-weight:600;letter-spacing:-.01em;color:var(--ink);display:inline-flex;align-items:center;gap:9px}
+  .logo .dot{width:8px;height:8px;border-radius:50%;background:var(--irid);box-shadow:0 0 10px rgba(124,130,240,.7)}
+  .nav-links{display:flex;gap:30px;list-style:none;flex:1;justify-content:center}
+  .nav-links a{font-size:14px;color:var(--ink-subtle);transition:color .2s}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-right{display:flex;align-items:center;gap:14px}
+  .lang{background:none;border:0;font-size:12.5px;letter-spacing:.06em;color:var(--ink-subtle);cursor:pointer;font-family:inherit}
+  .lang .on{color:var(--ink)}
+  .burger{display:none;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;width:34px;height:34px;align-items:center;justify-content:center;z-index:120}
+  .burger span{width:22px;height:2px;background:var(--ink);transition:transform .25s var(--ease),opacity .25s}
+  .burger.on span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .burger.on span:nth-child(2){opacity:0}
+  .burger.on span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  .nav-menu{display:none}
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14.5px;font-weight:600;
+    padding:11px 20px;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:background .2s var(--ease),border-color .2s,color .2s,transform .1s;white-space:nowrap;font-family:inherit}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:var(--accent-hover)}
+  .btn-ghost{color:var(--ink);border-color:var(--hairline-2)}
+  .btn-ghost:hover{background:var(--surface-1);border-color:var(--ink)}
+  .btn-sm{padding:8px 15px;font-size:13.5px}
+  .textlink{color:var(--accent);font-weight:500;font-size:14px;transition:color .2s}
+  .textlink:hover{color:var(--accent-hover)}
+
+  /* hero */
+  .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:130px 0 80px;overflow:hidden}
+  .hero>*{position:relative;z-index:2}
+  .hero .eyebrow{margin-bottom:26px}
+  .hero h1{margin-bottom:0}
+  .hero h1 .row{display:block}
+  .hero-sub{max-width:540px;margin:26px auto 36px;font-size:clamp(15px,1.4vw,17.5px);color:var(--ink-muted);line-height:1.65}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:13px;justify-content:center}
+  .hero-note{margin-top:22px;font-size:13px;color:var(--ink-subtle);display:inline-flex;align-items:center;gap:8px}
+  .hero-note .pulse{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  .orb-h1{width:clamp(120px,16vw,210px);top:12%;right:14%;animation-delay:-2s}
+  .orb-h2{width:clamp(74px,9vw,124px);bottom:18%;left:11%;animation-delay:-7s}
+  .orb-h3{width:clamp(50px,6vw,84px);top:24%;left:24%;animation-delay:-10s}
+  .scroll-tag{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-subtle);z-index:2}
+
+  /* section */
+  .sec{position:relative;padding-block:var(--sec);overflow:hidden}
+  .sec-line{border-top:1px solid var(--hairline)}
+
+  /* about + stats */
+  .about-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(30px,5vw,64px);align-items:center}
+  .about-lead{font-size:clamp(18px,1.9vw,23px);color:var(--ink);font-weight:500;line-height:1.45;letter-spacing:-.02em;margin-bottom:20px}
+  .about-body{font-size:15px;color:var(--ink-muted);line-height:1.7;max-width:460px}
+  .about-body .more{display:inline-flex;align-items:center;gap:8px;color:var(--accent);margin-top:22px;font-weight:500;font-size:14px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--hairline);border-radius:16px;overflow:hidden;background:var(--surface-1)}
+  .stat{padding:26px 20px;text-align:center;border-left:1px solid var(--hairline)}
+  .stat:first-child{border-left:0}
+  .stat-n{font-size:clamp(28px,3.2vw,40px);font-weight:600;color:var(--ink);letter-spacing:-.03em;line-height:1}
+  .stat-l{font-size:12.5px;letter-spacing:.04em;color:var(--ink-subtle);margin-top:9px}
+
+  /* services */
+  .sec-head-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:clamp(36px,5vw,52px)}
+  .svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .svc{position:relative;border:1px solid var(--hairline);border-radius:16px;padding:clamp(24px,2.6vw,32px);
+    background:var(--surface-1);min-height:210px;display:flex;flex-direction:column;overflow:hidden;
+    transition:border-color .25s var(--ease),transform .25s var(--ease)}
+  .svc:hover{border-color:var(--hairline-2);transform:translateY(-3px)}
+  .svc--featured{background:var(--surface-2);box-shadow:0 0 0 1px var(--accent-soft)}
+  .svc-num{font-size:12.5px;font-weight:600;letter-spacing:.1em;color:var(--accent)}
+  .svc h3{font-size:clamp(20px,2.2vw,26px);font-weight:600;color:var(--ink);letter-spacing:-.02em;margin:20px 0 6px}
+  .svc .en{display:block;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-subtle);margin-bottom:14px}
+  .svc p{font-size:14px;color:var(--ink-muted);line-height:1.6;max-width:340px}
+  .svc .price{margin-top:auto;padding-top:20px;font-size:14px;color:var(--ink-subtle)}
+  .svc .price b{color:var(--ink);font-weight:600;font-size:18px;letter-spacing:-.02em;margin-left:5px}
+  .svc--wide{grid-column:span 2}
+  .svc-badge{position:absolute;top:24px;right:24px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:5px 11px;border-radius:20px}
+  .svc-orb{position:absolute;width:110px;right:-14px;bottom:-14px;opacity:.9;animation-delay:-5s}
+  .svc-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px;margin-top:30px}
+  .svc-foot p{font-size:14.5px;color:var(--ink-muted);max-width:440px}
+
+  /* process — staggered numbered steps over a liquid form (reference-inspired) */
+  .process{position:relative}
+  .process .section-head{max-width:640px;margin:0 auto clamp(46px,7vw,78px);text-align:center}
+  .liquid{position:absolute;z-index:0;width:min(820px,94vw);aspect-ratio:1.7/1;
+    top:53%;left:50%;transform:translate(-50%,-50%) rotate(-9deg);pointer-events:none;
+    border-radius:58% 42% 56% 44%/56% 52% 48% 44%;
+    background:
+      radial-gradient(120% 120% at 30% 26%, rgba(255,255,255,.5), rgba(255,255,255,0) 44%),
+      radial-gradient(130% 130% at 74% 80%, rgba(8,8,16,0), rgba(6,6,12,.8) 80%),
+      var(--irid);
+    opacity:.42;
+    -webkit-mask:radial-gradient(closest-side, #000 50%, transparent 100%);
+    mask:radial-gradient(closest-side, #000 50%, transparent 100%);
+    animation:float 20s var(--ease) infinite}
+  /* 背景动图 slots — top-right & bottom-left corners (left empty by the asymmetric layout) */
+  .proc-media{position:absolute;z-index:0;width:min(360px,34%);aspect-ratio:4/3;pointer-events:none;
+    border:1.5px dashed rgba(124,130,240,.35);border-radius:18px;display:flex;align-items:center;justify-content:center;
+    text-align:center;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(162,169,182,.5)}
+  .proc-media--tr{top:clamp(60px,8vw,118px);right:max(var(--pad),calc((100% - var(--wrap))/2))}
+  .proc-media--bl{bottom:clamp(44px,7vw,92px);left:max(var(--pad),calc((100% - var(--wrap))/2))}
+  @media(max-width:860px){.proc-media{display:none}}
+  .step-rows{position:relative;z-index:1;display:flex;flex-direction:column;gap:clamp(34px,4.5vw,62px);max-width:1120px;margin:0 auto}
+  .step-pair{position:relative;display:flex;align-items:flex-start}
+  .step-pair:nth-child(1){justify-content:flex-start}
+  .step-pair:nth-child(2){justify-content:flex-end}
+  .step-card{position:relative;width:min(380px,52%);background:#0F131A;border:1px solid var(--hairline);
+    border-radius:18px;padding:28px 30px;box-shadow:0 26px 60px -30px rgba(0,0,0,.72);transition:border-color .25s var(--ease)}
+  .step-card:hover{border-color:var(--hairline-2)}
+  .step-pair .step-card:nth-child(1){z-index:1}
+  .step-pair .step-card:nth-child(2){z-index:2;margin-left:-88px;margin-top:60px}
+  .step-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+  .step-n{font-size:clamp(32px,3.8vw,46px);font-weight:600;color:var(--ink);letter-spacing:-.03em;line-height:.9;white-space:nowrap}
+  .step-n i{color:var(--accent);font-style:normal}
+  .step-label{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-subtle);line-height:1.4;padding-top:6px}
+  .step-body{font-size:14px;color:var(--ink-muted);line-height:1.6;max-width:340px}
+  .step-pair .step-card:nth-child(1) .step-body{max-width:232px}
+  .step-pair .step-card:nth-child(1) .step-head{max-width:250px}
+  @media(max-width:680px){
+    .step-pair{flex-direction:column;align-items:stretch}
+    .step-card{width:100%}
+    .step-pair .step-card:nth-child(2){margin-left:0;margin-top:14px}
+    .liquid{opacity:.3}
+  }
+
+  /* offer */
+  .offer{position:relative;text-align:center;padding-block:clamp(96px,15vw,190px);overflow:hidden;border-top:1px solid var(--hairline)}
+  .offer>.wrap>*{position:relative;z-index:2}
+  .offer .eyebrow{margin-bottom:22px}
+  .offer h2{font-size:clamp(34px,6vw,72px);font-weight:600;color:var(--ink);letter-spacing:-.03em;line-height:1.05;margin-bottom:20px}
+  .offer p{max-width:480px;margin:0 auto 32px;font-size:16px;color:var(--ink-muted);line-height:1.6}
+  .orb-o1{width:clamp(90px,12vw,160px);top:12%;left:10%;animation-delay:-3s}
+  .orb-o2{width:clamp(64px,8vw,116px);bottom:14%;right:12%;animation-delay:-8s}
+
+  /* footer */
+  .footer{border-top:1px solid var(--hairline);padding-block:38px}
+  .footer-in{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;align-items:center;font-size:12.5px;color:var(--ink-subtle)}
+  .footer-in a{color:var(--ink-subtle);transition:color .2s}
+  .footer-in a:hover{color:var(--ink)}
+  .footer-links{display:flex;gap:22px}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:860px){
+    .about-grid{grid-template-columns:1fr;gap:40px}
+    .svc-grid{grid-template-columns:1fr}
+    .svc--wide{grid-column:span 1}
+  }
+  @media(max-width:680px){
+    .nav-links{display:none}
+    .burger{display:flex}
+    .nav-menu{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;justify-content:center;align-items:center;gap:8px;z-index:110}
+    .nav-menu.open{display:flex}
+    .nav-menu a{font-size:24px;font-weight:600;color:var(--ink);letter-spacing:-.02em;padding:10px}
+    .nav-right .lang{display:none}
+    .orb-h3{display:none}
+    .stats{grid-template-columns:1fr}
+    .stat{border-left:0;border-top:1px solid var(--hairline)}
+    .stat:first-child{border-top:0}
+  }
+  @media(max-width:768px){ .orb{animation:none} }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1!important;transform:none!important}
+  }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="nav-in">
+      <a href="#" class="logo"><span class="dot"></span>H2ODreamer</a>
+      <ul class="nav-links">
+        <li><a href="#about" data-lang-en="About" data-lang-cn="关于">About</a></li>
+        <li><a href="#services" data-lang-en="Services" data-lang-cn="服务">Services</a></li>
+        <li><a href="#services" data-lang-en="Work" data-lang-cn="作品">Work</a></li>
+        <li><a href="#offer" data-lang-en="Contact" data-lang-cn="联系">Contact</a></li>
+      </ul>
+      <div class="nav-right">
+        <button class="lang" id="lang"><span class="lang-en on">EN</span> · <span class="lang-cn">中文</span></button>
+        <a href="#offer" class="btn btn-primary btn-sm" data-lang-en="Contact us" data-lang-cn="联系我们">Contact us</a>
+        <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+    <div class="nav-menu" id="navMenu">
+      <a href="#about" data-lang-en="About" data-lang-cn="关于">About</a>
+      <a href="#services" data-lang-en="Services" data-lang-cn="服务">Services</a>
+      <a href="#offer" data-lang-en="Contact" data-lang-cn="联系">Contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="orb orb-h1" aria-hidden="true"></div>
+      <div class="orb orb-h2" aria-hidden="true"></div>
+      <div class="orb orb-h3" aria-hidden="true"></div>
+      <span class="eyebrow">H2ODreamer Studio · Malaysia</span>
+      <h1 class="display">
+        <span class="row" data-lang-en="A web design studio" data-lang-cn="为梦想者">A web design studio</span>
+        <span class="row" data-lang-en="built for" data-lang-cn="打造网站的">built for</span>
+        <span class="row"><span class="accent" data-lang-en="dreamers." data-lang-cn="工作室。">dreamers.</span></span>
+      </h1>
+      <p class="hero-sub"
+         data-lang-en="From a single drop, to an ocean. We design the first website for small businesses and couples — the place where a dream finally goes live."
+         data-lang-cn="从一滴水，到一片海。我们为小生意与准新人设计第一个网站 —— 让梦想，终于真正上线。">
+        From a single drop, to an ocean. We design the first website for small businesses and couples — the place where a dream finally goes live.
+      </p>
+      <div class="hero-cta">
+        <a href="#services" class="btn btn-primary" data-lang-en="Choose a service" data-lang-cn="选择服务">Choose a service</a>
+        <a href="#offer" class="btn btn-ghost" data-lang-en="Free consult →" data-lang-cn="免费咨询 →">Free consult →</a>
+      </div>
+      <p class="hero-note"><span class="pulse"></span><span data-lang-en="Usually replies within the hour" data-lang-cn="通常在 1 小时内回复">Usually replies within the hour</span></p>
+      <span class="scroll-tag" data-lang-en="Scroll" data-lang-cn="向下滚动">Scroll ↓</span>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="sec sec-line" id="about">
+      <div class="wrap about-grid">
+        <div class="reveal">
+          <span class="eyebrow" data-lang-en="About the studio" data-lang-cn="关于工作室">About the studio</span>
+          <p class="about-lead" style="margin-top:22px"
+             data-lang-en="Every great company began as one small idea in someone's head. We build the place where yours becomes real."
+             data-lang-cn="每一家大公司，都始于某人脑海里的一个小念头。我们，帮你把它变成真的。">
+            Every great company began as one small idea in someone's head. We build the place where yours becomes real.
+          </p>
+          <p class="about-body"
+             data-lang-en="H2ODreamer is a web design studio for dreamers taking their first step online — landing pages, corporate sites, wedding invitations and Shopify stores. We start you from zero, design it properly, then help it grow, drop by drop. Honest advice, no hard sell."
+             data-lang-cn="H2ODreamer 是一间为梦想者而生的网页设计工作室 —— 着陆页、企业网站、婚礼喜帖与 Shopify 网店。我们从零帮你开始，好好设计，再一滴一滴帮它长大。真诚建议，绝不硬推。">
+            H2ODreamer is a web design studio for dreamers taking their first step online — landing pages, corporate sites, wedding invitations and Shopify stores. We start you from zero, design it properly, then help it grow, drop by drop. Honest advice, no hard sell.
+            <a href="#services" class="more"><span data-lang-en="Our services →" data-lang-cn="查看服务 →">Our services →</span></a>
+          </p>
+        </div>
+        <div class="stats reveal">
+          <div class="stat"><div class="stat-n">100%</div><div class="stat-l" data-lang-en="Custom-designed" data-lang-cn="客制化设计">Custom-designed</div></div>
+          <div class="stat"><div class="stat-n" data-lang-en="7-day" data-lang-cn="7 天">7-day</div><div class="stat-l" data-lang-en="First draft" data-lang-cn="初稿交付">First draft</div></div>
+          <div class="stat"><div class="stat-n" data-lang-en="1-hr" data-lang-cn="1 小时">1-hr</div><div class="stat-l" data-lang-en="Reply" data-lang-cn="内回复">Reply</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROCESS (staggered numbered steps over a liquid form — reference-inspired) -->
+    <section class="sec sec-line process" id="process">
+      <div class="liquid" aria-hidden="true"></div>
+      <!-- 背景动图 slots — replace each inner content with your <video autoplay muted loop playsinline> or <img> (GIF/animated WebP). They sit behind the cards. -->
+      <div class="proc-media proc-media--tr" aria-hidden="true">背景动图 · top-right</div>
+      <div class="proc-media proc-media--bl" aria-hidden="true">背景动图 · bottom-left</div>
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow" data-lang-en="How it works" data-lang-cn="合作流程">How it works</span>
+          <h2 class="h2" style="margin-top:18px" data-lang-en="From first chat, to <span class='accent'>launch</span>." data-lang-cn="从第一句聊天，到<span class='accent'>上线</span>。">From first chat, to <span class="accent">launch</span>.</h2>
+        </div>
+        <div class="step-rows">
+          <div class="step-pair">
+            <article class="step-card reveal">
+              <div class="step-head"><span class="step-n">01<i>/</i></span><span class="step-label" data-lang-en="Free<br>Consultation" data-lang-cn="免费<br>咨询">Free<br>Consultation</span></div>
+              <p class="step-body" data-lang-en="Message us on WhatsApp about your idea, needs and budget. Honest advice — no hard sell." data-lang-cn="WhatsApp 告诉我们你的想法、需求和预算。真诚建议 —— 绝不硬推。">Message us on WhatsApp about your idea, needs and budget. Honest advice — no hard sell.</p>
+            </article>
+            <article class="step-card reveal">
+              <div class="step-head"><span class="step-n">02<i>/</i></span><span class="step-label" data-lang-en="Design<br>Direction" data-lang-cn="设计<br>确认">Design<br>Direction</span></div>
+              <p class="step-body" data-lang-en="We show you the design direction first. Development only begins once you're happy with it." data-lang-cn="先给你看设计方向，你满意了，我们才开始开发。">We show you the design direction first. Development only begins once you're happy with it.</p>
+            </article>
+          </div>
+          <div class="step-pair">
+            <article class="step-card reveal">
+              <div class="step-head"><span class="step-n">03<i>/</i></span><span class="step-label" data-lang-en="Build &amp;<br>Revise" data-lang-cn="开发 &amp;<br>修改">Build &amp;<br>Revise</span></div>
+              <p class="step-body" data-lang-en="Your first draft in 5–7 days, with 2 rounds of revisions to get every detail right." data-lang-cn="5–7 天交付初稿，含 2 轮修改，把每个细节调到位。">Your first draft in 5–7 days, with 2 rounds of revisions to get every detail right.</p>
+            </article>
+            <article class="step-card reveal">
+              <div class="step-head"><span class="step-n">04<i>/</i></span><span class="step-label" data-lang-en="Launch &amp;<br>Handover" data-lang-cn="上线 &amp;<br>交付">Launch &amp;<br>Handover</span></div>
+              <p class="step-body" data-lang-en="We deploy, set up analytics, and hand over a simple guide so you can manage it yourself." data-lang-cn="帮你部署上线、设置数据追踪，附上简单指南，让你自己也能管理。">We deploy, set up analytics, and hand over a simple guide so you can manage it yourself.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="sec sec-line" id="services">
+      <div class="wrap">
+        <div class="sec-head-row reveal">
+          <div class="section-head" style="margin-bottom:0">
+            <span class="eyebrow" data-lang-en="What we do" data-lang-cn="我们的服务">What we do</span>
+            <h2 class="h2" style="margin:18px 0 0" data-lang-en="Four ways to begin." data-lang-cn="四种，开始的方式。">Four ways to begin.</h2>
+          </div>
+          <a href="#offer" class="btn btn-ghost btn-sm" data-lang-en="Contact us" data-lang-cn="联系我们">Contact us</a>
+        </div>
+
+        <div class="svc-grid reveal">
+          <article class="svc svc--wide">
+            <div class="svc-num">01</div>
+            <h3 data-lang-en="Website Design" data-lang-cn="网站设计">Website Design</h3>
+            <span class="en">Landing &amp; Corporate</span>
+            <p data-lang-en="Clean, mobile-ready pages built to be found on Google — and to turn visitors into real enquiries." data-lang-cn="简洁、手机适配的网页 —— 让 Google 找得到你，也把访客变成真实询盘。">Clean, mobile-ready pages built to be found on Google — and to turn visitors into real enquiries.</p>
+            <div class="price"><span data-lang-en="from" data-lang-cn="起价">from</span><b>RM 590</b></div>
+          </article>
+
+          <article class="svc">
+            <div class="svc-num">02</div>
+            <h3 data-lang-en="Wedding Invites" data-lang-cn="婚礼喜帖">Wedding Invites</h3>
+            <span class="en">Editorial E-Invitation</span>
+            <p data-lang-en="A scrolling invite your guests actually keep — RSVP, countdown, gallery, one shareable link." data-lang-cn="宾客舍不得删的滚动喜帖 —— RSVP、倒数、相册，一个链接搞定。">A scrolling invite your guests actually keep — RSVP, countdown, gallery, one shareable link.</p>
+            <div class="price"><span data-lang-en="from" data-lang-cn="起价">from</span><b>RM 800</b></div>
+          </article>
+
+          <article class="svc svc--featured">
+            <div class="svc-badge" data-lang-en="Popular" data-lang-cn="热门">Popular</div>
+            <div class="svc-num">03</div>
+            <h3 data-lang-en="Corporate Site" data-lang-cn="企业网站">Corporate Site</h3>
+            <span class="en">5-Page · SEO Ready</span>
+            <p data-lang-en="A five-page website with SEO and automatic Google indexing — so your business looks established and gets found." data-lang-cn="5 页网站，内建 SEO 与自动 Google 收录 —— 让生意更有规模，也更容易被找到。">A five-page website with SEO and automatic Google indexing — so your business looks established and gets found.</p>
+            <div class="price"><span data-lang-en="from" data-lang-cn="起价">from</span><b>RM 2,500</b></div>
+          </article>
+
+          <article class="svc">
+            <div class="svc-num">04</div>
+            <h3 data-lang-en="Shopify Migration" data-lang-cn="Shopify 迁移">Shopify Migration</h3>
+            <span class="en">Full Store Migration</span>
+            <p data-lang-en="Move to Shopify with products, SEO rankings and tracking intact — plus admin training, so you're confident from day one." data-lang-cn="搬到 Shopify，产品、SEO 排名与追踪全保住 —— 附后台培训，第一天就上手。">Move to Shopify with products, SEO rankings and tracking intact — plus admin training, so you're confident from day one.</p>
+            <div class="price"><span data-lang-en="from" data-lang-cn="起价">from</span><b>RM 10,000</b></div>
+            <div class="orb svc-orb" aria-hidden="true"></div>
+          </article>
+        </div>
+
+        <div class="svc-foot reveal">
+          <p data-lang-en="Not sure which fits? Tell us your dream on WhatsApp — we'll point you the right way. No hard sell." data-lang-cn="不确定哪个适合你？WhatsApp 告诉我们你的梦想 —— 我们给你方向，绝不硬推。">Not sure which fits? Tell us your dream on WhatsApp — we'll point you the right way. No hard sell.</p>
+          <a href="#offer" class="btn btn-primary" data-lang-en="Start a project" data-lang-cn="开始一个项目">Start a project</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- OFFER -->
+    <section class="offer" id="offer">
+      <div class="orb orb-o1" aria-hidden="true"></div>
+      <div class="orb orb-o2" aria-hidden="true"></div>
+      <div class="wrap">
+        <span class="eyebrow" data-lang-en="Free consultation for new clients" data-lang-cn="新客户免费顾问咨询">Free consultation for new clients</span>
+        <h2 class="reveal">
+          <span data-lang-en="Let's take " data-lang-cn="迈出你的">Let's take </span><span class="accent" data-lang-en="your first drop." data-lang-cn="第一滴水。">your first drop.</span>
+        </h2>
+        <p class="reveal" data-lang-en="Not sure where to start? That's exactly why we're here. Message us — usually a reply within the hour." data-lang-cn="不知道从哪里开始？没关系，我们来陪你想清楚。发个信息给我们 —— 通常一小时内回复。">Not sure where to start? That's exactly why we're here. Message us — usually a reply within the hour.</p>
+        <a href="https://wa.me/60175138694" target="_blank" rel="noopener" class="btn btn-primary reveal" data-lang-en="WhatsApp us" data-lang-cn="WhatsApp 我们">WhatsApp us</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-in">
+      <span>© 2026 H2ODreamer Studio · Malaysia</span>
+      <div class="footer-links">
+        <a href="https://www.instagram.com/h2odreamer.studio/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://xhslink.com/m/1U2Ou01jY2E" target="_blank" rel="noopener">小红书</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  (function(){
+    var nav=document.getElementById('nav'),burger=document.getElementById('burger'),menu=document.getElementById('navMenu');
+    var onScroll=function(){nav.classList.toggle('scrolled',scrollY>8)};onScroll();addEventListener('scroll',onScroll,{passive:true});
+    burger.addEventListener('click',function(){var o=menu.classList.toggle('open');burger.classList.toggle('on',o);document.body.style.overflow=o?'hidden':''});
+    menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');burger.classList.remove('on');document.body.style.overflow=''})});
+
+    var lang='en',btn=document.getElementById('lang');
+    btn.addEventListener('click',function(){
+      lang=lang==='en'?'cn':'en';
+      document.querySelectorAll('[data-lang-'+lang+']').forEach(function(el){
+        var v=el.getAttribute('data-lang-'+lang);if(v==null)return;
+        if(v.indexOf('<')>-1)el.innerHTML=v;else el.textContent=v;
+      });
+      document.documentElement.lang=lang==='en'?'en':'zh';
+      btn.querySelector('.lang-en').classList.toggle('on',lang==='en');
+      btn.querySelector('.lang-cn').classList.toggle('on',lang==='cn');
+    });
+
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.14,rootMargin:'0px 0px -30px 0px'});
+      document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+    }else{document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in')})}
+
+    if(matchMedia('(pointer:fine)').matches && !matchMedia('(prefers-reduced-motion:reduce)').matches){
+      var orbs=[].slice.call(document.querySelectorAll('.hero .orb'));
+      addEventListener('mousemove',function(e){
+        var dx=(e.clientX/innerWidth-.5),dy=(e.clientY/innerHeight-.5);
+        orbs.forEach(function(o,i){var f=(i+1)*8;o.style.translate=(dx*f)+'px '+(dy*f)+'px'});
+      },{passive:true});
+    }
+  })();
+  </script>
+</body>
+</html>

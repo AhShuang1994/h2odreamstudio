@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #07080b;
+  --color-surface-1: #0e1015;
+  --color-surface-2: #14161d;
+  --color-accent: #7c82f0;
+  --color-accent-hover: #9aa0ff;
+  --color-ink: #f3f5f9;
+  --color-ink-muted: #a2a9b6;
+  --color-ink-subtle: #6c7382;
+  --color-hairline: rgba(255, 255, 255, 0.09);
+  --color-hairline-strong: rgba(255, 255, 255, 0.17);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Bilingual: both languages ship in the DOM (crawlable for GEO); CSS shows the
+   active one. zh is the default; EN is toggled client-side via data-lang. */
+.lang-cn {
+  display: contents;
+}
+.lang-en {
+  display: none;
+}
+html[data-lang="en"] .lang-cn {
+  display: none;
+}
+html[data-lang="en"] .lang-en {
+  display: contents;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

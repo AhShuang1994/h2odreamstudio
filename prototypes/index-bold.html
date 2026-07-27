@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="assets/favicon.svg?v=43282a1f" type="image/svg+xml">
+  <meta name="robots" content="noindex">
+  <title>H2ODreamer Studio · 大胆概念 Bold Concept</title>
+  <meta name="description" content="H2ODreamer Studio — 为梦想者打造网站的工作室。A web design studio for dreamers.">
+  <meta name="theme-color" content="#060608">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+
+  <style>
+  :root{
+    --bg:#060608;
+    --bg-soft:#0E0E12;
+    --card:#0D0D11;
+    --hairline:rgba(255,255,255,.12);
+    --hairline-2:rgba(255,255,255,.22);
+    --ink:#F5F5F7;
+    --muted:#8A8A93;
+    --muted-2:#63636C;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Noto Sans SC',system-ui,sans-serif;
+    --wrap:1240px;
+    --pad:clamp(20px,5vw,52px);
+    --sec:clamp(88px,13vw,168px);
+    --ease:cubic-bezier(.16,1,.3,1);
+    --irid:conic-gradient(from 130deg,#79c6ff,#b79dff,#ffd18a,#8dffcb,#ff9ecf,#79c6ff);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{font-family:var(--sans);background:var(--bg);color:var(--muted);line-height:1.55;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:#b79dff;color:#0a0a12}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding-inline:var(--pad)}
+  .eyebrow{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  .eyebrow .dot{color:#b79dff}
+  .irid-text{background:var(--irid);-webkit-background-clip:text;background-clip:text;color:transparent;filter:saturate(1.15)}
+
+  /* ============ IRIDESCENT ORB (GPU-cheap: stacked gradients + box-shadow, no filter/blend) ============ */
+  .orb{position:absolute;aspect-ratio:1;border-radius:34%/40%;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(120% 120% at 30% 22%, rgba(255,255,255,.9), rgba(255,255,255,0) 42%),
+      radial-gradient(130% 130% at 72% 80%, rgba(8,8,16,0), rgba(6,6,12,.92) 78%),
+      conic-gradient(from 130deg, #79c6ff, #b79dff, #ffd18a, #8dffcb, #ff9ecf, #79c6ff);
+    box-shadow:inset -10px -14px 34px rgba(0,0,0,.6), inset 12px 14px 28px rgba(255,255,255,.25),
+      0 44px 100px -24px rgba(150,110,240,.55);
+    animation:float 14s var(--ease) infinite}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-24px) rotate(7deg)}}
+
+  /* ============ NAV ============ */
+  .nav{position:fixed;inset:0 0 auto 0;z-index:100;transition:background .4s var(--ease),border-color .4s var(--ease);border-bottom:1px solid transparent}
+  .nav.scrolled{background:rgba(6,6,8,.78);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom-color:var(--hairline)}
+  .nav-in{max-width:var(--wrap);margin:0 auto;padding:16px var(--pad);display:flex;align-items:center;justify-content:space-between;gap:24px}
+  .logo{font-size:20px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
+  .logo b{color:#b79dff}
+  .nav-links{display:flex;gap:32px;list-style:none}
+  .nav-links a{font-size:14px;color:var(--muted);transition:color .2s}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-right{display:flex;align-items:center;gap:14px}
+  .lang{background:none;border:0;font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--muted-2);cursor:pointer}
+  .lang .on{color:var(--ink)}
+  .burger{display:none;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;width:34px;height:34px;align-items:center;justify-content:center;z-index:120}
+  .burger span{width:22px;height:2px;background:var(--ink);transition:transform .25s var(--ease),opacity .25s}
+  .burger.on span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .burger.on span:nth-child(2){opacity:0}
+  .burger.on span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  .nav-menu{display:none}
+
+  /* ============ PILL BUTTONS ============ */
+  .pill{display:inline-flex;align-items:center;gap:14px;background:var(--ink);color:#08080b;
+    border-radius:100px;padding:7px 7px 7px 24px;font-size:15px;font-weight:600;letter-spacing:-.01em;
+    transition:transform .15s var(--ease),background .2s}
+  .pill:hover{transform:translateY(-2px)}
+  .pill .circ{width:36px;height:36px;border-radius:50%;background:#08080b;color:var(--ink);display:grid;place-items:center;font-size:15px;transition:transform .3s var(--ease)}
+  .pill:hover .circ{transform:rotate(45deg)}
+  .pill-out{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--hairline-2);color:var(--ink);
+    background:transparent;border-radius:100px;padding:11px 22px;font-size:14px;font-weight:500;transition:border-color .2s,background .2s}
+  .pill-out:hover{border-color:var(--ink);background:rgba(255,255,255,.04)}
+
+  /* ============ HERO ============ */
+  .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;
+    align-items:center;text-align:center;padding:130px 0 80px;overflow:hidden}
+  .hero .eyebrow{position:relative;z-index:2;margin-bottom:34px}
+  .hero h1{position:relative;z-index:2;font-weight:800;color:var(--ink);text-transform:uppercase;
+    font-size:clamp(52px,10.5vw,150px);line-height:.9;letter-spacing:-.045em;margin-bottom:0}
+  .hero h1 .row{display:block}
+  .hero-sub{position:relative;z-index:2;max-width:540px;margin:36px auto 40px;font-size:clamp(15px,1.5vw,17px);color:var(--muted);line-height:1.6}
+  .hero-cta{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+  /* hero orbs */
+  .orb-h1{width:clamp(150px,20vw,260px);top:6%;right:12%;animation-delay:-2s}
+  .orb-h2{width:clamp(90px,11vw,150px);bottom:14%;left:9%;animation-delay:-6s}
+  .orb-h3{width:clamp(60px,7vw,96px);top:22%;left:20%;animation-delay:-9s}
+  .scroll-tag{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2);z-index:2}
+
+  /* ============ SECTION HEAD ============ */
+  .sec{position:relative;padding-block:var(--sec);overflow:hidden}
+  .sec-line{border-top:1px solid var(--hairline)}
+  .sec-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:30px;margin-bottom:clamp(44px,6vw,72px)}
+  .sec-title{font-weight:800;color:var(--ink);text-transform:uppercase;font-size:clamp(38px,6.4vw,92px);line-height:.94;letter-spacing:-.04em}
+  .sec-head .eyebrow{margin-bottom:18px;display:block}
+
+  /* ============ ABOUT ============ */
+  .about-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(30px,5vw,64px);align-items:center}
+  .about-lead{font-size:clamp(18px,2vw,24px);color:var(--ink);font-weight:500;line-height:1.4;letter-spacing:-.02em;margin-bottom:24px}
+  .about-body{font-size:15.5px;color:var(--muted);line-height:1.65;max-width:460px}
+  .about-body .more{display:inline-flex;align-items:center;gap:10px;color:var(--ink);margin-top:24px;font-weight:500;font-size:14px}
+  .about-body .more .c{width:30px;height:30px;border-radius:50%;border:1px solid var(--hairline-2);display:grid;place-items:center}
+  .stats{display:flex;flex-wrap:wrap;gap:clamp(28px,4vw,52px);justify-content:flex-end}
+  .stat-n{font-size:clamp(44px,5vw,68px);font-weight:800;color:var(--ink);letter-spacing:-.04em;line-height:1}
+  .stat-l{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+  .orb-a{width:clamp(90px,10vw,140px);bottom:-10%;right:2%;animation-delay:-4s}
+
+  /* ============ SERVICES ============ */
+  .svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .svc{position:relative;border:1px solid var(--hairline);border-radius:20px;padding:clamp(26px,3vw,38px);
+    min-height:230px;display:flex;flex-direction:column;transition:border-color .3s var(--ease),transform .3s var(--ease),background .3s;overflow:hidden}
+  .svc:hover{border-color:var(--hairline-2);transform:translateY(-4px)}
+  .svc-badge{width:34px;height:34px;border-radius:50%;border:1px solid var(--hairline-2);display:grid;place-items:center;
+    font-family:var(--mono);font-size:12px;color:var(--ink);margin-bottom:auto}
+  .svc h3{font-size:clamp(22px,2.4vw,30px);font-weight:700;color:var(--ink);letter-spacing:-.02em;margin:34px 0 10px}
+  .svc .en{display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px}
+  .svc p{font-size:14px;color:var(--muted);line-height:1.6;max-width:340px}
+  .svc .price{margin-top:20px;font-size:14px;color:var(--muted)}
+  .svc .price b{color:var(--ink);font-weight:700;font-size:17px;margin-left:4px}
+  .svc--wide{grid-column:span 2}
+  .svc--light{background:var(--ink);border-color:var(--ink)}
+  .svc--light .svc-badge{border-color:rgba(0,0,0,.2);color:#08080b}
+  .svc--light h3{color:#08080b}
+  .svc--light .en{color:rgba(8,8,11,.5)}
+  .svc--light p{color:#3a3a40}
+  .svc--light .price{color:#3a3a40}
+  .svc--light .price b{color:#08080b}
+  .svc-orb{position:absolute;width:120px;right:-16px;bottom:-16px;animation-delay:-7s;opacity:.95}
+  .svc-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;margin-top:36px}
+  .svc-foot p{font-size:15px;color:var(--muted);max-width:420px}
+
+  /* ============ OFFER ============ */
+  .offer{position:relative;text-align:center;padding-block:clamp(110px,17vw,220px);overflow:hidden;border-top:1px solid var(--hairline)}
+  .offer h2{position:relative;z-index:2;font-weight:800;color:var(--ink);text-transform:uppercase;
+    font-size:clamp(40px,8vw,116px);line-height:.92;letter-spacing:-.045em;margin-bottom:26px}
+  .offer p{position:relative;z-index:2;max-width:520px;margin:0 auto 40px;font-size:16px;color:var(--muted);line-height:1.6}
+  .offer .pill{position:relative;z-index:2}
+  .orb-o1{width:clamp(110px,14vw,190px);top:8%;left:8%;animation-delay:-3s}
+  .orb-o2{width:clamp(80px,10vw,140px);bottom:10%;right:10%;animation-delay:-8s}
+
+  /* ============ FOOTER ============ */
+  .footer{border-top:1px solid var(--hairline);padding-block:40px}
+  .footer-in{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted-2)}
+  .footer-in a{color:var(--muted);transition:color .2s}
+  .footer-in a:hover{color:var(--ink)}
+  .footer-links{display:flex;gap:22px}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ============ RESPONSIVE ============ */
+  @media(max-width:860px){
+    .about-grid{grid-template-columns:1fr;gap:44px}
+    .stats{justify-content:flex-start}
+    .svc-grid{grid-template-columns:1fr}
+    .svc--wide{grid-column:span 1}
+  }
+  @media(max-width:680px){
+    .nav-links{display:none}
+    .burger{display:flex}
+    .nav-menu{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;justify-content:center;align-items:center;gap:10px;z-index:110}
+    .nav-menu.open{display:flex}
+    .nav-menu a{font-size:32px;font-weight:800;color:var(--ink);text-transform:uppercase;letter-spacing:-.03em;padding:8px}
+    .nav-right .lang{display:none}
+    .orb-h3{display:none}
+  }
+  @media(max-width:768px){ .orb{animation:none} }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1!important;transform:none!important}
+  }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="nav-in">
+      <a href="#" class="logo">h2o<b>·</b>dreamer</a>
+      <ul class="nav-links">
+        <li><a href="#about" data-lang-en="About" data-lang-cn="关于">关于</a></li>
+        <li><a href="#services" data-lang-en="Services" data-lang-cn="服务">服务</a></li>
+        <li><a href="#services" data-lang-en="Work" data-lang-cn="作品">作品</a></li>
+        <li><a href="#offer" data-lang-en="Contact" data-lang-cn="联系">联系</a></li>
+      </ul>
+      <div class="nav-right">
+        <button class="lang" id="lang"><span class="lang-cn on">中文</span> <span class="lang-en">EN</span></button>
+        <a href="#offer" class="pill-out" data-lang-en="Contact us" data-lang-cn="联系我们">联系我们</a>
+        <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+    <div class="nav-menu" id="navMenu">
+      <a href="#about" data-lang-en="About" data-lang-cn="关于">关于</a>
+      <a href="#services" data-lang-en="Services" data-lang-cn="服务">服务</a>
+      <a href="#offer" data-lang-en="Contact" data-lang-cn="联系">联系</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="orb orb-h1" aria-hidden="true"></div>
+      <div class="orb orb-h2" aria-hidden="true"></div>
+      <div class="orb orb-h3" aria-hidden="true"></div>
+      <span class="eyebrow"><span class="dot">◆</span> H2ODreamer Studio · Malaysia</span>
+      <h1>
+        <span class="row" data-lang-en="A web" data-lang-cn="为梦想者">为梦想者</span>
+        <span class="row" data-lang-en="design studio" data-lang-cn="打造网站的">打造网站的</span>
+        <span class="row"><span class="irid-text" data-lang-en="for dreamers." data-lang-cn="工作室。">工作室。</span></span>
+      </h1>
+      <p class="hero-sub"
+         data-lang-en="From a single drop, to an ocean. We help small businesses and couples turn a dream into a real website."
+         data-lang-cn="从一滴水，到一片海。我们帮小生意与准新人，把一个梦想，变成真实的网站。">
+        从一滴水，到一片海。我们帮小生意与准新人，把一个梦想，变成真实的网站。
+      </p>
+      <div class="hero-cta">
+        <a href="#services" class="pill"><span data-lang-en="Choose a service" data-lang-cn="选择服务">选择服务</span><span class="circ">→</span></a>
+        <a href="#offer" class="pill-out" data-lang-en="Free consult" data-lang-cn="免费咨询">免费咨询</a>
+      </div>
+      <span class="scroll-tag" data-lang-en="Scroll to explore" data-lang-cn="向下滚动">向下滚动 ↓</span>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="sec sec-line" id="about">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <div>
+            <span class="eyebrow"><span class="dot">◆</span> <span data-lang-en="About the studio" data-lang-cn="关于工作室">关于工作室</span></span>
+            <h2 class="sec-title" data-lang-en="About" data-lang-cn="关于">About</h2>
+          </div>
+        </div>
+        <div class="about-grid">
+          <div class="reveal">
+            <p class="about-lead"
+               data-lang-en="H2ODreamer is a web design studio built for dreamers taking their first step online."
+               data-lang-cn="H2ODreamer 是一间为梦想者而生的网页设计工作室 —— 陪你踏出上线的第一步。">
+              H2ODreamer 是一间为梦想者而生的网页设计工作室 —— 陪你踏出上线的第一步。
+            </p>
+            <p class="about-body"
+               data-lang-en="Every great company started as one small idea. We build the website where yours begins — landing pages, corporate sites, wedding invitations and Shopify stores — then grow it, drop by drop."
+               data-lang-cn="每一家大公司，都曾是一个小念头。我们帮你建起梦想开始的地方 —— 着陆页、企业网站、婚礼喜帖与 Shopify 网店 —— 然后一滴一滴，把它养大。">
+              每一家大公司，都曾是一个小念头。我们帮你建起梦想开始的地方 —— 着陆页、企业网站、婚礼喜帖与 Shopify 网店 —— 然后一滴一滴，把它养大。
+              <a href="#services" class="more"><span data-lang-en="Our services" data-lang-cn="查看服务">查看服务</span><span class="c">→</span></a>
+            </p>
+          </div>
+          <div class="stats reveal">
+            <div><div class="stat-n">100%</div><div class="stat-l" data-lang-en="Custom" data-lang-cn="客制化">客制化</div></div>
+            <div><div class="stat-n">7<span style="font-size:.5em"></span>天</div><div class="stat-l" data-lang-en="Delivery" data-lang-cn="交付">交付</div></div>
+            <div><div class="stat-n">4</div><div class="stat-l" data-lang-en="Services" data-lang-cn="服务类型">服务类型</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="orb orb-a" aria-hidden="true"></div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="sec sec-line" id="services">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <div>
+            <span class="eyebrow"><span class="dot">◆</span> <span data-lang-en="What we do" data-lang-cn="我们的服务">我们的服务</span></span>
+            <h2 class="sec-title" data-lang-en="Our services" data-lang-cn="服务">Our Services</h2>
+          </div>
+          <a href="#offer" class="pill-out" data-lang-en="Contact us" data-lang-cn="联系我们">联系我们</a>
+        </div>
+
+        <div class="svc-grid reveal">
+          <article class="svc svc--wide">
+            <div class="svc-badge">01</div>
+            <h3 data-lang-en="Website Design" data-lang-cn="网站设计">网站设计</h3>
+            <span class="en">Landing &amp; Corporate</span>
+            <p data-lang-en="Clean, mobile-ready landing pages and multi-page corporate sites — built to be found and to convert." data-lang-cn="简洁、手机适配的着陆页与多页企业网站 —— 让人找得到，也能带来询盘。">简洁、手机适配的着陆页与多页企业网站 —— 让人找得到，也能带来询盘。</p>
+            <div class="price"><span data-lang-en="from" data-lang-cn="起价">起价</span><b>RM 590</b></div>
+          </article>
+
+          <article class="svc">
+            <div class="svc-badge">02</div>
+            <h3 data-lang-en="Wedding Invite" data-lang-cn="婚礼喜帖">婚礼喜帖</h3>
+            <span class="en">Editorial E-Invitation</span>
+            <p data-lang-en="A scrolling e-invitation with RSVP, countdown and gallery." data-lang-cn="多区块滚动电子喜帖，内建 RSVP、倒数与相册。">多区块滚动电子喜帖，内建 RSVP、倒数与相册。</p>
+            <div class="price"><span data-lang-en="from" data-lang-cn="起价">起价</span><b>RM 800</b></div>
+          </article>
+
+          <article class="svc svc--light">
+            <div class="svc-badge">03</div>
+            <h3 data-lang-en="Corporate Site" data-lang-cn="企业网站">企业网站</h3>
+            <span class="en">5-Page · SEO Ready</span>
+            <p data-lang-en="A five-page website with SEO and auto Google indexing built in." data-lang-cn="5 页网站，内建 SEO 与自动 Google 收录。">5 页网站，内建 SEO 与自动 Google 收录。</p>
+            <div class="price"><span data-lang-en="from" data-lang-cn="起价">起价</span><b>RM 2,500</b></div>
+          </article>
+
+          <article class="svc">
+            <div class="svc-badge">04</div>
+            <h3 data-lang-en="Shopify Migration" data-lang-cn="Shopify 迁移">Shopify 迁移</h3>
+            <span class="en">Full Store Migration</span>
+            <p data-lang-en="Move your store to Shopify — products, SEO and tracking, without losing rankings." data-lang-cn="把网店搬到 Shopify —— 产品、SEO 与追踪全搬，不掉排名。">把网店搬到 Shopify —— 产品、SEO 与追踪全搬，不掉排名。</p>
+            <div class="price"><span data-lang-en="from" data-lang-cn="起价">起价</span><b>RM 10,000</b></div>
+            <div class="orb svc-orb" aria-hidden="true"></div>
+          </article>
+        </div>
+
+        <div class="svc-foot reveal">
+          <p data-lang-en="Not sure which fits? Tell us your dream on WhatsApp — we'll point you the right way, no hard sell." data-lang-cn="不确定哪个适合你？WhatsApp 告诉我们你的梦想 —— 我们给你方向，不强推。">不确定哪个适合你？WhatsApp 告诉我们你的梦想 —— 我们给你方向，不强推。</p>
+          <a href="#offer" class="pill"><span data-lang-en="Start a project" data-lang-cn="开始一个项目">开始一个项目</span><span class="circ">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- OFFER / CONTACT -->
+    <section class="offer" id="offer">
+      <div class="orb orb-o1" aria-hidden="true"></div>
+      <div class="orb orb-o2" aria-hidden="true"></div>
+      <div class="wrap">
+        <span class="eyebrow reveal" style="display:block;margin-bottom:26px"><span class="dot">◆</span> <span data-lang-en="Free consultation for new clients" data-lang-cn="新客户免费顾问咨询">新客户免费顾问咨询</span></span>
+        <h2 class="reveal">
+          <span class="row" data-lang-en="Let's build" data-lang-cn="迈出你的">迈出你的</span>
+          <span class="row"><span class="irid-text" data-lang-en="your first drop." data-lang-cn="第一滴水。">第一滴水。</span></span>
+        </h2>
+        <p class="reveal" data-lang-en="Not sure where to start? That's exactly why we're here. Chat with us — usually a reply within the hour." data-lang-cn="不知道从哪里开始？没关系，我们来陪你想清楚。聊聊吧 —— 通常一小时内回复。">不知道从哪里开始？没关系，我们来陪你想清楚。聊聊吧 —— 通常一小时内回复。</p>
+        <a href="https://wa.me/60175138694" target="_blank" rel="noopener" class="pill reveal"><span data-lang-en="WhatsApp us" data-lang-cn="WhatsApp 我们">WhatsApp 我们</span><span class="circ">→</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-in">
+      <span>© 2026 H2ODREAMER STUDIO · MALAYSIA</span>
+      <div class="footer-links">
+        <a href="https://www.instagram.com/h2odreamer.studio/" target="_blank" rel="noopener">INSTAGRAM</a>
+        <a href="https://xhslink.com/m/1U2Ou01jY2E" target="_blank" rel="noopener">小红书</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  (function(){
+    var nav=document.getElementById('nav'),burger=document.getElementById('burger'),menu=document.getElementById('navMenu');
+    var onScroll=function(){nav.classList.toggle('scrolled',scrollY>8)};onScroll();addEventListener('scroll',onScroll,{passive:true});
+    burger.addEventListener('click',function(){var o=menu.classList.toggle('open');burger.classList.toggle('on',o);document.body.style.overflow=o?'hidden':''});
+    menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');burger.classList.remove('on');document.body.style.overflow=''})});
+
+    var lang='cn',btn=document.getElementById('lang');
+    btn.addEventListener('click',function(){
+      lang=lang==='cn'?'en':'cn';
+      document.querySelectorAll('[data-lang-'+lang+']').forEach(function(el){
+        var v=el.getAttribute('data-lang-'+lang);if(v==null)return;
+        if(v.indexOf('<')>-1)el.innerHTML=v;else el.textContent=v;
+      });
+      document.documentElement.lang=lang==='cn'?'zh':'en';
+      btn.querySelector('.lang-cn').classList.toggle('on',lang==='cn');
+      btn.querySelector('.lang-en').classList.toggle('on',lang==='en');
+    });
+
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.14,rootMargin:'0px 0px -30px 0px'});
+      document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+    }else{document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in')})}
+
+    // subtle orb parallax on pointer (desktop only)
+    if(matchMedia('(pointer:fine)').matches && !matchMedia('(prefers-reduced-motion:reduce)').matches){
+      var orbs=[].slice.call(document.querySelectorAll('.hero .orb'));
+      addEventListener('mousemove',function(e){
+        var dx=(e.clientX/innerWidth-.5),dy=(e.clientY/innerHeight-.5);
+        orbs.forEach(function(o,i){var f=(i+1)*10;o.style.translate=(dx*f)+'px '+(dy*f)+'px'});
+      },{passive:true});
+    }
+  })();
+  </script>
+</body>
+</html>
