@@ -37,10 +37,9 @@ describe("导出产物 · 无冗余原图", () => {
   /**
    * 同一张图同时发 jpg/png 与 webp 两份 —— 访客只会用其中一份，另一份是纯浪费。
    *
-   * ⚠️ 这是一条**棘轮**：46 是 #71 清理前的实测基线，只允许降不允许升。
-   *    #71（资产瘦身）做完之后把它改成 0。
+   * #71 已清零。这条从棘轮转为硬约束 —— 再出现一对就是有人把原图提交回来了。
    */
-  const MAX_RAW_WITH_WEBP_SIBLING = 46;
+  const MAX_RAW_WITH_WEBP_SIBLING = 0;
 
   it(`并存的原图数量不超过基线 ${MAX_RAW_WITH_WEBP_SIBLING}`, () => {
     const x = loadExport();

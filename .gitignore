@@ -4,15 +4,33 @@ docs/*
 !docs/agents/
 .claude/
 
-# Xiaohongshu (小红书) post working images — deliverables for the XHS
-# platform, not referenced by the website
+# ── 原图不进仓库（#71）──────────────────────────────────────────────
+# 原则：只有**实际被页面引用的** webp 进版本库；jpg/png 原图一律留在本地。
+# 2026-07-27 的资产瘦身实测：out/ 里 75 张 jpg/png 中只有 og-image.jpg 被引用，
+# 其余 74 张（511MB）纯属死重量。已备份后删除，见 ADR-0006。
+# 新增原图前先想清楚：它会被页面引用吗？不会就别提交。
+
+# 小红书发帖工作图 —— 交付给平台的，不上网站
 public/assets/blog/xiaohongshu/
 
-# Raw Gemini PNG sources for blog illustrations (converted to .webp; keep local, do not commit)
+# blog 概念插画的 Gemini 出图源（上线用的是同名 .webp）
 public/assets/blog/*.png
 
-# Raw PNG sources for demo mockup photos (converted to .webp; keep local, do not commit)
+# demo 样板站照片的出图源（上线用的是同名 .webp）
 public/assets/demos/**/*.png
+
+# 摄影师原图（上线用的是同名 .webp 与 crops/ 下的裁切版）
+public/assets/wedding/*.jpg
+
+# Landing 出图源（上线用的是 hero-fnb.webp）
+public/assets/Landing/*.png
+
+# 截图工作文件，从不上线
+public/assets/screenshot/
+
+# 借自 ember-scroll 的占位帧序列 —— 方案已否决，见 ADR-0001
+scrub-frames/
+scrub-frames-desktop/
 
 # Next.js / build output
 .next/
