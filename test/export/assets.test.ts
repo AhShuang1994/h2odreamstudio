@@ -9,35 +9,20 @@ import { loadExport, splitPath, mb } from "../helpers/export";
 
 const RAW_EXT = new Set([".jpg", ".jpeg", ".png"]);
 
-/**
- * 已知缺失、已立项的引用目标 —— 只放**已经有票在跟**的，不要用它掩盖新问题。
- *
- * 这三个文件在仓库根目录存在，但重构时没有一起搬进 public/，
- * 导致 24 个静态页（8 篇 blog + 9 篇案例 + 7 个服务/法务页）在导出里
- * 完全没有样式与脚本。见 #81。修好后把这个数组清空。
- */
-const KNOWN_MISSING = ["css/style.min.css", "css/case-study.css", "js/main.min.js"];
-
 describe("导出产物 · 资源引用", () => {
-  it("每个被引用的资源都真实存在（已立项的缺失除外）", () => {
+  // 曾经这里有一份 KNOWN_MISSING 允许清单，收着 css/style.min.css、
+  // css/case-study.css、js/main.min.js —— 它们在仓库根目录存在却没搬进 public/，
+  // 害 24 个静态页在导出里完全没有样式。#81 把 css/ 与 js/ 移进 public/ 之后清单清空。
+  // 需要再次使用允许清单时，务必同时补一条反向断言（见 test/README.md）。
+  it("每个被引用的资源都真实存在", () => {
     const x = loadExport();
     const missing = x.assetRefs
       .filter((r) => !x.has(r.resolved!))
-      .filter((r) => !KNOWN_MISSING.includes(r.resolved!))
       .map((r) => `${r.page}  →  ${r.raw}  (${r.kind})`);
 
     expect(
       missing,
       `有 ${missing.length} 处引用指向不存在的文件：\n  ${missing.join("\n  ")}`,
-    ).toEqual([]);
-  });
-
-  it("KNOWN_MISSING 里的每一条都确实还缺着（修好了就该从清单里删掉）", () => {
-    const x = loadExport();
-    const stale = KNOWN_MISSING.filter((f) => x.has(f));
-    expect(
-      stale,
-      `这些已经不缺了，请从 test/export/assets.test.ts 的 KNOWN_MISSING 里删除：\n  ${stale.join("\n  ")}`,
     ).toEqual([]);
   });
 
