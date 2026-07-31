@@ -170,14 +170,14 @@ export const pricingGuides = {
   } as Bilingual,
   links: [
     {
-      href: "/blog/which-website-for-your-business.html",
+      href: "/blog/which-website-for-your-business",
       label: {
         cn: "不同生意该做什么网站？→",
         en: "Which website does your business need? →",
       } as Bilingual,
     },
     {
-      href: "/blog/website-cost-malaysia.html",
+      href: "/blog/website-cost-malaysia",
       label: {
         cn: "一个网站到底要多少钱？→",
         en: "How much does a website really cost? →",

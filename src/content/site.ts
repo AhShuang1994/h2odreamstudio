@@ -19,13 +19,13 @@ export const nav = {
       { href: "/landing-page", label: { cn: "网站设计", en: "Website Design" } as Bilingual },
       { href: "/wedding-basic", label: { cn: "婚礼喜帖", en: "Wedding E-Invitation" } as Bilingual },
       { href: "/shopify-migration", label: { cn: "Shopify 迁移", en: "Shopify Migration" } as Bilingual },
-      { href: "/pricing/", label: { cn: "价格方案", en: "Pricing" } as Bilingual },
+      { href: "/pricing", label: { cn: "价格方案", en: "Pricing" } as Bilingual },
     ],
   },
   links: [
-    { href: "/about/", label: { cn: "关于", en: "About" } as Bilingual },
+    { href: "/about", label: { cn: "关于", en: "About" } as Bilingual },
     { href: "/#work", label: { cn: "作品", en: "Work" } as Bilingual },
     { href: "/blog/", label: { cn: "博客", en: "Blog" } as Bilingual },
-    { href: "/contact/", label: { cn: "联系", en: "Contact" } as Bilingual },
+    { href: "/contact", label: { cn: "联系", en: "Contact" } as Bilingual },
   ],
 };

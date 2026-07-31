@@ -240,7 +240,7 @@ export default function PricingPage() {
               <Button href={site.waLink(pricingCta.whatsappMessage)} external>
                 <Bi {...pricingCta.whatsapp} />
               </Button>
-              <Button href="/contact/" variant="secondary">
+              <Button href="/contact" variant="secondary">
                 <Bi {...pricingCta.secondary} />
               </Button>
             </div>

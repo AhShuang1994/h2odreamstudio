@@ -144,7 +144,7 @@ export default function AboutPage() {
               <Button href={site.waLink(aboutCta.whatsappMessage)} external>
                 <Bi {...aboutCta.whatsapp} />
               </Button>
-              <Button href="/contact/" variant="secondary">
+              <Button href="/contact" variant="secondary">
                 <Bi {...aboutCta.secondary} />
               </Button>
             </div>

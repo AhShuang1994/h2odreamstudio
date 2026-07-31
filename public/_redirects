@@ -1,0 +1,14 @@
+# Cloudflare Pages 重定向规则
+#
+# 规范形态是**无扩展名、无尾斜杠**（/about、/pricing …），与 sitemap 里已收录的
+# 26 条地址逐字一致。见 docs/adr/0003-trailing-slash-false.md。
+#
+# Cloudflare Pages 本身会把 /about.html 自动 308 到 /about，那部分不用写。
+# 这里只补它不管的一种：带尾斜杠的形态。重构期间预览站曾经用过 /about/ 这种
+# 形态，可能已经有人存了书签。
+#
+# 语法：<来源> <目标> <状态码>；每行一条，先匹配先生效。
+
+/about/     /about     301
+/contact/   /contact   301
+/pricing/   /pricing   301
