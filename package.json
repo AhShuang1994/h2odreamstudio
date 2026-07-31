@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "fonts": "node scripts/subset-fonts.mjs",
     "test": "next build && vitest run",
     "test:only": "vitest run",
     "test:watch": "vitest"

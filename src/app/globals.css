@@ -1,5 +1,41 @@
 @import "tailwindcss";
 
+/* ── 中文字体 ────────────────────────────────────────────────────────────
+   自托管的思源黑体／宋体子集，由 scripts/subset-fonts.mjs 在构建期生成 ——
+   只包含全站实际用到的 571 个字符，完整字体是 10MB 级。
+   授权 SIL OFL 1.1，许可证全文随字体分发在 /fonts/ 下（OFL 第 2 条要求）。
+   见 docs/adr/0004-noto-cjk-self-hosted-subset.md。
+
+   unicode-range 限定在中日韩区段：拉丁字符永远走 Inter，浏览器不会为了
+   一段纯英文去下载中文字体。 */
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("/fonts/NotoSansSC-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2E80-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FF00-FFEF;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("/fonts/NotoSansSC-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2E80-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FF00-FFEF;
+}
+
+@font-face {
+  font-family: "Noto Serif SC";
+  src: url("/fonts/NotoSerifSC-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2E80-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FF00-FFEF;
+}
+
 @theme {
   --color-bg: #07080b;
   --color-surface-1: #0e1015;
@@ -12,7 +48,13 @@
   --color-hairline: rgba(255, 255, 255, 0.09);
   --color-hairline-strong: rgba(255, 255, 255, 0.17);
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* 拉丁走 Inter，中文落到思源黑体子集 —— Inter 没有汉字字形，会自然穿透。
+     子集之外的字（罕见）再落到系统字体，不会出现豆腐块。 */
+  --font-sans: var(--font-inter), "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+
+  /* 标题：拉丁仍是 Inter，中文换成思源宋体 —— 中文没有 Didone 对应物，
+     宋体是最接近参考站那种 editorial 质感的选择。见 ADR-0004。 */
+  --font-serif: var(--font-inter), "Noto Serif SC", ui-serif, Georgia, serif;
 }
 
 :root {
@@ -29,6 +71,15 @@ body {
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* 标题走宋体栈。只对 h1/h2 生效 —— h3 及以下是卡片小标题，用黑体更清爽。
+   子集只做了 600 一个字重，所以标题统一 600，不要在标题上用别的字重：
+   缺失字重会让浏览器对中文做合成粗体，很糊。 */
+h1,
+h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
 }
 
 /* Bilingual: both languages ship in the DOM (crawlable for GEO); CSS shows the

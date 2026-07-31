@@ -44,6 +44,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh" className={inter.variable}>
+      <head>
+        {/* 只预加载正文字重 —— 它是首屏立刻要用的。600 与宋体等浏览器
+            按需拉，避免三个字体挤在首屏关键路径上。见 ADR-0008。 */}
+        <link
+          rel="preload"
+          href="/fonts/NotoSansSC-400.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="font-sans antialiased">
         <script
           dangerouslySetInnerHTML={{

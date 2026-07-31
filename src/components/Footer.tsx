@@ -87,6 +87,16 @@ export function Footer() {
             <Link href="/terms" className="hover:text-ink-muted">
               <Bi cn="条款" en="Terms" />
             </Link>
+            {/* SIL OFL 第 2 条：随字体分发必须附带许可证全文并可被取得。
+                两份都要列 —— 思源黑体版权方是 Adobe，宋体是 Google。
+                见 docs/adr/0004-noto-cjk-self-hosted-subset.md。 */}
+            <a
+              href="/fonts/LICENSES.txt"
+              className="hover:text-ink-muted"
+              rel="license"
+            >
+              <Bi cn="字体授权" en="Font license" />
+            </a>
           </div>
         </div>
       </div>
