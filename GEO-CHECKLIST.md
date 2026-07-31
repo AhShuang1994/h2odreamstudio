@@ -14,6 +14,7 @@
   - `/assets/blog/` — blog illustrations (`Allow: /assets/blog/` is set in **both** UA groups).
 - Add every new URL to **`sitemap.xml`** (loc must equal the canonical; service pages extensionless, blog `.html`, blog index `/blog/`).
 - Add every new page/post to **`llms.txt`** — the AI sitemap. One bullet: absolute URL + one-line description. *Treat it like sitemap.xml: stale = useless.*
+  - ⚠️ `public/llms.txt` is **generated** at build time by `scripts/gen-llms.mjs`. Edit `src/content/llms.template.txt`; prices come from `src/content/prices.json` as `{{starter}}`-style tokens. Never hand-edit the output.
 
 ## 2 · Page meta — every page
 - Unique `<title>`, unique meta `description`, `<link rel="canonical">`.

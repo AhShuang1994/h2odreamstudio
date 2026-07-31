@@ -1,9 +1,11 @@
+import { prices } from "./pricing";
 import type { Bilingual } from "./site";
+
+/** 价格一律从 pricing.ts 的单一数据源取，首页不自己写数字（#79）。 */
 
 export const homeMeta = {
   title: "马来西亚网站设计 · H2ODreamer Studio｜帮小生意踏出线上第一步",
-  description:
-    "马来西亚柔佛的网站设计工作室，创始人阿爽一对一帮小生意上线：落地页 RM590 起、5 页企业官网 RM2,500 起、Shopify 迁移、婚礼电子请柬。中英双语，WhatsApp 免费咨询。",
+  description: `马来西亚柔佛的网站设计工作室，创始人阿爽一对一帮小生意上线：落地页 ${prices.starter} 起、5 页企业官网 ${prices.standard} 起、Shopify 迁移 ${prices.shopify} 起、婚礼电子请柬。中英双语，WhatsApp 免费咨询。`,
 };
 
 export const hero = {
@@ -16,8 +18,8 @@ export const hero = {
     en: "I build websites that bring Malaysian small businesses real customers.",
   } as Bilingual,
   sub: {
-    cn: "这几年我陪一间间小店、新品牌从零上线 —— 落地页、企业官网、Shopify 搬家、婚礼请柬。不套模板、不玩虚的，像细水长流一样陪你走完。落地页 RM590 起。",
-    en: "For years I've taken shops and new brands from zero to launch — landing pages, company sites, Shopify moves, wedding invites. No templates, no fluff, steady as still water. From RM590.",
+    cn: `这几年我陪一间间小店、新品牌从零上线 —— 落地页、企业官网、Shopify 搬家、婚礼请柬。不套模板、不玩虚的，像细水长流一样陪你走完。落地页 ${prices.starter} 起。`,
+    en: `For years I've taken shops and new brands from zero to launch — landing pages, company sites, Shopify moves, wedding invites. No templates, no fluff, steady as still water. From ${prices.starter}.`,
   } as Bilingual,
   ctaPrimary: { cn: "WhatsApp 直接找我聊", en: "WhatsApp me directly" } as Bilingual,
   ctaSecondary: { cn: "看服务与报价", en: "Services & pricing" } as Bilingual,
@@ -30,12 +32,12 @@ export const quickAnswer = {
     en: "What is H2ODreamer Studio?",
   } as Bilingual,
   body: {
-    cn: "H2ODreamer Studio 是我（阿爽）在马来西亚柔佛经营的网站设计工作室，帮小生意和新品牌从零踏出线上第一步。我做四件事：一页式落地页（RM590 起）、多页企业官网（5 页 RM2,500 起）、Shopify 迁移、婚礼电子请柬。全程我一个人对接、不外包、不套模板，中英双语沟通，联系走 WhatsApp。",
-    en: "H2ODreamer Studio is a web design studio I (Ah Shuang) run in Johor, Malaysia, helping small businesses and new brands take their first step online. I do four things: one-page landing pages (from RM590), multi-page company sites (5 pages from RM2,500), Shopify migration, and wedding e-invitations. You deal with me directly — no outsourcing, no templates — in English or Chinese, over WhatsApp.",
+    cn: `H2ODreamer Studio 是我（阿爽）在马来西亚柔佛经营的网站设计工作室，帮小生意和新品牌从零踏出线上第一步。我做四件事：一页式落地页（入门版 ${prices.starter}、进阶版 ${prices.basic}）、多页企业官网（5 页 ${prices.standard} 起）、Shopify 迁移（${prices.shopify} 起）、婚礼电子请柬（${prices.weddingStandard} / ${prices.weddingPremium}）。全程我一个人对接、不外包、不套模板，中英双语沟通，联系走 WhatsApp。`,
+    en: `H2ODreamer Studio is a web design studio I (Ah Shuang) run in Johor, Malaysia, helping small businesses and new brands take their first step online. I do four things: one-page landing pages (${prices.starter} Starter, ${prices.basic} Basic), multi-page company sites (5 pages from ${prices.standard}), Shopify migration (from ${prices.shopify}), and wedding e-invitations (${prices.weddingStandard} / ${prices.weddingPremium}). You deal with me directly — no outsourcing, no templates — in English or Chinese, over WhatsApp.`,
   } as Bilingual,
   stats: [
-    { value: "RM590+", label: { cn: "落地页起价", en: "Landing pages from" } as Bilingual },
-    { value: "RM2,500+", label: { cn: "5 页企业站起价", en: "5-page sites from" } as Bilingual },
+    { value: `${prices.starter}+`, label: { cn: "落地页起价", en: "Landing pages from" } as Bilingual },
+    { value: `${prices.standard}+`, label: { cn: "5 页企业站起价", en: "5-page sites from" } as Bilingual },
     { value: "1", label: { cn: "对接人（就是我）", en: "Person you deal with" } as Bilingual },
     { value: "中 / EN", label: { cn: "双语沟通", en: "Bilingual" } as Bilingual },
   ],
@@ -50,16 +52,19 @@ export const services = {
   items: [
     {
       title: { cn: "一页式落地页", en: "Landing Page" } as Bilingual,
-      price: { cn: "RM590 起", en: "From RM590" } as Bilingual,
+      price: {
+        cn: `${prices.starter} / ${prices.basic}`,
+        en: `${prices.starter} / ${prices.basic}`,
+      } as Bilingual,
       desc: {
-        cn: "一页说清卖点，引导访客直接 WhatsApp 下单或预约。适合单一产品、服务或活动。",
-        en: "One page that makes your offer clear and sends visitors straight to WhatsApp to order or book. Great for a single product, service or campaign.",
+        cn: `一页说清卖点，引导访客直接 WhatsApp 下单或预约。适合单一产品、服务或活动。入门版 ${prices.starter}，进阶版 ${prices.basic} 多了 SEO 与数据分析。`,
+        en: `One page that makes your offer clear and sends visitors straight to WhatsApp to order or book. Great for a single product, service or campaign. ${prices.starter} Starter, or ${prices.basic} Basic with SEO and analytics.`,
       } as Bilingual,
       href: "/landing-page",
     },
     {
       title: { cn: "多页企业官网", en: "Company Website" } as Bilingual,
-      price: { cn: "RM2,500 起", en: "From RM2,500" } as Bilingual,
+      price: { cn: `${prices.standard} 起`, en: `From ${prices.standard}` } as Bilingual,
       desc: {
         cn: "品牌、服务、作品、联系，一个完整的线上门面。5 页起，可按需扩展。",
         en: "Brand, services, work, contact — a complete online front. From 5 pages, expandable.",
@@ -68,7 +73,7 @@ export const services = {
     },
     {
       title: { cn: "Shopify 迁移", en: "Shopify Migration" } as Bilingual,
-      price: { cn: "报价而定", en: "Quote-based" } as Bilingual,
+      price: { cn: `${prices.shopify} 起`, en: `From ${prices.shopify}` } as Bilingual,
       desc: {
         cn: "从旧平台或零基础搬到 Shopify，把「逛」变成「加购结账」，开始真正卖货。",
         en: "Move from an old platform or from scratch to Shopify — turn browsing into checkout and actually start selling.",
@@ -77,7 +82,10 @@ export const services = {
     },
     {
       title: { cn: "婚礼电子请柬", en: "Wedding E-Invite" } as Bilingual,
-      price: { cn: "查看方案", en: "See packages" } as Bilingual,
+      price: {
+        cn: `${prices.weddingStandard} / ${prices.weddingPremium}`,
+        en: `${prices.weddingStandard} / ${prices.weddingPremium}`,
+      } as Bilingual,
       desc: {
         cn: "一个链接 WhatsApp 转发就搞定，宾客一键 RSVP，含导航、行程与祝福留言。",
         en: "One link to forward on WhatsApp, one tap for guests to RSVP — with directions, schedule and a guestbook.",
@@ -143,8 +151,8 @@ export const faq = {
     {
       q: { cn: "做一个网站要多少钱？", en: "How much does a website cost?" } as Bilingual,
       a: {
-        cn: "一页式落地页 RM590 起，5 页企业官网 RM2,500 起，具体看页数和功能。报价前我会先免费和你聊需求，价钱透明、没有隐藏收费。",
-        en: "One-page landing pages start at RM590, 5-page company sites at RM2,500, depending on pages and features. I'll talk through your needs for free first — transparent pricing, no hidden fees.",
+        cn: `一页式落地页 ${prices.starter} 起（进阶版 ${prices.basic}），5 页企业官网 ${prices.standard} 起，Shopify 迁移 ${prices.shopify} 起，具体看页数和功能。报价前我会先免费和你聊需求，价钱透明、没有隐藏收费。`,
+        en: `One-page landing pages start at ${prices.starter} (${prices.basic} for Basic), 5-page company sites at ${prices.standard}, and a Shopify migration from ${prices.shopify} — depending on pages and features. I'll talk through your needs for free first — transparent pricing, no hidden fees.`,
       } as Bilingual,
     },
     {
@@ -169,7 +177,7 @@ export const faq = {
       } as Bilingual,
     },
     {
-      q: { cn: "你在马来西亚哪里？可以远程吗？", en: "Where in Malaysia are you? Can we work remotely?" } as Bilingual,
+      q: { cn: "你在马来西亚哪里？可以远程吗？", en: "Where in Malaysia are you? Can you work remotely?" } as Bilingual,
       a: {
         cn: "我在柔佛，全马都能远程合作，WhatsApp 和线上沟通就行，不必见面也能顺利完成。",
         en: "I'm in Johor and work with clients across Malaysia remotely — WhatsApp and online calls are enough, no need to meet in person.",

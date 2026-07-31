@@ -17,7 +17,7 @@ _Avoid_: 默认语言、第一语言
 _Avoid_: 我们、本工作室、团队
 
 **起价**：
-服务价格的下限，永远以 `/pricing` 页的档位为唯一真相；首页、`llms.txt`、JSON-LD 全部向它看齐。
+服务价格的下限，永远以 `/pricing` 页的档位为唯一真相；首页、`llms.txt`、JSON-LD 全部向它看齐。数字只存在 [`src/content/prices.json`](./src/content/prices.json) 一份，改它一处全站跟着变。
 _Avoid_: 报价、价格（单独使用时含糊）
 
 ### 页面类型

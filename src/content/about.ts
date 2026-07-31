@@ -1,13 +1,13 @@
 import type { Bilingual } from "./site";
 
 export const aboutMeta = {
-  title: "关于我们 · About · H2ODreamer Studio",
+  title: "关于我 · About · H2ODreamer Studio",
   description:
     "认识阿爽 —— H2ODreamer Studio 创办人，超过 5 年网站设计经验，专为马来西亚的小公司搭建第一个网站，让每个梦想都有一个家。Meet Ah Shuang, founder of H2ODreamer Studio.",
 };
 
 export const aboutHeader = {
-  eyebrow: { cn: "关于我们", en: "About" } as Bilingual,
+  eyebrow: { cn: "关于我", en: "About" } as Bilingual,
   title: { cn: "嗨，我是阿爽。", en: "Hi, I'm Ah Shuang." } as Bilingual,
   lede: {
     cn: "我帮马来西亚的小公司，搭建他们的第一个网站 —— 让每一个梦想，终于有一个可以生根成长的家。",
@@ -16,8 +16,8 @@ export const aboutHeader = {
 };
 
 export const aboutQuickAnswer = {
-  cn: "H2ODreamer Studio 由阿爽（Hui Huang Ong）经营 —— 一位拥有 5 年以上经验、扎根马来西亚的网站设计师。工作室专注为小公司、初次创业者和准新人搭建他们的第一个网站，注重转化、中英双语，并内建 SEO 与数据分析。我们相信：每个梦想，都该有一个家。",
-  en: "H2ODreamer Studio is run by Ah Shuang (Hui Huang Ong), a Malaysia-based web designer with 5+ years of experience. The studio focuses on building first websites for small businesses, first-time founders and couples — conversion-focused, bilingual (English / 中文), with SEO and analytics built in. The belief: every dream deserves a home.",
+  cn: "H2ODreamer Studio 由阿爽（Hui Huang Ong）一个人经营 —— 一位拥有 5 年以上经验、扎根马来西亚的网站设计师，从设计到上线全程自己来、不外包。我专注为小公司、初次创业者和准新人搭建他们的第一个网站，注重转化、中英双语，并内建 SEO 与数据分析。我相信：每个梦想，都该有一个家。",
+  en: "H2ODreamer Studio is run single-handedly by Ah Shuang (Hui Huang Ong), a Malaysia-based web designer with 5+ years of experience who takes every project from design to launch personally, with nothing outsourced. I focus on building first websites for small businesses, first-time founders and couples — conversion-focused, bilingual (English / 中文), with SEO and analytics built in. I believe every dream deserves a home.",
 } as Bilingual;
 
 export const aboutFounder = {
@@ -50,7 +50,7 @@ export const aboutStory = {
   heading: { cn: "从一滴水，到一片海", en: "From one drop, to an ocean" } as Bilingual,
   body: {
     cn: "每一家大公司，都曾经是某人脑海里的一个小念头。我相信，每一个有梦想的人，都值得一个属于自己的起点。H2ODreamer Studio 就是那第一滴水 —— 帮你从零开始，打造品牌形象，细水长流地积累，直到你的存在，被那些重要的人看见。",
-    en: "Every great company started as a small idea in someone's mind. I believe everyone with a dream deserves a starting point. H2ODreamer Studio is that first drop — we help you build from zero, shape your brand, and grow steadily, drop by drop, until your presence reaches the people who matter.",
+    en: "Every great company started as a small idea in someone's mind. I believe everyone with a dream deserves a starting point. H2ODreamer Studio is that first drop — I help you build from zero, shape your brand, and grow steadily, drop by drop, until your presence reaches the people who matter.",
   } as Bilingual,
 };
 
@@ -96,7 +96,7 @@ export const aboutCta = {
   heading: { cn: "让你的梦想，有个家", en: "Let's give your dream a home" } as Bilingual,
   whatsapp: {
     cn: "💬 WhatsApp 咨询，免费顾问",
-    en: "💬 WhatsApp Us — Free Consultation",
+    en: "💬 WhatsApp Me — Free Consultation",
   } as Bilingual,
   whatsappMessage: "Hi H2ODreamer! 我想了解更多关于网站设计的服务。",
   secondary: { cn: "📨 更多联系方式", en: "📨 Contact options" } as Bilingual,

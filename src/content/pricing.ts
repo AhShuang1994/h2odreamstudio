@@ -1,18 +1,20 @@
+import prices from "./prices.json";
 import type { Bilingual } from "./site";
 
 /**
- * 报价的**单一数据源**。
+ * 报价页的档位 —— 站上关于价格的**唯一真相**。
  *
- * 页面、结构化数据、llms.txt 一律从这里取值，任何地方都不要再硬编码价格。
- * 改一个数字，全站跟着变 —— 这是 #74 的验收条件，也是 #79 要把首页与
- * llms.txt 接过来的目标。词汇表里的「起价」词条定义了它的语义：
- * 所有数字都是下限，最终报价按需求定。
+ * 数字本身存在 `prices.json`（纯 JSON，好让构建脚本也读同一份），这里只负责
+ * 把它组装成页面文案。页面、结构化数据、llms.txt 一律从这条链取值，任何地方
+ * 都不要再硬编码价格：改 `prices.json` 一个数字，全站跟着变（#79）。
+ * 词汇表里的「起价」词条定义了它的语义：所有数字都是下限，最终报价按需求定。
  */
+
+export { prices };
 
 export const pricingMeta = {
   title: "价格方案 · Pricing · H2ODreamer Studio",
-  description:
-    "H2ODreamer Studio 网站设计价格（马来西亚）：落地页 RM 590 起、5 页企业网站 RM 2,500、Shopify 迁移 RM 10,000 起；电子喜帖 RM 800 / RM 1,500。没有强制月费。",
+  description: `H2ODreamer Studio 网站设计价格（马来西亚）：落地页 ${prices.starter} 起、5 页企业网站 ${prices.standard}、Shopify 迁移 ${prices.shopify} 起；电子喜帖 ${prices.weddingStandard} / ${prices.weddingPremium}。没有强制月费。`,
 };
 
 export const pricingHeader = {
@@ -22,14 +24,14 @@ export const pricingHeader = {
     en: "Transparent pricing, no surprises",
   } as Bilingual,
   lede: {
-    cn: "以下每个价格都是「起价」。告诉我们你的需求，我们给你一个固定报价 —— 先免费咨询，绝不强推。",
-    en: "Every price below is a starting point. Tell us what you need and we'll give you a fixed quote — free consultation first, no hard sell.",
+    cn: "以下每个价格都是「起价」。告诉我你的需求，我给你一个固定报价 —— 先免费咨询，绝不强推。",
+    en: "Every price below is a starting point. Tell me what you need and I'll give you a fixed quote — free consultation first, no hard sell.",
   } as Bilingual,
 };
 
 export const pricingQuickAnswer = {
-  cn: "在 H2ODreamer Studio（马来西亚）做网站的价格：单页落地页 RM 590 起（入门版）或 RM 1,000（进阶版，含 SEO + 分析）；5 页企业网站 RM 2,500 起；Shopify 迁移 RM 10,000 起。电子喜帖 RM 800（标准版）与 RM 1,500（定制版）。没有强制月费 —— 网站是你的。",
-  en: "A website with H2ODreamer Studio (Malaysia) costs: 1-page landing from RM 590 (Starter) or RM 1,000 (Basic, with SEO + analytics); a 5-page corporate site from RM 2,500; a Shopify migration from RM 10,000. Wedding e-invitations are RM 800 (Standard) and RM 1,500 (Premium). No compulsory monthly fee — the site is yours.",
+  cn: `在 H2ODreamer Studio（马来西亚）做网站的价格：单页落地页 ${prices.starter} 起（入门版）或 ${prices.basic}（进阶版，含 SEO + 分析）；5 页企业网站 ${prices.standard} 起；Shopify 迁移 ${prices.shopify} 起。电子喜帖 ${prices.weddingStandard}（标准版）与 ${prices.weddingPremium}（定制版）。没有强制月费 —— 网站是你的。`,
+  en: `A website with H2ODreamer Studio (Malaysia) costs: 1-page landing from ${prices.starter} (Starter) or ${prices.basic} (Basic, with SEO + analytics); a 5-page corporate site from ${prices.standard}; a Shopify migration from ${prices.shopify}. Wedding e-invitations are ${prices.weddingStandard} (Standard) and ${prices.weddingPremium} (Premium). No compulsory monthly fee — the site is yours.`,
 } as Bilingual;
 
 // ── 网站设计：三档对比 ────────────────────────────────────────────────
@@ -38,14 +40,14 @@ export const webTiers = [
   {
     id: "starter",
     name: { cn: "入门版", en: "Starter" } as Bilingual,
-    price: "RM 590",
+    price: prices.starter,
     popular: false,
     href: "/landing-page",
   },
   {
     id: "basic",
     name: { cn: "进阶版", en: "Basic" } as Bilingual,
-    price: "RM 1,000",
+    price: prices.basic,
     popular: true,
     badge: { cn: "热门", en: "Popular" } as Bilingual,
     href: "/landing-page",
@@ -53,7 +55,7 @@ export const webTiers = [
   {
     id: "standard",
     name: { cn: "企业版", en: "Standard" } as Bilingual,
-    price: "RM 2,500",
+    price: prices.standard,
     popular: false,
     href: "/landing-page",
   },
@@ -119,7 +121,7 @@ export const otherServices = [
   {
     name: { cn: "电子喜帖 · 标准版", en: "Wedding E-Invitation · Standard" } as Bilingual,
     href: "/wedding-basic",
-    price: "RM 800",
+    price: prices.weddingStandard,
     delivery: { cn: "4–6 天", en: "4–6 days" } as Bilingual,
     highlights: {
       cn: "多区块滚动、相册、Google Maps、最多 6 张照片",
@@ -129,7 +131,7 @@ export const otherServices = [
   {
     name: { cn: "电子喜帖 · 定制版", en: "Wedding E-Invitation · Premium" } as Bilingual,
     href: "/wedding-premium",
-    price: "RM 1,500",
+    price: prices.weddingPremium,
     delivery: { cn: "5–7 天", en: "5–7 days" } as Bilingual,
     highlights: {
       cn: "RSVP、倒数计时、动画、背景音乐、专属配色",
@@ -139,7 +141,7 @@ export const otherServices = [
   {
     name: { cn: "Shopify 迁移", en: "Shopify Migration" } as Bilingual,
     href: "/shopify-migration",
-    price: "RM 10,000",
+    price: prices.shopify,
     delivery: { cn: "2–4 周", en: "2–4 weeks" } as Bilingual,
     highlights: {
       cn: "产品与页面迁移、301 重定向、GA4 追踪、后台培训",
@@ -165,8 +167,8 @@ export const pricingNotes: Bilingual[] = [
 
 export const pricingGuides = {
   intro: {
-    cn: "不确定哪个套餐适合你的生意？看我们的指南：",
-    en: "Not sure which tier fits your business? Read our guide:",
+    cn: "不确定哪个套餐适合你的生意？看我写的指南：",
+    en: "Not sure which tier fits your business? Read my guide:",
   } as Bilingual,
   links: [
     {
@@ -190,7 +192,7 @@ export const pricingCta = {
   heading: { cn: "获取你的专属报价", en: "Get your fixed quote" } as Bilingual,
   whatsapp: {
     cn: "💬 WhatsApp 咨询，免费报价",
-    en: "💬 WhatsApp Us — Free Quote",
+    en: "💬 WhatsApp Me — Free Quote",
   } as Bilingual,
   whatsappMessage: "Hi H2ODreamer! 我想要一个报价。我的生意是 [business type]。",
   secondary: { cn: "📨 更多联系方式", en: "📨 Contact options" } as Bilingual,

@@ -1,0 +1,9 @@
+{
+  "$comment": "报价的唯一真相。改这里，页面 / 结构化数据 / llms.txt 全部跟着变。任何地方都不要再硬编码价格。JSON 而非 .ts，是为了让 scripts/gen-llms.mjs（纯 node）也能读同一份。语义见 CONTEXT.md 的「起价」词条：所有数字都是下限。",
+  "starter": "RM 590",
+  "basic": "RM 1,000",
+  "standard": "RM 2,500",
+  "shopify": "RM 10,000",
+  "weddingStandard": "RM 800",
+  "weddingPremium": "RM 1,500"
+}
