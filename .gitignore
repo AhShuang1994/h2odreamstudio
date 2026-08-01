@@ -37,3 +37,12 @@ scrub-frames-desktop/
 out/
 next-env.d.ts
 *.tsbuildinfo
+
+# ── 内容页的语言拆分产物（#76）────────────────────────────────────
+# 由 scripts/split-content-lang.mjs 从 src/content/pages/ 的双语原稿生成，
+# prebuild 每次构建都会重跑，Cloudflare 那边也一样。**改原稿，别改这里。**
+# 不进版本库是因为它们是原稿的派生物：36 份、近 1MB，每次构建都会重写，
+# 留在 git 里只会让每个提交都带一堆噪音 diff（#64 的瘦身同一个道理）。
+public/blog/
+public/case-studies/
+public/zh/

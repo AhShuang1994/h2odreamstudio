@@ -174,6 +174,11 @@
   const toggle = document.getElementById('langToggle');
   if (!toggle) return;
 
+  // 拆分过语言的页面（blog 与案例拆解，#76）把切换器换成了 <a>，直接跳到
+  // 对应语言的地址 —— 那些页面只渲染一种语言，没有 data-lang-* 可切。
+  // 还是 <button> 的是尚未拆分的手写服务页，下面这套运行时切换只服务它们。
+  if (toggle.tagName === 'A') return;
+
   let cjkFontLoaded = false;
   function loadCJKFont() {
     if (cjkFontLoaded) return;

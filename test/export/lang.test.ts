@@ -70,10 +70,13 @@ function canonical(html: string): string | null {
   return html.split("</head>")[0].match(/<link rel="canonical" href="([^"]+)"/)?.[1] ?? null;
 }
 
-/** 把绝对地址换算成 out/ 下的候选文件。 */
+/** 把绝对地址换算成 out/ 下的文件。目录形态取该目录的索引页。 */
 function fileFor(url: string): string {
-  const path = url.replace(/^https?:\/\/[^/]+/, "").replace(/\/$/, "");
-  return path === "" ? "index.html" : `${path.slice(1)}.html`;
+  const path = url.replace(/^https?:\/\/[^/]+/, "");
+  if (path === "" || path === "/") return "index.html";
+  const rel = path.slice(1);
+  if (rel.endsWith("/")) return `${rel}index.html`;
+  return rel.endsWith(".html") ? rel : `${rel}.html`;
 }
 
 describe("导出产物 · 双语路由", () => {

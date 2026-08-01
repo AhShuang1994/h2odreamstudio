@@ -27,7 +27,7 @@ _Avoid_: 报价、价格（单独使用时含糊）
 _Avoid_: 主页面、静态页
 
 **内容页**：
-blog 文章与案例拆解。正文一字不改，英文版沿用已收录的原 URL，中文版另开 `/zh/` 下的对应地址。
+blog 文章与案例拆解。正文一字不改，英文版沿用已收录的原 URL，中文版另开 `/zh/` 下的对应地址。双语原稿在 [`src/content/pages/`](./src/content/pages/)，两份单语页面由 `scripts/split-content-lang.mjs` 在构建期生成 —— `public/` 下那些是产物，别手改。
 _Avoid_: 文章页、子页
 
 **样板站**：

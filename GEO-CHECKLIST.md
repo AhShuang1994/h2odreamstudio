@@ -21,7 +21,8 @@
 - Open Graph + Twitter card; `og:image` / `twitter:image` → a crawlable `/og/*` image.
 - `<html lang>` set, and it must match the language actually rendered on the page.
 - **One language per URL.** English is the primary language and lives at the root; Chinese is the additional language under `/zh`. A page never ships both languages — declare the counterpart with `hreflang` (`en`, `zh-CN`, `x-default`), bidirectionally, and make sure both addresses exist. See ADR-0002.
-  - Core pages (Next-rendered) already work this way. Legacy static pages under `public/` still carry the old `data-lang-en` / `data-lang-cn` pairs — they get split by #76; until then, keep both attributes in step when editing them.
+  - Core pages (Next-rendered) and content pages (blog, case studies) already work this way. Content pages are **generated** — edit the bilingual source in `src/content/pages/`, never `public/blog/**`, `public/case-studies/**` or `public/zh/**`; `scripts/split-content-lang.mjs` writes both languages at build time.
+  - The four hand-written service pages (`landing-page`, `shopify-migration`, `wedding-basic`, `wedding-premium`) still carry the old `data-lang-en` / `data-lang-cn` pairs and a runtime toggle. Keep both attributes in step when editing them, until they get split too.
 
 ## 3 · Structured data (JSON-LD) — must `JSON.parse` cleanly + pass Google Rich Results Test
 - **Homepage**: `@graph` = `ProfessionalService` (`#business`) + `WebSite` (`#website`). Keep `sameAs` filled (Xiaohongshu + any new socials), plus `priceRange`, `contactPoint`.
