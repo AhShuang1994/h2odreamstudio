@@ -191,7 +191,10 @@ describe("导出产物 · 内容页语言拆分", () => {
       it("原稿里有的「快速答案」块与结构化数据，两份产物都还在", () => {
         const source = readFileSync(join(SRC, rel), "utf8");
         const wantsQuickAnswer = /Quick answer|快速答案/i.test(source);
-        const sourceBlocks = source.match(/application\/ld\+json/g)?.length ?? 0;
+        // 原稿里的块都要保下来，再加上从可见问答生成的那一个 FAQPage（#82）
+        const sourceBlocks =
+          (source.match(/application\/ld\+json/g)?.length ?? 0) +
+          (/class="faq-item"/.test(source) ? 1 : 0);
 
         for (const file of [p.en.file, p.zh.file]) {
           const html = x.read(file);
