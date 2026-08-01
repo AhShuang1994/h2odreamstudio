@@ -125,16 +125,17 @@ describe("导出产物 · 文案口径", () => {
       }
     });
 
-    it("llms.txt 就是模板 + prices.json 渲染出来的，没有被手改", () => {
+    it("llms.txt 的手写部分就是模板 + prices.json 渲染出来的", () => {
       const template = readFileSync(join(process.cwd(), "src/content/llms.template.txt"), "utf8");
-      const rendered = template.replace(
-        /\{\{(\w+)\}\}/g,
-        (_, key: keyof typeof prices) => prices[key],
-      );
+      const rendered = template
+        .replace(/\{\{(\w+)\}\}/g, (_, key: keyof typeof prices) => prices[key])
+        .replace(/\r\n/g, "\n")
+        .trimEnd();
+      // 尾部的中文版清单是从导出页面生成的（#77），归 discovery.test.ts 管
       expect(
-        x.read("llms.txt").replace(/\r\n/g, "\n"),
+        x.read("llms.txt").replace(/\r\n/g, "\n").startsWith(rendered),
         "llms.txt 是构建产物 —— 改 src/content/llms.template.txt 或 prices.json，别改它",
-      ).toBe(rendered.replace(/\r\n/g, "\n"));
+      ).toBe(true);
     });
 
     /**

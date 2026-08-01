@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/gen-llms.mjs && node scripts/split-content-lang.mjs",
+    "prebuild": "node scripts/split-content-lang.mjs",
+    "postbuild": "node scripts/gen-sitemap.mjs && node scripts/gen-llms.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

@@ -2,6 +2,8 @@
 // Usage: node scripts/indexnow-submit.js            -> submit every URL in sitemap.xml
 //        node scripts/indexnow-submit.js <url> ...  -> submit only the given URLs
 // Run after each deploy that adds or changes pages (the key file must be live first).
+// sitemap.xml is a build artifact now (scripts/gen-sitemap.mjs writes it into out/),
+// so run `npm run build` first — see #77.
 
 const fs = require('fs');
 const path = require('path');
@@ -12,7 +14,12 @@ const KEY = '35645bffbcc448b6a26912b35f5d9f5b';
 
 let urls = process.argv.slice(2);
 if (urls.length === 0) {
-  const sitemap = fs.readFileSync(path.join(__dirname, '..', 'sitemap.xml'), 'utf8');
+  const sitemapPath = path.join(__dirname, '..', 'out', 'sitemap.xml');
+  if (!fs.existsSync(sitemapPath)) {
+    console.error('找不到 out/sitemap.xml —— 先跑 npm run build。');
+    process.exit(1);
+  }
+  const sitemap = fs.readFileSync(sitemapPath, 'utf8');
   urls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1]);
 }
 

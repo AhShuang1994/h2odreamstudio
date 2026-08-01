@@ -12,3 +12,15 @@
 /about/     /about     301
 /contact/   /contact   301
 /pricing/   /pricing   301
+
+# 中文版核心页（#75）。
+/zh/about/    /zh/about    301
+/zh/contact/  /zh/contact  301
+/zh/pricing/  /zh/pricing  301
+
+# ⚠️ 中文首页是全站唯一「页面名与目录同名」的地址：导出产物里同时存在
+# `zh.html` 与 `zh/` 目录。Cloudflare Pages 的解析顺序是先补 `.html` 再找
+# 目录索引，所以 /zh 会落到 zh.html —— 与 /about 落到 about.html 是同一条
+# 规则（ADR-0003 整个方案都建立在它上面）。下面这条只管带尾斜杠的形态。
+# 换平台或改托管前，先手工确认 /zh 仍然打得开。
+/zh/        /zh        301

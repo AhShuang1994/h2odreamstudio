@@ -12,9 +12,10 @@
 - Private media stays under `Disallow: /assets/`. Anything meant to be **seen / cited** goes in a crawlable folder:
   - `/og/` — OG images, logo, author avatar (referenced by schema).
   - `/assets/blog/` — blog illustrations (`Allow: /assets/blog/` is set in **both** UA groups).
-- Add every new URL to **`sitemap.xml`** (loc must equal the canonical; service pages extensionless, blog `.html`, blog index `/blog/`).
-- Add every new page/post to **`llms.txt`** — the AI sitemap. One bullet: absolute URL + one-line description. *Treat it like sitemap.xml: stale = useless.*
-  - ⚠️ `public/llms.txt` is **generated** at build time by `scripts/gen-llms.mjs`. Edit `src/content/llms.template.txt`; prices come from `src/content/prices.json` as `{{starter}}`-style tokens. Never hand-edit the output.
+- **`sitemap.xml` and `llms.txt` are build artifacts** — `scripts/gen-sitemap.mjs` and `scripts/gen-llms.mjs` write them straight into `out/` after `next build` (#77). They are not in `public/` and not in git; run `npm run build` to see them.
+  - The sitemap is derived by scanning `out/` and reading each page's own `<link rel="canonical">`, so **a new page enters the sitemap automatically**. Nothing to add by hand. Just make sure the new page declares a canonical.
+  - `llms.txt` = `src/content/llms.template.txt` (hand-written English entries + descriptions) + prices from `src/content/prices.json` (`{{starter}}`-style tokens) + a generated Chinese list of every `/zh` page. **A new English page must get a bullet in the template** — the build fails if an exported page has no entry, or if an entry points at a page that doesn't exist.
+  - Exclusions live in `scripts/lib/exported-pages.mjs`: `404.html`, `demos/**` (Disallowed in robots.txt), `xhs.html`.
 
 ## 2 · Page meta — every page
 - Unique `<title>`, unique meta `description`, `<link rel="canonical">`.
@@ -58,7 +59,7 @@
 
 ## 8 · Pre-commit gate
 - [ ] All JSON-LD parses + Google Rich Results Test passes
-- [ ] `sitemap.xml` + `llms.txt` updated; `dateModified`/`lastmod` bumped if content changed
+- [ ] New page declares a canonical (that's what puts it in the sitemap) and has a bullet in `src/content/llms.template.txt`; `dateModified` bumped if content changed (`lastmod` is read from it)
 - [ ] Person author + visible bio card (blog)
 - [ ] Quick Answer box and FAQ schema say the same thing
 - [ ] Images: crawlable dir, WebP, lazy + dimensions, no text baked in, Gemini watermark removed
