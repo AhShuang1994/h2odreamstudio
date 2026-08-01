@@ -61,8 +61,9 @@
   color-scheme: dark;
 }
 
+/* scroll-behavior 故意留空：ScrollSmoother 自己接管滚动位置，浏览器的原生
+   平滑滚动会跟它打架（两套动画抢同一个 scrollTop，表现是页面抖）。见 #66。 */
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: 80px;
 }
 
@@ -80,6 +81,29 @@ h1,
 h2 {
   font-family: var(--font-serif);
   font-weight: 600;
+}
+
+/* ── 动效 ────────────────────────────────────────────────────────────────
+   动画本身在 src/components/motion/SiteMotion.tsx，这里只放两件 CSS 才做得到
+   的事：起始状态要赶在首次绘制之前，尺寸要在 JS 到位之前就对。
+
+   `motion-armed` 由 Shell 里的内联脚本在 <head> 中加上，SiteMotion 建好起始
+   状态后摘掉；动效起不来时也会被摘掉（含 2.5s 兜底）。**任何情况下内容都不
+   会永远隐身** —— 没有 JS 的访客根本不会有这个类。 */
+
+.motion-armed [data-reveal] {
+  opacity: 0;
+}
+
+/* 遮罩视差：图片比裁切框高一截，滚动时在框内位移。只在动效真的跑起来时才
+   放大，否则静态下图片会比框高出 18% 被切掉。 */
+.motion-ready [data-parallax] {
+  overflow: hidden;
+}
+
+.motion-ready [data-parallax] :is(img, video) {
+  height: 118%;
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {

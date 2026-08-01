@@ -59,13 +59,13 @@ _Avoid_: orb、blob、气泡、水滴（「水滴」专指水母题的起点意�
 _Avoid_: 水元素、海洋主题
 
 **幕布转场**：
-点击站内任意链接时，一块色板盖满视口 → 换页 → 揭开。覆盖全部页面，包括静态内容页。
+点击站内任意链接时，一块色板盖满视口 → 换页 → 揭开。覆盖全部页面，包括静态内容页 —— 所以它不能活在 Next 的包里，实现是 [`public/js/curtain.js`](./public/js/curtain.js)，核心页由 `Shell` 引、内容页由 [`scripts/split-content-lang.mjs`](./scripts/split-content-lang.mjs) 构建期注入，**同一份**。盖满之后不走路由，直接触发真实跳转。
 _Avoid_: 页面过渡、转场动画
 
 **逐行揭示**：
-标题与段落按**行**淡入上移的进场动效。中文永不逐字——中文没有词边界，逐字会散架。
+标题与段落按**行**淡入上移的进场动效。中文永不逐字——中文没有词边界，逐字会散架。挂载点是 `data-reveal="lines"`（整块淡入是 `data-reveal="block"`），动画在 [`src/components/motion/SiteMotion.tsx`](./src/components/motion/SiteMotion.tsx)。
 _Avoid_: 文字动画、打字机效果
 
 **遮罩视差**：
-图片比其裁切框大 15~20%，滚动时在框内反向慢速位移。本站「parallax」指的就是这一种，不指多图层不同速度的背景。
+图片比其裁切框大 15~20%，滚动时在框内反向慢速位移。本站「parallax」指的就是这一种，不指多图层不同速度的背景。挂载点是裁切框上的 `data-parallax`。
 _Avoid_: 视差滚动、parallax（单独使用时含糊）
