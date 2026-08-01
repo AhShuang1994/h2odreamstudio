@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { WhatsAppFab } from "@/components/WhatsAppFab";
+import { SiteMotion } from "@/components/motion/SiteMotion";
 import type { Lang } from "@/lib/i18n";
 
 const inter = Inter({
@@ -32,12 +33,33 @@ export function Shell({ lang, children }: { lang: Lang; children: ReactNode }) {
             crossOrigin="anonymous"
           />
         )}
+        {/* 幕布转场。同步执行、不能 defer —— 带着幕布到达的那一下必须在首次
+            绘制之前就成立，晚一帧就会先闪出新页内容再被盖上。内容页由
+            scripts/split-content-lang.mjs 注入同一个文件，两边行为一致。 */}
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script src="/js/curtain.js" />
+        {/* 逐行揭示的隐藏开关。同样要赶在首次绘制之前：先看见文字再被藏起来
+            比没有动效更难看。摘除它的责任在 SiteMotion，含超时兜底。 */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)" +
+              "document.documentElement.classList.add('motion-armed')}catch(e){}",
+          }}
+        />
       </head>
       <body className="font-sans antialiased">
+        {/* Nav 与悬浮按钮是 fixed 定位，必须留在 smooth-content 外面 ——
+            平滑滚动靠 transform 推动内容，被 transform 的祖先会让 fixed 失效。 */}
         <Nav lang={lang} />
-        {children}
-        <Footer lang={lang} />
+        <div id="smooth-wrapper">
+          <div id="smooth-content">
+            {children}
+            <Footer lang={lang} />
+          </div>
+        </div>
         <WhatsAppFab lang={lang} />
+        <SiteMotion />
       </body>
     </html>
   );

@@ -190,6 +190,21 @@ function faqScript(body) {
   );
 }
 
+// ── 幕布转场 ────────────────────────────────────────────────────────
+
+/**
+ * 内容页也要有幕布，用的是核心页那份实现原文。
+ *
+ * 只给核心页做转场会造成「点关于页有幕布、点 blog 白屏硬跳」的不一致，
+ * 比完全没有幕布更糟 —— 所以这段注入是 #66 的硬要求，不是锦上添花。
+ *
+ * 同步加载、不带 defer：带着幕布到达的那一下必须在首次绘制之前成立。
+ * 脚本自己会在减弱动态偏好下整套让开。
+ */
+const CURTAIN =
+  `  <!-- 幕布转场 —— 与核心页共用一份实现，见 public/js/curtain.js -->\n` +
+  `  <script src="/js/curtain.js"></script>\n\n`;
+
 // ── 地址 ────────────────────────────────────────────────────────────
 
 /**
@@ -382,7 +397,7 @@ function render(source, { rel, dir, lang, title, description }) {
   const head = rewriteHead(source.slice(0, cut), { lang, rel, title, description });
   const body = collapse(source.slice(cut), lang);
   // FAQPage 生成在 body 塌成单语之后 —— 标记里的问答与页面上看到的逐字相同
-  let html = head + faqScript(body) + body;
+  let html = head + faqScript(body) + CURTAIN + body;
   html = html.replace(/<html\s+lang="[^"]*"/, `<html lang="${lang === "zh" ? "zh" : "en"}"`);
   html = rewriteUrls(html, dir, lang);
   html = rewriteLangToggle(html, rel, lang);

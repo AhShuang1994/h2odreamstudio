@@ -35,13 +35,19 @@ export function QuickAnswer({ lang }: { lang: Lang }) {
             <span aria-hidden>⚡</span>
             {t({ cn: "快速答案", en: "Quick answer" }, lang)}
           </div>
-          <h2 className="text-[clamp(1.5rem,3vw,2.1rem)] font-semibold tracking-tight text-ink">
+          <h2
+            data-reveal="lines"
+            className="text-[clamp(1.5rem,3vw,2.1rem)] font-semibold tracking-tight text-ink"
+          >
             {t(quickAnswer.heading, lang)}
           </h2>
-          <p className="mt-4 max-w-3xl leading-relaxed text-ink-muted">
+          <p data-reveal="lines" className="mt-4 max-w-3xl leading-relaxed text-ink-muted">
             {t(quickAnswer.body, lang)}
           </p>
-          <dl className="mt-8 grid grid-cols-2 gap-6 border-t border-hairline pt-8 sm:grid-cols-4">
+          <dl
+            data-reveal="block"
+            className="mt-8 grid grid-cols-2 gap-6 border-t border-hairline pt-8 sm:grid-cols-4"
+          >
             {quickAnswer.stats.map((s, i) => (
               <div key={i}>
                 <dt className="text-2xl font-semibold text-ink">{t(s.value, lang)}</dt>
@@ -59,8 +65,11 @@ export function Services({ lang }: { lang: Lang }) {
   return (
     <Section id="services">
       <Container>
-        <Eyebrow>{t(services.eyebrow, lang)}</Eyebrow>
-        <h2 className="mt-3 max-w-2xl text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink">
+        <Eyebrow data-reveal="block">{t(services.eyebrow, lang)}</Eyebrow>
+        <h2
+          data-reveal="lines"
+          className="mt-3 max-w-2xl text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink"
+        >
           {t(services.heading, lang)}
         </h2>
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -68,6 +77,7 @@ export function Services({ lang }: { lang: Lang }) {
             <a
               key={i}
               href={localize(s.href, lang)}
+              data-reveal="block"
               className="group rounded-2xl border border-hairline bg-surface-1 p-7 transition-colors hover:border-hairline-strong hover:bg-surface-2"
             >
               <div className="flex items-baseline justify-between gap-4">
@@ -92,8 +102,11 @@ export function SelectedWork({ lang }: { lang: Lang }) {
       <Container>
         <div className="flex items-end justify-between gap-6">
           <div>
-            <Eyebrow>{t(selectedWork.eyebrow, lang)}</Eyebrow>
-            <h2 className="mt-3 max-w-2xl text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink">
+            <Eyebrow data-reveal="block">{t(selectedWork.eyebrow, lang)}</Eyebrow>
+            <h2
+              data-reveal="lines"
+              className="mt-3 max-w-2xl text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink"
+            >
               {t(selectedWork.heading, lang)}
             </h2>
           </div>
@@ -109,9 +122,12 @@ export function SelectedWork({ lang }: { lang: Lang }) {
             <a
               key={i}
               href={w.href}
+              data-reveal="block"
               className="group overflow-hidden rounded-2xl border border-hairline bg-surface-1"
             >
-              <div className="aspect-[16/10] overflow-hidden">
+              {/* 案例缩略图是本站为数不多够大、够密的图 —— 遮罩视差用在这里
+                  才看得出来。图片密度远低于参考站，不要照它那个密度铺开。 */}
+              <div data-parallax className="aspect-[16/10] overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={w.img}
@@ -159,10 +175,10 @@ export function Founder({ lang }: { lang: Lang }) {
             />
           </div>
           <div>
-            <Eyebrow>{t(founder.eyebrow, lang)}</Eyebrow>
+            <Eyebrow data-reveal="block">{t(founder.eyebrow, lang)}</Eyebrow>
             <div className="mt-3 text-xl font-semibold text-ink">{t(founder.name, lang)}</div>
             <div className="text-sm text-ink-subtle">{t(founder.role, lang)}</div>
-            <p className="mt-5 max-w-2xl leading-relaxed text-ink-muted">
+            <p data-reveal="lines" className="mt-5 max-w-2xl leading-relaxed text-ink-muted">
               {t(founder.bio, lang)}
             </p>
           </div>
@@ -176,11 +192,17 @@ export function Faq({ lang }: { lang: Lang }) {
   return (
     <Section id="faq">
       <Container>
-        <Eyebrow>{t(faq.eyebrow, lang)}</Eyebrow>
-        <h2 className="mt-3 text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink">
+        <Eyebrow data-reveal="block">{t(faq.eyebrow, lang)}</Eyebrow>
+        <h2
+          data-reveal="lines"
+          className="mt-3 text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink"
+        >
           {t(faq.heading, lang)}
         </h2>
-        <div className="mt-8 divide-y divide-hairline border-y border-hairline">
+        <div
+          data-reveal="block"
+          className="mt-8 divide-y divide-hairline border-y border-hairline"
+        >
           {faq.items.map((f, i) => (
             <details key={i} className="group py-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-medium text-ink">
@@ -213,14 +235,22 @@ export function ContactCta({ lang }: { lang: Lang }) {
             className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[400px] -translate-x-1/2 rounded-full bg-accent/15 blur-[100px]"
           />
           <div className="relative">
-            <Eyebrow className="text-center">{t(contactCta.eyebrow, lang)}</Eyebrow>
-            <h2 className="mx-auto mt-3 max-w-2xl text-[clamp(1.7rem,3.6vw,2.6rem)] font-semibold tracking-tight text-ink">
+            <Eyebrow data-reveal="block" className="text-center">
+              {t(contactCta.eyebrow, lang)}
+            </Eyebrow>
+            <h2
+              data-reveal="lines"
+              className="mx-auto mt-3 max-w-2xl text-[clamp(1.7rem,3.6vw,2.6rem)] font-semibold tracking-tight text-ink"
+            >
               {t(contactCta.heading, lang)}
             </h2>
-            <p className="mx-auto mt-4 max-w-xl leading-relaxed text-ink-muted">
+            <p
+              data-reveal="lines"
+              className="mx-auto mt-4 max-w-xl leading-relaxed text-ink-muted"
+            >
               {t(contactCta.body, lang)}
             </p>
-            <div className="mt-8 flex justify-center">
+            <div data-reveal="block" className="mt-8 flex justify-center">
               <Button href={site.waLink(t(contactCta.waMessage, lang))} external>
                 {t(contactCta.cta, lang)}
               </Button>

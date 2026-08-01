@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 export function Container({
   children,
@@ -15,15 +15,17 @@ export function Container({
   );
 }
 
+/** 剩下的属性透传给 <p> —— 动效挂载点（data-reveal）就是这么加上去的。 */
 export function Eyebrow({
   children,
   className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+  ...rest
+}: { children: ReactNode; className?: string } & ComponentPropsWithoutRef<"p">) {
   return (
-    <p className={`text-xs font-medium tracking-[0.16em] text-accent ${className}`}>
+    <p
+      {...rest}
+      className={`text-xs font-medium tracking-[0.16em] text-accent ${className}`}
+    >
       {children}
     </p>
   );
