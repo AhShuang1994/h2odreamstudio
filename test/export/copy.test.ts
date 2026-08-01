@@ -18,8 +18,17 @@ import { describe, it, expect } from "vitest";
 import { loadExport } from "../helpers/export";
 import prices from "../../src/content/prices.json";
 
-/** 走 Next 路由渲染的核心页，见 CONTEXT.md 的「核心页」词条。 */
-const CORE_PAGES = ["index.html", "about.html", "contact.html", "pricing.html"];
+/** 走 Next 路由渲染的核心页，中英各一份，见 CONTEXT.md 的「核心页」词条。 */
+const CORE_PAGES = [
+  "index.html",
+  "about.html",
+  "contact.html",
+  "pricing.html",
+  "zh.html",
+  "zh/about.html",
+  "zh/contact.html",
+  "zh/pricing.html",
+];
 
 /** 仍是手写 HTML 的服务页。价格在里面是硬编码的，只能靠断言看住（见文件末）。 */
 const SERVICE_PAGES = [
@@ -101,7 +110,7 @@ describe("导出产物 · 文案口径", () => {
      * 首页与报价页都必须报出全部六档 —— #79 之前首页只写了落地页一档、
      * Shopify 写成「报价而定」，访客点进报价页当场发现矛盾。
      */
-    for (const name of ["index.html", "pricing.html"]) {
+    for (const name of ["index.html", "pricing.html", "zh.html", "zh/pricing.html"]) {
       it(`${name} 报出的档位与报价页一致`, () => {
         const text = visibleText(x.read(findPage(x.files, name)!));
         const missing = tiers.filter((p) => !text.includes(p));
@@ -110,8 +119,10 @@ describe("导出产物 · 文案口径", () => {
     }
 
     it("首页不再把 Shopify 迁移写成「报价而定」", () => {
-      const text = visibleText(x.read(findPage(x.files, "index.html")!));
-      expect(text).not.toMatch(/报价而定|Quote-based/);
+      for (const name of ["index.html", "zh.html"]) {
+        const text = visibleText(x.read(findPage(x.files, name)!));
+        expect(text, name).not.toMatch(/报价而定|Quote-based/);
+      }
     });
 
     it("llms.txt 就是模板 + prices.json 渲染出来的，没有被手改", () => {

@@ -1,14 +1,16 @@
 import type { ReactNode } from "react";
-import { Bi } from "@/lib/i18n";
+import { t, type Lang } from "@/lib/i18n";
 import { Container, Eyebrow } from "@/components/ui";
 import type { Bilingual } from "@/content/site";
 
 /** 内容页顶部：眉标 + 标题 + 导语。三个核心页共用。 */
 export function PageHeader({
+  lang,
   eyebrow,
   title,
   lede,
 }: {
+  lang: Lang;
   eyebrow: Bilingual;
   title: Bilingual;
   lede?: Bilingual;
@@ -16,15 +18,13 @@ export function PageHeader({
   return (
     <header className="pt-28 pb-10 sm:pt-36 sm:pb-14">
       <Container>
-        <Eyebrow>
-          <Bi {...eyebrow} />
-        </Eyebrow>
+        <Eyebrow>{t(eyebrow, lang)}</Eyebrow>
         <h1 className="mt-3 max-w-3xl text-[clamp(2rem,5vw,3.2rem)] font-semibold leading-[1.1] tracking-tight text-ink">
-          <Bi {...title} />
+          {t(title, lang)}
         </h1>
         {lede && (
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-muted">
-            <Bi {...lede} />
+            {t(lede, lang)}
           </p>
         )}
       </Container>
@@ -36,13 +36,13 @@ export function PageHeader({
  * 「快速答案」块 —— 每页开头一段自足的直述性回答，专供 AI 检索时整段引用。
  * 这是本站流量策略的核心结构，见 CONTEXT.md 的「快速答案」词条，不要删。
  */
-export function QuickAnswerCard({ children }: { children: ReactNode }) {
+export function QuickAnswerCard({ lang, children }: { lang: Lang; children: ReactNode }) {
   return (
     <Container>
       <div className="rounded-2xl border border-hairline bg-surface-1 p-8 sm:p-10">
         <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-medium text-accent">
           <span aria-hidden>⚡</span>
-          <Bi cn="快速答案" en="Quick answer" />
+          {t({ cn: "快速答案", en: "Quick answer" }, lang)}
         </div>
         <div className="max-w-3xl leading-relaxed text-ink-muted">{children}</div>
       </div>
@@ -77,15 +77,19 @@ export function SectionTitle({ children }: { children: ReactNode }) {
 }
 
 /** 折叠式问答，与首页 FAQ 用同一套视觉。 */
-export function FaqList({ items }: { items: { q: Bilingual; a: Bilingual }[] }) {
+export function FaqList({
+  lang,
+  items,
+}: {
+  lang: Lang;
+  items: { q: Bilingual; a: Bilingual }[];
+}) {
   return (
     <div className="mt-8 divide-y divide-hairline border-y border-hairline">
       {items.map((f, i) => (
         <details key={i} className="group py-5">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-medium text-ink">
-            <span>
-              <Bi {...f.q} />
-            </span>
+            <span>{t(f.q, lang)}</span>
             <span
               className="text-xl leading-none text-ink-subtle transition-transform group-open:rotate-45"
               aria-hidden
@@ -94,7 +98,7 @@ export function FaqList({ items }: { items: { q: Bilingual; a: Bilingual }[] }) 
             </span>
           </summary>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-muted">
-            <Bi {...f.a} />
+            {t(f.a, lang)}
           </p>
         </details>
       ))}

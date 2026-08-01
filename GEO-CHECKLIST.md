@@ -19,7 +19,9 @@
 ## 2 · Page meta — every page
 - Unique `<title>`, unique meta `description`, `<link rel="canonical">`.
 - Open Graph + Twitter card; `og:image` / `twitter:image` → a crawlable `/og/*` image.
-- `<html lang>` set; every text node carries `data-lang-en` + `data-lang-cn` (zh is the default rendered text).
+- `<html lang>` set, and it must match the language actually rendered on the page.
+- **One language per URL.** English is the primary language and lives at the root; Chinese is the additional language under `/zh`. A page never ships both languages — declare the counterpart with `hreflang` (`en`, `zh-CN`, `x-default`), bidirectionally, and make sure both addresses exist. See ADR-0002.
+  - Core pages (Next-rendered) already work this way. Legacy static pages under `public/` still carry the old `data-lang-en` / `data-lang-cn` pairs — they get split by #76; until then, keep both attributes in step when editing them.
 
 ## 3 · Structured data (JSON-LD) — must `JSON.parse` cleanly + pass Google Rich Results Test
 - **Homepage**: `@graph` = `ProfessionalService` (`#business`) + `WebSite` (`#website`). Keep `sameAs` filled (Xiaohongshu + any new socials), plus `priceRange`, `contactPoint`.
@@ -59,7 +61,7 @@
 - [ ] Person author + visible bio card (blog)
 - [ ] Quick Answer box and FAQ schema say the same thing
 - [ ] Images: crawlable dir, WebP, lazy + dimensions, no text baked in, Gemini watermark removed
-- [ ] Bilingual `data-lang-*` on every new text node
+- [ ] One language per URL, `<html lang>` matches it, `hreflang` pair declared both ways (legacy `public/` pages: keep `data-lang-*` in step until #76)
 - [ ] Canonical + meta + OG present
 - [ ] `node build.js` run if assets / CSS / JS changed
 

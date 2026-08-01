@@ -82,21 +82,6 @@ h2 {
   font-weight: 600;
 }
 
-/* Bilingual: both languages ship in the DOM (crawlable for GEO); CSS shows the
-   active one. zh is the default; EN is toggled client-side via data-lang. */
-.lang-cn {
-  display: contents;
-}
-.lang-en {
-  display: none;
-}
-html[data-lang="en"] .lang-cn {
-  display: none;
-}
-html[data-lang="en"] .lang-en {
-  display: contents;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

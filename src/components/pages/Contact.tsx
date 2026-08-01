@@ -1,5 +1,4 @@
-import type { Metadata } from "next";
-import { Bi } from "@/lib/i18n";
+import { pathsFor, t, type Lang } from "@/lib/i18n";
 import { Button, Container, Eyebrow } from "@/components/ui";
 import {
   PageHeader,
@@ -21,37 +20,32 @@ import {
   contactFaq,
 } from "@/content/contact";
 
-export const metadata: Metadata = {
-  title: { absolute: contactMeta.title },
-  description: contactMeta.description,
-  alternates: { canonical: "/contact" },
-  openGraph: {
-    title: contactMeta.title,
-    description: contactMeta.description,
-    url: "/contact",
-    type: "website",
-  },
-};
+/** 联系页主体。中英两份路由（`/contact` 与 `/zh/contact`）共用它。 */
+export function ContactPage({ lang }: { lang: Lang }) {
+  const path = pathsFor("/contact")[lang];
 
-// 这一页的 FAQ 在页面上是可见的（下面 FaqList 渲染出来了），所以 FAQPage 合规。
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    businessNode(),
-    pageNode("ContactPage", "/contact", contactMeta.title, contactMeta.description),
-    faqNode(contactFaq.items),
-  ],
-};
+  // 这一页的 FAQ 在页面上是可见的（下面 FaqList 渲染出来了），所以 FAQPage 合规。
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      businessNode(),
+      pageNode(
+        "ContactPage",
+        path,
+        lang,
+        t(contactMeta.title, lang),
+        t(contactMeta.description, lang),
+      ),
+      faqNode(contactFaq.items, lang),
+    ],
+  };
 
-export default function ContactPage() {
   return (
     <main>
       <JsonLd data={jsonLd} />
-      <PageHeader {...contactHeader} />
+      <PageHeader lang={lang} {...contactHeader} />
 
-      <QuickAnswerCard>
-        <Bi {...contactQuickAnswer} />
-      </QuickAnswerCard>
+      <QuickAnswerCard lang={lang}>{t(contactQuickAnswer, lang)}</QuickAnswerCard>
 
       <PageSection>
         <Container>
@@ -68,14 +62,10 @@ export default function ContactPage() {
                   <span className="text-xl" aria-hidden>
                     {m.icon}
                   </span>
-                  <span className="text-lg font-semibold text-ink">
-                    <Bi {...m.name} />
-                  </span>
+                  <span className="text-lg font-semibold text-ink">{t(m.name, lang)}</span>
                 </div>
                 <div className="mt-3 text-[15px] text-accent">{m.value}</div>
-                <p className="mt-2 text-sm text-ink-subtle">
-                  <Bi {...m.note} />
-                </p>
+                <p className="mt-2 text-sm text-ink-subtle">{t(m.note, lang)}</p>
               </a>
             ))}
           </div>
@@ -84,21 +74,15 @@ export default function ContactPage() {
 
       <PageSection className="border-y border-hairline bg-surface-1">
         <Container>
-          <SectionTitle>
-            <Bi {...studioInfo.heading} />
-          </SectionTitle>
+          <SectionTitle>{t(studioInfo.heading, lang)}</SectionTitle>
           <dl className="mt-8 grid gap-x-10 gap-y-5 sm:grid-cols-2">
             {studioInfo.rows.map((r, i) => (
               <div
                 key={i}
                 className="flex flex-wrap items-baseline justify-between gap-3 border-b border-hairline pb-4"
               >
-                <dt className="text-sm text-ink-subtle">
-                  <Bi {...r.key} />
-                </dt>
-                <dd className="text-[15px] text-ink">
-                  <Bi {...r.value} />
-                </dd>
+                <dt className="text-sm text-ink-subtle">{t(r.key, lang)}</dt>
+                <dd className="text-[15px] text-ink">{t(r.value, lang)}</dd>
               </div>
             ))}
           </dl>
@@ -109,19 +93,17 @@ export default function ContactPage() {
         <Container>
           <div className="rounded-3xl border border-hairline bg-surface-1 px-8 py-14 text-center sm:px-16">
             <Eyebrow className="text-center">
-              <Bi cn="开始" en="Get started" />
+              {t({ cn: "开始", en: "Get started" }, lang)}
             </Eyebrow>
             <SectionTitle>
-              <span className="mt-3 block">
-                <Bi {...contactCtaBlock.heading} />
-              </span>
+              <span className="mt-3 block">{t(contactCtaBlock.heading, lang)}</span>
             </SectionTitle>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button href={site.waLink(contactCtaBlock.whatsappMessage)} external>
-                <Bi {...contactCtaBlock.whatsapp} />
+              <Button href={site.waLink(t(contactCtaBlock.whatsappMessage, lang))} external>
+                {t(contactCtaBlock.whatsapp, lang)}
               </Button>
               <Button href="mailto:H2Odreamer@outlook.com" variant="secondary" external>
-                <Bi {...contactCtaBlock.email} />
+                {t(contactCtaBlock.email, lang)}
               </Button>
             </div>
           </div>
@@ -130,10 +112,8 @@ export default function ContactPage() {
 
       <PageSection>
         <Container>
-          <SectionTitle>
-            <Bi {...contactFaq.heading} />
-          </SectionTitle>
-          <FaqList items={contactFaq.items} />
+          <SectionTitle>{t(contactFaq.heading, lang)}</SectionTitle>
+          <FaqList lang={lang} items={contactFaq.items} />
         </Container>
       </PageSection>
     </main>

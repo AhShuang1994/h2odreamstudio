@@ -90,15 +90,29 @@ describe("导出产物 · 中文字体", () => {
     expect(cjkRanges, "@font-face 缺少中日韩 unicode-range 限定").toBeGreaterThanOrEqual(3);
   });
 
-  it("首页预加载了正文字重，且只预加载它", () => {
-    const home = x.read("index.html");
-    const preloads = [...home.matchAll(/rel="preload"[^>]*href="(\/fonts\/[^"]*)"/g)].map(
+  /** 页面预加载了哪些字体。 */
+  function fontPreloads(page: string): string[] {
+    return [...x.read(page).matchAll(/rel="preload"[^>]*href="(\/fonts\/[^"]*)"/g)].map(
       (m) => m[1],
     );
+  }
+
+  it("中文首页预加载了正文字重，且只预加载它", () => {
+    const preloads = fontPreloads("zh.html");
     expect(preloads).toContain("/fonts/NotoSansSC-400.woff2");
     expect(
       preloads.length,
       `预加载了 ${preloads.length} 个字体 —— 三个挤在首屏关键路径上会拖慢 LCP，见 ADR-0008`,
     ).toBe(1);
+  });
+
+  /**
+   * 英文页的正文全是拉丁字符，走 Inter；@font-face 的 unicode-range 已经挡住了
+   * 按需下载，再预加载一份 CJK 子集是白花的带宽（#75 拆语言后才有这个区分）。
+   */
+  it("英文首页不预加载中文字体", () => {
+    expect(fontPreloads("index.html"), "英文页不该为了几个中文字预加载 CJK 子集").toEqual(
+      [],
+    );
   });
 });

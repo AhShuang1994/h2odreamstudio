@@ -13,8 +13,14 @@ import type { Bilingual } from "./site";
 export { prices };
 
 export const pricingMeta = {
-  title: "价格方案 · Pricing · H2ODreamer Studio",
-  description: `H2ODreamer Studio 网站设计价格（马来西亚）：落地页 ${prices.starter} 起、5 页企业网站 ${prices.standard}、Shopify 迁移 ${prices.shopify} 起；电子喜帖 ${prices.weddingStandard} / ${prices.weddingPremium}。没有强制月费。`,
+  title: {
+    cn: "价格方案 · H2ODreamer Studio",
+    en: "Pricing · H2ODreamer Studio",
+  } as Bilingual,
+  description: {
+    cn: `H2ODreamer Studio 网站设计价格（马来西亚）：落地页 ${prices.starter} 起、5 页企业网站 ${prices.standard}、Shopify 迁移 ${prices.shopify} 起；电子喜帖 ${prices.weddingStandard} / ${prices.weddingPremium}。没有强制月费。`,
+    en: `H2ODreamer Studio web design pricing (Malaysia): landing pages from ${prices.starter}, 5-page corporate sites from ${prices.standard}, Shopify migration from ${prices.shopify}; wedding e-invitations ${prices.weddingStandard} / ${prices.weddingPremium}. No compulsory monthly fee.`,
+  } as Bilingual,
 };
 
 export const pricingHeader = {
@@ -194,6 +200,9 @@ export const pricingCta = {
     cn: "💬 WhatsApp 咨询，免费报价",
     en: "💬 WhatsApp Me — Free Quote",
   } as Bilingual,
-  whatsappMessage: "Hi H2ODreamer! 我想要一个报价。我的生意是 [business type]。",
+  whatsappMessage: {
+    cn: "Hi H2ODreamer! 我想要一个报价。我的生意是 [business type]。",
+    en: "Hi H2ODreamer! I'd like a quote. My business is [business type].",
+  } as Bilingual,
   secondary: { cn: "📨 更多联系方式", en: "📨 Contact options" } as Bilingual,
 };

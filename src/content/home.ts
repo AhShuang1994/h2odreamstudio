@@ -4,8 +4,14 @@ import type { Bilingual } from "./site";
 /** 价格一律从 pricing.ts 的单一数据源取，首页不自己写数字（#79）。 */
 
 export const homeMeta = {
-  title: "马来西亚网站设计 · H2ODreamer Studio｜帮小生意踏出线上第一步",
-  description: `马来西亚柔佛的网站设计工作室，创始人阿爽一对一帮小生意上线：落地页 ${prices.starter} 起、5 页企业官网 ${prices.standard} 起、Shopify 迁移 ${prices.shopify} 起、婚礼电子请柬。中英双语，WhatsApp 免费咨询。`,
+  title: {
+    cn: "马来西亚网站设计 · H2ODreamer Studio｜帮小生意踏出线上第一步",
+    en: "Web Design Malaysia · H2ODreamer Studio | First step online for small businesses",
+  } as Bilingual,
+  description: {
+    cn: `马来西亚柔佛的网站设计工作室，创始人阿爽一对一帮小生意上线：落地页 ${prices.starter} 起、5 页企业官网 ${prices.standard} 起、Shopify 迁移 ${prices.shopify} 起、婚礼电子请柬。中英双语，WhatsApp 免费咨询。`,
+    en: `A one-person web design studio in Johor, Malaysia. Ah Shuang takes small businesses online personally: landing pages from ${prices.starter}, 5-page company sites from ${prices.standard}, Shopify migration from ${prices.shopify}, wedding e-invitations. English / 中文, free WhatsApp consultation.`,
+  } as Bilingual,
 };
 
 export const hero = {
@@ -23,6 +29,10 @@ export const hero = {
   } as Bilingual,
   ctaPrimary: { cn: "WhatsApp 直接找我聊", en: "WhatsApp me directly" } as Bilingual,
   ctaSecondary: { cn: "看服务与报价", en: "Services & pricing" } as Bilingual,
+  waMessage: {
+    cn: "你好阿爽，我想咨询网站",
+    en: "Hi Ah Shuang, I'd like to ask about a website",
+  } as Bilingual,
   scaleWord: { cn: "梦想", en: "Dream" } as Bilingual,
 };
 
@@ -36,10 +46,22 @@ export const quickAnswer = {
     en: `H2ODreamer Studio is a web design studio I (Ah Shuang) run in Johor, Malaysia, helping small businesses and new brands take their first step online. I do four things: one-page landing pages (${prices.starter} Starter, ${prices.basic} Basic), multi-page company sites (5 pages from ${prices.standard}), Shopify migration (from ${prices.shopify}), and wedding e-invitations (${prices.weddingStandard} / ${prices.weddingPremium}). You deal with me directly — no outsourcing, no templates — in English or Chinese, over WhatsApp.`,
   } as Bilingual,
   stats: [
-    { value: `${prices.starter}+`, label: { cn: "落地页起价", en: "Landing pages from" } as Bilingual },
-    { value: `${prices.standard}+`, label: { cn: "5 页企业站起价", en: "5-page sites from" } as Bilingual },
-    { value: "1", label: { cn: "对接人（就是我）", en: "Person you deal with" } as Bilingual },
-    { value: "中 / EN", label: { cn: "双语沟通", en: "Bilingual" } as Bilingual },
+    {
+      value: { cn: `${prices.starter}+`, en: `${prices.starter}+` } as Bilingual,
+      label: { cn: "落地页起价", en: "Landing pages from" } as Bilingual,
+    },
+    {
+      value: { cn: `${prices.standard}+`, en: `${prices.standard}+` } as Bilingual,
+      label: { cn: "5 页企业站起价", en: "5-page sites from" } as Bilingual,
+    },
+    {
+      value: { cn: "1", en: "1" } as Bilingual,
+      label: { cn: "对接人（就是我）", en: "Person you deal with" } as Bilingual,
+    },
+    {
+      value: { cn: "中 / EN", en: "EN / ZH" } as Bilingual,
+      label: { cn: "双语沟通", en: "Bilingual" } as Bilingual,
+    },
   ],
 };
 
@@ -132,7 +154,7 @@ export const selectedWork = {
 
 export const founder = {
   eyebrow: { cn: "关于创始人", en: "About the founder" } as Bilingual,
-  name: "Hui Huang Ong（阿爽）",
+  name: { cn: "Hui Huang Ong（阿爽）", en: "Hui Huang Ong (Ah Shuang)" } as Bilingual,
   role: {
     cn: "创始人 · 设计到上线一人包办",
     en: "Founder · design to launch, done by one person",
@@ -194,4 +216,8 @@ export const contactCta = {
     en: "Let's talk about your business and idea for free. I'll tell you the best approach and rough cost — no pressure, no hard sell.",
   } as Bilingual,
   cta: { cn: "WhatsApp 免费咨询", en: "Free WhatsApp consult" } as Bilingual,
+  waMessage: {
+    cn: "你好阿爽，我想免费咨询",
+    en: "Hi Ah Shuang, I'd like a free consultation",
+  } as Bilingual,
 };

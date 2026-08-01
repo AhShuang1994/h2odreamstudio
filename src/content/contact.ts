@@ -1,9 +1,14 @@
 import type { Bilingual } from "./site";
 
 export const contactMeta = {
-  title: "联系我 · Contact · H2ODreamer Studio",
-  description:
-    "联系 H2ODreamer Studio — WhatsApp +60 17-513 8694，通常 1 小时内回复，或电邮 H2Odreamer@outlook.com。服务全马来西亚，中英双语，每个项目从免费 30 分钟咨询开始。",
+  title: {
+    cn: "联系我 · H2ODreamer Studio",
+    en: "Contact · H2ODreamer Studio",
+  } as Bilingual,
+  description: {
+    cn: "联系 H2ODreamer Studio — WhatsApp +60 17-513 8694，通常 1 小时内回复，或电邮 H2Odreamer@outlook.com。服务全马来西亚，中英双语，每个项目从免费 30 分钟咨询开始。",
+    en: "Reach H2ODreamer Studio — WhatsApp +60 17-513 8694, usually a reply within 1 hour, or email H2Odreamer@outlook.com. Serving all of Malaysia in English and 中文; every project starts with a free 30-minute consultation.",
+  } as Bilingual,
 };
 
 export const contactHeader = {
@@ -109,7 +114,10 @@ export const contactCtaBlock = {
     cn: "💬 WhatsApp 咨询，免费顾问",
     en: "💬 WhatsApp Me — Free Consultation",
   } as Bilingual,
-  whatsappMessage: "Hi H2ODreamer! 我想了解更多关于网站设计的服务。",
+  whatsappMessage: {
+    cn: "Hi H2ODreamer! 我想了解更多关于网站设计的服务。",
+    en: "Hi H2ODreamer! I'd like to know more about your web design services.",
+  } as Bilingual,
   email: { cn: "📧 发送邮件", en: "📧 Email Me" } as Bilingual,
 };
 

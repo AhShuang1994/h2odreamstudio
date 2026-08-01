@@ -1,9 +1,18 @@
+import { t, type Lang } from "@/lib/i18n";
 import { site } from "@/content/site";
 
-export function WhatsAppFab() {
+export function WhatsAppFab({ lang }: { lang: Lang }) {
+  const message = t(
+    {
+      cn: "你好阿爽，我想咨询网站 / 电子请柬",
+      en: "Hi Ah Shuang, I'd like to ask about a website / e-invitation",
+    },
+    lang,
+  );
+
   return (
     <a
-      href={site.waLink("你好阿爽，我想咨询网站 / 电子请柬")}
+      href={site.waLink(message)}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="WhatsApp"

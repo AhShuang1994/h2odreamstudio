@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bi } from "@/lib/i18n";
+import { localize, t, type Lang } from "@/lib/i18n";
 import { LangToggle } from "./LangToggle";
 import { nav } from "@/content/site";
 
-export function Nav() {
+export function Nav({ lang }: { lang: Lang }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -26,14 +26,17 @@ export function Nav() {
       }`}
     >
       <nav className="mx-auto flex max-w-[1200px] items-center justify-between gap-6 px-5 py-4 sm:px-8">
-        <Link href="/" className="text-[15px] font-semibold tracking-tight text-ink">
+        <Link
+          href={localize("/", lang)}
+          className="text-[15px] font-semibold tracking-tight text-ink"
+        >
           H2O<span className="text-accent">Dreamer</span> Studio
         </Link>
 
         <div className="hidden items-center gap-7 md:flex">
           <div className="group relative">
             <button className="flex items-center gap-1 text-sm text-ink-muted transition-colors hover:text-ink">
-              <Bi {...nav.services.label} />
+              {t(nav.services.label, lang)}
               <span className="text-[10px]" aria-hidden>
                 ▾
               </span>
@@ -43,10 +46,10 @@ export function Nav() {
                 {nav.services.items.map((it) => (
                   <Link
                     key={it.href}
-                    href={it.href}
+                    href={localize(it.href, lang)}
                     className="block whitespace-nowrap rounded-lg px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink"
                   >
-                    <Bi {...it.label} />
+                    {t(it.label, lang)}
                   </Link>
                 ))}
               </div>
@@ -56,14 +59,14 @@ export function Nav() {
           {nav.links.map((l) => (
             <Link
               key={l.href}
-              href={l.href}
+              href={localize(l.href, lang)}
               className="text-sm text-ink-muted transition-colors hover:text-ink"
             >
-              <Bi {...l.label} />
+              {t(l.label, lang)}
             </Link>
           ))}
 
-          <LangToggle className="text-sm" />
+          <LangToggle lang={lang} className="text-sm" />
         </div>
 
         <button
@@ -83,24 +86,24 @@ export function Nav() {
             {nav.services.items.map((it) => (
               <Link
                 key={it.href}
-                href={it.href}
+                href={localize(it.href, lang)}
                 onClick={() => setOpen(false)}
                 className="py-2 text-ink-muted"
               >
-                <Bi {...it.label} />
+                {t(it.label, lang)}
               </Link>
             ))}
             {nav.links.map((l) => (
               <Link
                 key={l.href}
-                href={l.href}
+                href={localize(l.href, lang)}
                 onClick={() => setOpen(false)}
                 className="py-2 text-ink-muted"
               >
-                <Bi {...l.label} />
+                {t(l.label, lang)}
               </Link>
             ))}
-            <LangToggle className="mt-2 self-start text-sm" />
+            <LangToggle lang={lang} className="mt-2 self-start text-sm" />
           </div>
         </div>
       )}

@@ -1,5 +1,6 @@
-import { site } from "@/content/site";
+import { site, type Bilingual } from "@/content/site";
 import { webTiers } from "@/content/pricing";
+import { t, type Lang } from "./i18n";
 
 /**
  * 全站共用的结构化数据节点。
@@ -54,10 +55,16 @@ export function businessNode() {
   };
 }
 
-/** 页面本体节点，统一挂到工作室实体上。 */
+/**
+ * 页面本体节点，统一挂到工作室实体上。
+ *
+ * `inLanguage` 是**单值** —— 每个地址只渲染一种语言，声明两种会和 hreflang
+ * 互相打架。中英两份各自声明自己那一种。
+ */
 export function pageNode(
   type: "AboutPage" | "ContactPage" | "WebPage",
   path: string,
+  lang: Lang,
   name: string,
   description: string,
 ) {
@@ -67,20 +74,20 @@ export function pageNode(
     url: `${site.domain}${path}`,
     name,
     description,
-    inLanguage: ["zh-CN", "en"],
+    inLanguage: lang === "zh" ? "zh-CN" : "en",
     isPartOf: { "@id": `${site.domain}/#website` },
     about: { "@id": `${site.domain}/#business` },
   };
 }
 
-/** 只在问答**页面上可见**时才调用。 */
-export function faqNode(items: { q: { cn: string }; a: { cn: string } }[]) {
+/** 只在问答**页面上可见**时才调用；问答的语言必须与页面一致。 */
+export function faqNode(items: { q: Bilingual; a: Bilingual }[], lang: Lang) {
   return {
     "@type": "FAQPage",
     mainEntity: items.map((f) => ({
       "@type": "Question",
-      name: f.q.cn,
-      acceptedAnswer: { "@type": "Answer", text: f.a.cn },
+      name: t(f.q, lang),
+      acceptedAnswer: { "@type": "Answer", text: t(f.a, lang) },
     })),
   };
 }

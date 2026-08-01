@@ -1,4 +1,4 @@
-import { Bi } from "@/lib/i18n";
+import { localize, t, type Lang } from "@/lib/i18n";
 import { Button, Container, Eyebrow } from "@/components/ui";
 import { site } from "@/content/site";
 import {
@@ -26,28 +26,26 @@ function Section({
   );
 }
 
-export function QuickAnswer() {
+export function QuickAnswer({ lang }: { lang: Lang }) {
   return (
     <Section id="what">
       <Container>
         <div className="rounded-2xl border border-hairline bg-surface-1 p-8 sm:p-10">
           <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-medium text-accent">
             <span aria-hidden>⚡</span>
-            <Bi cn="快速答案" en="Quick answer" />
+            {t({ cn: "快速答案", en: "Quick answer" }, lang)}
           </div>
           <h2 className="text-[clamp(1.5rem,3vw,2.1rem)] font-semibold tracking-tight text-ink">
-            <Bi {...quickAnswer.heading} />
+            {t(quickAnswer.heading, lang)}
           </h2>
           <p className="mt-4 max-w-3xl leading-relaxed text-ink-muted">
-            <Bi {...quickAnswer.body} />
+            {t(quickAnswer.body, lang)}
           </p>
           <dl className="mt-8 grid grid-cols-2 gap-6 border-t border-hairline pt-8 sm:grid-cols-4">
             {quickAnswer.stats.map((s, i) => (
               <div key={i}>
-                <dt className="text-2xl font-semibold text-ink">{s.value}</dt>
-                <dd className="mt-1 text-xs text-ink-subtle">
-                  <Bi {...s.label} />
-                </dd>
+                <dt className="text-2xl font-semibold text-ink">{t(s.value, lang)}</dt>
+                <dd className="mt-1 text-xs text-ink-subtle">{t(s.label, lang)}</dd>
               </div>
             ))}
           </dl>
@@ -57,36 +55,28 @@ export function QuickAnswer() {
   );
 }
 
-export function Services() {
+export function Services({ lang }: { lang: Lang }) {
   return (
     <Section id="services">
       <Container>
-        <Eyebrow>
-          <Bi {...services.eyebrow} />
-        </Eyebrow>
+        <Eyebrow>{t(services.eyebrow, lang)}</Eyebrow>
         <h2 className="mt-3 max-w-2xl text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink">
-          <Bi {...services.heading} />
+          {t(services.heading, lang)}
         </h2>
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           {services.items.map((s, i) => (
             <a
               key={i}
-              href={s.href}
+              href={localize(s.href, lang)}
               className="group rounded-2xl border border-hairline bg-surface-1 p-7 transition-colors hover:border-hairline-strong hover:bg-surface-2"
             >
               <div className="flex items-baseline justify-between gap-4">
-                <h3 className="text-lg font-semibold text-ink">
-                  <Bi {...s.title} />
-                </h3>
-                <span className="shrink-0 text-sm text-accent">
-                  <Bi {...s.price} />
-                </span>
+                <h3 className="text-lg font-semibold text-ink">{t(s.title, lang)}</h3>
+                <span className="shrink-0 text-sm text-accent">{t(s.price, lang)}</span>
               </div>
-              <p className="mt-3 text-sm leading-relaxed text-ink-muted">
-                <Bi {...s.desc} />
-              </p>
+              <p className="mt-3 text-sm leading-relaxed text-ink-muted">{t(s.desc, lang)}</p>
               <span className="mt-5 inline-flex items-center gap-1 text-sm text-ink-subtle transition-colors group-hover:text-ink">
-                <Bi cn="了解更多" en="Learn more" /> →
+                {t({ cn: "了解更多", en: "Learn more" }, lang)} →
               </span>
             </a>
           ))}
@@ -96,24 +86,22 @@ export function Services() {
   );
 }
 
-export function SelectedWork() {
+export function SelectedWork({ lang }: { lang: Lang }) {
   return (
     <Section id="work">
       <Container>
         <div className="flex items-end justify-between gap-6">
           <div>
-            <Eyebrow>
-              <Bi {...selectedWork.eyebrow} />
-            </Eyebrow>
+            <Eyebrow>{t(selectedWork.eyebrow, lang)}</Eyebrow>
             <h2 className="mt-3 max-w-2xl text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink">
-              <Bi {...selectedWork.heading} />
+              {t(selectedWork.heading, lang)}
             </h2>
           </div>
           <a
             href="/case-studies/"
             className="hidden shrink-0 text-sm text-ink-muted hover:text-ink sm:inline"
           >
-            <Bi {...selectedWork.cta} /> →
+            {t(selectedWork.cta, lang)} →
           </a>
         </div>
         <div className="mt-10 grid gap-5 sm:grid-cols-2">
@@ -127,7 +115,7 @@ export function SelectedWork() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={w.img}
-                  alt={w.title.cn}
+                  alt={t(w.title, lang)}
                   width={800}
                   height={500}
                   loading="lazy"
@@ -136,12 +124,8 @@ export function SelectedWork() {
               </div>
               <div className="flex items-center justify-between gap-3 p-5">
                 <div>
-                  <span className="text-xs text-accent">
-                    <Bi {...w.tag} />
-                  </span>
-                  <h3 className="mt-1 text-[15px] font-medium text-ink">
-                    <Bi {...w.title} />
-                  </h3>
+                  <span className="text-xs text-accent">{t(w.tag, lang)}</span>
+                  <h3 className="mt-1 text-[15px] font-medium text-ink">{t(w.title, lang)}</h3>
                 </div>
                 <span
                   className="text-ink-subtle transition-colors group-hover:text-ink"
@@ -158,7 +142,7 @@ export function SelectedWork() {
   );
 }
 
-export function Founder() {
+export function Founder({ lang }: { lang: Lang }) {
   return (
     <Section id="founder" className="border-y border-hairline bg-surface-1">
       <Container>
@@ -167,7 +151,7 @@ export function Founder() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={founder.avatar}
-              alt={founder.name}
+              alt={t(founder.name, lang)}
               width={240}
               height={240}
               loading="lazy"
@@ -175,15 +159,11 @@ export function Founder() {
             />
           </div>
           <div>
-            <Eyebrow>
-              <Bi {...founder.eyebrow} />
-            </Eyebrow>
-            <div className="mt-3 text-xl font-semibold text-ink">{founder.name}</div>
-            <div className="text-sm text-ink-subtle">
-              <Bi {...founder.role} />
-            </div>
+            <Eyebrow>{t(founder.eyebrow, lang)}</Eyebrow>
+            <div className="mt-3 text-xl font-semibold text-ink">{t(founder.name, lang)}</div>
+            <div className="text-sm text-ink-subtle">{t(founder.role, lang)}</div>
             <p className="mt-5 max-w-2xl leading-relaxed text-ink-muted">
-              <Bi {...founder.bio} />
+              {t(founder.bio, lang)}
             </p>
           </div>
         </div>
@@ -192,23 +172,19 @@ export function Founder() {
   );
 }
 
-export function Faq() {
+export function Faq({ lang }: { lang: Lang }) {
   return (
     <Section id="faq">
       <Container>
-        <Eyebrow>
-          <Bi {...faq.eyebrow} />
-        </Eyebrow>
+        <Eyebrow>{t(faq.eyebrow, lang)}</Eyebrow>
         <h2 className="mt-3 text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink">
-          <Bi {...faq.heading} />
+          {t(faq.heading, lang)}
         </h2>
         <div className="mt-8 divide-y divide-hairline border-y border-hairline">
           {faq.items.map((f, i) => (
             <details key={i} className="group py-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-medium text-ink">
-                <span>
-                  <Bi {...f.q} />
-                </span>
+                <span>{t(f.q, lang)}</span>
                 <span
                   className="text-xl leading-none text-ink-subtle transition-transform group-open:rotate-45"
                   aria-hidden
@@ -217,7 +193,7 @@ export function Faq() {
                 </span>
               </summary>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-muted">
-                <Bi {...f.a} />
+                {t(f.a, lang)}
               </p>
             </details>
           ))}
@@ -227,7 +203,7 @@ export function Faq() {
   );
 }
 
-export function ContactCta() {
+export function ContactCta({ lang }: { lang: Lang }) {
   return (
     <Section id="contact">
       <Container>
@@ -237,18 +213,16 @@ export function ContactCta() {
             className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[400px] -translate-x-1/2 rounded-full bg-accent/15 blur-[100px]"
           />
           <div className="relative">
-            <Eyebrow className="text-center">
-              <Bi {...contactCta.eyebrow} />
-            </Eyebrow>
+            <Eyebrow className="text-center">{t(contactCta.eyebrow, lang)}</Eyebrow>
             <h2 className="mx-auto mt-3 max-w-2xl text-[clamp(1.7rem,3.6vw,2.6rem)] font-semibold tracking-tight text-ink">
-              <Bi {...contactCta.heading} />
+              {t(contactCta.heading, lang)}
             </h2>
             <p className="mx-auto mt-4 max-w-xl leading-relaxed text-ink-muted">
-              <Bi {...contactCta.body} />
+              {t(contactCta.body, lang)}
             </p>
             <div className="mt-8 flex justify-center">
-              <Button href={site.waLink("你好阿爽，我想免费咨询")} external>
-                <Bi {...contactCta.cta} />
+              <Button href={site.waLink(t(contactCta.waMessage, lang))} external>
+                {t(contactCta.cta, lang)}
               </Button>
             </div>
           </div>

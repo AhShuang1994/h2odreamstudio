@@ -7,8 +7,17 @@
 import { describe, it, expect } from "vitest";
 import { loadExport } from "../helpers/export";
 
-/** 走 Next 路由渲染的核心页，见 CONTEXT.md 的「核心页」词条。 */
-const CORE_PAGES = ["index.html", "about.html", "contact.html", "pricing.html"];
+/** 走 Next 路由渲染的核心页，中英各一份，见 CONTEXT.md 的「核心页」词条。 */
+const CORE_PAGES = [
+  "index.html",
+  "about.html",
+  "contact.html",
+  "pricing.html",
+  "zh.html",
+  "zh/about.html",
+  "zh/contact.html",
+  "zh/pricing.html",
+];
 
 /** 静态导出可能生成 about.html 或 about/index.html，两种都认。 */
 function findPage(files: string[], name: string): string | undefined {

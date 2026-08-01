@@ -1,9 +1,14 @@
 import type { Bilingual } from "./site";
 
 export const aboutMeta = {
-  title: "关于我 · About · H2ODreamer Studio",
-  description:
-    "认识阿爽 —— H2ODreamer Studio 创办人，超过 5 年网站设计经验，专为马来西亚的小公司搭建第一个网站，让每个梦想都有一个家。Meet Ah Shuang, founder of H2ODreamer Studio.",
+  title: {
+    cn: "关于我 · H2ODreamer Studio",
+    en: "About · H2ODreamer Studio",
+  } as Bilingual,
+  description: {
+    cn: "认识阿爽 —— H2ODreamer Studio 创办人，超过 5 年网站设计经验，专为马来西亚的小公司搭建第一个网站，让每个梦想都有一个家。",
+    en: "Meet Ah Shuang, founder of H2ODreamer Studio — a Malaysia-based web designer with 5+ years of experience who builds first websites for small businesses, so every dream has a home to grow from.",
+  } as Bilingual,
 };
 
 export const aboutHeader = {
@@ -21,7 +26,7 @@ export const aboutQuickAnswer = {
 } as Bilingual;
 
 export const aboutFounder = {
-  name: "阿爽 · Ah Shuang",
+  name: { cn: "阿爽 · Ah Shuang", en: "Ah Shuang · Hui Huang Ong" } as Bilingual,
   avatar: "/assets/founder-avatar.webp",
   role: {
     cn: "创办人 · 设计师 · 开发者",
@@ -98,6 +103,9 @@ export const aboutCta = {
     cn: "💬 WhatsApp 咨询，免费顾问",
     en: "💬 WhatsApp Me — Free Consultation",
   } as Bilingual,
-  whatsappMessage: "Hi H2ODreamer! 我想了解更多关于网站设计的服务。",
+  whatsappMessage: {
+    cn: "Hi H2ODreamer! 我想了解更多关于网站设计的服务。",
+    en: "Hi H2ODreamer! I'd like to know more about your web design services.",
+  } as Bilingual,
   secondary: { cn: "📨 更多联系方式", en: "📨 Contact options" } as Bilingual,
 };
