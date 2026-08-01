@@ -2487,6 +2487,46 @@ a { color: inherit; text-decoration: none; }
   }
 }
 
+/* ============ QUICK ANSWER (index pages) ============ */
+/* Article and case-study pages get this box from their own article styles;
+   the two index pages have no article layout, so the component lives here. */
+.quick-answer {
+  background: var(--color-bg-mid);
+  padding: 48px 20px 0;
+}
+.quick-answer .section-inner {
+  max-width: 720px;
+  padding: 24px 20px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  text-align: left;
+}
+.quick-answer h2 {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+.quick-answer p {
+  color: var(--color-text-secondary);
+  margin: 0 0 14px;
+}
+.quick-answer ul {
+  margin: 0;
+  padding-left: 20px;
+}
+.quick-answer li {
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+.quick-answer li:last-child { margin-bottom: 0; }
+@media (min-width: 768px) {
+  .quick-answer { padding: 64px 24px 0; }
+  .quick-answer .section-inner { padding: 32px; }
+}
+
 /* ============ WHATSAPP FAB ============ */
 .wa-fab {
   position: fixed;

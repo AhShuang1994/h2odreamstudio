@@ -183,22 +183,29 @@ describe("导出产物 · 内容页语言拆分", () => {
       });
 
       /**
-       * 拆分不能弄丢原稿里有的东西。
+       * 「快速答案」是本站流量策略的核心结构（见 CONTEXT.md 的词条），18 篇
+       * 内容页一篇都不能少。
        *
-       * ⚠️ 是「保留」不是「必须有」：18 篇里有 9 篇原稿本来就没有「快速答案」
-       * 块（两个索引页 + 7 篇案例拆解）。补齐它们是内容工作，不归这张票。
+       * 曾经有 9 篇没有（两个索引页 + 7 篇案例拆解），那时这条只断言「原稿里
+       * 有的要保留」；补齐之后升成**必须有** —— 别再退回「保留」的写法。
        */
-      it("原稿里有的「快速答案」块与结构化数据，两份产物都还在", () => {
+      it("有「快速答案」块，它与结构化数据在两份产物里都还在", () => {
         const source = readFileSync(join(SRC, rel), "utf8");
-        const wantsQuickAnswer = /Quick answer|快速答案/i.test(source);
-        const sourceBlocks = source.match(/application\/ld\+json/g)?.length ?? 0;
+        expect(
+          /Quick answer|快速答案/i.test(source),
+          `${rel} 原稿里没有「快速答案」块 —— 它是本站流量策略的核心结构，见 CONTEXT.md`,
+        ).toBe(true);
+        // 原稿里的块都要保下来，再加上从可见问答生成的那一个 FAQPage（#82）
+        const sourceBlocks =
+          (source.match(/application\/ld\+json/g)?.length ?? 0) +
+          (/class="faq-item"/.test(source) ? 1 : 0);
 
         for (const file of [p.en.file, p.zh.file]) {
           const html = x.read(file);
           expect(
             /Quick answer|快速答案/i.test(html),
             `${file} 丢了「快速答案」块 —— 它是本站流量策略的核心结构`,
-          ).toBe(wantsQuickAnswer);
+          ).toBe(true);
 
           const blocks = [
             ...html.matchAll(/<script[^>]+application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi),

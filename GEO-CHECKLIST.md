@@ -27,7 +27,7 @@
 
 ## 3 · Structured data (JSON-LD) — must `JSON.parse` cleanly + pass Google Rich Results Test
 - **Homepage**: `@graph` = `ProfessionalService` (`#business`) + `WebSite` (`#website`). Keep `sameAs` filled (Xiaohongshu + any new socials), plus `priceRange`, `contactPoint`.
-- **Blog post**: a `BlogPosting` block **and** a second `FAQPage` block.
+- **Blog post**: a `BlogPosting` block **and** a second `FAQPage` block — the latter is generated at build time from the visible FAQ section, see §4.
 - **Author = `Person`** — never `Organization`. Hui Huang Ong, `jobTitle: Founder`, `worksFor`, crawlable `image` (`/og/founder-avatar.webp`), `description`, `sameAs`. Keep the same Person across all posts → builds a recognised author entity.
 - **Blog index**: `Blog` with a `blogPost[]` list of all posts.
 
@@ -36,7 +36,7 @@
 - **Question-shaped headings.** Phrase H2s the way a real person asks an AI; put a direct answer in the first sentence under each heading.
 - **Citable specifics.** Concrete numbers, prices (RM …), dates (2026), named places (Malaysia). AI cites specifics, not vague claims.
 - **Comparisons as HTML** (tables / lists) — **never** baked into an image. AI cannot read text inside images.
-- **FAQ mirrors the page.** Every Q&A in the `FAQPage` schema must be substantively answered in visible content (Quick Answer box + body). Don't invent FAQ that isn't on the page.
+- **FAQ is generated from the page, never written into the schema alone.** Google forbids `FAQPage` markup for content a visitor cannot see. On content pages the Q&A lives in a visible `<details class="faq-item">` block and `scripts/split-content-lang.mjs` builds the `FAQPage` node from it at build time — so add the questions to the source page, not to a JSON-LD block. `test/export/geo.test.ts` fails the build if any page's schema carries a question or answer that isn't on the page.
 - **Internal links.** Link to ≥1 related post (topical authority + crawl path).
 - Bottom **summary box** restating the takeaway.
 
