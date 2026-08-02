@@ -53,14 +53,20 @@ export function AboutPage({ lang }: { lang: Lang }) {
       <PageSection>
         <Container>
           <div className="grid items-start gap-10 rounded-xl border border-hairline bg-surface-1 p-7 sm:p-10 md:grid-cols-[220px_1fr] md:gap-14">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={aboutFounder.avatar}
-              alt={t(aboutFounder.name, lang)}
-              width={220}
-              height={275}
-              className="aspect-[4/5] w-44 rounded-xl border border-hairline object-cover md:w-full"
-            />
+            {/* 与首页创始人区同一处理：遮罩视差的裁切框 */}
+            <div
+              data-mask-parallax
+              className="aspect-[4/5] w-44 overflow-hidden rounded-xl border border-hairline md:w-full"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={aboutFounder.avatar}
+                alt={t(aboutFounder.name, lang)}
+                width={220}
+                height={275}
+                className="h-full w-full object-cover"
+              />
+            </div>
             <div>
               <div className="text-xl tracking-[-0.01em] text-ink">
                 {t(aboutFounder.name, lang)}

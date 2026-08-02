@@ -14,10 +14,23 @@
 export const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
 /**
+ * 桌面判定。宽度之外还要 `pointer: fine` —— 只看宽度会把触屏笔电与横屏平板
+ * 算成桌面，而这些设备正是要避开的（低端机上多一层每帧变换就掉帧）。
+ *
+ * `public/js/motion.js` 里有同一条查询给静态页用，改一处要改两处。
+ */
+export const DESKTOP = "(min-width: 1024px) and (pointer: fine)";
+
+/**
  * 动效总开关。任何动效代码开跑之前先问这一句。
  *
  * 服务端渲染阶段一律返回 false —— 首屏必须是「动效还没跑」的那个完整状态。
  */
 export function motionAllowed(): boolean {
   return typeof window !== "undefined" && !window.matchMedia(REDUCED_MOTION).matches;
+}
+
+/** 只在桌面跑的那类动效（遮罩视差）用这个。 */
+export function desktopMotionAllowed(): boolean {
+  return motionAllowed() && window.matchMedia(DESKTOP).matches;
 }

@@ -175,8 +175,12 @@ export function SelectedWork({ lang }: { lang: Lang }) {
               href={w.href}
               className="group overflow-hidden rounded-xl border border-hairline bg-surface-1 transition-colors duration-150 hover:border-hairline-strong"
             >
-              {/* 这个裁切框就是 #88 遮罩视差要用的框：图比框大，滚动时框内位移。 */}
-              <div className="aspect-[16/10] overflow-hidden border-b border-hairline">
+              {/* 遮罩视差的裁切框：图比框大 20%，滚动时在框内反向位移。
+                  只在桌面 + 非减弱动态偏好时跑，其余情况就是一张静态图。 */}
+              <div
+                data-mask-parallax
+                className="aspect-[16/10] overflow-hidden border-b border-hairline"
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={w.img}
@@ -216,8 +220,8 @@ export function Founder({ lang }: { lang: Lang }) {
     <Section id="founder" className="border-y border-hairline bg-surface-1">
       <Container>
         <div className="grid items-start gap-10 md:grid-cols-[260px_1fr] md:gap-16">
-          {/* 真实照片是这一屏的锚点，不用抽象示意图。#88 的遮罩视差也挂在这。 */}
-          <div className="overflow-hidden rounded-xl border border-hairline">
+          {/* 真实照片是这一屏的锚点，不用抽象示意图。遮罩视差也挂在这。 */}
+          <div data-mask-parallax className="overflow-hidden rounded-xl border border-hairline">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={founder.avatar}

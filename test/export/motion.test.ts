@@ -106,6 +106,36 @@ describe("导出产物 · 动效", () => {
   });
 
   /**
+   * 遮罩视差是**配料不是主菜**。实测 ERA 的 26 处视差全是同一招，真正撑起
+   * 质感的是逐行揭示与滚动惯性（ADR-0001），而本站图片密度远低于它 ——
+   * 「按 ERA 的密度套」是这张票最容易犯的错。
+   *
+   * 所以守两条：只准出现在案例缩略图与创始人照片所在的页面，且每页数量有上限。
+   *
+   * ⚠️ 计数会翻倍：Next 把 RSC 数据也内联进 HTML，同一个属性在标记与数据里
+   * 各出现一次。下面的上限是**按翻倍后的原始出现次数**定的。
+   */
+  it("遮罩视差只出现在该出现的页面上", () => {
+    const x = loadExport();
+    const ALLOWED = new Set(["index.html", "zh.html", "about.html", "zh/about.html"]);
+    const MAX_PER_PAGE = 16; // 实际 8 处（首页 5 + 关于页 1，各翻倍）
+
+    const offenders: string[] = [];
+    for (const rel of x.htmlPages) {
+      const n = (x.read(rel).match(/data-mask-parallax/g) ?? []).length;
+      if (n === 0) continue;
+      if (!ALLOWED.has(rel)) offenders.push(`${rel} 不该有视差（${n}）`);
+      else if (n > MAX_PER_PAGE) offenders.push(`${rel} 视差过多（${n} > ${MAX_PER_PAGE}）`);
+    }
+
+    expect(
+      offenders,
+      `遮罩视差铺开了：\n  ${offenders.join("\n  ")}\n` +
+        `它只该用在案例缩略图与创始人照片上，见 src/components/Parallax.tsx 的文件头。`,
+    ).toEqual([]);
+  });
+
+  /**
    * 已知缺失清单的反向断言（见 test/README.md 的「两条特殊约定」）：
    * 修好了却没从清单里删，同样会红 —— 不许用清单掩盖新问题。
    */
