@@ -18,6 +18,7 @@
  */
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { join, dirname, posix } from "node:path";
+import { headInline, bodyScripts } from "./lib/motion-tags.mjs";
 
 const ROOT = process.cwd();
 const SRC = join(ROOT, "src/content/pages");
@@ -332,6 +333,18 @@ function rewriteLangToggle(html, rel, lang) {
 
 // ── 主流程 ──────────────────────────────────────────────────────────
 
+/**
+ * 注入动效外壳（#89）。幕布必须覆盖**全部**页面，包括这些静态内容页 ——
+ * 只覆盖核心页会造成「点关于页有幕布、点 blog 白屏硬跳」，见 ADR-0001。
+ *
+ * 内联那段要早于首帧，所以进 `<head>`；外壳本体 defer 到 `</body>` 之前。
+ */
+function injectMotion(html) {
+  return html
+    .replace("</head>", `  <script>${headInline}</script>\n</head>`)
+    .replace("</body>", `  ${bodyScripts}\n</body>`);
+}
+
 function render(source, { rel, dir, lang, title, description }) {
   const cut = source.indexOf("</head>");
   const head = rewriteHead(source.slice(0, cut), { lang, rel, title, description });
@@ -340,7 +353,7 @@ function render(source, { rel, dir, lang, title, description }) {
   html = html.replace(/<html\s+lang="[^"]*"/, `<html lang="${lang === "zh" ? "zh" : "en"}"`);
   html = rewriteUrls(html, dir, lang);
   html = rewriteLangToggle(html, rel, lang);
-  return html;
+  return injectMotion(html);
 }
 
 function main() {

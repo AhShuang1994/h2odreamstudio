@@ -33,7 +33,9 @@
 
 /* overflow-x: clip (not hidden) — clips horizontal overflow without creating a
    scroll container, so position: sticky (the pinned process timeline) still works. */
-html { scroll-behavior: smooth; overflow-x: clip; scroll-padding-top: 84px; }
+/* 这里没有 scroll-behavior: smooth —— 它与 /js/motion.js 的 Lenis 惯性
+   互相打架。惯性只在桌面、非减弱动态偏好下启用，见 ADR-0001 与 #89。 */
+html { overflow-x: clip; scroll-padding-top: 84px; }
 
 body {
   font-family: var(--font-body);
@@ -306,7 +308,6 @@ a { color: inherit; text-decoration: none; }
     transition: none !important;
   }
   .blob { display: none; }
-  html { scroll-behavior: auto; }
 }
 
 /* ============ NAVBAR ============ */
