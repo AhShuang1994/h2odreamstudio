@@ -61,8 +61,10 @@
   color-scheme: dark;
 }
 
+/* scroll-padding-top 让锚点停在固定导航下方。这里**没有** scroll-behavior:
+   smooth —— 它与 Lenis 的平滑滚动互相打架，见 ADR-0001 与 #85。惯性由
+   src/lib/motion.ts 那条链路提供，且只在桌面、非减弱动态偏好时启用。 */
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: 80px;
 }
 
@@ -89,6 +91,5 @@ h2 {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
