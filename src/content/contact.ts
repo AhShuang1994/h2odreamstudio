@@ -30,7 +30,6 @@ export const contactQuickAnswer = {
 
 export const contactMethods = [
   {
-    icon: "💬",
     name: { cn: "WhatsApp", en: "WhatsApp" } as Bilingual,
     value: "+60 17-513 8694",
     href: "https://wa.me/60175138694?text=Hi%20H2ODreamer!%20%E6%88%91%E6%83%B3%E4%BA%86%E8%A7%A3%E6%9B%B4%E5%A4%9A%E5%85%B3%E4%BA%8E%E7%BD%91%E7%AB%99%E8%AE%BE%E8%AE%A1%E7%9A%84%E6%9C%8D%E5%8A%A1%E3%80%82",
@@ -40,7 +39,6 @@ export const contactMethods = [
     } as Bilingual,
   },
   {
-    icon: "📧",
     name: { cn: "电邮", en: "Email" } as Bilingual,
     value: "H2Odreamer@outlook.com",
     href: "mailto:H2Odreamer@outlook.com",
@@ -50,14 +48,12 @@ export const contactMethods = [
     } as Bilingual,
   },
   {
-    icon: "📕",
     name: { cn: "小红书", en: "Xiaohongshu" } as Bilingual,
     value: "阿爽（网页设计MY）",
     href: "https://xhslink.com/m/1U2Ou01jY2E",
     note: { cn: "看作品和建议", en: "See my work & tips" } as Bilingual,
   },
   {
-    icon: "📸",
     name: { cn: "Instagram", en: "Instagram" } as Bilingual,
     value: "@h2odreamer.studio",
     href: "https://www.instagram.com/h2odreamer.studio/",

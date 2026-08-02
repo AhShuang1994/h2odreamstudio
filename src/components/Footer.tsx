@@ -3,15 +3,16 @@ import { localize, t, type Lang } from "@/lib/i18n";
 import { site, nav } from "@/content/site";
 
 export function Footer({ lang }: { lang: Lang }) {
+  // 页脚踩底色而不是 surface-1 —— 页脚是页面最沉的一层，抬起来反而像又一张卡片。
   return (
-    <footer className="border-t border-hairline bg-surface-1">
-      <div className="mx-auto max-w-[1200px] px-5 py-14 sm:px-8">
-        <div className="flex flex-col justify-between gap-10 md:flex-row">
+    <footer className="border-t border-hairline">
+      <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
+        <div className="flex flex-col justify-between gap-12 md:flex-row">
           <div className="max-w-xs">
-            <div className="text-[15px] font-semibold text-ink">
+            <div className="text-[15px] font-medium tracking-[-0.01em] text-ink">
               H2O<span className="text-accent">Dreamer</span> Studio
             </div>
-            <p className="mt-3 text-sm text-ink-subtle">
+            <p className="mt-4 text-sm leading-relaxed text-ink-subtle">
               {t(
                 {
                   cn: "马来西亚柔佛的网站设计工作室。从一滴水，到一片海。",

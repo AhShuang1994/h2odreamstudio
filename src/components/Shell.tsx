@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ReactNode } from "react";
-import { Inter } from "next/font/google";
+import { Inter, Instrument_Serif } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { WhatsAppFab } from "@/components/WhatsAppFab";
@@ -11,6 +11,20 @@ import type { Lang } from "@/lib/i18n";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+/**
+ * 拉丁标题字。高对比 editorial 衬线，与中文的思源宋体是同一把声音 ——
+ * 此前两边分别是 Inter 与宋体，英文页与中文页看起来像两个品牌。
+ *
+ * 只有 400 一个字重，`globals.css` 里的 h1/h2 因此锁死 400，别改。
+ * next/font 会在构建期把字体下载下来自托管，不产生对外请求。
+ */
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-instrument-serif",
   display: "swap",
 });
 
@@ -30,7 +44,10 @@ const headInline = readFileSync(
  */
 export function Shell({ lang, children }: { lang: Lang; children: ReactNode }) {
   return (
-    <html lang={lang === "zh" ? "zh" : "en"} className={inter.variable}>
+    <html
+      lang={lang === "zh" ? "zh" : "en"}
+      className={`${inter.variable} ${instrumentSerif.variable}`}
+    >
       <head>
         {/* 只有中文页预加载中文正文字重 —— 它是中文首屏立刻要用的。英文页
             正文全是拉丁字符走 Inter，预加载一份 CJK 子集纯属浪费带宽。
