@@ -1,0 +1,187 @@
+{
+  "parent": "project.json",
+  "section": "s1-drop",
+  "driver": "scroll",
+  "kDefinition": "layer scroll speed / page scroll speed; 1=follows content, 0=pinned to viewport",
+  "breakpoints": {
+    "desktop": {
+      "scrollDistance": 850,
+      "scrollDistanceSource": "实测 hero 高度 828px，取整到 50",
+      "kSpread": [
+        0.05,
+        1.5
+      ],
+      "viewport": {
+        "vw": 1440,
+        "vh": 900
+      },
+      "layers": [
+        {
+          "id": "s1-L0-void",
+          "z": 0,
+          "k": 0.05,
+          "role": "水面之上的暗空。纯垂直渐变，没有纹理。",
+          "alpha": false,
+          "blend": "normal",
+          "anchor": "cover",
+          "canvas": null,
+          "genRatio": null,
+          "padTop": 0,
+          "padStrategy": "css-gradient",
+          "gradient": "linear-gradient(180deg, #07080b 0%, #0a0b10 62%, #0e1015 100%)",
+          "estBytes": 0,
+          "netTravel": 808
+        },
+        {
+          "id": "s1-L1-mist",
+          "z": 1,
+          "k": 0.25,
+          "role": "远景水汽与悬浮微粒，铺满，极淡。",
+          "alpha": true,
+          "blend": "screen",
+          "anchor": "cover",
+          "canvas": null,
+          "genRatio": null,
+          "padTop": 0,
+          "padStrategy": "css-radial",
+          "gradient": "radial-gradient(60% 45% at 68% 38%, rgba(124,130,240,0.10), transparent 70%), radial-gradient(45% 35% at 22% 72%, rgba(154,160,255,0.06), transparent 70%)",
+          "estBytes": 0,
+          "netTravel": 638
+        },
+        {
+          "id": "s1-L2-orb",
+          "z": 2,
+          "k": 0.55,
+          "role": "液态球体 —— 品牌图形本体，跨过画面中线，左侧留干净暗区。",
+          "alpha": true,
+          "blend": "screen",
+          "anchor": "center-right",
+          "canvas": {
+            "w": 1296,
+            "h": 1904
+          },
+          "genRatio": "3:4",
+          "padTop": 176,
+          "padStrategy": "transparent",
+          "estBytes": 197407,
+          "netTravel": 607
+        },
+        {
+          "id": "s1-L3-surface",
+          "z": 3,
+          "k": 1.5,
+          "role": "水面。这层就是 s1 → s2 那次 zoom-through 的「洞」。",
+          "alpha": true,
+          "blend": "normal",
+          "anchor": "bottom",
+          "repeat": "repeat-x",
+          "tileW": 1280,
+          "canvas": {
+            "w": 1280,
+            "h": 2116
+          },
+          "genRatio": "3:4",
+          "padTop": 409,
+          "padStrategy": "tile-x",
+          "estBytes": 216678,
+          "netTravel": 675
+        }
+      ]
+    },
+    "mobile": {
+      "scrollDistance": 900,
+      "scrollDistanceSource": "实测 hero 高度 857px，取整到 50",
+      "kSpread": [
+        0.35,
+        1.3
+      ],
+      "viewport": {
+        "vw": 430,
+        "vh": 932
+      },
+      "layers": [
+        {
+          "id": "s1-L0-void",
+          "z": 0,
+          "k": 0.35,
+          "role": "水面之上的暗空。纯垂直渐变，没有纹理。",
+          "alpha": false,
+          "blend": "normal",
+          "anchor": "cover",
+          "canvas": null,
+          "genRatio": null,
+          "padTop": 0,
+          "padStrategy": "css-gradient",
+          "gradient": "linear-gradient(180deg, #07080b 0%, #0a0b10 62%, #0e1015 100%)",
+          "estBytes": 0,
+          "netTravel": 585
+        },
+        {
+          "id": "s1-L1-mist",
+          "z": 1,
+          "k": 0.45,
+          "role": "远景水汽与悬浮微粒，铺满，极淡。",
+          "alpha": true,
+          "blend": "screen",
+          "anchor": "cover",
+          "canvas": null,
+          "genRatio": null,
+          "padTop": 0,
+          "padStrategy": "css-radial",
+          "gradient": "radial-gradient(60% 45% at 68% 38%, rgba(124,130,240,0.10), transparent 70%), radial-gradient(45% 35% at 22% 72%, rgba(154,160,255,0.06), transparent 70%)",
+          "estBytes": 0,
+          "netTravel": 495
+        },
+        {
+          "id": "s1-L2-orb",
+          "z": 2,
+          "k": 0.7,
+          "role": "液态球体 —— 品牌图形本体，跨过画面中线，左侧留干净暗区。",
+          "alpha": true,
+          "blend": "screen",
+          "anchor": "center-right",
+          "canvas": {
+            "w": 432,
+            "h": 732
+          },
+          "genRatio": "3:4",
+          "padTop": 156,
+          "padStrategy": "transparent",
+          "estBytes": 25298,
+          "netTravel": 300
+        },
+        {
+          "id": "s1-L3-surface",
+          "z": 3,
+          "k": 1.3,
+          "role": "水面。这层就是 s1 → s2 那次 zoom-through 的「洞」。",
+          "alpha": true,
+          "blend": "normal",
+          "anchor": "bottom",
+          "repeat": "repeat-x",
+          "tileW": 1280,
+          "canvas": {
+            "w": 1280,
+            "h": 1380
+          },
+          "genRatio": "1:1",
+          "padTop": 100,
+          "padStrategy": "tile-x",
+          "estBytes": 141312,
+          "netTravel": 300
+        }
+      ]
+    }
+  },
+  "mobileKNote": "手机端 k 带收窄到 0.35~0.7（技能建议 0.3~0.9）—— 屏小滚得快，desktop 那套跨度搬过来会晕。唯一的例外是 L3 水面：它是 zoom-through 的洞，k 必须 > 1，所以留在 1.3。这是有意偏离，不是漏改。",
+  "transition": {
+    "in": {
+      "type": "zoom-through",
+      "notes": "承接 s0 序幕，落进画面"
+    },
+    "out": {
+      "type": "zoom-through",
+      "requires": "L3-surface k ≥ 1.3（desktop 1.5 / mobile 1.3）✓"
+    }
+  }
+}
