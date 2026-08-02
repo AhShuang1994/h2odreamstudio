@@ -102,24 +102,34 @@ const SURFACE_PROMPT = [
   "",
   "SUBJECT — s1-L3-surface (the underside of a calm water surface, seen from just below it):",
   "A horizontal band of water-surface caustics: the rippling net of light that forms on the",
-  "underside of calm water. Cold white shading to indigo (#7c82f0), brightest filaments tipping",
-  "toward #9aa0ff. Fine suspended particles drift in the water immediately beneath it.",
+  "underside of calm water. Fine suspended particles drift in the water immediately beneath it.",
   "Photographic underwater look — real refraction, real caustic geometry. Not an abstract",
   "wave graphic, not a vector pattern, not a 3D render.",
   "",
-  "COMPOSITION — this is a TILE, read this carefully:",
-  "Portrait 3:4. The water surface itself sits as a horizontal band across the UPPER THIRD",
-  "of the frame; everything below it is progressively darker open water fading to black.",
-  "The image must tile SEAMLESSLY left-to-right: the caustic pattern at the left edge must",
-  "continue exactly into the right edge, with no feature straddling either edge and no",
-  "vignetting or brightness falloff toward the sides. Even illumination across the full width.",
+  "COLOUR — this is the part the last attempt got wrong:",
+  "The caustics must be INDIGO (#7c82f0), not white and not sky blue. Only the very thinnest",
+  "filament tips may reach #9aa0ff. Measured on the previous attempt the brightest 2% averaged",
+  "RGB(227,227,244) — almost pure white. Pull the whole band toward indigo: the brightest",
+  "pixels should sit near RGB(154,160,255) and the mid-bright body near RGB(124,130,240).",
+  "No cyan, no teal, no warm tones anywhere.",
+  "",
+  "COMPOSITION — three hard requirements:",
+  "1. Portrait 3:4. The caustic band sits across the UPPER THIRD but must NOT touch the top",
+  "   edge — leave the top 12% of the frame as pure flat black, with the band fading INTO that",
+  "   black. The previous attempt ran the band straight off the top edge, which becomes a hard",
+  "   horizontal line across the whole screen once composited.",
+  "2. Everything below the band fades progressively to pure black by 65% frame height.",
+  "3. EVEN illumination across the full width. The previous attempt was 2.08× brighter in the",
+  "   centre than at the edges. No centre hotspot, no falloff toward the sides, no vignette.",
+  "   Imagine the light source is an infinitely wide overcast sky, not a lamp.",
   "",
   BLACK_PLATE,
   NO_CROSS_LAYER,
   "",
   "NEGATIVE: no text, no watermark, no sky, no horizon line above the water, no boat, no shore,",
   "no swimmer, no fish, no bubbles rising, no sun disc, no god rays fanning from a point,",
-  "no vignette, no darker corners, no visible seam, no orb or sphere of any kind.",
+  "no centre hotspot, no vignette, no darker corners, no white highlights, no cyan,",
+  "no orb or sphere of any kind.",
 ].join("\n");
 
 const STYLE_PLATE_PROMPT = [
@@ -211,15 +221,35 @@ const s1 = {
     {
       id: "s1-L3-surface",
       sharedAcross: ["desktop", "mobile"],
-      sharedWhy: "水平同质的带 —— 横向可无缝拼接，两端共用一条，宽度靠 repeat-x 补。",
+      sharedWhy: "水平同质的带 —— 两端共用一条，宽度靠平铺补。",
       content: "水面（从下方看的焦散网）。这层就是 s1 → s2 那次 zoom-through 的「洞」。",
       asset: "image",
       generate: true,
+      status: "第一版已回检，不合格，需重出（见 review）",
       genCanvas: surfCanvas,
       genRatio: "3:4",
-      repeat: "repeat-x",
+      /**
+       * ⚠️ 平铺方式改成**镜像**，不是简单 repeat-x。
+       *
+       * 第一版实测：左右边缘列平均差 15.7、最大行差 220.6，横向还有 2.08 倍的
+       * 中心热点 —— 直接 repeat-x 会出现规律明暗波纹加每个接缝一条硬线。
+       *
+       * 让模型画「左右能对上的图」这件事基本不可靠，别再要第二次。
+       * 改成镜像平铺：正向一张 + 水平翻转一张拼成 2× 宽，**接缝天然为零**。
+       * 焦散是无序纹理，对称几乎看不出来。
+       */
+      repeat: "mirror-x",
+      repeatImpl:
+        "两个背景层：第一层原图，第二层 transform: scaleX(-1) 或 CSS " +
+        "`image-rendering` 侧的水平翻转；合起来构成一个 2× 宽的无缝循环单元。",
       blend: "screen",
       padStrategy: "black-plate",
+      /**
+       * 顶边硬边的兜底。LESSONS #4：硬边归合成期解决，不要指望出图时就没有。
+       * 就算重出的图顶边仍有残留，这层 mask 也能把它化掉。
+       */
+      topFadeMask:
+        "mask-image: linear-gradient(180deg, transparent 0%, #000 14%) —— 顶边 14% 渐隐",
       file: "public/assets/parallax/s1-l3-surface.webp",
       prompt: SURFACE_PROMPT,
     },
@@ -229,6 +259,35 @@ const s1 = {
     genRatio: "3:2",
     file: "docs/parallax/s1-style-plate.webp",
     prompt: STYLE_PLATE_PROMPT,
+  },
+  /** Phase 4 回检 —— 全部是量出来的数字，不是看出来的。 */
+  review: {
+    date: "2026-08-02",
+    method: "PIL + numpy 逐像素量测，非目视",
+    "s1-L2-orb": {
+      verdict: "通过，直接用",
+      底色: "四角均值 RGB 2~4、最大 47。screen 合成下把站底色抬亮约 1%，看不出",
+      亮度分离: "中位 5.5 / P95 185 / 峰值 255 —— 主体与底黑拉得开",
+      构图: "宽占画面 80%（规格 ~78%）· 中心 y 0.519（规格「略低于 0.5」）· 上方干净留白 22%",
+      尺寸: "1728×2304 = 3:4，与 genRatio 一致；缩到 canvas 宽 1296 后 padTop 176，与 motion 规格吻合",
+      内容: "多瓣融合、虹彩橙青蓝紫齐全、内部有焦散、无卫星水滴、无飞溅、无硬边气泡环、无镜头光晕",
+    },
+    "s1-L3-surface": {
+      verdict: "不合格，重出",
+      问题1_拼不上:
+        "左右边缘列平均差 15.7、最大行差 220.6；横向亮度剖面 [83,113,158,177,151,122,95,74]，" +
+        "中心/边缘 2.08 倍热点。repeat-x 会出规律明暗波纹加接缝硬线。" +
+        "**处置：不再要求模型做无缝，改镜像平铺。**",
+      问题2_顶边硬边:
+        "顶部两角均值 RGB(111,126,168) 与 (92,109,190)，亮带一路顶到 y=0.00。" +
+        "screen 合成后是一条横贯全屏的硬边（婚礼站 LESSONS #4 同一个坑）。" +
+        "**处置：prompt 要求顶部 12% 留纯黑，另加 CSS 顶边渐隐兜底。**",
+      问题3_色相偏白:
+        "最亮 2% 平均 RGB(227,227,244) 近乎纯白；中亮区 (124,136,194)。" +
+        "目标是 #7c82f0 (124,130,240) 与 #9aa0ff (154,160,255)。" +
+        "**处置：prompt 里写死目标 RGB 数值，并把 white highlights 加进 NEGATIVE。**",
+      合格项: "水面带位置（上三分之一）✓ · 下方渐暗到黑 ✓ · 尺寸 3:4 ✓ · 无天空无地平线无杂物 ✓",
+    },
   },
   pipeline: [
     "① 出 master style plate → 阿爽确认风格",
