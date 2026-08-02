@@ -1,0 +1,317 @@
+{
+  "parent": [
+    "project.json",
+    "s1-drop.motion.json"
+  ],
+  "section": "s1-drop",
+  "styleDelta": {
+    "palette-shift": "全站最亮的一屏（水面之上，直射光可见），通透度 85%",
+    "light-direction": "上方偏左 12°，直射可见 —— s2 之后改为散射",
+    "horizon-y": "水面线 desktop 0.72 / mobile 0.64"
+  },
+  "kDefinition": "layer scroll speed / page scroll speed; 1=follows content, 0=pinned to viewport",
+  "driver": "scroll",
+  "breakpoints": {
+    "desktop": {
+      "scrollDistance": 850,
+      "scrollDistanceSource": "实测 hero 高度 828px，取整到 50",
+      "kSpread": [
+        0.05,
+        1.5
+      ],
+      "viewport": {
+        "vw": 1440,
+        "vh": 900
+      },
+      "layers": [
+        {
+          "id": "s1-L0-void",
+          "z": 0,
+          "k": 0.05,
+          "role": "水面之上的暗空。纯垂直渐变，没有纹理。",
+          "alpha": false,
+          "blend": "normal",
+          "anchor": "cover",
+          "canvas": null,
+          "genRatio": null,
+          "padTop": 0,
+          "padStrategy": "css-gradient",
+          "gradient": "linear-gradient(180deg, #07080b 0%, #0a0b10 62%, #0e1015 100%)",
+          "estBytes": 0,
+          "netTravel": 808
+        },
+        {
+          "id": "s1-L1-mist",
+          "z": 1,
+          "k": 0.25,
+          "role": "远景水汽与悬浮微粒，铺满，极淡。",
+          "alpha": true,
+          "blend": "screen",
+          "anchor": "cover",
+          "canvas": null,
+          "genRatio": null,
+          "padTop": 0,
+          "padStrategy": "css-radial",
+          "gradient": "radial-gradient(60% 45% at 68% 38%, rgba(124,130,240,0.10), transparent 70%), radial-gradient(45% 35% at 22% 72%, rgba(154,160,255,0.06), transparent 70%)",
+          "estBytes": 0,
+          "netTravel": 638
+        },
+        {
+          "id": "s1-L2-orb",
+          "z": 2,
+          "k": 0.55,
+          "role": "液态球体 —— 品牌图形本体，跨过画面中线，左侧留干净暗区。",
+          "alpha": true,
+          "blend": "screen",
+          "anchor": "center-right",
+          "canvas": {
+            "w": 1296,
+            "h": 1904
+          },
+          "genRatio": "3:4",
+          "padTop": 176,
+          "padStrategy": "transparent",
+          "estBytes": 197407,
+          "netTravel": 607
+        },
+        {
+          "id": "s1-L3-surface",
+          "z": 3,
+          "k": 1.5,
+          "role": "水面。这层就是 s1 → s2 那次 zoom-through 的「洞」。",
+          "alpha": true,
+          "blend": "screen",
+          "anchor": "bottom",
+          "repeat": "repeat-x",
+          "tileW": 1280,
+          "triggerWindow": {
+            "start": "bottom bottom",
+            "end": "bottom top"
+          },
+          "canvas": {
+            "w": 1280,
+            "h": 2160
+          },
+          "genRatio": "3:4",
+          "padTop": 453,
+          "padStrategy": "tile-x",
+          "estBytes": 221184,
+          "netTravel": 720
+        }
+      ]
+    },
+    "mobile": {
+      "scrollDistance": 900,
+      "scrollDistanceSource": "实测 hero 高度 857px，取整到 50",
+      "kSpread": [
+        0.35,
+        1.3
+      ],
+      "viewport": {
+        "vw": 430,
+        "vh": 932
+      },
+      "layers": [
+        {
+          "id": "s1-L0-void",
+          "z": 0,
+          "k": 0.35,
+          "role": "水面之上的暗空。纯垂直渐变，没有纹理。",
+          "alpha": false,
+          "blend": "normal",
+          "anchor": "cover",
+          "canvas": null,
+          "genRatio": null,
+          "padTop": 0,
+          "padStrategy": "css-gradient",
+          "gradient": "linear-gradient(180deg, #07080b 0%, #0a0b10 62%, #0e1015 100%)",
+          "estBytes": 0,
+          "netTravel": 585
+        },
+        {
+          "id": "s1-L1-mist",
+          "z": 1,
+          "k": 0.45,
+          "role": "远景水汽与悬浮微粒，铺满，极淡。",
+          "alpha": true,
+          "blend": "screen",
+          "anchor": "cover",
+          "canvas": null,
+          "genRatio": null,
+          "padTop": 0,
+          "padStrategy": "css-radial",
+          "gradient": "radial-gradient(60% 45% at 68% 38%, rgba(124,130,240,0.10), transparent 70%), radial-gradient(45% 35% at 22% 72%, rgba(154,160,255,0.06), transparent 70%)",
+          "estBytes": 0,
+          "netTravel": 495
+        },
+        {
+          "id": "s1-L2-orb",
+          "z": 2,
+          "k": 0.7,
+          "role": "液态球体 —— 品牌图形本体，跨过画面中线，左侧留干净暗区。",
+          "alpha": true,
+          "blend": "screen",
+          "anchor": "center-right",
+          "canvas": {
+            "w": 432,
+            "h": 732
+          },
+          "genRatio": "3:4",
+          "padTop": 156,
+          "padStrategy": "transparent",
+          "estBytes": 25298,
+          "netTravel": 300
+        },
+        {
+          "id": "s1-L3-surface",
+          "z": 3,
+          "k": 1.3,
+          "role": "水面。这层就是 s1 → s2 那次 zoom-through 的「洞」。",
+          "alpha": true,
+          "blend": "screen",
+          "anchor": "bottom",
+          "repeat": "repeat-x",
+          "tileW": 1280,
+          "triggerWindow": {
+            "start": "bottom bottom",
+            "end": "bottom top"
+          },
+          "canvas": {
+            "w": 1280,
+            "h": 1404
+          },
+          "genRatio": "1:1",
+          "padTop": 124,
+          "padStrategy": "tile-x",
+          "estBytes": 143770,
+          "netTravel": 324
+        }
+      ]
+    }
+  },
+  "mobileKNote": "手机端 k 带收窄到 0.35~0.7（技能建议 0.3~0.9）—— 屏小滚得快，desktop 那套跨度搬过来会晕。唯一的例外是 L3 水面：它是 zoom-through 的洞，k 必须 > 1，所以留在 1.3。这是有意偏离，不是漏改。",
+  "transition": {
+    "in": {
+      "type": "zoom-through",
+      "notes": "承接 s0 序幕，落进画面"
+    },
+    "out": {
+      "type": "zoom-through",
+      "requires": "L3-surface k ≥ 1.3（desktop 1.5 / mobile 1.3）✓"
+    }
+  },
+  "textSafeArea": {
+    "desktop": {
+      "x": [
+        0.08,
+        0.52
+      ],
+      "y": [
+        0.3,
+        0.72
+      ],
+      "bgValue": "0.02–0.08"
+    },
+    "mobile": {
+      "x": [
+        0.07,
+        0.93
+      ],
+      "y": [
+        0.14,
+        0.56
+      ],
+      "bgValue": "0.02–0.08"
+    }
+  },
+  "gateB": {
+    "1-跨层连续物体": "过 —— 球体与水面各自独立，没有跨层的同一个物体",
+    "2-跨层投影": "过 —— 两条 prompt 都写死禁止投影与反射（球体不在水面留倒影）",
+    "3-明度分离": "有意偏离：两张图都是黑底发光板（blend: screen），不适用「由远及近明度递减」。改用发光强度分离：CSS 雾层最弱 → 水面焦散居中 → 球体最亮。",
+    "4-剪影可读性": "过 —— 球体是单一团块、水面是横向带，两端共用同一张，裁切不改变可读性",
+    "5-Overscan": "过 —— 数字原样取自 motion.json，未自行修改",
+    "6-抠图可行性": "两层都含半透明/发光/水花，rembg 会整张判成背景（婚礼站踩过三次）。按 Gate B 第 6 条第二条路降级：纯黑底 + blend screen，**完全不抠图**。",
+    "7-文字安全区": "第一版没过。k=1.5 的水面从头跟到尾，滚 150px 就爬进标题。已回退给 motion-spec 修：加 triggerWindow 只在退场段动，文字可见期间位移恒为 0。"
+  },
+  "art": [
+    {
+      "id": "s1-L0-void",
+      "sharedAcross": [
+        "desktop",
+        "mobile"
+      ],
+      "content": "水面之上的暗空。纯垂直渐变。",
+      "asset": "css",
+      "generate": false,
+      "css": "linear-gradient(180deg, #07080b 0%, #0a0b10 62%, #0e1015 100%)"
+    },
+    {
+      "id": "s1-L1-mist",
+      "sharedAcross": [
+        "desktop",
+        "mobile"
+      ],
+      "content": "远景水汽。两个径向渐变叠站上已有的噪点层。",
+      "asset": "css",
+      "generate": false,
+      "css": "radial-gradient(60% 45% at 68% 38%, rgba(124,130,240,0.10), transparent 70%), radial-gradient(45% 35% at 22% 72%, rgba(154,160,255,0.06), transparent 70%)",
+      "why": "按最坏视口出图是 3956×2454 ≈ 776KB，一层吃光 ADR-0008 的首屏总重；而它没有任何需要模型画的细节。"
+    },
+    {
+      "id": "s1-L2-orb",
+      "sharedAcross": [
+        "desktop",
+        "mobile"
+      ],
+      "sharedWhy": "左右对称、居中的独立物体 —— 裁掉两侧仍认得出是什么，两端同为 3:4，一张图两端复用。",
+      "content": "液态球体，品牌图形本体。全站唯一允许多彩的东西（ADR-0007）。内部有膜的起伏与焦散流动。",
+      "asset": "image",
+      "generate": true,
+      "genCanvas": {
+        "w": 1296,
+        "h": 1904
+      },
+      "genRatio": "3:4",
+      "blend": "screen",
+      "padStrategy": "black-plate",
+      "seed": "public/assets/bg-1.webp",
+      "seedNote": "**必须以现有素材作参考图做图生图，不要从零文生图。** 现行站已经在用这颗球（1024×1024），ADR-0001 明确要求品牌连续性优先于新鲜感 —— 换一颗新的球等于换 logo。",
+      "file": "public/assets/parallax/s1-l2-orb.webp",
+      "prompt": "STYLE BIBLE:\nMedium: 写实水下摄影感的暗调合成 —— 真实水体、悬浮微粒与焦散光。不是插画、不是 3D 渲染感、不是抽象波纹图形。\nPalette: #07080b 水体 · #0e1015 近景水层 · #14161d 中景 · #7c82f0 焦散与生物光 · #9aa0ff 高光尖端。除 s1 的那滴水外全站不出现第二个色相。\nLight: 单一光源自画面上方偏左 12° 射入，冷白偏靛约 7200K；强度随下潜逐屏衰减。s1 可见直射，s2 之后一律是散射光柱。\nAtmosphere: 体积雾随深度递增 —— s1 通透度 85%，s7 降到 45%。无地平线，用光柱与悬浮微粒替代纵深线索。\nTexture: 极淡胶片颗粒，不透明度 0.035，与站上 body::after 的噪点层同源。无纸纹、无笔触、无描边。\nCamera: 35mm 等效、轻微仰视、透视克制。水面线自 s1 的 0.72 逐屏上移出画，s4 之后无水面线，改用光柱汇聚线当基准。\n\nSUBJECT — s1-L2-orb (the brand's liquid orb, the single hero object of this screen):\nA soap-film iridescent multi-lobed fluid form, like several water droplets fused into one\nsuspended mass. Thin-film interference across the membrane produces orange, cyan, blue and\nviolet banding — this orb is the ONLY place in the entire site where more than one hue appears.\nThe interior is alive: membrane undulations, caustic light travelling inside the body,\na slow breathing swell. It is lit from its own inside, not from outside.\nIt must read as a photographed physical fluid, not as a 3D render and not as an illustration.\n\nCOMPOSITION:\nPortrait 3:4. The orb occupies roughly 78% of the frame width, centred horizontally,\nwith its mass sitting slightly BELOW centre so there is clean empty space above it.\nSilhouette must stay a single readable blob — no satellite droplets flying off,\nno splash, no ring, no halo ring, no lens flare.\n\nRender on a PURE BLACK background (#000000, absolutely flat, no gradient, no vignette). The plate is composited with CSS mix-blend-mode: screen, so black = fully transparent. Do NOT include an alpha channel, do NOT cut out, do NOT add a checkerboard. Nothing in the image may be pure black except the background itself.\nThis layer is composited separately from every other layer. Therefore: no cast shadows onto anything, no reflections of anything, no objects that continue outside this layer's subject. The layer must read correctly in isolation.\n\nNEGATIVE: no text, no watermark, no glass sphere, no crystal ball, no planet, no bubble with\na visible hard rim, no studio reflection highlights, no reflected environment, no ground plane,\nno water surface, no horizon, no cast shadow, no drop shadow, no white or grey background,\nno vignette, no dust specks outside the orb."
+    },
+    {
+      "id": "s1-L3-surface",
+      "sharedAcross": [
+        "desktop",
+        "mobile"
+      ],
+      "sharedWhy": "水平同质的带 —— 横向可无缝拼接，两端共用一条，宽度靠 repeat-x 补。",
+      "content": "水面（从下方看的焦散网）。这层就是 s1 → s2 那次 zoom-through 的「洞」。",
+      "asset": "image",
+      "generate": true,
+      "genCanvas": {
+        "w": 1280,
+        "h": 2160
+      },
+      "genRatio": "3:4",
+      "repeat": "repeat-x",
+      "blend": "screen",
+      "padStrategy": "black-plate",
+      "file": "public/assets/parallax/s1-l3-surface.webp",
+      "prompt": "STYLE BIBLE:\nMedium: 写实水下摄影感的暗调合成 —— 真实水体、悬浮微粒与焦散光。不是插画、不是 3D 渲染感、不是抽象波纹图形。\nPalette: #07080b 水体 · #0e1015 近景水层 · #14161d 中景 · #7c82f0 焦散与生物光 · #9aa0ff 高光尖端。除 s1 的那滴水外全站不出现第二个色相。\nLight: 单一光源自画面上方偏左 12° 射入，冷白偏靛约 7200K；强度随下潜逐屏衰减。s1 可见直射，s2 之后一律是散射光柱。\nAtmosphere: 体积雾随深度递增 —— s1 通透度 85%，s7 降到 45%。无地平线，用光柱与悬浮微粒替代纵深线索。\nTexture: 极淡胶片颗粒，不透明度 0.035，与站上 body::after 的噪点层同源。无纸纹、无笔触、无描边。\nCamera: 35mm 等效、轻微仰视、透视克制。水面线自 s1 的 0.72 逐屏上移出画，s4 之后无水面线，改用光柱汇聚线当基准。\n\nSUBJECT — s1-L3-surface (the underside of a calm water surface, seen from just below it):\nA horizontal band of water-surface caustics: the rippling net of light that forms on the\nunderside of calm water. Cold white shading to indigo (#7c82f0), brightest filaments tipping\ntoward #9aa0ff. Fine suspended particles drift in the water immediately beneath it.\nPhotographic underwater look — real refraction, real caustic geometry. Not an abstract\nwave graphic, not a vector pattern, not a 3D render.\n\nCOMPOSITION — this is a TILE, read this carefully:\nPortrait 3:4. The water surface itself sits as a horizontal band across the UPPER THIRD\nof the frame; everything below it is progressively darker open water fading to black.\nThe image must tile SEAMLESSLY left-to-right: the caustic pattern at the left edge must\ncontinue exactly into the right edge, with no feature straddling either edge and no\nvignetting or brightness falloff toward the sides. Even illumination across the full width.\n\nRender on a PURE BLACK background (#000000, absolutely flat, no gradient, no vignette). The plate is composited with CSS mix-blend-mode: screen, so black = fully transparent. Do NOT include an alpha channel, do NOT cut out, do NOT add a checkerboard. Nothing in the image may be pure black except the background itself.\nThis layer is composited separately from every other layer. Therefore: no cast shadows onto anything, no reflections of anything, no objects that continue outside this layer's subject. The layer must read correctly in isolation.\n\nNEGATIVE: no text, no watermark, no sky, no horizon line above the water, no boat, no shore,\nno swimmer, no fish, no bubbles rising, no sun disc, no god rays fanning from a point,\nno vignette, no darker corners, no visible seam, no orb or sphere of any kind."
+    }
+  ],
+  "masterStylePlate": {
+    "purpose": "风格基准。先出这张，确认后作为参考图带进上面两条 prompt。它本身不上站。",
+    "genRatio": "3:2",
+    "file": "docs/parallax/s1-style-plate.webp",
+    "prompt": "STYLE BIBLE:\nMedium: 写实水下摄影感的暗调合成 —— 真实水体、悬浮微粒与焦散光。不是插画、不是 3D 渲染感、不是抽象波纹图形。\nPalette: #07080b 水体 · #0e1015 近景水层 · #14161d 中景 · #7c82f0 焦散与生物光 · #9aa0ff 高光尖端。除 s1 的那滴水外全站不出现第二个色相。\nLight: 单一光源自画面上方偏左 12° 射入，冷白偏靛约 7200K；强度随下潜逐屏衰减。s1 可见直射，s2 之后一律是散射光柱。\nAtmosphere: 体积雾随深度递增 —— s1 通透度 85%，s7 降到 45%。无地平线，用光柱与悬浮微粒替代纵深线索。\nTexture: 极淡胶片颗粒，不透明度 0.035，与站上 body::after 的噪点层同源。无纸纹、无笔触、无描边。\nCamera: 35mm 等效、轻微仰视、透视克制。水面线自 s1 的 0.72 逐屏上移出画，s4 之后无水面线，改用光柱汇聚线当基准。\n\nMASTER STYLE PLATE — one complete un-layered scene, used only as the style reference\nfor every layer prompt that follows. Do not use it on the site.\n\nSCENE: Looking slightly upward from just above a black, still water surface at night.\nA soap-film iridescent liquid orb hangs to the right of centre, glowing from within;\nthe left third of the frame is clean, empty, near-black space. Below, the water surface\ncarries a faint net of cold indigo caustics. Volumetric haze, fine suspended particles,\nvery light film grain.\n\nLandscape 3:2. Near-black overall — the whole image should sit between 2% and 16% luminance\nexcept the orb itself. The orb is the only saturated, multi-hued thing in the frame.\n\nNEGATIVE: no text, no watermark, no people, no boat, no shore, no sky detail, no stars,\nno warm colours anywhere except inside the orb, no bright background, no vignette."
+  },
+  "pipeline": [
+    "① 出 master style plate → 阿爽确认风格",
+    "② 以 style plate 作参考图，出 s1-L2-orb（同时再带 bg-1.webp 作形体种子）与 s1-L3-surface",
+    "③ **不跑抠图** —— 两张都是黑底发光板，blend: screen 时黑色即透明",
+    "④ **不跑补画布** —— 黑底延伸在 screen 下是无操作，位置交给 CSS background-position: bottom",
+    "⑤ 转 WebP 后核对实际字节：估算 desktop 409KB / mobile 165KB，超了回来调 canvas"
+  ]
+}

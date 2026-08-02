@@ -72,19 +72,23 @@
           "k": 1.5,
           "role": "水面。这层就是 s1 → s2 那次 zoom-through 的「洞」。",
           "alpha": true,
-          "blend": "normal",
+          "blend": "screen",
           "anchor": "bottom",
           "repeat": "repeat-x",
           "tileW": 1280,
+          "triggerWindow": {
+            "start": "bottom bottom",
+            "end": "bottom top"
+          },
           "canvas": {
             "w": 1280,
-            "h": 2116
+            "h": 2160
           },
           "genRatio": "3:4",
-          "padTop": 409,
+          "padTop": 453,
           "padStrategy": "tile-x",
-          "estBytes": 216678,
-          "netTravel": 675
+          "estBytes": 221184,
+          "netTravel": 720
         }
       ]
     },
@@ -156,19 +160,23 @@
           "k": 1.3,
           "role": "水面。这层就是 s1 → s2 那次 zoom-through 的「洞」。",
           "alpha": true,
-          "blend": "normal",
+          "blend": "screen",
           "anchor": "bottom",
           "repeat": "repeat-x",
           "tileW": 1280,
+          "triggerWindow": {
+            "start": "bottom bottom",
+            "end": "bottom top"
+          },
           "canvas": {
             "w": 1280,
-            "h": 1380
+            "h": 1404
           },
           "genRatio": "1:1",
-          "padTop": 100,
+          "padTop": 124,
           "padStrategy": "tile-x",
-          "estBytes": 141312,
-          "netTravel": 300
+          "estBytes": 143770,
+          "netTravel": 324
         }
       ]
     }

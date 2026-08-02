@@ -209,12 +209,26 @@ const S1_LAYERS = [
     k: { desktop: 1.5, mobile: 1.3 },
     fill: "bottom",
     alpha: true,
-    blend: "normal",
+    // Gate B 第 6 条：水面全是焦散、半透明与水花，rembg 那类显著性抠图会把它
+    // 整张判成背景（这个坑在婚礼站踩过三次）。走第二条路 —— 画在纯黑上、
+    // blend: screen、**完全不抠图**。这也正是本站现有球体的合成方式。
+    blend: "screen",
     // 这层真的需要纹理（焦散），不能交给 CSS。但水面是横向重复的东西 ——
     // 出一条可左右无缝拼接的窄条，用 repeat-x 铺开，宽度就不必跟着视口涨。
     // 3956 宽 → 1280 宽，字节掉到三分之一。
     strategy: "tile-x",
     tileW: 1280,
+    /**
+     * ⚠️ 只在**退场那一段**才动，不是整屏跟着滚。
+     *
+     * Gate B 第 7 条实测：k=1.5 从头跟到尾的话，滚到 150px 水面上缘就已经
+     * 爬到标题里了（0.72vh 起步，每滚 1px 相对文字上移 0.5px）。
+     * k>1 是 zoom-through 的硬要求，所以不能降 k —— 要降的是它「什么时候开始动」。
+     *
+     * 抄 ERA 的 img-out：trigger 从「区块底边碰到视口底边」才起算，
+     * 到「区块底边离开视口顶边」结束。那时文字早已滚出画面。
+     */
+    triggerWindow: { start: "bottom bottom", end: "bottom top" },
   },
 ];
 
@@ -250,13 +264,21 @@ function s1For(bp) {
     }
     const canvas = coverCanvas(bp, S, k);
     if (L.strategy === "tile-x") {
-      // 横向可无缝拼接：宽度固定成一条，不跟视口涨；高度仍按最坏情况给足
+      // 横向可无缝拼接：宽度固定成一条，不跟视口涨
       canvas.w = L.tileW;
+      if (L.triggerWindow) {
+        // 只在退场段跑：行程 = 一个视口高，不是整个 S
+        const Sexit = DESIGN_FOR[bp].vh;
+        const travel = Math.round(Sexit * Math.abs(1 - k));
+        canvas.h = Math.ceil((DESIGN_FOR[bp].vh + travel) / 2) * 2;
+        canvas.netTravel = travel;
+      }
       return {
         ...base,
         anchor: "bottom",
         repeat: "repeat-x",
         tileW: L.tileW,
+        triggerWindow: L.triggerWindow,
         ...withGen(canvas, "tile-x"),
       };
     }
@@ -334,7 +356,7 @@ for (const bp of ["desktop", "mobile"]) {
   for (const L of s1.breakpoints[bp].layers) {
     if (!L.canvas) continue; // CSS 渐变层没有画布
     for (const [w, h] of GRID[bp]) {
-      const S = round50(h * HERO_VH_RATIO);
+      const S = L.triggerWindow ? h : round50(h * HERO_VH_RATIO);
       const needH = Math.ceil(h + S * Math.abs(1 - L.k));
       const needW = Math.ceil(w * 1.15);
       // 两类层不受「宽度要盖满视口」约束：
