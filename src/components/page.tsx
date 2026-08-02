@@ -19,11 +19,14 @@ export function PageHeader({
     <header className="pt-28 pb-10 sm:pt-36 sm:pb-14">
       <Container>
         <Eyebrow>{t(eyebrow, lang)}</Eyebrow>
-        <h1 className="mt-3 max-w-3xl text-[clamp(2rem,5vw,3.2rem)] font-semibold leading-[1.1] tracking-tight text-ink">
+        <h1
+          data-reveal
+          className="mt-3 max-w-3xl text-[clamp(2rem,5vw,3.2rem)] font-semibold leading-[1.1] tracking-tight text-ink"
+        >
           {t(title, lang)}
         </h1>
         {lede && (
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-muted">
+          <p data-reveal className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-muted">
             {t(lede, lang)}
           </p>
         )}
@@ -70,7 +73,10 @@ export function PageSection({
 /** 内容页的二级标题。 */
 export function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h2 className="text-[clamp(1.5rem,3.2vw,2.2rem)] font-semibold tracking-tight text-ink">
+    <h2
+      data-reveal
+      className="text-[clamp(1.5rem,3.2vw,2.2rem)] font-semibold tracking-tight text-ink"
+    >
       {children}
     </h2>
   );

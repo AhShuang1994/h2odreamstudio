@@ -35,10 +35,13 @@ export function QuickAnswer({ lang }: { lang: Lang }) {
             <span aria-hidden>⚡</span>
             {t({ cn: "快速答案", en: "Quick answer" }, lang)}
           </div>
-          <h2 className="text-[clamp(1.5rem,3vw,2.1rem)] font-semibold tracking-tight text-ink">
+          <h2
+            data-reveal
+            className="text-[clamp(1.5rem,3vw,2.1rem)] font-semibold tracking-tight text-ink"
+          >
             {t(quickAnswer.heading, lang)}
           </h2>
-          <p className="mt-4 max-w-3xl leading-relaxed text-ink-muted">
+          <p data-reveal className="mt-4 max-w-3xl leading-relaxed text-ink-muted">
             {t(quickAnswer.body, lang)}
           </p>
           <dl className="mt-8 grid grid-cols-2 gap-6 border-t border-hairline pt-8 sm:grid-cols-4">
@@ -60,7 +63,10 @@ export function Services({ lang }: { lang: Lang }) {
     <Section id="services">
       <Container>
         <Eyebrow>{t(services.eyebrow, lang)}</Eyebrow>
-        <h2 className="mt-3 max-w-2xl text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink">
+        <h2
+          data-reveal
+          className="mt-3 max-w-2xl text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink"
+        >
           {t(services.heading, lang)}
         </h2>
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -93,7 +99,10 @@ export function SelectedWork({ lang }: { lang: Lang }) {
         <div className="flex items-end justify-between gap-6">
           <div>
             <Eyebrow>{t(selectedWork.eyebrow, lang)}</Eyebrow>
-            <h2 className="mt-3 max-w-2xl text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink">
+            <h2
+              data-reveal
+              className="mt-3 max-w-2xl text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink"
+            >
               {t(selectedWork.heading, lang)}
             </h2>
           </div>
@@ -162,7 +171,7 @@ export function Founder({ lang }: { lang: Lang }) {
             <Eyebrow>{t(founder.eyebrow, lang)}</Eyebrow>
             <div className="mt-3 text-xl font-semibold text-ink">{t(founder.name, lang)}</div>
             <div className="text-sm text-ink-subtle">{t(founder.role, lang)}</div>
-            <p className="mt-5 max-w-2xl leading-relaxed text-ink-muted">
+            <p data-reveal className="mt-5 max-w-2xl leading-relaxed text-ink-muted">
               {t(founder.bio, lang)}
             </p>
           </div>
@@ -177,7 +186,10 @@ export function Faq({ lang }: { lang: Lang }) {
     <Section id="faq">
       <Container>
         <Eyebrow>{t(faq.eyebrow, lang)}</Eyebrow>
-        <h2 className="mt-3 text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink">
+        <h2
+          data-reveal
+          className="mt-3 text-[clamp(1.6rem,3.4vw,2.4rem)] font-semibold tracking-tight text-ink"
+        >
           {t(faq.heading, lang)}
         </h2>
         <div className="mt-8 divide-y divide-hairline border-y border-hairline">
@@ -214,10 +226,13 @@ export function ContactCta({ lang }: { lang: Lang }) {
           />
           <div className="relative">
             <Eyebrow className="text-center">{t(contactCta.eyebrow, lang)}</Eyebrow>
-            <h2 className="mx-auto mt-3 max-w-2xl text-[clamp(1.7rem,3.6vw,2.6rem)] font-semibold tracking-tight text-ink">
+            <h2
+              data-reveal
+              className="mx-auto mt-3 max-w-2xl text-[clamp(1.7rem,3.6vw,2.6rem)] font-semibold tracking-tight text-ink"
+            >
               {t(contactCta.heading, lang)}
             </h2>
-            <p className="mx-auto mt-4 max-w-xl leading-relaxed text-ink-muted">
+            <p data-reveal className="mx-auto mt-4 max-w-xl leading-relaxed text-ink-muted">
               {t(contactCta.body, lang)}
             </p>
             <div className="mt-8 flex justify-center">

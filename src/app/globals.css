@@ -84,6 +84,17 @@ h2 {
   font-weight: 600;
 }
 
+/* 逐行揭示的预备态。这个类由 Shell 里的内联脚本在 <head> 中加上 ——
+   放在首帧之前，标题才不会先亮一下再被藏起来。脚本自己已经排除了减弱动态
+   偏好，所以这里不用再写一遍媒体查询。
+
+   兜底：那段内联脚本 4 秒后会把类摘掉。正常情况下 Reveal 早就给每个元素写了
+   行内 opacity，摘不摘都无所谓；但万一动效 chunk 加载失败，文字最迟 4 秒后
+   也一定会出现 —— 这个站的流量全靠文字被读到，不能赌。 */
+.reveal-armed [data-reveal] {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

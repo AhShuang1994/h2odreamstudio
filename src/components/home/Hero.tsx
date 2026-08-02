@@ -13,10 +13,16 @@ export function Hero({ lang }: { lang: Lang }) {
       <Container className="relative">
         <div className="max-w-3xl">
           <Eyebrow>{t(hero.eyebrow, lang)}</Eyebrow>
-          <h1 className="mt-5 text-[clamp(2.4rem,6vw,4.4rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-ink">
+          <h1
+            data-reveal
+            className="mt-5 text-[clamp(2.4rem,6vw,4.4rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-ink"
+          >
             {t(hero.h1, lang)}
           </h1>
-          <p className="mt-6 max-w-xl text-[clamp(1rem,1.4vw,1.15rem)] leading-relaxed text-ink-muted">
+          <p
+            data-reveal
+            className="mt-6 max-w-xl text-[clamp(1rem,1.4vw,1.15rem)] leading-relaxed text-ink-muted"
+          >
             {t(hero.sub, lang)}
           </p>
           <div className="mt-9 flex flex-wrap gap-3">

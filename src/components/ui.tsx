@@ -23,7 +23,10 @@ export function Eyebrow({
   className?: string;
 }) {
   return (
-    <p className={`text-xs font-medium tracking-[0.16em] text-accent ${className}`}>
+    <p
+      data-reveal
+      className={`text-xs font-medium tracking-[0.16em] text-accent ${className}`}
+    >
       {children}
     </p>
   );

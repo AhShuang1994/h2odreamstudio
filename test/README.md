@@ -49,3 +49,6 @@ npm run test:watch  # 改断言时用
 | #77 sitemap/llms | hreflang 双向配对；条目数与实际页面数一致，无死链 |
 | ~~#78 中文字体~~ | ✅ 已完成 —— `fonts.test.ts`（三个子集的体积区间、总体积、OFL 三份、页脚链接、`@font-face` 与 unicode-range、只预加载正文字重） |
 | ~~#81 css/js 缺失~~ | ✅ 已完成 —— `css/` 与 `js/` 移进 `public/`，允许清单已清空 |
+| ~~#87 逐行揭示~~ | ✅ 已完成 —— `motion.test.ts`（动画库不进首屏脚本、揭示预备态脚本早于 `<body>`） |
+| #89 幕布转场 | 往 `motion.test.ts` 加：全部导出的静态页都已注入揭幕脚本 |
+| #92 性能预算 | 首屏 JS < 200KB、首屏总重 < 800KB（不含视频）；破线即失败 |
