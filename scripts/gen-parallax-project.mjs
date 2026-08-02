@@ -94,13 +94,41 @@ function autoFit(safe, font, texts) {
   return out;
 }
 
-// ── 七屏 ────────────────────────────────────────────────────────────
+// ── 序幕 + 七屏 ──────────────────────────────────────────────────────
+// s0 是**序幕不是滚动屏**：它不占页面高度，不计入「首页 8~10 屏」。
+// scrollSection: false 就是给 motion-spec 看的那个标记。
 const RAW = [
+  {
+    id: "s0-overture",
+    section: null,
+    scrollSection: false,
+    act: "overture",
+    mood: 8,
+    depth: "画面之外",
+    motifBeat:
+      "全黑。中央一个水滴轮廓的遮罩，洞里透出虹彩的液态球体 —— 全站唯一的品牌图形资产。水滴急速放大穿过观众 → 落进水下的 hero。整屏无文字，先静后爆。",
+    palette: ["#07080b", "#7c82f0", "#9aa0ff"],
+    font: { desktop: 48, mobile: 32 },
+    safe: {
+      // 这一屏刻意不放文字。安全区照样定死 —— 以后想加一行（比如「再大的海，
+      // 也是从一滴水开始」）时框已经在，不用重新立项。
+      desktop: { x: [0.28, 0.72], y: [0.6, 0.78], bgValue: "0.00–0.04" },
+      mobile: { x: [0.1, 0.9], y: [0.62, 0.8], bgValue: "0.00–0.04" },
+    },
+    text: { zh: { headline: "", sub: "" }, en: { headline: "", sub: "" } },
+    transitionOut: { type: "zoom-through", horizonY: { desktop: 1.0, mobile: 1.0 } },
+    note: [
+      "洞 = 水滴轮廓本身，该层 k 必须 > 1（传给 motion-spec）。",
+      "洞内透出的是虹彩球体，与下屏 hero 的球体是同一个东西 —— 满足 zoom-through 的",
+      "「下屏开场 palette 要和洞内颜色一致」，穿过去不会像撞墙。",
+      "ADR-0007 的多彩例外覆盖这一屏：它是 hero 的序幕，用的就是 hero 那颗球。",
+    ].join(""),
+  },
   {
     id: "s1-drop",
     section: "hero",
     act: "establish",
-    mood: 3,
+    mood: 5,
     depth: "水面之上",
     motifBeat: "一滴水悬在暗色水面上方，尚未落下。全站唯一允许多彩的一屏（ADR-0007），虹彩只在这滴水上。",
     palette: ["#07080b", "#0e1015", "#7c82f0"],
@@ -248,6 +276,7 @@ const sections = RAW.map((s) => {
   return {
     id: s.id,
     section: s.section,
+    ...(s.scrollSection === false ? { scrollSection: false } : {}),
     mood: s.mood,
     depth: s.depth,
     paletteShift: s.palette,
@@ -279,10 +308,10 @@ const project = {
     engines: ["motif", "space-axis", "color-arc"],
     motif: {
       element: "水 —— 滴 → 涟漪 → 流 → 海 → 水母",
-      appearsIn: ["s1-drop", "s2-ripple", "s3-current", "s6-eddy", "s7-jelly"],
-      density: "5/7 = 71%（Gate A 要求 60~80%：低于 60 连不起来，高于 80 会吵）",
+      appearsIn: ["s0-overture", "s1-drop", "s2-ripple", "s3-current", "s6-eddy", "s7-jelly"],
+      density: "6/8 = 75%（Gate A 要求 60~80%：低于 60 连不起来，高于 80 会吵）",
     },
-    spaceAxis: "水面之上 → 水面 → 浅水层 → 开阔水层 → 中深水层 → 深水层 → 深海",
+    spaceAxis: "画面之外 → 水面之上 → 水面 → 浅水层 → 开阔水层 → 中深水层 → 深水层 → 深海",
     colorArc:
       "明度弧线，不是色相弧线：首屏最亮（水面透光）→ 中段回落 → 末屏靠水母的生物光重新提亮。色域锁死在 ADR-0007 的近黑 + 单一靛紫内。",
     arc: RAW.map((s) => ({ section: s.id, act: s.act, mood: s.mood })),
@@ -296,6 +325,36 @@ const project = {
     "Texture: 极淡胶片颗粒，不透明度 0.035，与站上 body::after 的噪点层同源。无纸纹、无笔触、无描边。",
     "Camera: 35mm 等效、轻微仰视、透视克制。水面线自 s1 的 0.72 逐屏上移出画，s4 之后无水面线，改用光柱汇聚线当基准。",
   ].join("\n"),
+  /**
+   * 序幕的实现配方。抄的是 ERA 的拱门穿透（见 parallax-refs/era-residence），
+   * 换成本站自己的形体：拱门 → 一滴水。
+   *
+   * 它便宜的原因值得记住：**遮罩主体不是图片，是 CSS mask + 一个 SVG 轮廓**，
+   * GSAP 全程只动两个 CSS 变量。传统做法要出前后景分层图还要处理边缘。
+   */
+  opening: {
+    type: "zoom-through",
+    shape: "水滴轮廓（品牌图形本体的剪影），单个 SVG path，不是位图",
+    technique: [
+      "CSS mask 四层 + mask-composite: add —— 三条 linear-gradient 当遮挡柱，第四层是水滴 SVG",
+      "GSAP 只动两个自定义属性：--drop-w（宽）与 --drop-y（纵向位置）",
+      "洞里透出的是 hero 那颗虹彩液态球体，同时球体自身 scale 0.75 → 1 迎上来",
+      "「前景放大 + 后景 0.75→1 同步」是 ERA 全部四次穿透的通用配方，穿过去才真实",
+    ],
+    easing:
+      "专供穿透的一条曲线：cubic-bezier(0.6, 0, 0, 1) —— 极端后段爆发。前半段几乎不动，最后一下猛冲。不要拿它做别的动效。",
+    budget: {
+      maxDuration: "900ms",
+      why: "ERA 是 4 秒，那是豪宅盘。本站唯一 KPI 是即时通讯点击，序幕越短越好。",
+    },
+    gates: [
+      "首访才播：sessionStorage 记住，第二次进站直接跳过 —— ERA 也是这么干的",
+      "减弱动态偏好下整段不执行，直接是 hero",
+      "⚠️ hero 的文字必须在幕布**下方照常绘制**，不能是 opacity:0。盖住不等于没画，" +
+        "LCP 照常计时；真正拖 LCP 的是 #87 那个「揭示前先藏起来」。这条要在 #92 用 Lighthouse 实测。",
+      "序幕不占页面高度，不计入「首页 8~10 屏」",
+    ],
+  },
   styleLock: {
     locked: ["medium", "texture", "lineweight", "camera"],
     mutable: ["palette-shift", "light-direction", "fog-density", "horizon-y"],
