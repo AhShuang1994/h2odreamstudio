@@ -1,5 +1,6 @@
 import { localize, t, type Lang } from "@/lib/i18n";
 import { Button, Container, Eyebrow } from "@/components/ui";
+import { HeroStage } from "@/components/home/HeroStage";
 import { site } from "@/content/site";
 import { hero } from "@/content/home";
 
@@ -16,7 +17,11 @@ import { hero } from "@/content/home";
  */
 export function Hero({ lang }: { lang: Lang }) {
   return (
-    <section className="relative flex min-h-[92svh] items-center overflow-hidden pt-28 pb-20">
+    <section
+      data-hero-stage
+      className="relative flex min-h-[92svh] items-center overflow-hidden pt-28 pb-20"
+    >
+      <HeroStage />
       <Container className="relative z-10">
         <div className="max-w-[42rem] lg:max-w-[36rem]">
           <Eyebrow>{t(hero.eyebrow, lang)}</Eyebrow>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { DESKTOP, REDUCED_MOTION, desktopMotionAllowed } from "@/lib/motion";
+import { DESKTOP, REDUCED_MOTION, desktopMotionAllowed, motionAllowed } from "@/lib/motion";
 
 /**
  * 遮罩视差。渲染 null —— 与 Reveal 一样是全局扫描器，自己去找
@@ -48,12 +48,62 @@ export function Parallax() {
 
       let ctx: gsap.Context | null = null;
 
+      /**
+       * 首屏分层的滚动位移。
+       *
+       * k = 该层滚动速度 ÷ 页面滚动速度，所以相对内容的净位移是
+       * `S × (1 − k)`：k < 1 的层往下拖（看起来慢半拍），k > 1 的层往上窜。
+       *
+       * 与遮罩视差不同，**这一套在手机上照跑** —— 规格里给了两端各一份 k 值，
+       * 手机那套已经收窄过。只有减弱动态偏好才整体关掉。
+       */
+      const buildHeroLayers = () => {
+        const desktop = window.matchMedia(DESKTOP).matches;
+        const hero = document.querySelector<HTMLElement>("[data-hero-stage]");
+        if (!hero) return;
+        const S = hero.offsetHeight;
+
+        for (const layer of hero.querySelectorAll<HTMLElement>("[data-hero-layer]")) {
+          const k = Number(
+            layer.dataset[desktop ? "kDesktop" : "kMobile"] ?? 1,
+          );
+          if (!Number.isFinite(k) || k === 1) continue;
+          const travel = S * (1 - k); // 正 = 往下拖，负 = 往上窜
+
+          // 退场段专用：k > 1 的层从头跟到尾会爬进标题（实测滚 150px 就遮住），
+          // 所以它只在「区块底边碰到视口底边」之后才开始动。
+          const exitOnly = layer.dataset.exitOnly !== undefined;
+
+          gsap.fromTo(
+            layer,
+            { y: 0 },
+            {
+              y: travel,
+              ease: "none",
+              scrollTrigger: {
+                trigger: hero,
+                start: exitOnly ? "bottom bottom" : "top top",
+                end: exitOnly ? "bottom top" : "bottom top",
+                scrub: true,
+                invalidateOnRefresh: true,
+              },
+            },
+          );
+        }
+      };
+
       const build = () => {
-        // 关掉时必须是**干净的静态图**：不放大、不位移，裁切构图与
-        // 没有这个组件时逐像素一致。
-        if (!desktopMotionAllowed()) return;
+        // 减弱动态偏好：两套都不跑，一个变换都不加。
+        if (!motionAllowed()) return;
 
         ctx = gsap.context(() => {
+          // 首屏分层两端都跑（规格给了两端各一份 k）
+          buildHeroLayers();
+
+          // 遮罩视差只在桌面跑。关掉时必须是**干净的静态图**：不放大、不位移，
+          // 裁切构图与没有这个组件时逐像素一致。
+          if (!desktopMotionAllowed()) return;
+
           for (const box of document.querySelectorAll<HTMLElement>("[data-mask-parallax]")) {
             const img = box.querySelector("img");
             if (!img) continue;

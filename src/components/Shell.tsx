@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { WhatsAppFab } from "@/components/WhatsAppFab";
 import { Reveal } from "@/components/Reveal";
 import { Parallax } from "@/components/Parallax";
+import { Overture } from "@/components/Overture";
 import type { Lang } from "@/lib/i18n";
 
 const inter = Inter({
@@ -52,6 +53,7 @@ export function Shell({ lang, children }: { lang: Lang; children: ReactNode }) {
       <body className="font-sans antialiased">
         <Reveal />
         <Parallax />
+        <Overture />
         <Nav lang={lang} />
         {children}
         <Footer lang={lang} />
