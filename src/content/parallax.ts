@@ -18,9 +18,14 @@ export const HERO_LAYERS = {
   /** 远景水汽。两个径向渐变，不出图 —— 出图要 776KB，而它没有需要画的细节。 */
   mist: {
     k: { desktop: 0.25, mobile: 0.45 } as LayerK,
+    /**
+     * 两团都收到了右半边。第一版第二团中心在 22%，把光铺到了标题背后 ——
+     * 实测左侧安全区平均亮度 55.8，而规格要的是 5~20（bgValue 0.02~0.08）。
+     * 左侧那块干净暗区是 ADR-0001 的硬约束，不是建议。
+     */
     background:
-      "radial-gradient(60% 45% at 68% 38%, rgba(124,130,240,0.10), transparent 70%), " +
-      "radial-gradient(45% 35% at 22% 72%, rgba(154,160,255,0.06), transparent 70%)",
+      "radial-gradient(42% 34% at 82% 42%, rgba(124,130,240,0.07), transparent 70%), " +
+      "radial-gradient(30% 24% at 74% 80%, rgba(154,160,255,0.04), transparent 70%)",
   },
   /** 液态球体，品牌图形本体。跨过画面中线，左侧留干净暗区（ADR-0001）。 */
   orb: {

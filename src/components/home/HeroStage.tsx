@@ -14,7 +14,7 @@ import { HERO_LAYERS } from "@/content/parallax";
  * 不去和页面其它内容混。
  */
 export function HeroStage() {
-  const { void: base, mist, orb, surface } = HERO_LAYERS;
+  const { void: base, mist, orb } = HERO_LAYERS;
 
   return (
     <div
@@ -53,7 +53,7 @@ export function HeroStage() {
         data-hero-layer
         data-k-desktop={orb.k.desktop}
         data-k-mobile={orb.k.mobile}
-        className="absolute -right-[14%] top-1/2 w-[112%] mix-blend-screen sm:-right-[8%] sm:w-[74%] lg:-right-[6%] lg:w-[62%]"
+        className="absolute -right-[24%] top-[44%] w-[86%] mix-blend-screen sm:-right-[10%] sm:w-[54%] lg:-right-[6%] lg:w-[40%]"
       >
         <div className="-translate-y-1/2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -69,23 +69,18 @@ export function HeroStage() {
         </div>
       </div>
 
-      {/* 水面：横向平铺的黑底发光条，贴底。顶边再叠一道渐隐 ——
-          硬边归合成期解决，不指望出图时就没有。 */}
-      <div
-        data-hero-layer
-        data-k-desktop={surface.k.desktop}
-        data-k-mobile={surface.k.mobile}
-        data-exit-only
-        className="absolute inset-x-0 bottom-0 h-[46%] mix-blend-screen"
-        style={{
-          backgroundImage: `url(${surface.src})`,
-          backgroundRepeat: "repeat-x",
-          backgroundPosition: "bottom center",
-          backgroundSize: "auto 100%",
-          maskImage: "linear-gradient(180deg, transparent 0%, #000 14%)",
-          WebkitMaskImage: "linear-gradient(180deg, transparent 0%, #000 14%)",
-        }}
-      />
+      {/* ⚠️ 水面层（s1-L3-surface）**暂时不渲染**。
+          素材、规格、生成器都还在（parallax/s1-drop.json · scripts/gen-caustics.py），
+          随时能接回来，但现在挂上去不好看：
+
+          · 它是从水下看水面的图，摆在首屏底部等于观众俯视脚下的水面 ——
+            而这一屏的设定是「悬在水面之上」，语义拧着
+          · 横向平铺的规律性一眼看得出来，读起来像发光的蜂窝布料不像水
+          · 紫色网格与球体的橙青虹彩互相抢视觉重音
+
+          代价要记住：**它原本是 s1 → s2 那次 zoom-through 的「洞」**。
+          去掉之后那次转场需要重新找一个洞（球体本身是最自然的候选：
+          穿过球体进入水下）。这条没定之前，转场先不做。 */}
     </div>
   );
 }
