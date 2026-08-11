@@ -1,0 +1,20 @@
+{
+  "name": "小帳本 · 離線記帳",
+  "short_name": "小帳本",
+  "description": "不用上架 App Store 的記帳工具，加到主畫面即可離線使用，資料只存在你的裝置裡。",
+  "lang": "zh-Hant",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "id": "/app/moneybook/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f5f4",
+  "theme_color": "#0d9488",
+  "categories": ["finance", "productivity", "utilities"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
