@@ -1,6 +1,10 @@
 node_modules/
 docs/
-.claude/
+
+# Keep local Claude Code state out of the repo, but track the skills symlinks
+# so installed skills survive a fresh clone.
+.claude/*
+!.claude/skills/
 
 # Xiaohongshu (小红书) post working images — deliverables for the XHS
 # platform, not referenced by the website
