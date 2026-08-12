@@ -8,6 +8,7 @@ Disallow: /css/
 Disallow: /assets/
 Allow: /assets/blog/
 Disallow: /demos/
+Disallow: /app/
 Disallow: /scripts/
 
 # AI / LLM crawlers — explicitly welcomed so this site can be discovered and
@@ -31,6 +32,7 @@ Disallow: /css/
 Disallow: /assets/
 Allow: /assets/blog/
 Disallow: /demos/
+Disallow: /app/
 Disallow: /scripts/
 
 Sitemap: https://www.h2o-dreamer-studio.com/sitemap.xml

@@ -1,0 +1,20 @@
+{
+  "name": "小帐本 · 离线记帐",
+  "short_name": "小帐本",
+  "description": "不用上架 App Store 的记帐工具，加到主屏幕即可离线使用，资料只存在你的装置里。在新加坡赚 SGD、汇回马来西亚花 MYR 的两侧帐，各自结算。",
+  "lang": "zh-Hans",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "id": "/app/moneybook/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f5f4",
+  "theme_color": "#0d9488",
+  "categories": ["finance", "productivity", "utilities"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
