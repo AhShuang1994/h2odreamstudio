@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>小帐本 · 离线记帐</title>
+  <meta name="description" content="不用上架 App Store 的记帐工具：加到主屏幕即可离线使用，资料只存在你的手机里。在新加坡赚 SGD、汇回马来西亚花 MYR 的两侧帐，各自结算。" />
+  <meta name="theme-color" content="#0d9488" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- iOS 加到主屏幕 -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="小帐本" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="icon" href="icon-192.png" />
+</head>
+<body>
+
+<!-- ══ 侧切换器 ══
+     只有第二币种存在时才会被填内容并显示。没有跨境需求的人看不到它，
+     版面与只有一个币种时完全一致（ADR-0001）。 -->
+<div class="side-switch" id="side-switch" hidden role="tablist" aria-label="切换币种侧"></div>
+
+<!-- ══ 记帐 ══ -->
+<section class="view" id="view-entry">
+  <header class="bar">
+    <h1 id="entry-title">记一笔</h1>
+    <button class="ghost" id="btn-delete" hidden>删除</button>
+  </header>
+
+  <div class="scroll">
+    <div class="seg" id="seg-type">
+      <button data-type="expense" class="on">支出</button>
+      <button data-type="income">收入</button>
+    </div>
+
+    <button class="amount-box" id="amount-tap">
+      <span class="hint" id="amount-hint">点一下输入金额</span>
+      <span class="val"><span class="cur" id="entry-cur">SGD</span><span class="amount" id="amount">0</span></span>
+    </button>
+
+    <div class="cats" id="cats"></div>
+
+    <!-- 转帐才出现：到帐金额由使用者从转帐 app 上抄下来，含手续费，是真实成交价。
+         app 不联网取汇率 —— 不猜汇率，问人。 -->
+    <div class="xfer" id="xfer-box" hidden>
+      <label class="field">
+        <span id="xfer-label">到帐</span>
+        <input type="number" id="xfer-amount" min="0" step="0.01" inputmode="decimal" placeholder="对面实际收到多少" />
+      </label>
+      <p class="muted small" id="xfer-rate">从转帐 app 上抄下实际到帐的数目，含手续费。</p>
+    </div>
+
+    <div class="fields">
+      <label class="field">
+        <span>日期</span>
+        <input type="date" id="date" />
+      </label>
+      <label class="field">
+        <span>备注</span>
+        <input type="text" id="note" placeholder="选填，例如：全家早餐" maxlength="40" />
+      </label>
+    </div>
+
+    <button class="primary big" id="btn-save-form">保存</button>
+  </div>
+</section>
+
+<!-- ══ 明细 ══ -->
+<section class="view" id="view-list" hidden>
+  <header class="bar">
+    <button class="ghost" data-month="-1">‹</button>
+    <h1 id="list-month">2026-08</h1>
+    <button class="ghost" data-month="1">›</button>
+  </header>
+
+  <div class="summary" id="list-summary"></div>
+
+  <div class="scroll" id="list-body"></div>
+</section>
+
+<!-- ══ 统计 ══ -->
+<section class="view" id="view-stats" hidden>
+  <header class="bar">
+    <button class="ghost" data-month="-1">‹</button>
+    <h1 id="stats-month">2026-08</h1>
+    <button class="ghost" data-month="1">›</button>
+  </header>
+
+  <div class="scroll">
+    <div class="seg small" id="seg-stats">
+      <button data-type="expense" class="on">支出</button>
+      <button data-type="income">收入</button>
+    </div>
+
+    <div id="budget-box"></div>
+
+    <div class="donut-wrap">
+      <svg id="donut" viewBox="0 0 42 42" aria-hidden="true"></svg>
+      <div class="donut-mid">
+        <small id="donut-label">本月支出</small>
+        <b id="donut-total">0</b>
+      </div>
+    </div>
+
+    <div id="rank"></div>
+
+    <h2 class="sec">近 6 个月</h2>
+    <div id="trend" class="trend"></div>
+  </div>
+</section>
+
+<!-- ══ 设定 ══ -->
+<section class="view" id="view-more" hidden>
+  <header class="bar"><h1>设定</h1></header>
+  <div class="scroll">
+
+    <div class="card" id="install-card" hidden>
+      <b>把 App 装到手机</b>
+      <p class="muted" id="install-text"></p>
+      <button class="primary" id="btn-install" hidden>加到主屏幕</button>
+    </div>
+
+    <h2 class="sec">币种</h2>
+    <div class="card row">
+      <span>主币种</span>
+      <input type="text" id="set-currency" maxlength="6" class="mini" aria-label="主币种" />
+    </div>
+    <div class="card">
+      <div class="row" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <span>第二币种</span>
+        <input type="text" id="set-currency2" maxlength="6" class="mini" placeholder="不填 = 没有" aria-label="第二币种" />
+      </div>
+      <p class="muted small" style="margin-top:10px">
+        在新加坡赚 SGD、汇回马来西亚花 MYR 就填 <b>MYR</b>。加了它，顶部才会出现切换器与汇款入口；
+        两侧各自结算，<b>永不相加</b>。不填就跟以前一模一样。
+      </p>
+    </div>
+
+    <h2 class="sec">每月预算</h2>
+    <div id="budget-settings"></div>
+
+    <h2 class="sec">每月固定收支</h2>
+    <div class="card">
+      <p class="muted small">房租、订阅、保费这类每月固定的帐，设定一次，之后每个月自动记上一笔（新增当下会先补记本月）。每条各自记住它属于哪一侧。</p>
+      <div id="rec-list"></div>
+      <div class="recform">
+        <div class="seg small" id="seg-rec-type">
+          <button data-type="expense" class="on">支出</button>
+          <button data-type="income">收入</button>
+        </div>
+        <div class="recrow">
+          <input type="number" id="rec-amount" min="0" step="1" inputmode="decimal" placeholder="金额" />
+          <select id="rec-currency" aria-label="币种" hidden></select>
+          <select id="rec-cat" aria-label="分类"></select>
+          <select id="rec-day" aria-label="每月几号"></select>
+        </div>
+        <div class="recrow">
+          <input type="text" id="rec-note" maxlength="20" placeholder="备注，例如：房租" />
+          <button class="primary" id="btn-add-rec">新增</button>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="sec">自订分类</h2>
+    <div class="card">
+      <p class="muted small">分类两侧共用，不用建两次。</p>
+      <div class="seg small" id="seg-cat-edit">
+        <button data-type="expense" class="on">支出</button>
+        <button data-type="income">收入</button>
+      </div>
+      <div id="cat-editor"></div>
+      <div class="addcat">
+        <input type="text" id="new-cat-icon" class="mini" maxlength="2" placeholder="🍎" />
+        <input type="text" id="new-cat-name" maxlength="6" placeholder="分类名称" />
+        <button class="primary" id="btn-add-cat">新增</button>
+      </div>
+    </div>
+
+    <h2 class="sec">资料</h2>
+    <div class="card">
+      <p class="muted">资料只存在这台装置的浏览器，没有服务器、没有帐号。换手机或清除浏览器资料前请先备份。</p>
+      <p class="muted small" style="margin-top:8px">
+        ⚠️ <b>换网址等于换一台装置。</b>浏览器按网址隔离储存，从预览网址换到正式网址时资料不会跟着走。
+        换网址那天先「备份 JSON」，到新网址再「还原备份」，帐就整本搬过去了。
+      </p>
+      <div class="btns">
+        <button id="btn-export-json">备份 JSON</button>
+        <button id="btn-export-csv">导出 CSV</button>
+        <button id="btn-import">还原备份</button>
+        <button class="danger" id="btn-clear">清除全部</button>
+      </div>
+      <input type="file" id="file-import" accept="application/json,.json" hidden />
+    </div>
+
+    <p class="muted center small" id="ver"></p>
+  </div>
+</section>
+
+<nav class="tabs">
+  <button data-view="entry" class="on"><i>✏️</i><span>记帐</span></button>
+  <button data-view="list"><i>📒</i><span>明细</span></button>
+  <button data-view="stats"><i>📊</i><span>统计</span></button>
+  <button data-view="more"><i>⚙️</i><span>设定</span></button>
+</nav>
+
+<!-- 数字键盘抽屉：放在 body 层，才不会被 .view 的堆叠脉络困住而被分页列盖住 -->
+<div class="keypad" id="keypad">
+  <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+  <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+  <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+  <button data-k=".">.</button><button data-k="0">0</button><button data-k="del" class="del">⌫</button>
+  <button class="save" id="btn-save">保存</button>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
