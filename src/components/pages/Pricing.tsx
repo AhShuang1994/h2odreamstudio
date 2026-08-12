@@ -1,6 +1,12 @@
 import { localize, pathsFor, t, type Lang } from "@/lib/i18n";
-import { Button, Container, Eyebrow } from "@/components/ui";
-import { PageHeader, PageSection, QuickAnswerCard, SectionTitle } from "@/components/page";
+import { Button, Container } from "@/components/ui";
+import {
+  CtaPanel,
+  PageHeader,
+  PageSection,
+  QuickAnswerCard,
+  SectionTitle,
+} from "@/components/page";
 import { JsonLd } from "@/components/JsonLd";
 import { businessNode, pageNode } from "@/lib/jsonld";
 import { site, type Bilingual } from "@/content/site";
@@ -211,24 +217,14 @@ export function PricingPage({ lang }: { lang: Lang }) {
       </PageSection>
 
       <PageSection>
-        <Container>
-          <div className="rounded-3xl border border-hairline bg-surface-1 px-8 py-14 text-center sm:px-16">
-            <Eyebrow className="text-center">
-              {t({ cn: "开始", en: "Get started" }, lang)}
-            </Eyebrow>
-            <SectionTitle>
-              <span className="mt-3 block">{t(pricingCta.heading, lang)}</span>
-            </SectionTitle>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button href={site.waLink(t(pricingCta.whatsappMessage, lang))} external>
-                {t(pricingCta.whatsapp, lang)}
-              </Button>
-              <Button href={localize("/contact", lang)} variant="secondary">
-                {t(pricingCta.secondary, lang)}
-              </Button>
-            </div>
-          </div>
-        </Container>
+        <CtaPanel lang={lang} heading={pricingCta.heading}>
+          <Button href={site.waLink(t(pricingCta.whatsappMessage, lang))} external>
+            {t(pricingCta.whatsapp, lang)}
+          </Button>
+          <Button href={localize("/contact", lang)} variant="secondary">
+            {t(pricingCta.secondary, lang)}
+          </Button>
+        </CtaPanel>
       </PageSection>
     </main>
   );

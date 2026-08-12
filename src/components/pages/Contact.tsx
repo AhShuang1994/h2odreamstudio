@@ -1,6 +1,7 @@
 import { pathsFor, t, type Lang } from "@/lib/i18n";
-import { Button, Container, Eyebrow } from "@/components/ui";
+import { Button, Container } from "@/components/ui";
 import {
+  CtaPanel,
   PageHeader,
   PageSection,
   QuickAnswerCard,
@@ -49,20 +50,28 @@ export function ContactPage({ lang }: { lang: Lang }) {
 
       <PageSection>
         <Container>
-          <div className="grid gap-4 sm:grid-cols-2">
+          {/* 四张渠道卡原本各挂一个 emoji（💬📧📕📸）。emoji 当图示在自家
+              反 AI 清单上，四个不同风格的彩色符号也把「单一 accent」破了 ——
+              去掉之后靠渠道名与账号本身识别，安静得多。 */}
+          <div className="grid gap-px overflow-hidden rounded-xl border border-hairline bg-hairline sm:grid-cols-2">
             {contactMethods.map((m, i) => (
               <a
                 key={i}
                 href={m.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group rounded-2xl border border-hairline bg-surface-1 p-7 transition-colors hover:border-hairline-strong hover:bg-surface-2"
+                className="group bg-surface-1 p-7 transition-colors duration-150 hover:bg-surface-2"
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl" aria-hidden>
-                    {m.icon}
+                <div className="flex items-baseline justify-between gap-4">
+                  <span className="text-lg font-medium tracking-[-0.01em] text-ink">
+                    {t(m.name, lang)}
                   </span>
-                  <span className="text-lg font-semibold text-ink">{t(m.name, lang)}</span>
+                  <span
+                    aria-hidden
+                    className="text-ink-faint transition-all group-hover:translate-x-0.5 group-hover:text-ink"
+                  >
+                    ↗
+                  </span>
                 </div>
                 <div className="mt-3 text-[15px] text-accent">{m.value}</div>
                 <p className="mt-2 text-sm text-ink-subtle">{t(m.note, lang)}</p>
@@ -90,24 +99,14 @@ export function ContactPage({ lang }: { lang: Lang }) {
       </PageSection>
 
       <PageSection>
-        <Container>
-          <div className="rounded-3xl border border-hairline bg-surface-1 px-8 py-14 text-center sm:px-16">
-            <Eyebrow className="text-center">
-              {t({ cn: "开始", en: "Get started" }, lang)}
-            </Eyebrow>
-            <SectionTitle>
-              <span className="mt-3 block">{t(contactCtaBlock.heading, lang)}</span>
-            </SectionTitle>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button href={site.waLink(t(contactCtaBlock.whatsappMessage, lang))} external>
-                {t(contactCtaBlock.whatsapp, lang)}
-              </Button>
-              <Button href="mailto:H2Odreamer@outlook.com" variant="secondary" external>
-                {t(contactCtaBlock.email, lang)}
-              </Button>
-            </div>
-          </div>
-        </Container>
+        <CtaPanel lang={lang} heading={contactCtaBlock.heading}>
+          <Button href={site.waLink(t(contactCtaBlock.whatsappMessage, lang))} external>
+            {t(contactCtaBlock.whatsapp, lang)}
+          </Button>
+          <Button href="mailto:H2Odreamer@outlook.com" variant="secondary" external>
+            {t(contactCtaBlock.email, lang)}
+          </Button>
+        </CtaPanel>
       </PageSection>
 
       <PageSection>

@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Parallax Storyboard</title>
+<style>
+:root{
+  --bg:#fbfaf8; --fg:#1a1a1a; --dim:#6b6b6b; --line:#e0ddd8;
+  --card:#fff; --accent:#b4532a; --shadow:0 1px 3px rgba(0,0,0,.08);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#16161a; --fg:#e8e6e3; --dim:#8f8d89; --line:#2e2e34;
+    --card:#1e1e24; --accent:#e0794a; --shadow:0 1px 3px rgba(0,0,0,.4);
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;padding:2rem 1.25rem 4rem;background:var(--bg);color:var(--fg);
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-size:1.5rem;margin:0 0 .25rem}
+.logline{color:var(--dim);margin:0 0 .5rem}
+.meta{font-size:.8rem;color:var(--dim);margin-bottom:2rem}
+.meta b{color:var(--fg);font-weight:600}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:1.25rem;margin-bottom:2rem;box-shadow:var(--shadow);overflow-x:auto}
+.panel h2{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--dim);margin:0 0 1rem;font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:1.1rem 1.25rem;box-shadow:var(--shadow)}
+.card-head{display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap;margin-bottom:.75rem}
+.card-id{font-weight:600;font-size:1.05rem}
+.tag{font-size:.7rem;padding:.15rem .45rem;border-radius:4px;
+  background:var(--line);color:var(--dim);white-space:nowrap}
+.row{display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-start}
+.field{margin:.5rem 0;font-size:.85rem}
+.field .k{color:var(--dim);font-size:.75rem;display:block;margin-bottom:.15rem}
+.sw{display:flex;gap:.3rem;margin-top:.2rem}
+.sw i{width:22px;height:22px;border-radius:4px;border:1px solid var(--line);display:block}
+.devs{display:flex;gap:1rem;align-items:flex-end}
+.dev{text-align:center}
+.dev svg{display:block;border-radius:3px}
+.dev span{font-size:.65rem;color:var(--dim)}
+.arrow{display:flex;align-items:center;gap:.6rem;margin:.6rem 0;padding-left:1.25rem}
+.arrow .bar{width:2px;height:26px;background:var(--line)}
+.tt{font-size:.72rem;font-weight:600;padding:.2rem .5rem;border-radius:4px;
+  background:var(--accent);color:#fff}
+.tt.warn{background:#c0392b}
+.note{font-size:.72rem;color:var(--dim)}
+.budget{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title"></h1>
+  <p class="logline" id="logline"></p>
+  <div class="meta" id="meta"></div>
+
+  <div class="panel">
+    <h2>情绪弧线</h2>
+    <div id="arc"></div>
+  </div>
+
+  <div id="sections"></div>
+</div>
+
+<script>
+/* ============================================================
+   只替换下面这一个对象。不要改动 HTML 与其余脚本。
+   ============================================================ */
+const DATA = {
+  "project": "H2ODreamer Studio — 首页",
+  "mode": "motif",
+  "logline": "向下滚动就是向下潜。从悬在水面之上的一滴水开始，穿过水面、随水流散开、进入开阔水层看见作品与人，最后在深海里遇见那只发着靛紫光的水母 —— 它就是这个品牌的图形本体。",
+  "engines": [
+    "motif",
+    "space-axis",
+    "color-arc"
+  ],
+  "motif": "水 —— 滴 → 涟漪 → 流 → 海 → 水母",
+  "breakpoints": {
+    "desktop": {
+      "w": 1440,
+      "h": 900
+    },
+    "mobile": {
+      "w": 430,
+      "h": 932
+    }
+  },
+  "sections": [
+    {
+      "id": "s0-overture",
+      "act": "",
+      "mood": 8,
+      "time": "画面之外",
+      "palette": [
+        "#07080b",
+        "#7c82f0",
+        "#9aa0ff"
+      ],
+      "motifBeat": "全黑。中央一个水滴轮廓的遮罩，洞里透出虹彩的液态球体 —— 全站唯一的品牌图形资产。水滴急速放大穿过观众 → 落进水下的 hero。整屏无文字，先静后爆。",
+      "safe": {
+        "desktop": {
+          "x": [
+            0.28,
+            0.72
+          ],
+          "y": [
+            0.6,
+            0.78
+          ]
+        },
+        "mobile": {
+          "x": [
+            0.1,
+            0.9
+          ],
+          "y": [
+            0.62,
+            0.8
+          ]
+        }
+      },
+      "budget": {
+        "zh": {
+          "headline": 10,
+          "sub": 34
+        },
+        "en": {
+          "headline": 21,
+          "sub": 68
+        }
+      },
+      "transitionOut": {
+        "type": "zoom-through",
+        "horizonY": {
+          "desktop": 1,
+          "mobile": 1
+        }
+      }
+    },
+    {
+      "id": "s1-drop",
+      "act": "建立",
+      "mood": 5,
+      "time": "水面之上",
+      "palette": [
+        "#07080b",
+        "#0e1015",
+        "#7c82f0"
+      ],
+      "motifBeat": "一滴水悬在暗色水面上方，尚未落下。全站唯一允许多彩的一屏（ADR-0007），虹彩只在这滴水上。",
+      "safe": {
+        "desktop": {
+          "x": [
+            0.08,
+            0.52
+          ],
+          "y": [
+            0.3,
+            0.72
+          ]
+        },
+        "mobile": {
+          "x": [
+            0.07,
+            0.93
+          ],
+          "y": [
+            0.14,
+            0.56
+          ]
+        }
+      },
+      "budget": {
+        "zh": {
+          "headline": 9,
+          "sub": 33
+        },
+        "en": {
+          "headline": 27,
+          "sub": 67
+        }
+      },
+      "transitionOut": {
+        "type": "zoom-through",
+        "horizonY": {
+          "desktop": 0.72,
+          "mobile": 0.64
+        }
+      }
+    },
+    {
+      "id": "s2-ripple",
+      "act": "建立",
+      "mood": 4,
+      "time": "水面",
+      "palette": [
+        "#07080b",
+        "#0e1015",
+        "#7c82f0"
+      ],
+      "motifBeat": "落点的同心涟漪向外扩散，波纹压着「快速答案」卡片的上缘走。",
+      "safe": {
+        "desktop": {
+          "x": [
+            0.08,
+            0.72
+          ],
+          "y": [
+            0.24,
+            0.78
+          ]
+        },
+        "mobile": {
+          "x": [
+            0.07,
+            0.93
+          ],
+          "y": [
+            0.16,
+            0.84
+          ]
+        }
+      },
+      "budget": {
+        "zh": {
+          "headline": 14,
+          "sub": 46
+        },
+        "en": {
+          "headline": 28,
+          "sub": 92
+        }
+      },
+      "transitionOut": {
+        "type": "continuous",
+        "horizonY": {
+          "desktop": 0.5,
+          "mobile": 0.46
+        }
+      }
+    },
+    {
+      "id": "s3-current",
+      "act": "推进",
+      "mood": 6,
+      "time": "浅水层",
+      "palette": [
+        "#0e1015",
+        "#14161d",
+        "#7c82f0"
+      ],
+      "motifBeat": "四道水流分头流走，一道对应一项服务；流末汇成一个圆形涡口。",
+      "safe": {
+        "desktop": {
+          "x": [
+            0.08,
+            0.62
+          ],
+          "y": [
+            0.18,
+            0.42
+          ]
+        },
+        "mobile": {
+          "x": [
+            0.07,
+            0.93
+          ],
+          "y": [
+            0.1,
+            0.36
+          ]
+        }
+      },
+      "budget": {
+        "zh": {
+          "headline": 12,
+          "sub": 41
+        },
+        "en": {
+          "headline": 24,
+          "sub": 82
+        }
+      },
+      "transitionOut": {
+        "type": "match-cut",
+        "horizonY": {
+          "desktop": 0.49,
+          "mobile": 0.45
+        }
+      }
+    },
+    {
+      "id": "s4-open",
+      "act": "推进",
+      "mood": 7,
+      "time": "开阔水层",
+      "palette": [
+        "#0e1015",
+        "#14161d",
+        "#9aa0ff"
+      ],
+      "motifBeat": "母题在这一屏**退场**——光柱与光斑是氛围不是母题拍点，主角让给作品缩略图本身。圆形光斑仍要接住上一屏的涡口（match-cut 的落点）。",
+      "safe": {
+        "desktop": {
+          "x": [
+            0.08,
+            0.6
+          ],
+          "y": [
+            0.16,
+            0.4
+          ]
+        },
+        "mobile": {
+          "x": [
+            0.07,
+            0.93
+          ],
+          "y": [
+            0.09,
+            0.34
+          ]
+        }
+      },
+      "budget": {
+        "zh": {
+          "headline": 12,
+          "sub": 41
+        },
+        "en": {
+          "headline": 24,
+          "sub": 82
+        }
+      },
+      "transitionOut": {
+        "type": "continuous",
+        "horizonY": {
+          "desktop": 0.47,
+          "mobile": 0.42
+        }
+      }
+    },
+    {
+      "id": "s5-diver",
+      "act": "推进",
+      "mood": 6,
+      "time": "中深水层",
+      "palette": [
+        "#0e1015",
+        "#14161d",
+        "#7c82f0"
+      ],
+      "motifBeat": "光柱里悬着一个人形轮廓 —— 这一屏的真实照片就是那个人，母题让位给人。",
+      "safe": {
+        "desktop": {
+          "x": [
+            0.28,
+            0.82
+          ],
+          "y": [
+            0.24,
+            0.74
+          ]
+        },
+        "mobile": {
+          "x": [
+            0.07,
+            0.93
+          ],
+          "y": [
+            0.42,
+            0.9
+          ]
+        }
+      },
+      "budget": {
+        "zh": {
+          "headline": 14,
+          "sub": 46
+        },
+        "en": {
+          "headline": 28,
+          "sub": 92
+        }
+      },
+      "transitionOut": {
+        "type": "hard-cut",
+        "horizonY": {
+          "desktop": 0.46,
+          "mobile": 0.41
+        }
+      }
+    },
+    {
+      "id": "s6-eddy",
+      "act": "收束",
+      "mood": 5,
+      "time": "深水层",
+      "palette": [
+        "#07080b",
+        "#0e1015",
+        "#7c82f0"
+      ],
+      "motifBeat": "洋流回旋，一圈一圈把问题绕进去；旋涡中心是一个暗的洞眼。",
+      "safe": {
+        "desktop": {
+          "x": [
+            0.08,
+            0.58
+          ],
+          "y": [
+            0.14,
+            0.36
+          ]
+        },
+        "mobile": {
+          "x": [
+            0.07,
+            0.93
+          ],
+          "y": [
+            0.08,
+            0.32
+          ]
+        }
+      },
+      "budget": {
+        "zh": {
+          "headline": 12,
+          "sub": 41
+        },
+        "en": {
+          "headline": 24,
+          "sub": 82
+        }
+      },
+      "transitionOut": {
+        "type": "zoom-through",
+        "horizonY": {
+          "desktop": 0.44,
+          "mobile": 0.4
+        }
+      }
+    },
+    {
+      "id": "s7-jelly",
+      "act": "收束",
+      "mood": 9,
+      "time": "深海",
+      "palette": [
+        "#07080b",
+        "#7c82f0",
+        "#9aa0ff"
+      ],
+      "motifBeat": "水母主体现身，靛紫生物光自伞内亮起 —— 母题走到终点，也是品牌图形本体。",
+      "safe": {
+        "desktop": {
+          "x": [
+            0.08,
+            0.56
+          ],
+          "y": [
+            0.28,
+            0.7
+          ]
+        },
+        "mobile": {
+          "x": [
+            0.07,
+            0.93
+          ],
+          "y": [
+            0.12,
+            0.58
+          ]
+        }
+      },
+      "budget": {
+        "zh": {
+          "headline": 11,
+          "sub": 36
+        },
+        "en": {
+          "headline": 23,
+          "sub": 73
+        }
+      }
+    }
+  ]
+};
+/* ===================== 以下不要改 ===================== */
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+$("title").textContent = DATA.project + " — Storyboard";
+$("logline").textContent = DATA.logline || "";
+$("meta").innerHTML =
+  `模式 <b>${esc(DATA.mode)}</b> &nbsp;·&nbsp; 引擎 <b>${(DATA.engines||[]).map(esc).join(" + ")}</b>` +
+  (DATA.motif ? ` &nbsp;·&nbsp; 母题 <b>${esc(DATA.motif)}</b>` : "") +
+  ` &nbsp;·&nbsp; ${DATA.sections.length} 屏`;
+
+/* ---- 情绪弧线 ---- */
+(function arc() {
+  const s = DATA.sections, W = 860, H = 170, P = 34;
+  const step = s.length > 1 ? (W - P * 2) / (s.length - 1) : 0;
+  const y = (m) => H - P - ((m - 1) / 9) * (H - P * 2);
+  const pts = s.map((d, i) => [P + i * step, y(d.mood)]);
+  const path = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+  const grid = [1, 5, 10].map(m =>
+    `<line x1="${P}" x2="${W - P}" y1="${y(m)}" y2="${y(m)}" stroke="var(--line)" stroke-width="1"/>
+     <text x="8" y="${y(m) + 4}" font-size="10" fill="var(--dim)">${m}</text>`).join("");
+  const dots = pts.map((p, i) =>
+    `<circle cx="${p[0]}" cy="${p[1]}" r="5" fill="var(--accent)"/>
+     <text x="${p[0]}" y="${p[1] - 12}" font-size="11" fill="var(--fg)" text-anchor="middle">${s[i].mood}</text>
+     <text x="${p[0]}" y="${H - 10}" font-size="10" fill="var(--dim)" text-anchor="middle">${esc(s[i].id)}</text>`
+  ).join("");
+  $("arc").innerHTML =
+    `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;min-width:520px">
+       ${grid}
+       <path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.5"
+             stroke-linejoin="round" stroke-linecap="round"/>
+       ${dots}
+     </svg>`;
+})();
+
+/* ---- 设备安全区示意 ---- */
+function devSVG(label, vp, safe) {
+  if (!vp || !safe) return "";
+  const H = 84, W = Math.max(20, Math.round(H * vp.w / vp.h));
+  const rx = safe.x[0] * W, rw = (safe.x[1] - safe.x[0]) * W;
+  const ry = safe.y[0] * H, rh = (safe.y[1] - safe.y[0]) * H;
+  return `<div class="dev">
+    <svg width="${W}" height="${H}">
+      <rect x="0" y="0" width="${W}" height="${H}" fill="var(--line)"/>
+      <rect x="${rx.toFixed(1)}" y="${ry.toFixed(1)}" width="${rw.toFixed(1)}" height="${rh.toFixed(1)}"
+            fill="var(--accent)" opacity=".65"/>
+    </svg><span>${label}</span></div>`;
+}
+
+/* ---- 分幕卡片 ---- */
+const TT = { "continuous": "连续空间", "match-cut": "形状延续", "hard-cut": "硬切", "zoom-through": "穿透" };
+
+$("sections").innerHTML = DATA.sections.map((d, i) => {
+  const sw = (d.palette || []).map(c =>
+    `<i style="background:${esc(c)}" title="${esc(c)}"></i>`).join("");
+  const b = d.budget || {};
+  const budget = (b.zh || b.en)
+    ? `中 ${b.zh ? b.zh.headline + "/" + b.zh.sub : "—"} &nbsp; 英 ${b.en ? b.en.headline + "/" + b.en.sub : "—"}`
+    : "未计算";
+
+  const card = `<div class="card">
+    <div class="card-head">
+      <span class="card-id">${esc(d.id)}</span>
+      ${d.act ? `<span class="tag">${esc(d.act)}</span>` : ""}
+      ${d.time ? `<span class="tag">${esc(d.time)}</span>` : ""}
+      <span class="tag">mood ${esc(d.mood)}</span>
+    </div>
+    <div class="row">
+      <div style="flex:1;min-width:240px">
+        <div class="field"><span class="k">母题 beat</span>${esc(d.motifBeat) || "<span class='note'>无</span>"}</div>
+        <div class="field"><span class="k">palette</span><div class="sw">${sw}</div></div>
+        <div class="field"><span class="k">文案预算 headline/sub</span>
+          <span class="budget">${budget}</span></div>
+      </div>
+      <div class="field">
+        <span class="k">文字安全区</span>
+        <div class="devs">
+          ${devSVG("desktop", DATA.breakpoints?.desktop, d.safe?.desktop)}
+          ${devSVG("mobile", DATA.breakpoints?.mobile, d.safe?.mobile)}
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  const t = d.transitionOut;
+  if (!t || i === DATA.sections.length - 1) return card;
+  const hy = t.horizonY || {};
+  const next = DATA.sections[i + 1]?.transitionOut?.horizonY || {};
+  // continuous 转场处视平线跳变检查
+  let warn = "";
+  if (t.type === "continuous" && hy.desktop != null && next.desktop != null &&
+      Math.abs(hy.desktop - next.desktop) > 0.02) {
+    warn = " · ⚠ 视平线跳变 " + Math.abs(hy.desktop - next.desktop).toFixed(3);
+  }
+  const arrow = `<div class="arrow">
+    <div class="bar"></div>
+    <span class="tt${warn ? " warn" : ""}">${esc(TT[t.type] || t.type)}</span>
+    <span class="note">horizonY ${hy.desktop ?? "—"} / ${hy.mobile ?? "—"}${warn}</span>
+  </div>`;
+  return card + arrow;
+}).join("");
+</script>
+</body>
+</html>

@@ -17,18 +17,19 @@ export function Nav({ lang }: { lang: Lang }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // 滚动后是**实底**加一条发丝线，不是毛玻璃。backdrop-filter 在中低端安卓上
+  // 会把 Style & Layout 拖到秒级（这个站以前真踩过），玻璃拟态本身也在自家
+  // 反 AI 清单上。
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-        scrolled
-          ? "border-b border-hairline bg-bg/85 backdrop-blur-md"
-          : "border-b border-transparent"
+      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-200 ${
+        scrolled ? "border-b border-hairline bg-bg" : "border-b border-transparent"
       }`}
     >
-      <nav className="mx-auto flex max-w-[1200px] items-center justify-between gap-6 px-5 py-4 sm:px-8">
+      <nav className="mx-auto flex h-14 max-w-[1200px] items-center justify-between gap-6 px-5 sm:px-8">
         <Link
           href={localize("/", lang)}
-          className="text-[15px] font-semibold tracking-tight text-ink"
+          className="text-[15px] font-medium tracking-[-0.01em] text-ink"
         >
           H2O<span className="text-accent">Dreamer</span> Studio
         </Link>
@@ -42,12 +43,13 @@ export function Nav({ lang }: { lang: Lang }) {
               </span>
             </button>
             <div className="invisible absolute left-1/2 top-full z-10 -translate-x-1/2 pt-3 opacity-0 transition duration-200 group-hover:visible group-hover:opacity-100">
-              <div className="min-w-[190px] rounded-xl border border-hairline bg-surface-1 p-2 shadow-xl">
+              {/* 抬起靠表面阶梯 + 发丝描边，不用投影 —— 暗色上的投影只会糊。 */}
+              <div className="min-w-[190px] rounded-xl border border-hairline-strong bg-surface-2 p-1.5">
                 {nav.services.items.map((it) => (
                   <Link
                     key={it.href}
                     href={localize(it.href, lang)}
-                    className="block whitespace-nowrap rounded-lg px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink"
+                    className="block whitespace-nowrap rounded-lg px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-surface-3 hover:text-ink"
                   >
                     {t(it.label, lang)}
                   </Link>

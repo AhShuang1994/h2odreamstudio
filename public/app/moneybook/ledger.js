@@ -71,6 +71,19 @@ export function shiftMonth(m, delta) {
   return monthOf(new Date(y, mo - 1 + delta, 1));
 }
 
+/** 两个月份相差几个月。用于按月份算期数，而不是数已补记的笔数。 */
+export function monthsBetween(from, to) {
+  const [y1, m1] = from.split('-').map(Number);
+  const [y2, m2] = to.split('-').map(Number);
+  return (y2 - y1) * 12 + (m2 - m1);
+}
+
+/** 这个月的最后一天是几号 —— 2 月没有 31 号。 */
+function lastDayOfMonth(m) {
+  const [y, mo] = m.split('-').map(Number);
+  return new Date(y, mo, 0).getDate();
+}
+
 export function newId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
@@ -140,7 +153,7 @@ function sanitizeRule(r, primary) {
   const day = Math.min(31, Math.max(1, Math.round(Number(r.day)) || 1));
   const from = typeof r.from === 'string' && /^\d{4}-\d{2}$/.test(r.from) ? r.from : null;
   if (!from) return null;
-  return {
+  const rule = {
     id: typeof r.id === 'string' && r.id ? r.id : newId(),
     type: r.type === INCOME ? INCOME : EXPENSE,
     amount,
@@ -151,6 +164,9 @@ function sanitizeRule(r, primary) {
     from,
     applied: Array.isArray(r.applied) ? r.applied.filter(m => typeof m === 'string') : []
   };
+  // 期数坏掉只丢这个字段、退回无限期 —— 丢掉整条规则的话，使用者会莫名少一笔帐（#117）
+  if (Number.isInteger(r.terms) && r.terms >= 1) rule.terms = r.terms;
+  return rule;
 }
 
 /**
@@ -263,6 +279,14 @@ export function setSecondaryCurrency(state, code) {
 /** 这一侧上挂着多少笔记录 —— 删第二币种前要拿它去问使用者（story 36）。 */
 export function countOnSide(state, currency) {
   return state.records.filter(r => touchesSide(r, currency)).length;
+}
+
+/**
+ * 这一侧上挂着多少条固定收支 —— 删第二币种前也要拿它去问使用者（#116）。
+ * 记录是死的，规则才是会继续生长的那个东西，所以两个数都要说。
+ */
+export function countRulesOnSide(state, currency) {
+  return state.recurring.filter(r => r.currency === currency).length;
 }
 
 export function removeSecondaryCurrency(state) {
@@ -499,7 +523,7 @@ export function removeRecord(state, id) {
 
 // —— 每月固定收支 ————————————————————————————————————————
 
-export function addRule(state, { type, amount, currency, cat, day, note, from }) {
+export function addRule(state, { type, amount, currency, cat, day, note, from, terms }) {
   const rule = {
     id: newId(),
     type: type === INCOME ? INCOME : EXPENSE,
@@ -512,8 +536,175 @@ export function addRule(state, { type, amount, currency, cat, day, note, from })
     applied: []
   };
   if (!(rule.amount > 0)) throw new Error('金额要大于 0');
+
+  // 期数留空 = 一直重复，所以「没填」与「填错」必须分开：没填就不长这个字段，
+  // 填错要当场说清楚，绝不悄悄退回无限期，也不建出一笔生下来就结束的分期（#117）
+  if (terms != null && terms !== '') {
+    const n = Number(terms);
+    if (!Number.isInteger(n) || n < 1) throw new Error('期数要填 1 以上的整数，留空表示一直重复');
+    rule.terms = n;
+  }
+
   state.recurring.push(rule);
   return rule;
+}
+
+// —— 分期 ————————————————————————————————————————————————
+//
+// 分期就是有期数的固定收支。**期数含首期在内** —— 填 1 表示那个月就还完。
+// 到期判定按月份算（首期往后数「总期数 − 1」个月），不按已补记的笔数：使用者
+// 手动删掉中间某个月那一笔时，分期仍然在原本那个月结束，与银行那边的日历对齐。
+//
+// 下面全是派生值，一个都不存 —— 存下来就会与期数产生第二个真相（同 rateOf）。
+
+export function isInstallment(rule) {
+  return Boolean(rule?.terms);
+}
+
+/** 最后一期落在哪个月。无限期返回 null。 */
+export function lastTermMonth(rule) {
+  return isInstallment(rule) ? shiftMonth(rule.from, rule.terms - 1) : null;
+}
+
+/**
+ * 站在某个月往前看，这笔分期**还有几期没记**。含该月在内，但**已经补记过的那几期
+ * 不再算进去** —— 本月那笔一记下，还剩就少 1，待还也跟着少一期的钱。
+ *
+ * 数「还没记的笔数」而不是「还有几个月」，是为了让界面上只有一个「还剩」：编辑框里
+ * 填的、列表行上写的、「填 0 即提前还清」判定的，全是同一个数（#119）。到期停在哪个
+ * 月仍然按月份算（lastTermMonth），跟这里无关。
+ *
+ * 无限期返回 null（不是 Infinity：界面要据此决定这一行画不画期数）。
+ */
+export function remainingTerms(rule, month) {
+  if (!isInstallment(rule)) return null;
+  const last = lastTermMonth(rule);
+  if (month > last) return 0;
+  const applied = rule.applied || [];
+  let n = 0;
+  for (let m = month < rule.from ? rule.from : month; m <= last; m = shiftMonth(m, 1)) {
+    if (!applied.includes(m)) n++;
+  }
+  return n;
+}
+
+/** 还完了没有 —— 该记的都记完了就是完了。无限期永远是 false，它没有「完」这回事。 */
+export function isSettled(rule, month) {
+  return remainingTerms(rule, month) === 0;
+}
+
+/**
+ * 这笔记录是第几期 —— `{ index, total }`，算不出来时为 null。
+ *
+ * 由记录所属月份减去规则的首期月份算出，**不存进记录里**（同 rateOf）：存下来就有了
+ * 第二个真相，使用者一改期数，旧记录上那个「共 12 期」当场就跟现实对不上。
+ *
+ * 代价是规则被删掉之后算不出期次。此时返回 null，渲染层据此退回一般的自动记录标签
+ * —— 不显示错的数字，也不让它变成一笔来路不明的支出：备注还在，记录不至于失籍。
+ */
+export function termOf(state, record) {
+  if (!record?.ruleId) return null;
+  const rule = state.recurring.find(r => r.id === record.ruleId);
+  if (!isInstallment(rule)) return null;   // 规则已删，或它本来就是无限期的
+  const index = monthsBetween(rule.from, record.date.slice(0, 7)) + 1;
+  // 记录的日期被手动改到期数范围之外时同样退回 —— 宁可不显示，也不显示 0/12
+  if (index < 1 || index > rule.terms) return null;
+  return { index, total: rule.terms };
+}
+
+/** 这笔分期还要付出去多少：每期金额 × 剩余期数。 */
+export function outstandingOf(rule, month) {
+  const left = remainingTerms(rule, month);
+  return left == null ? null : round2(rule.amount * left);
+}
+
+/**
+ * 这一侧的待还小计。
+ *
+ * **只算支出**：收入的分期是待收，性质不同，跟待还加在一起就跟把两侧相加一样
+ * 没有意义。两侧之间当然更不相加（ADR-0001）。
+ */
+export function outstandingOnSide(state, currency, month) {
+  return round2(state.recurring.reduce(
+    (s, r) => s + (r.currency === currency && r.type === EXPENSE ? (outstandingOf(r, month) || 0) : 0),
+    0
+  ));
+}
+
+/**
+ * 新增分期时，首期默认落在本月还是下月。
+ *
+ * 扣款日已经过了就默认下月 —— 假定本月那期已经还过，避免重复记一笔。当天不算过。
+ * 使用者可以改，这只是默认值。
+ */
+export function defaultFirstMonth(today, day) {
+  const month = today.slice(0, 7);
+  const effective = Math.min(Math.max(1, Math.round(Number(day)) || 1), lastDayOfMonth(month));
+  return Number(today.slice(8, 10)) > effective ? shiftMonth(month, 1) : month;
+}
+
+/**
+ * 这条分期还有几期没补记 —— 编辑表单里的「还剩几期」就是它。无限期返回 null。
+ *
+ * 与 remainingTerms 不同：那个按月份算（含当月），这个按已补记的笔数算。编辑时要用
+ * 后者，因为「已还的进度」是由已经记下的记录构成的，重算总期数时不能把它抹掉。
+ */
+export function unappliedTerms(rule) {
+  return isInstallment(rule) ? Math.max(0, rule.terms - (rule.applied?.length || 0)) : null;
+}
+
+/** 这条规则在这个月已经记下的那一笔。没有就是 null —— 首期在下月时本来就没有。 */
+export function appliedRecordOf(state, ruleId, month) {
+  return state.records.find(r => r.ruleId === ruleId && r.date.startsWith(month)) || null;
+}
+
+/**
+ * 改一条固定收支 / 分期。**只管以后。**
+ *
+ * 已经记下的记录一笔都不碰，`from` 与 `applied` 原样保留 —— 生效月份因此是使用者
+ * 眼睛看得见的（否则「房租九月起涨、八月底手痒去改」会静静改错八月），也不会覆盖
+ * 他手动调整过的那一笔。更重要的是**规则对记录仍然是单向的**：规则产生完记录就与
+ * 它无关，这个单向性一旦破掉就再也回不来。
+ *
+ * **币种不可改** —— 改了会让已产生的记录留在旧侧、以后的落在新侧，一条规则横跨两
+ * 侧，而这个 app 的整套词汇建立在「一侧各自独立、永不相加」上（ADR-0001）。要换侧
+ * 只能删了重建。
+ *
+ * `remaining` 是**还有几期没记**，不是总期数：新的总期数 = 已补记的期数 + 它，所以
+ * 3/12 改成还剩 5 期会变成 3/8 而不是 0/5。填 0 就是提前还清，留空则变回无限期。
+ */
+export function updateRule(state, id, patch) {
+  const i = state.recurring.findIndex(r => r.id === id);
+  if (i < 0) return null;
+  const next = { ...state.recurring[i] };
+
+  if (patch.currency != null && normalizeCurrency(patch.currency) !== next.currency) {
+    throw new Error('币种不能改 —— 一条规则不能横跨两侧，要换侧请删了重建');
+  }
+  if (patch.type != null) next.type = patch.type === INCOME ? INCOME : EXPENSE;
+  if (patch.amount != null) next.amount = round2(patch.amount);
+  if (!(next.amount > 0)) throw new Error('金额要大于 0');
+  if (patch.day != null) next.day = Math.min(31, Math.max(1, Math.round(Number(patch.day)) || 1));
+  if (patch.cat != null) next.cat = String(patch.cat);
+  if (patch.note != null) next.note = String(patch.note);
+
+  if ('remaining' in patch) {
+    const v = patch.remaining;
+    if (v == null || v === '') {
+      delete next.terms;                                  // 变回无限期
+    } else {
+      const n = Number(v);
+      if (!Number.isInteger(n) || n < 0) throw new Error('还剩几期要填 0 以上的整数，留空表示一直重复');
+      const paid = next.applied?.length || 0;
+      // 一期都还没记时填 0 等于这条规则从没存在过 —— 那是删除，不是编辑。悄悄留下一条
+      // terms 为 0 的规则会被 isInstallment 当成无限期，反而变成一直重复
+      if (paid + n < 1) throw new Error('这笔还没记过任何一期，要停掉请直接删除这条');
+      next.terms = paid + n;                              // 已还的进度不被抹掉
+    }
+  }
+
+  state.recurring[i] = next;
+  return next;
 }
 
 export function removeRule(state, id) {
@@ -527,19 +718,25 @@ export function removeRule(state, id) {
  *
  * 每条规则自己记住已经套用过哪些月份，所以使用者手动删掉某个月的那一笔也不会被
  * 重新补回来；跨月放着不开也能一次补齐中间的每个月，不重复、不漏。
+ *
+ * 币种不再属于任何一侧的规则整条跳过（#116）—— 移除第二币种只是把那一侧收起来，
+ * 规则还留着，不跳过的话它会一直往一个使用者看不见的地方塞记录。**跳过时不写
+ * `applied`**，所以币种加回来的那一刻，中间漏掉的月份会被上面的跨月补齐一次补上：
+ * 那几个月的钱确实付了，不该凭空消失。
  */
 export function applyRecurring(state, today) {
   const thisMonth = today.slice(0, 7);
+  const live = sides(state);
   let added = 0;
 
   for (const rule of state.recurring) {
+    if (!live.includes(rule.currency)) continue;
     rule.applied ||= [];
+    const stop = lastTermMonth(rule);              // 分期补到最后一期就停；无限期为 null
     let m = rule.from;
-    while (m <= thisMonth) {
+    while (m <= thisMonth && (stop === null || m <= stop)) {
       if (!rule.applied.includes(m)) {
-        const [y, mo] = m.split('-').map(Number);
-        const lastDay = new Date(y, mo, 0).getDate();  // 2 月没有 31 号，缩到当月最后一天
-        const date = `${m}-${pad(Math.min(rule.day, lastDay))}`;
+        const date = `${m}-${pad(Math.min(rule.day, lastDayOfMonth(m)))}`;  // 2 月没有 31 号，缩到当月最后一天
         if (date <= today) {
           state.records.push({
             id: newId(),

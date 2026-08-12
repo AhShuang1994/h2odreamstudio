@@ -32,6 +32,8 @@ import * as L from './ledger.js';
   let statsType = 'expense';        // 统计页
   let catEditType = 'expense';      // 设定页分类编辑
   let recType = 'expense';          // 固定收支
+  let recFirstTouched = false;      // 使用者改过首期没有 —— 改过就不再自动跳默认值
+  let editingRuleId = null;         // 正在编辑哪条固定收支。null = 表单在「新增」态
   let picked = null;                // 已选分类 id
   let buffer = '0';                 // 金额输入缓冲
   let editingId = null;
@@ -57,12 +59,24 @@ import * as L from './ledger.js';
     return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
   }
   let toastTimer;
-  function toast(msg) {
+  /**
+   * 带动作的 toast 停久一点，也才点得到 —— 平常的 toast 是 pointer-events:none 的，
+   * 不然它会挡住底下的东西。
+   */
+  function toast(msg, action) {
     const el = $('#toast');
     el.textContent = msg;
+    if (action) {
+      const b = document.createElement('button');
+      b.className = 'toast-act';
+      b.textContent = action.label;
+      b.addEventListener('click', () => { el.classList.remove('on'); action.onClick(); });
+      el.append(b);
+    }
+    el.classList.toggle('act', Boolean(action));
     el.classList.add('on');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('on'), 1800);
+    toastTimer = setTimeout(() => el.classList.remove('on'), action ? 6000 : 1800);
   }
   /** 走出的那一侧记帐时，对面是谁。只有一侧时为 null。 */
   const otherSide = () => L.otherSide(state, side);
@@ -345,7 +359,7 @@ import * as L from './ledger.js';
       return [{
         id: r.id, icon: catOf(r.type, r.cat).icon, title: catOf(r.type, r.cat).name,
         note: r.note || '', sign: r.type === 'income' ? '+' : '-',
-        cls: r.type, amount: r.amount, ruleId: r.ruleId
+        cls: r.type, amount: r.amount, ruleId: r.ruleId, term: L.termOf(state, r)
       }];
     }
     const out = [];
@@ -399,7 +413,11 @@ import * as L from './ledger.js';
       return `<div class="day">
         <div class="day-head"><span>${day.slice(5)}　周${wd}</span><span>${head}</span></div>
         <div class="items">${items.map(it => {
-          const auto = it.ruleId ? '<span class="auto-tag">🔁 固定</span>' : '';
+          // 分期最重要的信息是它会停 —— 标签直接画期次，扫一眼就知道还剩几次。
+          // 算不出期次（无限期、或规则已删）就退回一般的自动记录标签（#118）。
+          const auto = it.ruleId
+            ? `<span class="auto-tag">${it.term ? `💳 ${it.term.index}/${it.term.total}` : '🔁 固定'}</span>`
+            : '';
           return `<button class="item" data-id="${esc(it.id)}">
             <i>${esc(it.icon)}</i>
             <span class="t"><b>${esc(it.title)}${auto}</b><small>${esc(it.note)}</small></span>
@@ -487,18 +505,52 @@ import * as L from './ledger.js';
   }
 
   // ── 每月固定收支 ────────────────────────────────────
+  /** 一条规则一行。分期多一段进度：还剩几期、还要付多少，还完了就灰化。 */
+  function recRow(r, month) {
+    const c = catOf(r.type, r.cat);
+    const left = L.remainingTerms(r, month);
+    const settled = L.isSettled(r, month);
+    let meta;
+    if (left == null) {
+      meta = `每月 ${r.day} 号 · ${esc(c.name)}`;
+    } else if (settled) {
+      meta = `已还完 ${r.terms}/${r.terms} · ${esc(c.name)}`;
+    } else {
+      const word = r.type === 'expense' ? '待还' : '待收';
+      meta = `每月 ${r.day} 号 · 还剩 ${left} 期 · ${word} ${money(L.outstandingOf(r, month), r.currency)}`;
+    }
+    return `<div class="rec-row${settled ? ' done' : ''}">
+      <button class="rec-main" data-edit-rec="${esc(r.id)}">
+        <i>${esc(c.icon)}</i>
+        <span class="t"><b>${esc(r.note || c.name)}</b><small>${meta}</small></span>
+        <span class="v ${r.type}">${r.type === 'expense' ? '-' : '+'}${money(r.amount, r.currency)}</span>
+      </button>
+      <button class="x" data-del-rec="${esc(r.id)}" aria-label="删除">✕</button>
+    </div>`;
+  }
+
   function renderRecurring() {
-    $('#rec-list').innerHTML = state.recurring.length
-      ? state.recurring.map(r => {
-          const c = catOf(r.type, r.cat);
-          return `<div class="rec-row">
-            <i>${esc(c.icon)}</i>
-            <span class="t"><b>${esc(r.note || c.name)}</b><small>每月 ${r.day} 号 · ${esc(c.name)}</small></span>
-            <span class="v ${r.type}">${r.type === 'expense' ? '-' : '+'}${money(r.amount, r.currency)}</span>
-            <button class="x" data-del-rec="${esc(r.id)}" aria-label="删除">✕</button>
-          </div>`;
-        }).join('')
-      : '<p class="muted small">还没有设定固定收支。</p>';
+    const month = L.monthOf(new Date());
+
+    // 按侧分组，每一侧末尾结自己的待还小计 —— 两侧的数字永不相加。
+    const groups = L.sides(state).map(c => ({ currency: c, rules: state.recurring.filter(r => r.currency === c) }));
+    // 币种被移除后规则仍留着但已停止补记（#116）。照样列出来，否则使用者看不到它还挂在那。
+    const live = L.sides(state);
+    const orphans = state.recurring.filter(r => !live.includes(r.currency));
+    if (orphans.length) groups.push({ currency: null, rules: orphans });
+
+    const html = groups.filter(g => g.rules.length).map(g => {
+      const rows = g.rules.map(r => recRow(r, month)).join('');
+      if (g.currency === null) return rows;
+      const due = L.outstandingOnSide(state, g.currency, month);
+      if (!(due > 0)) return rows;
+      return rows + `<div class="rec-row sub">
+        <span class="t"><small>${esc(g.currency)} 待还小计</small></span>
+        <span class="v">${money(due, g.currency)}</span>
+      </div>`;
+    }).join('');
+
+    $('#rec-list').innerHTML = html || '<p class="muted small">还没有设定固定收支。</p>';
 
     $('#rec-cat').innerHTML = (state.cats[recType] || [])
       .map(c => `<option value="${esc(c.id)}">${esc(c.icon)} ${esc(c.name)}</option>`).join('');
@@ -513,6 +565,122 @@ import * as L from './ledger.js';
       $('#rec-day').innerHTML = Array.from({ length: 31 }, (_, i) =>
         `<option value="${i + 1}">每月 ${i + 1} 号</option>`).join('');
     }
+    syncRecEditMode();
+    syncRecFirst();
+  }
+
+  /**
+   * 表单现在是「新增」还是「编辑」态。
+   *
+   * 编辑时**币种锁住** —— 改了会让已产生的记录留在旧侧、以后的落在新侧，一条规则横跨
+   * 两侧，而这个 app 的整套词汇建立在「一侧各自独立、永不相加」上（ADR-0001）。
+   */
+  function syncRecEditMode() {
+    const rule = editingRuleId ? state.recurring.find(r => r.id === editingRuleId) : null;
+    if (!rule) editingRuleId = null;
+    $('#btn-add-rec').textContent = rule ? '保存' : '新增';
+    $('#btn-cancel-rec').hidden = !rule;
+    $('#rec-edit-hint').hidden = !rule;
+    $('#rec-currency').disabled = Boolean(rule);
+    if (rule) {
+      $('#rec-currency').value = rule.currency;
+      $('#rec-cat').value = rule.cat;
+    }
+  }
+
+  /** 列表行上进入编辑，复用同一个表单 —— 不必删了重建，也就不会重复补记本月那期。 */
+  function startEditRule(id) {
+    const rule = state.recurring.find(r => r.id === id);
+    if (!rule) return;
+    editingRuleId = id;
+    recType = rule.type;
+    $$('#seg-rec-type button').forEach(b => b.classList.toggle('on', b.dataset.type === recType));
+    renderRecurring();                      // 分类清单要换成这个类型的，币种也在这里锁上
+
+    $('#rec-amount').value = String(rule.amount);
+    $('#rec-day').value = String(rule.day);
+    $('#rec-note').value = rule.note || '';
+    // 表单问的是「还剩几期」，所以带入的是还没补记的期数，不是总期数
+    const left = L.unappliedTerms(rule);
+    $('#rec-terms').value = left == null ? '' : String(left);
+    syncRecFirst();
+    $('#rec-amount').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    $('#rec-amount').focus();
+  }
+
+  function resetRecForm() {
+    editingRuleId = null;
+    $('#rec-amount').value = ''; $('#rec-note').value = ''; $('#rec-terms').value = '';
+    recFirstTouched = false;
+    renderRecurring();
+  }
+
+  /**
+   * 保存编辑。**只管以后，当月已经记下的那一笔不碰。**
+   *
+   * 改完直接说出本月那笔已经记下了，并让人跳过去看 —— 生效月份因此是眼睛看得见的，
+   * 否则「房租九月起涨、我八月底就手痒去改了」会静静改错八月。首期设成下月的分期
+   * 本来就还没有那一笔，那就不弹。
+   */
+  function saveRuleEdit() {
+    const id = editingRuleId;
+    try {
+      L.updateRule(state, id, {
+        type: recType,
+        amount: Number($('#rec-amount').value),
+        cat: $('#rec-cat').value,
+        day: Number($('#rec-day').value),
+        note: $('#rec-note').value.trim(),
+        remaining: $('#rec-terms').value.trim()
+      });
+    } catch (err) {
+      return toast(err.message);
+    }
+    const done = L.appliedRecordOf(state, id, L.monthOf(new Date()));
+    resetRecForm();
+    save();
+    if (done && L.sides(state).includes(done.currency)) {
+      toast('已保存。本月那笔已经记下了，改动从下个月起算', {
+        label: '去看看', onClick: () => jumpToRecord(done)
+      });
+    } else {
+      toast('已保存，只影响以后');
+    }
+  }
+
+  /** 跳到明细里的那一笔，并让它亮一下 —— 不然到了那页还得自己找。 */
+  function jumpToRecord(rec) {
+    if (rec.currency !== side) {
+      side = rec.currency;
+      L.setActiveSide(state, side);
+      save();
+      renderSideSwitch();
+    }
+    curMonth = rec.date.slice(0, 7);
+    show('list');
+    const el = $(`#list-body .item[data-id="${rec.id}"]`);
+    if (!el) return;
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    el.classList.add('flash');
+    setTimeout(() => el.classList.remove('flash'), 1600);
+  }
+
+  /**
+   * 「首期本月 / 下月」只在填了期数之后才有意义，所以填了才展开。
+   * 默认值由今天与扣款日的先后决定，但使用者一改就不再自动跳 —— 那之后它是他的选择。
+   */
+  function syncRecFirst() {
+    // 编辑时首期不可改 —— 它是已还进度的锚点，动了就等于把旧记录算到别的期数上去
+    const sel = $('#rec-first');
+    sel.hidden = Boolean(editingRuleId) || !$('#rec-terms').value.trim();
+    if (sel.hidden) return;
+
+    const thisMonth = L.monthOf(new Date());
+    const nextMonth = L.shiftMonth(thisMonth, 1);
+    if (!sel.options.length) {
+      sel.innerHTML = `<option value="${thisMonth}">首期本月</option><option value="${nextMonth}">首期下月</option>`;
+    }
+    if (!recFirstTouched) sel.value = L.defaultFirstMonth(L.dateOf(new Date()), Number($('#rec-day').value));
   }
 
   $('#seg-rec-type').addEventListener('click', e => {
@@ -523,7 +691,15 @@ import * as L from './ledger.js';
     renderRecurring();
   });
 
+  $('#rec-terms').addEventListener('input', syncRecFirst);
+  $('#rec-day').addEventListener('change', syncRecFirst);
+  $('#rec-first').addEventListener('change', () => { recFirstTouched = true; });
+
+  $('#btn-cancel-rec').addEventListener('click', resetRecForm);
+
   $('#btn-add-rec').addEventListener('click', () => {
+    if (editingRuleId) return saveRuleEdit();
+    const terms = $('#rec-terms').value.trim();
     try {
       L.addRule(state, {
         type: recType,
@@ -532,12 +708,15 @@ import * as L from './ledger.js';
         cat: $('#rec-cat').value,
         day: Number($('#rec-day').value),
         note: $('#rec-note').value.trim(),
-        from: L.monthOf(new Date())
+        // 分期的首期由使用者定；没填期数就跟今天一样，从本月起算
+        from: terms ? $('#rec-first').value : L.monthOf(new Date()),
+        terms
       });
     } catch (err) {
       return toast(err.message);
     }
-    $('#rec-amount').value = ''; $('#rec-note').value = '';
+    $('#rec-amount').value = ''; $('#rec-note').value = ''; $('#rec-terms').value = '';
+    recFirstTouched = false;
     const n = L.applyRecurring(state, L.dateOf(new Date()));
     save();
     renderRecurring();
@@ -546,10 +725,14 @@ import * as L from './ledger.js';
   });
 
   $('#rec-list').addEventListener('click', e => {
+    const edit = e.target.closest('button[data-edit-rec]');
+    if (edit) return startEditRule(edit.dataset.editRec);
+
     const b = e.target.closest('button[data-del-rec]');
     if (!b) return;
     if (!confirm('停止这笔固定收支？已经记下的记录会保留，之后不再自动产生。')) return;
     L.removeRule(state, b.dataset.delRec);
+    if (editingRuleId === b.dataset.delRec) resetRecForm();
     save(); renderRecurring(); toast('已停止');
   });
 
@@ -598,12 +781,17 @@ import * as L from './ledger.js';
   $('#set-currency2').addEventListener('change', e => {
     const raw = e.target.value.trim();
     if (!raw) {
-      // 想删掉第二币种，先把那一侧还有多少笔说清楚 —— 不静默弄丢资料
+      // 想删掉第二币种，先把那一侧还挂着什么说清楚 —— 不静默弄丢资料。
+      // 记录与规则都要说：记录是死的，固定收支才是会继续生长的那个（#116）
       if (L.hasSecondary(state)) {
+        const hanging = [];
         const n = L.countOnSide(state, state.currency2);
-        const msg = n
-          ? `${state.currency2} 那侧还有 ${n} 笔记录。移除第二币种后它们会留在资料里但不再显示，` +
-            `重新加回同一个币种就会再出现。确定移除？`
+        const k = L.countRulesOnSide(state, state.currency2);
+        if (n) hanging.push(`${n} 笔记录`);
+        if (k) hanging.push(`${k} 条固定收支`);
+        const msg = hanging.length
+          ? `${state.currency2} 那侧还有${hanging.join('、')}。移除第二币种后它们会留在资料里但不再显示，` +
+            `固定收支也会停止补记；重新加回同一个币种就会再出现，中间漏掉的月份一次补上。确定移除？`
           : '确定移除第二币种？';
         if (!confirm(msg)) { e.target.value = state.currency2; return; }
       }

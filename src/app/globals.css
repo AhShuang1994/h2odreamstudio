@@ -37,23 +37,43 @@
 }
 
 @theme {
+  /* ── 表面阶梯 ────────────────────────────────────────────────────
+     Linear 的深度不靠阴影，靠「底色 → 一级 → 二级 → 三级」这四阶加发丝描边。
+     暗色上的投影一律不用。#90 重画时按这个阶梯排层级，不要跳级。 */
   --color-bg: #07080b;
   --color-surface-1: #0e1015;
   --color-surface-2: #14161d;
+  --color-surface-3: #191b23;
+
+  /* 单一靛紫，见 ADR-0007。**只准出现在**：品牌字、主行动按钮、焦点环、
+     链接强调。不做区块底色、不做卡片填充、不做光晕。 */
   --color-accent: #7c82f0;
   --color-accent-hover: #9aa0ff;
+  --color-accent-press: #666cd8;
+
+  /* 文字四阶。muted 与 subtle 比重画前提亮了一档 —— 原先 #a2a9b6 / #6c7382
+     在近黑底上与正文拉不开层级，段落与脚注糊成一片。 */
   --color-ink: #f3f5f9;
-  --color-ink-muted: #a2a9b6;
-  --color-ink-subtle: #6c7382;
-  --color-hairline: rgba(255, 255, 255, 0.09);
-  --color-hairline-strong: rgba(255, 255, 255, 0.17);
+  --color-ink-muted: #c2c9d6;
+  --color-ink-subtle: #868d9c;
+  --color-ink-faint: #5f6673;
+
+  /* 描边用实色不用半透明白：同一条 rgba 描边压在底色与 surface-2 上会
+     显出两种深浅，卡片叠卡片时边界就乱了。 */
+  --color-hairline: #1c1f27;
+  --color-hairline-strong: #2b2f3a;
 
   /* 拉丁走 Inter，中文落到思源黑体子集 —— Inter 没有汉字字形，会自然穿透。
      子集之外的字（罕见）再落到系统字体，不会出现豆腐块。 */
   --font-sans: var(--font-inter), "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
 
-  /* 标题：拉丁仍是 Inter，中文换成思源宋体 —— 中文没有 Didone 对应物，
-     宋体是最接近参考站那种 editorial 质感的选择。见 ADR-0004。 */
+  /* 标题栈：拉丁 Inter，中文思源宋体（中文没有 Didone 对应物，宋体最接近
+     参考站那种 editorial 质感，见 ADR-0004）。
+
+     ⚠️ 这个栈是**暂定**的，问题还开着 —— 见 #95。拉丁曾短暂换成
+     Instrument Serif，但高对比衬线（竖粗横细）在近黑底上会发虚：浅色字向外
+     发光把细笔画吃掉。ERA 的 Didone 成立是因为它是米白底；Linear 在暗底上
+     从不用衬线。同样的问题也悬在中文的宋体上，只是还没定论。 */
   --font-serif: var(--font-inter), "Noto Serif SC", ui-serif, Georgia, serif;
 }
 
@@ -61,8 +81,10 @@
   color-scheme: dark;
 }
 
+/* scroll-padding-top 让锚点停在固定导航下方。这里**没有** scroll-behavior:
+   smooth —— 它与 Lenis 的平滑滚动互相打架，见 ADR-0001 与 #85。惯性由
+   src/lib/motion.ts 那条链路提供，且只在桌面、非减弱动态偏好时启用。 */
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: 80px;
 }
 
@@ -73,13 +95,40 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* 标题走宋体栈。只对 h1/h2 生效 —— h3 及以下是卡片小标题，用黑体更清爽。
-   子集只做了 600 一个字重，所以标题统一 600，不要在标题上用别的字重：
-   缺失字重会让浏览器对中文做合成粗体，很糊。 */
+/* 极淡的噪点。近黑大平面在低端屏上会起色带，噪点一压就没了 —— 也是 hero
+   视频要叠的同一层（ADR-0001：比换编码器省得多）。
+   用 SVG data URI 而不是图片：零请求。fixed + 不参与命中测试，滚动时不重绘。 */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* 标题走标题栈。只对 h1/h2 生效 —— h3 及以下是卡片小标题，用黑体更清爽。
+
+   字重 600：思源宋体子集只打了这一档，用别的字重会让浏览器对中文做合成
+   粗体，很糊。负字距是 Linear 那套显示字的做法，与字体选型无关，留着。 */
 h1,
 h2 {
   font-family: var(--font-serif);
   font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* 逐行揭示的预备态。这个类由 Shell 里的内联脚本在 <head> 中加上 ——
+   放在首帧之前，标题才不会先亮一下再被藏起来。脚本自己已经排除了减弱动态
+   偏好，所以这里不用再写一遍媒体查询。
+
+   兜底：那段内联脚本 4 秒后会把类摘掉。正常情况下 Reveal 早就给每个元素写了
+   行内 opacity，摘不摘都无所谓；但万一动效 chunk 加载失败，文字最迟 4 秒后
+   也一定会出现 —— 这个站的流量全靠文字被读到，不能赌。 */
+.reveal-armed [data-reveal] {
+  opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -89,6 +138,5 @@ h2 {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
