@@ -252,6 +252,8 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
   transition:background .12s var(--ease);
 }
 .item+.item{border-top:1px solid var(--hairline)}
+/* 从固定收支那边跳过来时，让使用者看得见是哪一笔（#119） */
+.item.flash{background:var(--s2)}
 .item:active{background:var(--s2)}
 .item i{font-size:1.2rem;font-style:normal;line-height:1;flex-shrink:0}
 .item .t{flex:1;min-width:0}
@@ -345,6 +347,9 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
   border-radius:var(--r-sm);transition:background .12s var(--ease),color .12s var(--ease);
 }
 .cat-row button:active,.rec-row .x:active{background:var(--s2);color:var(--expense)}
+/* 整行是进入编辑的入口，所以行的主体本身就是按钮 —— 不额外挂一颗铅笔 */
+.rec-main{display:flex;align-items:center;gap:var(--sp-3);flex:1;min-width:0;text-align:left}
+.rec-main:active{opacity:.6}
 .rec-row .t{flex:1;min-width:0}
 .rec-row .t b{display:block;font-size:var(--t-sm);font-weight:500}
 .rec-row .t small{color:var(--ink-subtle);font-size:var(--t-xs)}
@@ -402,6 +407,9 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
   z-index:30;max-width:80vw;text-align:center;
 }
 .toast.on{opacity:1;transform:translate(-50%,0)}
+/* 带动作的 toast 要点得到，所以只在这时候把 pointer-events 打开 */
+.toast.act{pointer-events:auto}
+.toast-act{margin-left:var(--sp-3);color:var(--accent-text);font-weight:500;font-size:var(--t-sm)}
 
 /* ── 无障碍：关闭动态效果 ──
    键盘抽屉仍然要能开关，所以是把 transition 时间归零，而不是停用 transform。 */

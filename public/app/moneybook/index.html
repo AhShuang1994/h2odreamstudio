@@ -166,8 +166,13 @@
         </div>
         <div class="recrow">
           <input type="text" id="rec-note" maxlength="20" placeholder="备注，例如：房租" />
+          <button id="btn-cancel-rec" hidden>取消</button>
           <button class="primary" id="btn-add-rec">新增</button>
         </div>
+        <p class="muted small" id="rec-edit-hint" hidden>
+          改动<b>只管以后</b>，已经记下的不会被改。币种不能改 —— 一条规则横跨两侧的话，
+          两边的数字就再也各自算不清了；要换侧请删了重建。
+        </p>
       </div>
     </div>
 

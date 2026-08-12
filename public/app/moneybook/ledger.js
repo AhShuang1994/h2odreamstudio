@@ -567,18 +567,28 @@ export function lastTermMonth(rule) {
 }
 
 /**
- * 站在某个月往前看，这笔分期还剩几期 —— **含该月在内**。
+ * 站在某个月往前看，这笔分期**还有几期没记**。含该月在内，但**已经补记过的那几期
+ * 不再算进去** —— 本月那笔一记下，还剩就少 1，待还也跟着少一期的钱。
+ *
+ * 数「还没记的笔数」而不是「还有几个月」，是为了让界面上只有一个「还剩」：编辑框里
+ * 填的、列表行上写的、「填 0 即提前还清」判定的，全是同一个数（#119）。到期停在哪个
+ * 月仍然按月份算（lastTermMonth），跟这里无关。
+ *
  * 无限期返回 null（不是 Infinity：界面要据此决定这一行画不画期数）。
  */
 export function remainingTerms(rule, month) {
   if (!isInstallment(rule)) return null;
   const last = lastTermMonth(rule);
   if (month > last) return 0;
-  const start = month < rule.from ? rule.from : month;
-  return monthsBetween(start, last) + 1;
+  const applied = rule.applied || [];
+  let n = 0;
+  for (let m = month < rule.from ? rule.from : month; m <= last; m = shiftMonth(m, 1)) {
+    if (!applied.includes(m)) n++;
+  }
+  return n;
 }
 
-/** 还完了没有。无限期永远是 false —— 它没有「完」这回事。 */
+/** 还完了没有 —— 该记的都记完了就是完了。无限期永远是 false，它没有「完」这回事。 */
 export function isSettled(rule, month) {
   return remainingTerms(rule, month) === 0;
 }
@@ -631,6 +641,70 @@ export function defaultFirstMonth(today, day) {
   const month = today.slice(0, 7);
   const effective = Math.min(Math.max(1, Math.round(Number(day)) || 1), lastDayOfMonth(month));
   return Number(today.slice(8, 10)) > effective ? shiftMonth(month, 1) : month;
+}
+
+/**
+ * 这条分期还有几期没补记 —— 编辑表单里的「还剩几期」就是它。无限期返回 null。
+ *
+ * 与 remainingTerms 不同：那个按月份算（含当月），这个按已补记的笔数算。编辑时要用
+ * 后者，因为「已还的进度」是由已经记下的记录构成的，重算总期数时不能把它抹掉。
+ */
+export function unappliedTerms(rule) {
+  return isInstallment(rule) ? Math.max(0, rule.terms - (rule.applied?.length || 0)) : null;
+}
+
+/** 这条规则在这个月已经记下的那一笔。没有就是 null —— 首期在下月时本来就没有。 */
+export function appliedRecordOf(state, ruleId, month) {
+  return state.records.find(r => r.ruleId === ruleId && r.date.startsWith(month)) || null;
+}
+
+/**
+ * 改一条固定收支 / 分期。**只管以后。**
+ *
+ * 已经记下的记录一笔都不碰，`from` 与 `applied` 原样保留 —— 生效月份因此是使用者
+ * 眼睛看得见的（否则「房租九月起涨、八月底手痒去改」会静静改错八月），也不会覆盖
+ * 他手动调整过的那一笔。更重要的是**规则对记录仍然是单向的**：规则产生完记录就与
+ * 它无关，这个单向性一旦破掉就再也回不来。
+ *
+ * **币种不可改** —— 改了会让已产生的记录留在旧侧、以后的落在新侧，一条规则横跨两
+ * 侧，而这个 app 的整套词汇建立在「一侧各自独立、永不相加」上（ADR-0001）。要换侧
+ * 只能删了重建。
+ *
+ * `remaining` 是**还有几期没记**，不是总期数：新的总期数 = 已补记的期数 + 它，所以
+ * 3/12 改成还剩 5 期会变成 3/8 而不是 0/5。填 0 就是提前还清，留空则变回无限期。
+ */
+export function updateRule(state, id, patch) {
+  const i = state.recurring.findIndex(r => r.id === id);
+  if (i < 0) return null;
+  const next = { ...state.recurring[i] };
+
+  if (patch.currency != null && normalizeCurrency(patch.currency) !== next.currency) {
+    throw new Error('币种不能改 —— 一条规则不能横跨两侧，要换侧请删了重建');
+  }
+  if (patch.type != null) next.type = patch.type === INCOME ? INCOME : EXPENSE;
+  if (patch.amount != null) next.amount = round2(patch.amount);
+  if (!(next.amount > 0)) throw new Error('金额要大于 0');
+  if (patch.day != null) next.day = Math.min(31, Math.max(1, Math.round(Number(patch.day)) || 1));
+  if (patch.cat != null) next.cat = String(patch.cat);
+  if (patch.note != null) next.note = String(patch.note);
+
+  if ('remaining' in patch) {
+    const v = patch.remaining;
+    if (v == null || v === '') {
+      delete next.terms;                                  // 变回无限期
+    } else {
+      const n = Number(v);
+      if (!Number.isInteger(n) || n < 0) throw new Error('还剩几期要填 0 以上的整数，留空表示一直重复');
+      const paid = next.applied?.length || 0;
+      // 一期都还没记时填 0 等于这条规则从没存在过 —— 那是删除，不是编辑。悄悄留下一条
+      // terms 为 0 的规则会被 isInstallment 当成无限期，反而变成一直重复
+      if (paid + n < 1) throw new Error('这笔还没记过任何一期，要停掉请直接删除这条');
+      next.terms = paid + n;                              // 已还的进度不被抹掉
+    }
+  }
+
+  state.recurring[i] = next;
+  return next;
 }
 
 export function removeRule(state, id) {
