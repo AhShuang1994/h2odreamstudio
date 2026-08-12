@@ -583,6 +583,25 @@ export function isSettled(rule, month) {
   return remainingTerms(rule, month) === 0;
 }
 
+/**
+ * 这笔记录是第几期 —— `{ index, total }`，算不出来时为 null。
+ *
+ * 由记录所属月份减去规则的首期月份算出，**不存进记录里**（同 rateOf）：存下来就有了
+ * 第二个真相，使用者一改期数，旧记录上那个「共 12 期」当场就跟现实对不上。
+ *
+ * 代价是规则被删掉之后算不出期次。此时返回 null，渲染层据此退回一般的自动记录标签
+ * —— 不显示错的数字，也不让它变成一笔来路不明的支出：备注还在，记录不至于失籍。
+ */
+export function termOf(state, record) {
+  if (!record?.ruleId) return null;
+  const rule = state.recurring.find(r => r.id === record.ruleId);
+  if (!isInstallment(rule)) return null;   // 规则已删，或它本来就是无限期的
+  const index = monthsBetween(rule.from, record.date.slice(0, 7)) + 1;
+  // 记录的日期被手动改到期数范围之外时同样退回 —— 宁可不显示，也不显示 0/12
+  if (index < 1 || index > rule.terms) return null;
+  return { index, total: rule.terms };
+}
+
 /** 这笔分期还要付出去多少：每期金额 × 剩余期数。 */
 export function outstandingOf(rule, month) {
   const left = remainingTerms(rule, month);

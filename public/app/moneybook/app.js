@@ -346,7 +346,7 @@ import * as L from './ledger.js';
       return [{
         id: r.id, icon: catOf(r.type, r.cat).icon, title: catOf(r.type, r.cat).name,
         note: r.note || '', sign: r.type === 'income' ? '+' : '-',
-        cls: r.type, amount: r.amount, ruleId: r.ruleId
+        cls: r.type, amount: r.amount, ruleId: r.ruleId, term: L.termOf(state, r)
       }];
     }
     const out = [];
@@ -400,7 +400,11 @@ import * as L from './ledger.js';
       return `<div class="day">
         <div class="day-head"><span>${day.slice(5)}　周${wd}</span><span>${head}</span></div>
         <div class="items">${items.map(it => {
-          const auto = it.ruleId ? '<span class="auto-tag">🔁 固定</span>' : '';
+          // 分期最重要的信息是它会停 —— 标签直接画期次，扫一眼就知道还剩几次。
+          // 算不出期次（无限期、或规则已删）就退回一般的自动记录标签（#118）。
+          const auto = it.ruleId
+            ? `<span class="auto-tag">${it.term ? `💳 ${it.term.index}/${it.term.total}` : '🔁 固定'}</span>`
+            : '';
           return `<button class="item" data-id="${esc(it.id)}">
             <i>${esc(it.icon)}</i>
             <span class="t"><b>${esc(it.title)}${auto}</b><small>${esc(it.note)}</small></span>

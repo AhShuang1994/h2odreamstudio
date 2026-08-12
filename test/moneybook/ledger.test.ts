@@ -647,6 +647,68 @@ describe("小帐本 · ledger 核心", () => {
       });
     });
 
+    // 期次：明细里认得出这是第几期（#118）。跟剩余期数一样是派生值 —— 由记录所属
+    // 月份减去规则的首期月份算出，不存进记录里。
+    describe("期次：这笔记录是第几期", () => {
+      function withInstallment(from: string, terms = 12) {
+        const s = crossBorder();
+        const rule = L.addRule(s, {
+          type: "expense", amount: 400, currency: "SGD", cat: "other_e",
+          day: 1, from, terms, note: "UOB iPhone",
+        });
+        return { s, rule };
+      }
+      const termsOf = (s: any) => s.records.map((r: any) => L.termOf(s, r));
+
+      it("首期落在当月：第一笔就是 1/12，之后逐月递增", () => {
+        const { s } = withInstallment("2026-01");
+        L.applyRecurring(s, "2026-03-15");
+        expect(termsOf(s)).toEqual([
+          { index: 1, total: 12 },
+          { index: 2, total: 12 },
+          { index: 3, total: 12 },
+        ]);
+      });
+
+      it("首期设成下月：它产生的第一笔仍是 1/N，不是 2/N", () => {
+        const { s } = withInstallment("2026-04", 3);
+        L.applyRecurring(s, "2026-04-15");
+        expect(termsOf(s)).toEqual([{ index: 1, total: 3 }]);
+      });
+
+      it("跨年时期次继续往下数，不在一月归零", () => {
+        const { s } = withInstallment("2026-11");
+        L.applyRecurring(s, "2027-02-15");
+        expect(termsOf(s)).toEqual([
+          { index: 1, total: 12 },
+          { index: 2, total: 12 },
+          { index: 3, total: 12 },
+          { index: 4, total: 12 },
+        ]);
+      });
+
+      it("规则被删掉之后算不出期次 —— 返回 null，界面据此退回一般的自动记录标签", () => {
+        const { s, rule } = withInstallment("2026-01");
+        L.applyRecurring(s, "2026-02-15");
+        L.removeRule(s, rule.id);
+        expect(termsOf(s), "宁可不显示，也不显示一个错的数字").toEqual([null, null]);
+        expect(s.records[0].note, "备注还在，这笔记录不至于失籍").toBe("UOB iPhone");
+      });
+
+      it("无限期的固定收支没有期次 —— 房租不该显示第几期", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 1800, currency: "SGD", cat: "home", day: 1, from: "2026-01", note: "房租" });
+        L.applyRecurring(s, "2026-02-15");
+        expect(termsOf(s)).toEqual([null, null]);
+      });
+
+      it("手动记的记录没有期次", () => {
+        const s = crossBorder();
+        L.addRecord(s, { type: "expense", amount: 30, currency: "SGD", cat: "food", date: "2026-03-01" });
+        expect(L.termOf(s, s.records[0])).toBeNull();
+      });
+    });
+
     // 首期默认值：扣款日已过就假定本月那期还过了，默认下月。使用者可以改。
     describe("首期默认落在本月还是下月", () => {
       it("扣款日还没到，默认本月", () => {
