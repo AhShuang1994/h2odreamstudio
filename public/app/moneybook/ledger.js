@@ -265,6 +265,14 @@ export function countOnSide(state, currency) {
   return state.records.filter(r => touchesSide(r, currency)).length;
 }
 
+/**
+ * 这一侧上挂着多少条固定收支 —— 删第二币种前也要拿它去问使用者（#116）。
+ * 记录是死的，规则才是会继续生长的那个东西，所以两个数都要说。
+ */
+export function countRulesOnSide(state, currency) {
+  return state.recurring.filter(r => r.currency === currency).length;
+}
+
 export function removeSecondaryCurrency(state) {
   state.currency2 = null;
   if (state.lastSide && !sides(state).includes(state.lastSide)) state.lastSide = null;
@@ -527,12 +535,19 @@ export function removeRule(state, id) {
  *
  * 每条规则自己记住已经套用过哪些月份，所以使用者手动删掉某个月的那一笔也不会被
  * 重新补回来；跨月放着不开也能一次补齐中间的每个月，不重复、不漏。
+ *
+ * 币种不再属于任何一侧的规则整条跳过（#116）—— 移除第二币种只是把那一侧收起来，
+ * 规则还留着，不跳过的话它会一直往一个使用者看不见的地方塞记录。**跳过时不写
+ * `applied`**，所以币种加回来的那一刻，中间漏掉的月份会被上面的跨月补齐一次补上：
+ * 那几个月的钱确实付了，不该凭空消失。
  */
 export function applyRecurring(state, today) {
   const thisMonth = today.slice(0, 7);
+  const live = sides(state);
   let added = 0;
 
   for (const rule of state.recurring) {
+    if (!live.includes(rule.currency)) continue;
     rule.applied ||= [];
     let m = rule.from;
     while (m <= thisMonth) {

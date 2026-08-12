@@ -398,6 +398,47 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.applyRecurring(s, "2026-03-15")).toBe(0);
       expect(s.records).toHaveLength(2);
     });
+
+    // 移除第二币种只是把那一侧收起来，规则原封不动留着。补记若不看侧，
+    // 它会一直往一个使用者看不见的地方塞记录（#116）。
+    describe("币种不再属于任何一侧时，规则停止生长", () => {
+      /** 两侧各一条规则，都已补到一月。 */
+      function bothSides() {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 1800, currency: "SGD", cat: "home", day: 1, from: "2026-01" });
+        L.addRule(s, { type: "expense", amount: 300, currency: "MYR", cat: "health", day: 1, from: "2026-01" });
+        L.applyRecurring(s, "2026-01-15");
+        return s;
+      }
+
+      const datesOf = (s: any, c: string) =>
+        s.records.filter((r: any) => r.currency === c).map((r: any) => r.date);
+
+      it("移除第二币种后，那一侧的固定收支不再产生任何新记录", () => {
+        const s = bothSides();
+        L.removeSecondaryCurrency(s);
+        L.applyRecurring(s, "2026-03-15");
+        expect(datesOf(s, "MYR"), "移除之前那一笔要留着，之后一笔都不该多").toEqual(["2026-01-01"]);
+      });
+
+      it("主币种那一侧不受影响，照常补记", () => {
+        const s = bothSides();
+        L.removeSecondaryCurrency(s);
+        expect(L.applyRecurring(s, "2026-03-15")).toBe(2);
+        expect(datesOf(s, "SGD")).toEqual(["2026-01-01", "2026-02-01", "2026-03-01"]);
+      });
+
+      it("把同一个币种加回来，消失期间漏掉的月份被一次补齐", () => {
+        const s = bothSides();
+        L.removeSecondaryCurrency(s);
+        L.applyRecurring(s, "2026-03-15");
+
+        L.setSecondaryCurrency(s, "MYR");
+        expect(L.applyRecurring(s, "2026-03-15"), "二月三月的保费确实付了，不该凭空消失").toBe(2);
+        expect(datesOf(s, "MYR")).toEqual(["2026-01-01", "2026-02-01", "2026-03-01"]);
+        expect(L.applyRecurring(s, "2026-03-15"), "补齐之后不该再重复补").toBe(0);
+      });
+    });
   });
 
   // ── 7. 单币种回归 ──────────────────────────────────────
@@ -460,6 +501,16 @@ describe("小帐本 · ledger 核心", () => {
       L.addRecord(s, { type: "expense", amount: 50, currency: "MYR", cat: "food", date: "2026-03-05" });
       L.addTransfer(s, { amount: 100, currency: "SGD", toAmount: 340, toCurrency: "MYR", date: "2026-03-06" });
       expect(L.countOnSide(s, "MYR"), "转帐也挂在马币那侧上，要一起算进去").toBe(2);
+    });
+
+    it("也能问出那一侧还挂着几条固定收支 —— 会继续生长的是规则，不是记录", () => {
+      const s = single();
+      L.setSecondaryCurrency(s, "MYR");
+      L.addRule(s, { type: "expense", amount: 300, currency: "MYR", cat: "health", day: 10, from: "2026-01" });
+      L.addRule(s, { type: "income", amount: 500, currency: "MYR", cat: "salary", day: 1, from: "2026-01" });
+      L.addRule(s, { type: "expense", amount: 1800, currency: "SGD", cat: "home", day: 1, from: "2026-01" });
+      expect(L.countRulesOnSide(s, "MYR")).toBe(2);
+      expect(L.countRulesOnSide(s, "SGD")).toBe(1);
     });
 
     it("记帐默认落在上次用的那一侧", () => {

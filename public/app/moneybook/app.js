@@ -598,12 +598,17 @@ import * as L from './ledger.js';
   $('#set-currency2').addEventListener('change', e => {
     const raw = e.target.value.trim();
     if (!raw) {
-      // 想删掉第二币种，先把那一侧还有多少笔说清楚 —— 不静默弄丢资料
+      // 想删掉第二币种，先把那一侧还挂着什么说清楚 —— 不静默弄丢资料。
+      // 记录与规则都要说：记录是死的，固定收支才是会继续生长的那个（#116）
       if (L.hasSecondary(state)) {
+        const hanging = [];
         const n = L.countOnSide(state, state.currency2);
-        const msg = n
-          ? `${state.currency2} 那侧还有 ${n} 笔记录。移除第二币种后它们会留在资料里但不再显示，` +
-            `重新加回同一个币种就会再出现。确定移除？`
+        const k = L.countRulesOnSide(state, state.currency2);
+        if (n) hanging.push(`${n} 笔记录`);
+        if (k) hanging.push(`${k} 条固定收支`);
+        const msg = hanging.length
+          ? `${state.currency2} 那侧还有${hanging.join('、')}。移除第二币种后它们会留在资料里但不再显示，` +
+            `固定收支也会停止补记；重新加回同一个币种就会再出现，中间漏掉的月份一次补上。确定移除？`
           : '确定移除第二币种？';
         if (!confirm(msg)) { e.target.value = state.currency2; return; }
       }
