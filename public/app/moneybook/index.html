@@ -146,7 +146,7 @@
 
     <h2 class="sec">每月固定收支</h2>
     <div class="card">
-      <p class="muted small">房租、订阅、保费这类每月固定的帐，设定一次，之后每个月自动记上一笔（新增当下会先补记本月）。每条各自记住它属于哪一侧。</p>
+      <p class="muted small">房租、订阅、保费这类每月固定的帐，设定一次，之后每个月自动记上一笔（新增当下会先补记本月）。每条各自记住它属于哪一侧。填了期数就是分期，补到最后一期自动停 —— 期数含本月在内。</p>
       <div id="rec-list"></div>
       <div class="recform">
         <div class="seg small" id="seg-rec-type">
@@ -158,6 +158,11 @@
           <select id="rec-currency" aria-label="币种" hidden></select>
           <select id="rec-cat" aria-label="分类"></select>
           <select id="rec-day" aria-label="每月几号"></select>
+        </div>
+        <div class="recrow">
+          <input type="number" id="rec-terms" min="1" step="1" inputmode="numeric"
+                 placeholder="还剩几期，留空 = 一直重复" aria-label="还剩几期" />
+          <select id="rec-first" aria-label="首期" hidden></select>
         </div>
         <div class="recrow">
           <input type="text" id="rec-note" maxlength="20" placeholder="备注，例如：房租" />

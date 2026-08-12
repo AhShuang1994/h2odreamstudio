@@ -71,6 +71,19 @@ export function shiftMonth(m, delta) {
   return monthOf(new Date(y, mo - 1 + delta, 1));
 }
 
+/** 两个月份相差几个月。用于按月份算期数，而不是数已补记的笔数。 */
+export function monthsBetween(from, to) {
+  const [y1, m1] = from.split('-').map(Number);
+  const [y2, m2] = to.split('-').map(Number);
+  return (y2 - y1) * 12 + (m2 - m1);
+}
+
+/** 这个月的最后一天是几号 —— 2 月没有 31 号。 */
+function lastDayOfMonth(m) {
+  const [y, mo] = m.split('-').map(Number);
+  return new Date(y, mo, 0).getDate();
+}
+
 export function newId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
@@ -140,7 +153,7 @@ function sanitizeRule(r, primary) {
   const day = Math.min(31, Math.max(1, Math.round(Number(r.day)) || 1));
   const from = typeof r.from === 'string' && /^\d{4}-\d{2}$/.test(r.from) ? r.from : null;
   if (!from) return null;
-  return {
+  const rule = {
     id: typeof r.id === 'string' && r.id ? r.id : newId(),
     type: r.type === INCOME ? INCOME : EXPENSE,
     amount,
@@ -151,6 +164,9 @@ function sanitizeRule(r, primary) {
     from,
     applied: Array.isArray(r.applied) ? r.applied.filter(m => typeof m === 'string') : []
   };
+  // 期数坏掉只丢这个字段、退回无限期 —— 丢掉整条规则的话，使用者会莫名少一笔帐（#117）
+  if (Number.isInteger(r.terms) && r.terms >= 1) rule.terms = r.terms;
+  return rule;
 }
 
 /**
@@ -507,7 +523,7 @@ export function removeRecord(state, id) {
 
 // —— 每月固定收支 ————————————————————————————————————————
 
-export function addRule(state, { type, amount, currency, cat, day, note, from }) {
+export function addRule(state, { type, amount, currency, cat, day, note, from, terms }) {
   const rule = {
     id: newId(),
     type: type === INCOME ? INCOME : EXPENSE,
@@ -520,8 +536,82 @@ export function addRule(state, { type, amount, currency, cat, day, note, from })
     applied: []
   };
   if (!(rule.amount > 0)) throw new Error('金额要大于 0');
+
+  // 期数留空 = 一直重复，所以「没填」与「填错」必须分开：没填就不长这个字段，
+  // 填错要当场说清楚，绝不悄悄退回无限期，也不建出一笔生下来就结束的分期（#117）
+  if (terms != null && terms !== '') {
+    const n = Number(terms);
+    if (!Number.isInteger(n) || n < 1) throw new Error('期数要填 1 以上的整数，留空表示一直重复');
+    rule.terms = n;
+  }
+
   state.recurring.push(rule);
   return rule;
+}
+
+// —— 分期 ————————————————————————————————————————————————
+//
+// 分期就是有期数的固定收支。**期数含首期在内** —— 填 1 表示那个月就还完。
+// 到期判定按月份算（首期往后数「总期数 − 1」个月），不按已补记的笔数：使用者
+// 手动删掉中间某个月那一笔时，分期仍然在原本那个月结束，与银行那边的日历对齐。
+//
+// 下面全是派生值，一个都不存 —— 存下来就会与期数产生第二个真相（同 rateOf）。
+
+export function isInstallment(rule) {
+  return Boolean(rule?.terms);
+}
+
+/** 最后一期落在哪个月。无限期返回 null。 */
+export function lastTermMonth(rule) {
+  return isInstallment(rule) ? shiftMonth(rule.from, rule.terms - 1) : null;
+}
+
+/**
+ * 站在某个月往前看，这笔分期还剩几期 —— **含该月在内**。
+ * 无限期返回 null（不是 Infinity：界面要据此决定这一行画不画期数）。
+ */
+export function remainingTerms(rule, month) {
+  if (!isInstallment(rule)) return null;
+  const last = lastTermMonth(rule);
+  if (month > last) return 0;
+  const start = month < rule.from ? rule.from : month;
+  return monthsBetween(start, last) + 1;
+}
+
+/** 还完了没有。无限期永远是 false —— 它没有「完」这回事。 */
+export function isSettled(rule, month) {
+  return remainingTerms(rule, month) === 0;
+}
+
+/** 这笔分期还要付出去多少：每期金额 × 剩余期数。 */
+export function outstandingOf(rule, month) {
+  const left = remainingTerms(rule, month);
+  return left == null ? null : round2(rule.amount * left);
+}
+
+/**
+ * 这一侧的待还小计。
+ *
+ * **只算支出**：收入的分期是待收，性质不同，跟待还加在一起就跟把两侧相加一样
+ * 没有意义。两侧之间当然更不相加（ADR-0001）。
+ */
+export function outstandingOnSide(state, currency, month) {
+  return round2(state.recurring.reduce(
+    (s, r) => s + (r.currency === currency && r.type === EXPENSE ? (outstandingOf(r, month) || 0) : 0),
+    0
+  ));
+}
+
+/**
+ * 新增分期时，首期默认落在本月还是下月。
+ *
+ * 扣款日已经过了就默认下月 —— 假定本月那期已经还过，避免重复记一笔。当天不算过。
+ * 使用者可以改，这只是默认值。
+ */
+export function defaultFirstMonth(today, day) {
+  const month = today.slice(0, 7);
+  const effective = Math.min(Math.max(1, Math.round(Number(day)) || 1), lastDayOfMonth(month));
+  return Number(today.slice(8, 10)) > effective ? shiftMonth(month, 1) : month;
 }
 
 export function removeRule(state, id) {
@@ -549,12 +639,11 @@ export function applyRecurring(state, today) {
   for (const rule of state.recurring) {
     if (!live.includes(rule.currency)) continue;
     rule.applied ||= [];
+    const stop = lastTermMonth(rule);              // 分期补到最后一期就停；无限期为 null
     let m = rule.from;
-    while (m <= thisMonth) {
+    while (m <= thisMonth && (stop === null || m <= stop)) {
       if (!rule.applied.includes(m)) {
-        const [y, mo] = m.split('-').map(Number);
-        const lastDay = new Date(y, mo, 0).getDate();  // 2 月没有 31 号，缩到当月最后一天
-        const date = `${m}-${pad(Math.min(rule.day, lastDay))}`;
+        const date = `${m}-${pad(Math.min(rule.day, lastDayOfMonth(m)))}`;  // 2 月没有 31 号，缩到当月最后一天
         if (date <= today) {
           state.records.push({
             id: newId(),

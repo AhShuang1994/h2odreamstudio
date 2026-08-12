@@ -349,6 +349,10 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .rec-row .t b{display:block;font-size:var(--t-sm);font-weight:500}
 .rec-row .t small{color:var(--ink-subtle);font-size:var(--t-xs)}
 .rec-row .v{font-size:var(--t-sm);font-weight:500;white-space:nowrap}
+/* 分期还完之后规则留在列表上，灰化提示可以删了 —— 但由使用者自己决定何时删 */
+.rec-row.done{opacity:.45}
+.rec-row.sub{padding-top:var(--sp-2)}
+.rec-row.sub .v{color:var(--ink-subtle);font-weight:400}
 /* 规格的 status-badge */
 .auto-tag{
   display:inline-block;font-size:var(--t-xs);color:var(--ink-muted);background:var(--s2);

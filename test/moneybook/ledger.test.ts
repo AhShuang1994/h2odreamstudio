@@ -139,6 +139,36 @@ describe("小帐本 · ledger 核心", () => {
         expect(empty.fresh).toBe(true);
       });
 
+      it("期数被改坏时只丢掉那个字段退回无限期，规则本身与整本帐都还在", () => {
+        const s = L.migrate({
+          currency: "SGD",
+          recurring: [
+            { id: "zero",  type: "expense", amount: 400, day: 1, from: "2026-01", terms: 0 },
+            { id: "neg",   type: "expense", amount: 400, day: 1, from: "2026-01", terms: -3 },
+            { id: "str",   type: "expense", amount: 400, day: 1, from: "2026-01", terms: "十二" },
+            { id: "null",  type: "expense", amount: 400, day: 1, from: "2026-01", terms: null },
+            { id: "float", type: "expense", amount: 400, day: 1, from: "2026-01", terms: 2.5 },
+            { id: "ok",    type: "expense", amount: 400, day: 1, from: "2026-01", terms: 12 },
+          ],
+          records: [{ type: "expense", amount: 10, cat: "food", date: "2026-03-01" }],
+        });
+        expect(s.recurring.map((r: any) => r.id), "坏一个字段不该丢掉整条规则").toEqual([
+          "zero", "neg", "str", "null", "float", "ok",
+        ]);
+        expect(s.recurring.slice(0, 5).map((r: any) => r.terms)).toEqual([
+          undefined, undefined, undefined, undefined, undefined,
+        ]);
+        expect(s.recurring[5].terms).toBe(12);
+        expect(s.records, "更不该连累整本帐").toHaveLength(1);
+      });
+
+      it("没有期数字段的旧规则读进来完全不变，schema 也不升版本", () => {
+        const s = L.migrate(v1Fixture());
+        expect(s.version, "分期是规则上的可选字段，不是新 schema").toBe(2);
+        expect(s.recurring[0]).not.toHaveProperty("terms");
+        expect(L.isInstallment(s.recurring[0])).toBe(false);
+      });
+
       it("半条转帐（缺了到帐金额）会被丢掉，不会留下只影响一侧的残骸", () => {
         const s = L.migrate({
           currency: "SGD",
@@ -421,6 +451,19 @@ describe("小帐本 · ledger 核心", () => {
         expect(datesOf(s, "MYR"), "移除之前那一笔要留着，之后一笔都不该多").toEqual(["2026-01-01"]);
       });
 
+      it("分期也一样停 —— 消失期间不烧掉期数", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 500, currency: "MYR", cat: "other_e", day: 1, from: "2026-01", terms: 3 });
+        L.applyRecurring(s, "2026-01-15");
+        L.removeSecondaryCurrency(s);
+        L.applyRecurring(s, "2026-03-15");
+        L.setSecondaryCurrency(s, "MYR");
+        L.applyRecurring(s, "2026-06-15");
+        expect(datesOf(s, "MYR"), "三期就是三期，晚补不等于少还").toEqual([
+          "2026-01-01", "2026-02-01", "2026-03-01",
+        ]);
+      });
+
       it("主币种那一侧不受影响，照常补记", () => {
         const s = bothSides();
         L.removeSecondaryCurrency(s);
@@ -437,6 +480,190 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.applyRecurring(s, "2026-03-15"), "二月三月的保费确实付了，不该凭空消失").toBe(2);
         expect(datesOf(s, "MYR")).toEqual(["2026-01-01", "2026-02-01", "2026-03-01"]);
         expect(L.applyRecurring(s, "2026-03-15"), "补齐之后不该再重复补").toBe(0);
+      });
+    });
+
+    // 分期：一笔会自己停的固定收支（#117）。期数含本月在内 —— 填 1 表示这个月还完。
+    describe("分期：补到最后一期自动停", () => {
+      const datesOf = (s: any) => s.records.map((r: any) => r.date);
+
+      it("期数留空就是无限期，行为与今天完全一致", () => {
+        const s = crossBorder();
+        const rule = L.addRule(s, { type: "expense", amount: 100, currency: "SGD", cat: "home", day: 1, from: "2026-01" });
+        expect(rule.terms, "没填期数就不该凭空长出一个").toBeUndefined();
+        expect(L.isInstallment(rule)).toBe(false);
+        L.applyRecurring(s, "2026-06-15");
+        expect(s.records).toHaveLength(6);
+      });
+
+      it("填 3 期、首期本月：连续补三个月后停，第四个月不再产生", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-01", terms: 3 });
+        expect(L.applyRecurring(s, "2026-03-15")).toBe(3);
+        expect(L.applyRecurring(s, "2026-04-15"), "第四个月不该再有").toBe(0);
+        expect(datesOf(s)).toEqual(["2026-01-01", "2026-02-01", "2026-03-01"]);
+      });
+
+      it("填 1 期：只补本月这一期就结束", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-03", terms: 1 });
+        expect(L.applyRecurring(s, "2026-03-15")).toBe(1);
+        expect(L.applyRecurring(s, "2026-09-15")).toBe(0);
+        expect(datesOf(s)).toEqual(["2026-03-01"]);
+      });
+
+      it("首期选下月时，本月绝不产生记录 —— 即使扣款日已过", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-04", terms: 3 });
+        expect(L.applyRecurring(s, "2026-03-28"), "本月那期假定已经还过，不该重复记").toBe(0);
+        expect(L.applyRecurring(s, "2026-04-15")).toBe(1);
+      });
+
+      it("期数填 0、负数或非整数会被挡下，不会建出一笔生下来就结束的分期", () => {
+        const s = crossBorder();
+        for (const bad of [0, -3, 1.5, "两期"]) {
+          expect(() =>
+            L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-01", terms: bad }),
+          ).toThrow(/期数/);
+        }
+        expect(s.recurring, "被拒绝的分期不该留下半条").toHaveLength(0);
+      });
+
+      it("手动删掉中间某个月那一笔，分期仍在原本那个月结束，不往后顺延一期", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-01", terms: 3 });
+        L.applyRecurring(s, "2026-02-15");
+        const victim = s.records.find((r: any) => r.date === "2026-02-01");
+        L.removeRecord(s, victim.id);
+
+        L.applyRecurring(s, "2026-06-15");
+        expect(datesOf(s), "按月份算而不是数笔数，才跟银行那边的日历对得上").toEqual([
+          "2026-01-01", "2026-03-01",
+        ]);
+      });
+
+      it("跨月没开 app 时中间漏掉的期数一次补齐，同一天重复打开不重复补", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-01", terms: 6 });
+        expect(L.applyRecurring(s, "2026-04-20")).toBe(4);
+        expect(L.applyRecurring(s, "2026-04-20")).toBe(0);
+      });
+
+      it("扣款日 31 号遇上没有 31 号的月份时缩到当月最后一天，那一期不被跳过", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 31, from: "2026-01", terms: 3 });
+        L.applyRecurring(s, "2026-03-31");
+        expect(datesOf(s)).toEqual(["2026-01-31", "2026-02-28", "2026-03-31"]);
+      });
+
+      it("分期产生的记录与固定收支同口径 —— 进月度支出、吃预算、进分类占比", () => {
+        const s = crossBorder();
+        L.setBudget(s, "SGD", 1000);
+        L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "fun", day: 1, from: "2026-03", terms: 3 });
+        L.applyRecurring(s, "2026-03-15");
+        expect(L.monthlySummary(s, "SGD", "2026-03").expense).toBe(400);
+        expect(L.budgetStatus(s, "SGD", "2026-03")).toMatchObject({ spent: 400, left: 600 });
+        expect(L.categoryBreakdown(s, "SGD", "2026-03", "expense").rows[0]).toMatchObject({ cat: "fun", amount: 400 });
+      });
+
+      it("收入也能设期数", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "income", amount: 900, currency: "SGD", cat: "bonus", day: 5, from: "2026-01", terms: 2 });
+        L.applyRecurring(s, "2026-06-15");
+        expect(L.monthlySummary(s, "SGD", "2026-02").income).toBe(900);
+        expect(L.monthlySummary(s, "SGD", "2026-03").income, "两期还完就停").toBe(0);
+      });
+
+      it("删掉规则不影响已经记下的记录", () => {
+        const s = crossBorder();
+        const rule = L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-01", terms: 3 });
+        L.applyRecurring(s, "2026-03-15");
+        L.removeRule(s, rule.id);
+        expect(s.records).toHaveLength(3);
+        expect(L.cumulative(s, "SGD")).toBe(-1200);
+      });
+    });
+
+    // 界面要显示的每一个数字都在核心里算完 —— 算术留在渲染层就等于挪到接缝外面。
+    describe("分期的派生值：剩余期数、待还总额、每侧小计", () => {
+      function installments() {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-01", terms: 12, note: "手机" });
+        L.addRule(s, { type: "expense", amount: 250, currency: "MYR", cat: "other_e", day: 1, from: "2026-01", terms: 6, note: "冷气" });
+        L.addRule(s, { type: "expense", amount: 1800, currency: "SGD", cat: "home", day: 1, from: "2026-01", note: "房租" });
+        return s;
+      }
+      const byNote = (s: any, note: string) => s.recurring.find((r: any) => r.note === note);
+
+      it("剩余期数含当月在内 —— 首期那个月就是全部期数", () => {
+        const s = installments();
+        const phone = byNote(s, "手机");
+        expect(L.remainingTerms(phone, "2026-01")).toBe(12);
+        expect(L.remainingTerms(phone, "2026-02")).toBe(11);
+        expect(L.remainingTerms(phone, "2026-12"), "最后一期那个月还剩 1 期").toBe(1);
+        expect(L.remainingTerms(phone, "2027-01")).toBe(0);
+      });
+
+      it("无限期没有剩余期数，也没有「还完」这回事", () => {
+        const s = installments();
+        const rent = byNote(s, "房租");
+        expect(L.remainingTerms(rent, "2026-05")).toBeNull();
+        expect(L.outstandingOf(rent, "2026-05")).toBeNull();
+        expect(L.isSettled(rent, "2099-12")).toBe(false);
+      });
+
+      it("待还总额是每期金额 × 剩余期数", () => {
+        const s = installments();
+        expect(L.outstandingOf(byNote(s, "手机"), "2026-03")).toBe(4000);  // 400 × 10
+        expect(L.outstandingOf(byNote(s, "冷气"), "2026-03")).toBe(1000);  // 250 × 4
+      });
+
+      it("补完最后一期后算「已还完」，待还归零", () => {
+        const s = installments();
+        L.applyRecurring(s, "2026-12-15");
+        const phone = byNote(s, "手机");
+        expect(L.isSettled(phone, "2026-12")).toBe(false);
+        expect(L.isSettled(phone, "2027-01")).toBe(true);
+        expect(L.outstandingOf(phone, "2027-01")).toBe(0);
+      });
+
+      it("每侧的待还小计各算各的，任何情况下不相加", () => {
+        const s = installments();
+        expect(L.outstandingOnSide(s, "SGD", "2026-03")).toBe(4000);
+        expect(L.outstandingOnSide(s, "MYR", "2026-03")).toBe(1000);
+        // 两侧之和 5000 这个数不该由任何 API 产出
+        expect(L.sides(s).map((c: string) => L.outstandingOnSide(s, c, "2026-03"))).toEqual([4000, 1000]);
+      });
+
+      it("无限期的固定收支不进待还小计 —— 房租没有「还完」的那一天", () => {
+        const s = installments();
+        expect(L.outstandingOnSide(s, "SGD", "2026-03"), "1800 的房租不该被算进去").toBe(4000);
+      });
+
+      it("收入的分期不进待还小计 —— 待收跟待还是两回事", () => {
+        const s = installments();
+        L.addRule(s, { type: "income", amount: 900, currency: "SGD", cat: "bonus", day: 5, from: "2026-01", terms: 4 });
+        expect(L.outstandingOnSide(s, "SGD", "2026-03")).toBe(4000);
+      });
+    });
+
+    // 首期默认值：扣款日已过就假定本月那期还过了，默认下月。使用者可以改。
+    describe("首期默认落在本月还是下月", () => {
+      it("扣款日还没到，默认本月", () => {
+        expect(L.defaultFirstMonth("2026-03-10", 25)).toBe("2026-03");
+      });
+
+      it("扣款日已经过了，默认下月 —— 免得把还过的那期又记一笔", () => {
+        expect(L.defaultFirstMonth("2026-03-26", 25)).toBe("2026-04");
+      });
+
+      it("今天正是扣款日，算还没过，默认本月", () => {
+        expect(L.defaultFirstMonth("2026-03-25", 25)).toBe("2026-03");
+      });
+
+      it("扣款日 31 号遇上二月，按当月最后一天判断", () => {
+        expect(L.defaultFirstMonth("2026-02-27", 31)).toBe("2026-02");
+        expect(L.defaultFirstMonth("2026-02-28", 31), "2 月 28 号就是这个月的扣款日").toBe("2026-02");
       });
     });
   });
@@ -627,6 +854,16 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.monthlySummary(s, "SGD", "2026-03")).toMatchObject({ income: 3000, expense: 30 });
       expect(s.recurring[0].currency).toBe("SGD");
       expect(L.cumulative(s, "NT$"), "旧币种那一侧应该已经空了").toBe(0);
+    });
+
+    it("分期跟着改名，待还小计不会留在旧币种那一侧", () => {
+      const s = L.defaultState();
+      L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-01", terms: 12 });
+      L.setPrimaryCurrency(s, "MYR");
+      expect(s.recurring[0].currency).toBe("MYR");
+      expect(s.recurring[0].terms, "改币种不该动到期数").toBe(12);
+      expect(L.outstandingOnSide(s, "MYR", "2026-03")).toBe(4000);
+      expect(L.outstandingOnSide(s, "SGD", "2026-03"), "旧币种那一侧应该已经空了").toBe(0);
     });
 
     it("不能改成与第二币种相同", () => {

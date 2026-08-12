@@ -32,6 +32,7 @@ import * as L from './ledger.js';
   let statsType = 'expense';        // 统计页
   let catEditType = 'expense';      // 设定页分类编辑
   let recType = 'expense';          // 固定收支
+  let recFirstTouched = false;      // 使用者改过首期没有 —— 改过就不再自动跳默认值
   let picked = null;                // 已选分类 id
   let buffer = '0';                 // 金额输入缓冲
   let editingId = null;
@@ -487,18 +488,50 @@ import * as L from './ledger.js';
   }
 
   // ── 每月固定收支 ────────────────────────────────────
+  /** 一条规则一行。分期多一段进度：还剩几期、还要付多少，还完了就灰化。 */
+  function recRow(r, month) {
+    const c = catOf(r.type, r.cat);
+    const left = L.remainingTerms(r, month);
+    const settled = L.isSettled(r, month);
+    let meta;
+    if (left == null) {
+      meta = `每月 ${r.day} 号 · ${esc(c.name)}`;
+    } else if (settled) {
+      meta = `已还完 ${r.terms}/${r.terms} · ${esc(c.name)}`;
+    } else {
+      const word = r.type === 'expense' ? '待还' : '待收';
+      meta = `每月 ${r.day} 号 · 还剩 ${left} 期 · ${word} ${money(L.outstandingOf(r, month), r.currency)}`;
+    }
+    return `<div class="rec-row${settled ? ' done' : ''}">
+      <i>${esc(c.icon)}</i>
+      <span class="t"><b>${esc(r.note || c.name)}</b><small>${meta}</small></span>
+      <span class="v ${r.type}">${r.type === 'expense' ? '-' : '+'}${money(r.amount, r.currency)}</span>
+      <button class="x" data-del-rec="${esc(r.id)}" aria-label="删除">✕</button>
+    </div>`;
+  }
+
   function renderRecurring() {
-    $('#rec-list').innerHTML = state.recurring.length
-      ? state.recurring.map(r => {
-          const c = catOf(r.type, r.cat);
-          return `<div class="rec-row">
-            <i>${esc(c.icon)}</i>
-            <span class="t"><b>${esc(r.note || c.name)}</b><small>每月 ${r.day} 号 · ${esc(c.name)}</small></span>
-            <span class="v ${r.type}">${r.type === 'expense' ? '-' : '+'}${money(r.amount, r.currency)}</span>
-            <button class="x" data-del-rec="${esc(r.id)}" aria-label="删除">✕</button>
-          </div>`;
-        }).join('')
-      : '<p class="muted small">还没有设定固定收支。</p>';
+    const month = L.monthOf(new Date());
+
+    // 按侧分组，每一侧末尾结自己的待还小计 —— 两侧的数字永不相加。
+    const groups = L.sides(state).map(c => ({ currency: c, rules: state.recurring.filter(r => r.currency === c) }));
+    // 币种被移除后规则仍留着但已停止补记（#116）。照样列出来，否则使用者看不到它还挂在那。
+    const live = L.sides(state);
+    const orphans = state.recurring.filter(r => !live.includes(r.currency));
+    if (orphans.length) groups.push({ currency: null, rules: orphans });
+
+    const html = groups.filter(g => g.rules.length).map(g => {
+      const rows = g.rules.map(r => recRow(r, month)).join('');
+      if (g.currency === null) return rows;
+      const due = L.outstandingOnSide(state, g.currency, month);
+      if (!(due > 0)) return rows;
+      return rows + `<div class="rec-row sub">
+        <span class="t"><small>${esc(g.currency)} 待还小计</small></span>
+        <span class="v">${money(due, g.currency)}</span>
+      </div>`;
+    }).join('');
+
+    $('#rec-list').innerHTML = html || '<p class="muted small">还没有设定固定收支。</p>';
 
     $('#rec-cat').innerHTML = (state.cats[recType] || [])
       .map(c => `<option value="${esc(c.id)}">${esc(c.icon)} ${esc(c.name)}</option>`).join('');
@@ -513,6 +546,24 @@ import * as L from './ledger.js';
       $('#rec-day').innerHTML = Array.from({ length: 31 }, (_, i) =>
         `<option value="${i + 1}">每月 ${i + 1} 号</option>`).join('');
     }
+    syncRecFirst();
+  }
+
+  /**
+   * 「首期本月 / 下月」只在填了期数之后才有意义，所以填了才展开。
+   * 默认值由今天与扣款日的先后决定，但使用者一改就不再自动跳 —— 那之后它是他的选择。
+   */
+  function syncRecFirst() {
+    const sel = $('#rec-first');
+    sel.hidden = !$('#rec-terms').value.trim();
+    if (sel.hidden) return;
+
+    const thisMonth = L.monthOf(new Date());
+    const nextMonth = L.shiftMonth(thisMonth, 1);
+    if (!sel.options.length) {
+      sel.innerHTML = `<option value="${thisMonth}">首期本月</option><option value="${nextMonth}">首期下月</option>`;
+    }
+    if (!recFirstTouched) sel.value = L.defaultFirstMonth(L.dateOf(new Date()), Number($('#rec-day').value));
   }
 
   $('#seg-rec-type').addEventListener('click', e => {
@@ -523,7 +574,12 @@ import * as L from './ledger.js';
     renderRecurring();
   });
 
+  $('#rec-terms').addEventListener('input', syncRecFirst);
+  $('#rec-day').addEventListener('change', syncRecFirst);
+  $('#rec-first').addEventListener('change', () => { recFirstTouched = true; });
+
   $('#btn-add-rec').addEventListener('click', () => {
+    const terms = $('#rec-terms').value.trim();
     try {
       L.addRule(state, {
         type: recType,
@@ -532,12 +588,15 @@ import * as L from './ledger.js';
         cat: $('#rec-cat').value,
         day: Number($('#rec-day').value),
         note: $('#rec-note').value.trim(),
-        from: L.monthOf(new Date())
+        // 分期的首期由使用者定；没填期数就跟今天一样，从本月起算
+        from: terms ? $('#rec-first').value : L.monthOf(new Date()),
+        terms
       });
     } catch (err) {
       return toast(err.message);
     }
-    $('#rec-amount').value = ''; $('#rec-note').value = '';
+    $('#rec-amount').value = ''; $('#rec-note').value = ''; $('#rec-terms').value = '';
+    recFirstTouched = false;
     const n = L.applyRecurring(state, L.dateOf(new Date()));
     save();
     renderRecurring();
