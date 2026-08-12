@@ -753,8 +753,27 @@ import * as L from './ledger.js';
 
   // ── Service Worker ─────────────────────────────────
   if ('serviceWorker' in navigator) {
+    // 新版 SW 接管时重整一次。否则这一页还挂着旧的 CSS/JS，使用者会觉得
+    // 「明明部署了却没变」—— 页面本身不会因为背后换了 SW 就重新套用样式。
+    // hadController 用来区分「首次安装」与「版本更新」：首次安装不需要重整；
+    // refreshing 旗标防止重整循环。
+    const hadController = !!navigator.serviceWorker.controller;
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || refreshing) return;
+      refreshing = true;
+      location.reload();
+    });
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW 注册失败', err));
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        // 主动检查更新。浏览器「导览时自动检查」的时机并不保证（实测重整多次
+        // 都不会去抓新的 sw.js），只靠它的话改版会卡在使用者的旧快取里出不来。
+        reg.update().catch(() => {});
+        // 装到主屏幕的人常常几天不关 App，回到前台时再查一次。
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') reg.update().catch(() => {});
+        });
+      }).catch(err => console.warn('SW 注册失败', err));
     });
   }
 
