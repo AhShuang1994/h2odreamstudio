@@ -13,7 +13,9 @@ import * as L from './ledger.js';
   // 这点观感问题。版本号在资料里（state.version），迁移看的是它。
   const KEY = 'moneybook.v1';
 
-  const PALETTE = ['#0d9488','#f59e0b','#6366f1','#e11d48','#0ea5e9','#84cc16','#a855f7','#f97316','#14b8a6','#ec4899'];
+  // 分类色定义在 CSS 的 --cat-1…--cat-10，主题要换整组就只改 CSS。
+  // 这里只吐出 var() 字串，写进 inline style 由浏览器解析。
+  const catColor = i => `var(--cat-${(i % 10) + 1})`;
 
   const $  = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -433,7 +435,7 @@ import * as L from './ledger.js';
           <b style="color:${bs.over ? 'var(--expense)' : 'var(--income)'}">${
             bs.over ? '超支 ' + money(-bs.left) : '剩 ' + money(bs.left)}</b>
         </div>
-        <div class="bar-bg" style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+        <div class="bar-bg" style="height:6px;background:var(--hairline);border-radius:9999px;overflow:hidden">
           <i style="display:block;height:100%;width:${bs.pct}%;background:${bs.over ? 'var(--expense)' : 'var(--accent)'}"></i>
         </div>
       </div>` : '';
@@ -446,13 +448,14 @@ import * as L from './ledger.js';
 
     const svg = $('#donut');
     if (!total) {
-      svg.innerHTML = '<circle cx="21" cy="21" r="15.915" fill="none" stroke="var(--border)" stroke-width="5"/>';
+      // 颜色要写在 style，presentation attribute 不吃 var()
+      svg.innerHTML = '<circle cx="21" cy="21" r="15.915" fill="none" style="stroke:var(--hairline)" stroke-width="5"/>';
       $('#rank').innerHTML = '<div class="empty">这个月没有' + (statsType === 'expense' ? '支出' : '收入') + '记录</div>';
     } else {
       let off = 0;
       svg.innerHTML = rows.map((row, i) => {
         const len = row.amount / total * 100;
-        const seg = `<circle cx="21" cy="21" r="15.915" fill="none" stroke="${PALETTE[i % PALETTE.length]}"
+        const seg = `<circle cx="21" cy="21" r="15.915" fill="none" style="stroke:${catColor(i)}"
           stroke-width="5" stroke-dasharray="${len.toFixed(2)} ${(100 - len).toFixed(2)}"
           stroke-dashoffset="${(-off).toFixed(2)}"/>`;
         off += len;
@@ -464,7 +467,7 @@ import * as L from './ledger.js';
         return `<div class="rank-item">
           <i>${esc(c.icon)}</i>
           <span class="t"><b>${esc(c.name)}</b>
-            <span class="bar-bg"><i style="width:${row.pct.toFixed(1)}%;background:${PALETTE[i % PALETTE.length]}"></i></span>
+            <span class="bar-bg"><i style="width:${row.pct.toFixed(1)}%;background:${catColor(i)}"></i></span>
           </span>
           <span class="v">${money(row.amount)}<small>${row.pct.toFixed(1)}%</small></span>
         </div>`;
@@ -750,8 +753,27 @@ import * as L from './ledger.js';
 
   // ── Service Worker ─────────────────────────────────
   if ('serviceWorker' in navigator) {
+    // 新版 SW 接管时重整一次。否则这一页还挂着旧的 CSS/JS，使用者会觉得
+    // 「明明部署了却没变」—— 页面本身不会因为背后换了 SW 就重新套用样式。
+    // hadController 用来区分「首次安装」与「版本更新」：首次安装不需要重整；
+    // refreshing 旗标防止重整循环。
+    const hadController = !!navigator.serviceWorker.controller;
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || refreshing) return;
+      refreshing = true;
+      location.reload();
+    });
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW 注册失败', err));
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        // 主动检查更新。浏览器「导览时自动检查」的时机并不保证（实测重整多次
+        // 都不会去抓新的 sw.js），只靠它的话改版会卡在使用者的旧快取里出不来。
+        reg.update().catch(() => {});
+        // 装到主屏幕的人常常几天不关 App，回到前台时再查一次。
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') reg.update().catch(() => {});
+        });
+      }).catch(err => console.warn('SW 注册失败', err));
     });
   }
 

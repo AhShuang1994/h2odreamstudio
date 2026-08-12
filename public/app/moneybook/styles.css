@@ -1,245 +1,413 @@
+/* 小帐本 — Linear 风格界面
+   依 DESIGN/linear.app 的 token 实作。三个核心规则：
+     1. 单一深色画布。#010102 是锚点，不做浅色模式（Linear 本身也不出浅色）。
+     2. 层次靠「表面阶梯 + 1px hairline」，不靠阴影。
+        表面之间的对比只有 1.10:1，所以每一张卡片的 hairline 都是必要结构，不是装饰。
+     3. 薰衣草紫是稀缺资源：只出现在主要动作、选中状态、焦点框。
+
+   原规格是行销页规范，套到产品界面时有三处必须调整：
+     - #5e6ad2 当小字只有 4.44:1，未达 AA。当「填色」时白字有 4.70:1 没问题，
+       所以填色用 --accent，文字改用规格自己的 primary-hover #828fff（7.27:1）。
+     - 规格的负字距（-3px @ 80px）是为拉丁字母设计的，直接套在中文会挤成一团。
+       只有金额数字沿用强负字距，中文内文维持 normal。
+     - 规格只有一个语意色（success 绿）。这里需要三个：支出红、收入绿、转帐。
+       转帐原本的 #6366f1 对比只有 4.26:1 且离品牌紫只有 5° 色相，会被误读成
+       「可点击」，改用青色 #5ec8e8（9.89:1，离品牌 40°）。 */
+
 :root{
-  --bg:#f5f5f4; --card:#fff; --ink:#1c1917; --muted:#78716c;
-  --accent:#0d9488; --accent-ink:#fff;
-  --expense:#e11d48; --income:#0d9488; --xfer:#6366f1;
-  --border:#e7e5e4; --key:#fff; --shadow:0 1px 3px rgba(0,0,0,.06);
+  color-scheme:dark;
+
+  /* 表面阶梯 */
+  --canvas:#010102;
+  --s1:#0f1011;
+  --s2:#141516;
+  --s3:#18191a;
+  --hairline:#23252a;
+  --hairline-strong:#34343a;
+
+  /* 文字 */
+  --ink:#f7f8f8;
+  --ink-muted:#d0d6e0;
+  --ink-subtle:#8a8f98;
+
+  /* 品牌色：填色与文字分成两个 token，理由见档头 */
+  --accent:#5e6ad2;
+  --accent-text:#828fff;
+  --accent-press:#5e69d1;
+  --on-accent:#ffffff;
+
+  /* 三个语意色，彼此与品牌色都拉开色相 */
+  --income:#27a644;   /* 规格的 semantic-success，6.01:1 */
+  --expense:#eb5757;  /* 5.47:1 */
+  --xfer:#5ec8e8;     /* 转帐既不是收入也不是支出，用中性青色，9.89:1 */
+
+  /* 圆角，完全照规格的尺度 */
+  --r-xs:4px; --r-sm:6px; --r-md:8px; --r-lg:12px; --r-xl:16px; --r-pill:9999px;
+
+  /* 间距，4px 基准 */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px;
+
+  --t-xs:12px; --t-sm:14px; --t-base:16px; --t-lg:18px; --t-xl:20px;
+
+  --tabs-h:56px;
+  --side-h:58px;
   --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+
+  /* 统计图的分类色。规格的 Known Gaps 有写明：产品界面本来就会用到
+     红橙黄绿蓝紫的标签色，行销页的「单一强调色」限制不适用于这里。
+     刻意避开薰衣草紫（否则最大一笔支出会跟预算进度条同色不同义）、
+     避开收支的红绿、也避开转帐的青色。 */
+  --cat-1:#f2a13c; --cat-2:#c88ef5; --cat-3:#4cc38a; --cat-4:#ef7ba6; --cat-5:#b3cf5f;
+  --cat-6:#f2c94c; --cat-7:#c99a6e; --cat-8:#9aa3b2; --cat-9:#5ad4c4; --cat-10:#6bc5f2;
+
+  --ease:cubic-bezier(.32,.72,0,1);
 }
-@media (prefers-color-scheme:dark){
-  :root{
-    --bg:#0c0a09; --card:#1c1917; --ink:#f5f5f4; --muted:#a8a29e;
-    --accent:#14b8a6; --expense:#fb7185; --income:#2dd4bf; --xfer:#a5b4fc;
-    --border:#292524; --key:#292524; --shadow:none;
-  }
-}
+
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-/* touch-action:manipulation 關掉「連點兩下放大」，但保留雙指縮放（無障礙）。
-   iOS 10 起 Safari 會忽略 viewport 的 user-scalable=no，這行才是真正有效的。 */
+
+/* touch-action:manipulation 关掉「连点两下放大」，同时完整保留双指缩放 */
 html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{height:100%}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
-  background:var(--bg);color:var(--ink);line-height:1.6;overscroll-behavior:none;
+  /* -apple-system 在 Apple 装置上就是 SF Pro，正是规格指定的替代字体；
+     后面接简体中文字体，Linear 自家字体没有中文字符 */
+  font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI","Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--canvas);color:var(--ink);
+  font-size:var(--t-base);line-height:1.5;letter-spacing:-.05px;
+  overscroll-behavior:none;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
 }
-button,input{font:inherit;color:inherit;touch-action:manipulation}
+button,input,select{font:inherit;color:inherit;touch-action:manipulation;letter-spacing:inherit}
 button{background:none;border:none;cursor:pointer;-webkit-user-select:none;user-select:none}
-/* 小於 16px 的輸入框會讓 iOS 聚焦時自動放大頁面，統一鎖在 16px */
 input,select,textarea{font-size:16px}
 
-/* ── 版面 ── */
-.view{position:fixed;inset:0 0 calc(56px + var(--safe-b)) 0;display:flex;flex-direction:column}
-.view[hidden]{display:none}
-.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:24px}
+/* 焦点框：规格的 level-4 elevation */
+:focus-visible{outline:2px solid var(--accent-press);outline-offset:2px;border-radius:var(--r-md)}
+
+.tnum,.amount,.summary b,.item .v,.donut-mid b,.rank-item .v,.rec-row .v,.side-switch small{
+  font-variant-numeric:tabular-nums;
+}
 
 /* ── 侧切换器 ──
-   只有第二币种存在时才会被创建（body 拿到 .two-sided）。没有跨境需求的人
-   连这条 top 位移都不会发生，版面与以前逐像素一致。 */
+   只有第二币种存在时才会被创建。规格的 top-nav：canvas 底 + hairline，
+   选中那一侧用底线指示，颜色走 accent-text 以确保小字过 AA。 */
 .side-switch{
   position:fixed;top:0;left:0;right:0;z-index:15;display:flex;gap:1px;
-  background:var(--border);border-bottom:1px solid var(--border);
-  padding-top:env(safe-area-inset-top,0px);
+  background:var(--hairline);border-bottom:1px solid var(--hairline);
+  padding-top:var(--safe-t);
 }
 .side-switch[hidden]{display:none}
 .side-switch button{
-  flex:1;background:var(--bg);padding:7px 4px 8px;text-align:center;
-  display:flex;flex-direction:column;gap:1px;color:var(--muted);
+  flex:1;background:var(--canvas);padding:8px 4px 9px;text-align:center;
+  display:flex;flex-direction:column;gap:1px;color:var(--ink-subtle);
+  transition:color .14s var(--ease),background .14s var(--ease);
 }
-.side-switch button b{font-size:.85rem;font-weight:700;letter-spacing:.02em}
-.side-switch button small{font-size:.68rem;font-variant-numeric:tabular-nums}
-.side-switch button.on{background:var(--card);color:var(--accent);box-shadow:inset 0 -2px 0 var(--accent)}
-body.two-sided .view{top:58px}
+.side-switch button b{font-size:var(--t-sm);font-weight:600;letter-spacing:.02em}
+.side-switch button small{font-size:var(--t-xs)}
+.side-switch button.on{
+  background:var(--s1);color:var(--accent-text);
+  box-shadow:inset 0 -2px 0 var(--accent);
+}
+body.two-sided .view{top:var(--side-h)}
 @supports (top:env(safe-area-inset-top)){
-  body.two-sided .view{top:calc(58px + env(safe-area-inset-top,0px))}
+  body.two-sided .view{top:calc(var(--side-h) + var(--safe-t))}
 }
 /* 切换器已经吃掉了安全区，页首不用再吃一次 */
 body.two-sided .bar{padding-top:14px}
 
+/* ── 版面 ── */
+.view{position:fixed;inset:0 0 calc(var(--tabs-h) + var(--safe-b)) 0;display:flex;flex-direction:column}
+.view[hidden]{display:none}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:var(--sp-4);padding-bottom:var(--sp-6)}
+
 .bar{
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 14px;
-  background:var(--card);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);
+  padding:calc(var(--safe-t) + 14px) var(--sp-4) 14px;
+  background:var(--canvas);border-bottom:1px solid var(--hairline);
 }
-.bar h1{font-size:1.05rem;font-weight:700;flex:1;text-align:center}
-.bar .ghost{color:var(--muted);font-size:1.2rem;padding:4px 12px;border-radius:8px}
-.bar .ghost:active{background:var(--border)}
-#btn-delete{font-size:.9rem;color:var(--expense)}
+.bar h1{font-size:var(--t-lg);font-weight:600;flex:1;text-align:center;letter-spacing:-.01em}
+.bar .ghost{
+  color:var(--ink-subtle);font-size:var(--t-xl);line-height:1;padding:var(--sp-2) var(--sp-3);
+  border-radius:var(--r-md);transition:color .14s var(--ease),background .14s var(--ease);
+}
+.bar .ghost:active{background:var(--s2);color:var(--ink)}
+#btn-delete{font-size:var(--t-sm);font-weight:500;color:var(--expense)}
 
-/* ── 分段切換 ── */
-.seg{display:flex;background:var(--border);border-radius:10px;padding:3px;margin-bottom:16px}
-.seg button{flex:1;padding:8px;border-radius:8px;font-size:.95rem;color:var(--muted);font-weight:600}
-.seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
-.seg.small button{padding:6px;font-size:.85rem}
+/* ── 分段切换：规格的 pricing-tab，选中 = 表面抬升 ── */
+.seg{
+  display:flex;background:var(--canvas);border:1px solid var(--hairline);
+  border-radius:var(--r-md);padding:3px;gap:2px;margin-bottom:var(--sp-4);
+}
+.seg button{
+  flex:1;padding:7px;border-radius:var(--r-sm);
+  font-size:var(--t-sm);font-weight:500;color:var(--ink-subtle);
+  transition:color .14s var(--ease),background .14s var(--ease);
+}
+.seg button.on{background:var(--s2);color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.seg.small button{padding:6px;font-size:var(--t-xs)}
 
-/* ── 金額顯示（點一下才叫出鍵盤） ── */
+/* ── 金额 ── */
 .amount-box{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
-  padding:10px 4px 12px;margin-bottom:20px;text-align:left;
-  border-bottom:2px solid var(--border);transition:border-color .18s;
+  display:flex;align-items:flex-end;justify-content:space-between;gap:var(--sp-3);width:100%;
+  margin-bottom:var(--sp-5);text-align:left;padding:var(--sp-4);
+  background:var(--s1);border:1px solid var(--hairline);border-radius:var(--r-lg);
+  transition:border-color .18s var(--ease);
 }
-.amount-box .hint{color:var(--muted);font-size:.8rem}
-.amount-box .val{display:flex;align-items:baseline;gap:6px}
-.amount-box .cur{color:var(--muted);font-size:1rem}
-.amount-box .amount{font-size:2.6rem;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.amount-box .hint{color:var(--ink-subtle);font-size:var(--t-xs);padding-bottom:6px;transition:color .18s var(--ease)}
+.amount-box .val{display:flex;align-items:baseline;gap:var(--sp-2);min-width:0}
+.amount-box .cur{color:var(--ink-subtle);font-size:var(--t-sm);font-weight:500}
+/* 这里才是规格那套 display 字级该出现的地方：纯数字，可以放心用强负字距 */
+.amount-box .amount{
+  font-size:40px;font-weight:600;line-height:1.05;letter-spacing:-1.6px;
+  overflow:hidden;text-overflow:ellipsis;
+}
 .amount-box.on{border-color:var(--accent)}
-.amount-box.on .hint{color:var(--accent)}
+.amount-box.on .hint{color:var(--accent-text)}
 .amount-box.on .amount::after{
-  content:"";display:inline-block;width:2px;height:1.5rem;margin-left:3px;
-  background:var(--accent);vertical-align:-2px;animation:blink 1s steps(2,start) infinite;
+  content:"";display:inline-block;width:2px;height:1.4rem;margin-left:4px;
+  background:var(--accent-text);vertical-align:-1px;animation:blink 1.06s steps(2,start) infinite;
 }
 @keyframes blink{to{visibility:hidden}}
 body.income-mode .amount-box .amount{color:var(--income)}
 body.xfer-mode .amount-box .amount{color:var(--xfer)}
 
-/* ── 转帐：到帐金额 ──
-   一条记录同时带走出与到帐两个金额，汇率由两数相除得出，不联网取。 */
-.xfer{margin-bottom:20px}
-.xfer .field{margin-bottom:8px}
-.xfer .field span{flex:0 0 auto;min-width:64px}
-.xfer .field input{text-align:right;font-variant-numeric:tabular-nums}
-.xfer p{line-height:1.5}
-
-/* ── 分類格 ── */
-.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+/* ── 分类格 ── */
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-2);margin-bottom:var(--sp-5)}
 .cats button{
-  display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;
-  background:var(--card);border:1px solid var(--border);border-radius:12px;
-  font-size:.75rem;color:var(--muted);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  min-height:70px;padding:var(--sp-2) var(--sp-1);
+  background:var(--s1);border:1px solid var(--hairline);border-radius:var(--r-md);
+  font-size:var(--t-xs);color:var(--ink-subtle);line-height:1.25;
+  transition:border-color .14s var(--ease),color .14s var(--ease),background .14s var(--ease),transform .1s var(--ease);
 }
-.cats button i{font-size:1.35rem;font-style:normal;line-height:1.2}
-.cats button.on{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--card))}
+/* 分类图示是使用者自己填的 emoji，属于内容不是装饰；压小一点让它不要比界面还抢眼 */
+.cats button i{font-size:1.25rem;font-style:normal;line-height:1.1}
+.cats button:active{transform:scale(.96)}
+.cats button.on{background:var(--s2);border-color:var(--accent);color:var(--ink);font-weight:500}
 
-/* ── 表單 ── */
-.fields{display:flex;flex-direction:column;gap:10px}
-.field{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 14px}
-.field span{color:var(--muted);font-size:.85rem;flex:0 0 42px}
-.field input{flex:1;border:none;background:none;outline:none;min-width:0}
+/* ── 转帐：到帐金额 ── */
+.xfer{margin-bottom:var(--sp-5)}
+.xfer .field{margin-bottom:var(--sp-2);border-color:var(--xfer)}
+.xfer .field input{text-align:right}
+.xfer p{line-height:1.5;font-size:var(--t-xs)}
 
-/* ── 數字鍵盤（底部抽屜，點金額才滑出） ── */
-/* 不用遮罩：鍵盤展開時分類鍵與分頁列都還能直接點，選了分類就自動收起 */
+/* ── 表单：规格的 text-input，标签置上 ── */
+.fields{display:flex;flex-direction:column;gap:var(--sp-2)}
+.field{
+  display:flex;flex-direction:column;gap:2px;
+  background:var(--s1);border:1px solid var(--hairline);border-radius:var(--r-md);
+  padding:var(--sp-2) var(--sp-3);
+  transition:border-color .14s var(--ease);
+}
+.field:focus-within{border-color:var(--hairline-strong)}
+.field span{color:var(--ink-subtle);font-size:var(--t-xs);font-weight:500}
+.field input{width:100%;border:none;background:none;outline:none;min-width:0;padding:0;font-size:16px}
+.field input::placeholder{color:var(--ink-subtle);opacity:.7}
+
+/* ── 数字键盘 ── */
+/* 底色用 hairline，按键用 surface-2，1px 的缝隙就自然成为 hairline 格线 */
 .keypad{
-  position:fixed;left:0;right:0;bottom:calc(56px + var(--safe-b));z-index:20;
+  position:fixed;left:0;right:0;bottom:calc(var(--tabs-h) + var(--safe-b));z-index:20;
   display:grid;grid-template-columns:repeat(3,1fr) 1.05fr;grid-auto-rows:1fr;gap:1px;
-  background:var(--border);height:42vh;max-height:300px;min-height:220px;
-  border-radius:16px 16px 0 0;overflow:hidden;
-  box-shadow:0 -6px 24px rgba(0,0,0,.18);
-  /* 收起時要真的離開畫面：只靠位移，殘留的邊緣仍會攔截分頁列的點擊 */
+  background:var(--hairline);
+  height:42dvh;max-height:300px;min-height:220px;
+  border-radius:var(--r-xl) var(--r-xl) 0 0;overflow:hidden;
+  border-top:1px solid var(--hairline-strong);
+  /* 收起时要真的离开画面：只靠位移，残留的边缘仍会拦截分页列的点击 */
   transform:translateY(110%);pointer-events:none;visibility:hidden;
-  transition:transform .24s cubic-bezier(.32,.72,0,1),visibility 0s .24s;
+  transition:transform .26s var(--ease),visibility 0s .26s;
 }
 .keypad.open{
   transform:none;pointer-events:auto;visibility:visible;
-  transition:transform .24s cubic-bezier(.32,.72,0,1),visibility 0s;
+  transition:transform .26s var(--ease),visibility 0s;
 }
-.keypad button{background:var(--key);font-size:1.4rem;font-weight:500}
-.keypad button:active{background:var(--border)}
-.keypad .del{font-size:1.2rem}
+.keypad button{
+  background:var(--s2);font-size:var(--t-xl);font-weight:400;color:var(--ink);
+  letter-spacing:-.02em;transition:background .1s var(--ease);
+}
+.keypad button:active{background:var(--s3)}
+.keypad .del{font-size:var(--t-lg)}
 .keypad .save{
-  grid-column:4;grid-row:1/5;background:var(--accent);color:var(--accent-ink);
-  font-size:1.05rem;font-weight:700;
+  grid-column:4;grid-row:1/5;background:var(--accent);color:var(--on-accent);
+  font-size:var(--t-sm);font-weight:500;
 }
-.keypad .save:active{filter:brightness(.92)}
+.keypad .save:active{background:var(--accent-press)}
 
-/* ── 明細 ── */
-.summary{display:flex;background:var(--card);border-bottom:1px solid var(--border);padding:12px 0}
-.summary div{flex:1;text-align:center}
-.summary small{display:block;color:var(--muted);font-size:.72rem}
-.summary b{font-size:.95rem;font-variant-numeric:tabular-nums}
-.summary div+div{border-left:1px solid var(--border)}
-.day{margin-bottom:14px}
-.day-head{display:flex;justify-content:space-between;color:var(--muted);font-size:.78rem;padding:0 4px 6px}
-.items{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.item{display:flex;align-items:center;gap:12px;padding:11px 14px;width:100%;text-align:left}
-.item+.item{border-top:1px solid var(--border)}
-.item:active{background:var(--bg)}
-.item i{font-size:1.25rem;font-style:normal}
+/* ── 明细 ── */
+.summary{display:flex;background:var(--canvas);border-bottom:1px solid var(--hairline);padding:var(--sp-3) 0}
+.summary div{flex:1;text-align:center;padding:0 var(--sp-1);min-width:0}
+.summary div+div{border-left:1px solid var(--hairline)}
+.summary small{display:block;color:var(--ink-subtle);font-size:var(--t-xs);margin-bottom:2px}
+.summary b{font-size:var(--t-base);font-weight:600;letter-spacing:-.3px}
+.day{margin-bottom:var(--sp-4)}
+.day-head{
+  display:flex;justify-content:space-between;gap:var(--sp-2);
+  color:var(--ink-subtle);font-size:var(--t-xs);padding:0 var(--sp-1) var(--sp-2);
+}
+.day-head span:last-child{text-align:right;flex-shrink:0}
+.items{background:var(--s1);border:1px solid var(--hairline);border-radius:var(--r-lg);overflow:hidden}
+.item{
+  display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);width:100%;text-align:left;
+  transition:background .12s var(--ease);
+}
+.item+.item{border-top:1px solid var(--hairline)}
+.item:active{background:var(--s2)}
+.item i{font-size:1.2rem;font-style:normal;line-height:1;flex-shrink:0}
 .item .t{flex:1;min-width:0}
-.item .t b{display:block;font-size:.92rem;font-weight:600}
-.item .t small{color:var(--muted);font-size:.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
-.item .v{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.item .t b{display:block;font-size:var(--t-sm);font-weight:500}
+.item .t small{color:var(--ink-subtle);font-size:var(--t-xs);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.item .v{font-weight:500;white-space:nowrap;font-size:var(--t-sm)}
 .v.expense{color:var(--expense)}
 .v.income{color:var(--income)}
-/* 转帐既不是支出也不是收入 —— 颜色上就不该跟它们混在一起 */
+/* 转帐既不是支出也不是收入，颜色上就不该跟它们混在一起 */
 .v.xfer{color:var(--xfer)}
-.empty{text-align:center;color:var(--muted);padding:56px 16px;font-size:.9rem}
 
-/* ── 統計 ── */
-.donut-wrap{position:relative;width:200px;margin:8px auto 20px}
-#donut{width:100%;transform:rotate(-90deg)}
+/* ── 空状态 ── */
+.empty{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  text-align:center;color:var(--ink-subtle);padding:64px var(--sp-4);font-size:var(--t-sm);
+}
+.empty i{font-size:1.75rem;font-style:normal;line-height:1;opacity:.6}
+.empty b{font-weight:500;color:var(--ink);font-size:var(--t-sm)}
+.empty small{font-size:var(--t-xs);max-width:32ch}
+
+/* ── 统计 ── */
+.donut-wrap{position:relative;width:196px;margin:var(--sp-4) auto var(--sp-5)}
+#donut{width:100%;display:block;transform:rotate(-90deg)}
 .donut-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.donut-mid small{color:var(--muted);font-size:.75rem}
-.donut-mid b{font-size:1.25rem;font-variant-numeric:tabular-nums}
-.rank-item{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:8px}
-.rank-item i{font-style:normal;font-size:1.15rem}
+.donut-mid small{color:var(--ink-subtle);font-size:var(--t-xs)}
+.donut-mid b{font-size:var(--t-xl);font-weight:600;letter-spacing:-.6px}
+.rank-item{
+  display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) var(--sp-3);
+  background:var(--s1);border:1px solid var(--hairline);border-radius:var(--r-md);margin-bottom:6px;
+}
+.rank-item i{font-style:normal;font-size:1.1rem;line-height:1;flex-shrink:0}
 .rank-item .t{flex:1;min-width:0}
-.rank-item .t b{font-size:.9rem;font-weight:600}
-.rank-item .t .bar-bg{display:block;height:5px;background:var(--border);border-radius:3px;margin-top:5px;overflow:hidden}
-.rank-item .t .bar-bg i{display:block;height:100%;border-radius:3px}
-.rank-item .v{text-align:right;font-size:.85rem;font-variant-numeric:tabular-nums}
-.rank-item .v small{display:block;color:var(--muted);font-size:.7rem}
-.sec{font-size:.8rem;color:var(--muted);font-weight:600;margin:22px 4px 10px}
-.trend{display:flex;align-items:flex-end;gap:10px;height:150px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 12px}
-.trend .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.rank-item .t b{font-size:var(--t-sm);font-weight:500}
+.rank-item .t .bar-bg{display:block;height:3px;background:var(--hairline);border-radius:var(--r-pill);margin-top:6px;overflow:hidden}
+.rank-item .t .bar-bg i{display:block;height:100%;border-radius:var(--r-pill)}
+.rank-item .v{text-align:right;font-size:var(--t-sm);font-weight:500;flex-shrink:0}
+.rank-item .v small{display:block;color:var(--ink-subtle);font-size:var(--t-xs);font-weight:400}
+/* 规格的 eyebrow：正字距。中文本来就吃得下一点正字距，读起来更像分类标签 */
+.sec{
+  font-size:13px;color:var(--ink-subtle);font-weight:500;
+  letter-spacing:.4px;margin:var(--sp-6) var(--sp-1) var(--sp-3);
+}
+.trend{
+  display:flex;align-items:flex-end;gap:var(--sp-2);height:150px;
+  background:var(--s1);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:var(--sp-4) var(--sp-3);
+}
+.trend .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:var(--sp-2);min-width:0}
 .trend .stack{display:flex;align-items:flex-end;gap:3px;flex:1;width:100%;justify-content:center}
-.trend .b{width:9px;border-radius:3px 3px 0 0;min-height:2px}
+.trend .b{flex:1;max-width:10px;border-radius:var(--r-xs) var(--r-xs) 0 0;min-height:2px}
 .trend .b.e{background:var(--expense)}
 .trend .b.i{background:var(--income)}
-.trend .col small{color:var(--muted);font-size:.68rem}
+.trend .col small{color:var(--ink-subtle);font-size:var(--t-xs);white-space:nowrap}
 
-/* ── 設定 ── */
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
-.card.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.card p{font-size:.85rem}
-.muted{color:var(--muted)}
-.small{font-size:.78rem}
+/* ── 设定 ── */
+.card{background:var(--s1);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:var(--sp-4);margin-bottom:var(--sp-2)}
+.card.row{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);padding:var(--sp-3) var(--sp-4)}
+.card>b{font-size:var(--t-base);font-weight:600;letter-spacing:-.01em}
+.card p{font-size:var(--t-sm);color:var(--ink-muted)}
+.card p b{color:var(--ink);font-weight:600}
+.card>b+p{margin-top:var(--sp-2)}
+.muted{color:var(--ink-subtle)}
+.small{font-size:var(--t-xs)}
 .center{text-align:center}
-.mini{width:88px;text-align:right;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;outline:none}
-.mini.wide{width:130px}
-.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.btns button,.primary{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-size:.85rem;font-weight:600}
-.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
-.primary.big{display:block;width:100%;margin-top:20px;padding:14px;font-size:1rem;border-radius:12px}
-.primary.big:active{filter:brightness(.92)}
-.danger{color:var(--expense)}
-.cat-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
-.cat-row i{font-style:normal;font-size:1.15rem}
-.cat-row span{flex:1;font-size:.9rem}
-.cat-row button{color:var(--muted);font-size:1.1rem;padding:0 6px}
-/* 每月固定收支 */
-.recform{margin-top:12px}
-.recrow{display:flex;gap:8px;margin-bottom:8px}
-.recrow>*{flex:1;min-width:0}
-.recrow input,.recrow select{
-  background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 10px;outline:none;
+.mini,.recrow input,.recrow select,.addcat input[type=text]:not(.mini){
+  background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-md);
+  padding:8px var(--sp-3);outline:none;color:var(--ink);
+  transition:border-color .14s var(--ease);
 }
-.recrow .primary{flex:0 0 auto}
-.rec-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
-.rec-row i{font-style:normal;font-size:1.15rem}
+.mini:focus,.recrow input:focus,.recrow select:focus,.addcat input:focus{border-color:var(--hairline-strong)}
+.mini{width:96px;text-align:right}
+.mini.wide{width:134px}
+.btns{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-top:var(--sp-3)}
+.btns button,.primary{
+  background:var(--s2);border:1px solid var(--hairline);border-radius:var(--r-md);
+  padding:8px 14px;font-size:var(--t-sm);font-weight:500;
+  transition:transform .1s var(--ease),background .12s var(--ease);
+}
+.btns button:active{background:var(--s3)}
+.primary{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.primary:active{background:var(--accent-press);transform:scale(.98)}
+.primary.big{display:block;width:100%;margin-top:var(--sp-5);padding:13px;font-size:var(--t-sm);border-radius:var(--r-md)}
+.danger{color:var(--expense)}
+.card p+.btns{margin-top:var(--sp-3)}
+
+.cat-row,.rec-row{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--hairline)}
+.cat-row:last-child,.rec-row:last-child{border-bottom:none}
+.cat-row i,.rec-row i{font-style:normal;font-size:1.1rem;line-height:1;flex-shrink:0}
+.cat-row span{flex:1;font-size:var(--t-sm)}
+.cat-row button,.rec-row .x{
+  color:var(--ink-subtle);font-size:var(--t-base);line-height:1;padding:var(--sp-1) 6px;
+  border-radius:var(--r-sm);transition:background .12s var(--ease),color .12s var(--ease);
+}
+.cat-row button:active,.rec-row .x:active{background:var(--s2);color:var(--expense)}
 .rec-row .t{flex:1;min-width:0}
-.rec-row .t b{display:block;font-size:.9rem;font-weight:600}
-.rec-row .t small{color:var(--muted);font-size:.75rem}
-.rec-row .v{font-variant-numeric:tabular-nums;font-size:.9rem;font-weight:600}
-.rec-row .x{color:var(--muted);font-size:1.1rem;padding:0 4px}
-.auto-tag{font-size:.72rem;color:var(--muted);margin-left:5px}
+.rec-row .t b{display:block;font-size:var(--t-sm);font-weight:500}
+.rec-row .t small{color:var(--ink-subtle);font-size:var(--t-xs)}
+.rec-row .v{font-size:var(--t-sm);font-weight:500;white-space:nowrap}
+/* 规格的 status-badge */
+.auto-tag{
+  display:inline-block;font-size:var(--t-xs);color:var(--ink-muted);background:var(--s2);
+  border-radius:var(--r-pill);padding:2px 8px;margin-left:6px;font-weight:400;letter-spacing:0;
+}
 
-.addcat{display:flex;gap:8px;margin-top:12px}
-.addcat input[type=text]:not(.mini){flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;outline:none;min-width:0}
-.addcat .mini{width:56px;text-align:center}
+.recform{margin-top:var(--sp-3)}
+.recrow{display:flex;gap:var(--sp-2);margin-bottom:var(--sp-2)}
+.recrow>*{flex:1;min-width:0}
+.recrow>[hidden]{display:none}
+.recrow .primary{flex:0 0 auto}
 
-/* ── 分頁列 ── */
+.addcat{display:flex;gap:var(--sp-2);margin-top:var(--sp-3)}
+.addcat input[type=text]:not(.mini){flex:1;min-width:0}
+.addcat .mini{width:58px;text-align:center;flex:0 0 auto}
+.addcat .primary{flex:0 0 auto}
+
+/* ── 分页列：规格的 top-nav，56px、canvas 底、hairline 分隔 ── */
 .tabs{
   position:fixed;left:0;right:0;bottom:0;display:flex;
-  background:var(--card);border-top:1px solid var(--border);
+  min-height:var(--tabs-h);
+  background:var(--canvas);border-top:1px solid var(--hairline);
   padding-bottom:var(--safe-b);z-index:10;
 }
-.tabs button{flex:1;padding:7px 0 6px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
-.tabs button i{font-style:normal;font-size:1.2rem;line-height:1}
-.tabs button span{font-size:.68rem}
-.tabs button.on{color:var(--accent)}
+.tabs button{
+  flex:1;padding:9px 0 7px;color:var(--ink-subtle);
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:color .14s var(--ease);
+}
+/* 分页图示改成线性图示：emoji 在这套深色系统里会变成画面上最吵的东西。
+   分类图示是使用者资料所以保留 emoji，界面本身的图示则统一成线条。 */
+.tabs button svg{width:20px;height:20px;display:block;transition:transform .16s var(--ease)}
+/* 旋钮的填色写在 CSS：SVG 的 fill 是 presentation attribute，不吃 var() */
+.tabs button svg circle{fill:var(--canvas)}
+.tabs button span{font-size:var(--t-xs);font-weight:500;letter-spacing:0}
+.tabs button.on{color:var(--accent-text)}
+.tabs button:active svg{transform:scale(.9)}
 
 /* ── 提示 ── */
 .toast{
-  position:fixed;left:50%;bottom:calc(76px + var(--safe-b));transform:translate(-50%,12px);
-  background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:999px;font-size:.85rem;
-  opacity:0;pointer-events:none;transition:.22s;z-index:30;max-width:80vw;text-align:center;
+  position:fixed;left:50%;bottom:calc(var(--tabs-h) + 20px + var(--safe-b));
+  transform:translate(-50%,10px);
+  background:var(--s3);color:var(--ink);border:1px solid var(--hairline-strong);
+  padding:10px var(--sp-4);
+  border-radius:var(--r-md);font-size:var(--t-sm);font-weight:400;
+  opacity:0;pointer-events:none;transition:opacity .2s var(--ease),transform .2s var(--ease);
+  z-index:30;max-width:80vw;text-align:center;
 }
-.toast.on{opacity:.94;transform:translate(-50%,0)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ── 无障碍：关闭动态效果 ──
+   键盘抽屉仍然要能开关，所以是把 transition 时间归零，而不是停用 transform。 */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+  .amount-box.on .amount::after{animation:none;visibility:visible}
+  .cats button:active,.primary:active,.tabs button:active svg{transform:none}
+}
