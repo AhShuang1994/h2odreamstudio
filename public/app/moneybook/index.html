@@ -2,10 +2,13 @@
 <html lang="zh-Hans">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <!-- 不锁缩放：连点放大改用 CSS 的 touch-action:manipulation 处理，
+       双指缩放要留给需要放大的使用者 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>小帐本 · 离线记帐</title>
   <meta name="description" content="不用上架 App Store 的记帐工具：加到主屏幕即可离线使用，资料只存在你的手机里。在新加坡赚 SGD、汇回马来西亚花 MYR 的两侧帐，各自结算。" />
-  <meta name="theme-color" content="#0d9488" />
+  <!-- 单一深色主题，不随系统切换 -->
+  <meta name="theme-color" content="#010102" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="styles.css" />
   <!-- iOS 加到主屏幕 -->
@@ -198,11 +201,31 @@
   </div>
 </section>
 
+<!-- 分页图示用线条而非 emoji：深色画布上 emoji 会盖过界面本身。
+     分类图示仍是 emoji，因为那是使用者自己填的资料。 -->
 <nav class="tabs">
-  <button data-view="entry" class="on"><i>✏️</i><span>记帐</span></button>
-  <button data-view="list"><i>📒</i><span>明细</span></button>
-  <button data-view="stats"><i>📊</i><span>统计</span></button>
-  <button data-view="more"><i>⚙️</i><span>设定</span></button>
+  <button data-view="entry" class="on">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+      <path d="M12 5v14M5 12h14"/>
+    </svg><span>记帐</span>
+  </button>
+  <button data-view="list">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+      <path d="M4 7h16M4 12h16M4 17h10"/>
+    </svg><span>明细</span>
+  </button>
+  <button data-view="stats">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+      <path d="M5 19v-7M12 19V5M19 19v-4"/>
+    </svg><span>统计</span>
+  </button>
+  <button data-view="more">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+      <path d="M4 8h16M4 16h16"/>
+      <circle cx="9" cy="8" r="2.4"/>
+      <circle cx="15" cy="16" r="2.4"/>
+    </svg><span>设定</span>
+  </button>
 </nav>
 
 <!-- 数字键盘抽屉：放在 body 层，才不会被 .view 的堆叠脉络困住而被分页列盖住 -->
