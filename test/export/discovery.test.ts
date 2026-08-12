@@ -16,10 +16,15 @@ const DOMAIN = "https://www.h2o-dreamer-studio.com";
  * 不该出现在收录入口里的页面。
  *
  * 与 scripts/lib/exported-pages.mjs 里那份**故意重复** —— 断言不能拿被测
- * 代码的定义来判自己对不对。这三条改动时两边一起改。
+ * 代码的定义来判自己对不对。这四条改动时两边一起改。
  */
 function isExcluded(file: string): boolean {
-  return file === "404.html" || file === "xhs.html" || file.startsWith("demos/");
+  return (
+    file === "404.html" ||
+    file === "xhs.html" ||
+    file.startsWith("demos/") ||
+    file.startsWith("app/")
+  );
 }
 
 describe("导出产物 · 收录入口", () => {

@@ -44,6 +44,10 @@ _Avoid_: 案例研究、作品说明
 每页开头一段自足的直述性回答，专门供 AI 检索时整段引用。删掉它等于放弃这个站的流量策略。
 _Avoid_: 摘要、简介、TL;DR
 
+**可见问答**：
+内容页末尾那段展开式的常见问答（`<details class="faq-item">`）。它是 FAQPage 结构化数据的**唯一来源** —— 标记由 [`scripts/split-content-lang.mjs`](./scripts/split-content-lang.mjs) 在构建期从它生成，中英各一份。Google 禁止用页面上看不到的内容做 FAQ 标记，所以问答只写在页面上，不写进 JSON-LD。
+_Avoid_: FAQ 标记、FAQPage（那是产物）
+
 ### 视觉语言
 
 **液态球体**：

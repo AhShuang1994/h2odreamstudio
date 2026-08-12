@@ -20,9 +20,16 @@ export const OUT_DIR = join(process.cwd(), "out");
  * - `demos/**` —— 样板站，`robots.txt` 里本来就 Disallow（见 CONTEXT.md 的
  *   「样板站」词条：11 个虚构品牌的成品演示，冻结不动）
  * - `xhs.html` —— 小红书落地页，链接印在站外、纯中文、不参与语言拆分（#65）
+ * - `app/**` —— 离线小工具（小帐本 PWA），`robots.txt` 里同样 Disallow。它是
+ *   装到主屏幕用的应用外壳，不是内容页：没有 canonical，也不该被当成内容收录（#98）
  */
 function isExcluded(rel) {
-  return rel === "404.html" || rel === "xhs.html" || rel.startsWith("demos/");
+  return (
+    rel === "404.html" ||
+    rel === "xhs.html" ||
+    rel.startsWith("demos/") ||
+    rel.startsWith("app/")
+  );
 }
 
 function walk(dir, root = dir, acc = []) {

@@ -13,8 +13,9 @@
  * 原稿不动，所以脚本可重复运行、同输入同输出。**不要手改 public/blog/**
  * 与 public/zh/** —— 改原稿。
  *
- * 正文一字不改：两份输出的文本逐字来自原稿的两个标注，脚本只做四件事 ——
- * 挑语言、改 `<html lang>`、补 canonical 与 hreflang、把相对地址接对。
+ * 正文一字不改：两份输出的文本逐字来自原稿的两个标注，脚本只做五件事 ——
+ * 挑语言、改 `<html lang>`、补 canonical 与 hreflang、把相对地址接对，
+ * 以及从页面上那段**可见**问答生成 FAQPage 结构化数据（#82）。
  */
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { join, dirname, posix } from "node:path";
@@ -145,6 +146,51 @@ function collapse(html, lang) {
   return out + html.slice(cursor);
 }
 
+// ── FAQ ─────────────────────────────────────────────────────────────
+
+/**
+ * 页面上那段可见问答 —— FAQPage 结构化数据的**唯一**来源。
+ *
+ * Google 明令禁止用页面上不可见的内容做 FAQ 标记。旧站的 16 个内容页把 74 条
+ * 问答只写在 JSON-LD 里、页面上一个字都看不到（#82），所以现在反过来做：
+ * 问答先渲染成可见的 `<details class="faq-item">`，标记从它生成。原稿里没有可见
+ * 问答的页面（两个索引页）就没有 FAQPage —— 这条路上不可能再出现不可见的标记。
+ */
+function visibleFaq(body) {
+  const items = [];
+  for (const m of body.matchAll(/<details class="faq-item"[^>]*>([\s\S]*?)<\/details>/g)) {
+    const summary = /<summary>([\s\S]*?)<\/summary>/.exec(m[1])?.[1] ?? "";
+    const answer = /<div class="faq-answer"[^>]*>([\s\S]*?)<\/div>/.exec(m[1])?.[1] ?? "";
+    // 展开图标（+）是装饰，不是问题的一部分
+    const question = textOf(summary.replace(/<span class="faq-chevron">[\s\S]*?<\/span>/g, ""));
+    if (question && answer) items.push({ question, answer: textOf(answer) });
+  }
+  return items;
+}
+
+/** 可见问答 → FAQPage 的 JSON-LD 块。没有问答就不产出，返回空串。 */
+function faqScript(body) {
+  const items = visibleFaq(body);
+  if (items.length === 0) return "";
+  const node = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
+  };
+  const json = JSON.stringify(node, null, 2)
+    .split("\n")
+    .map((line) => `  ${line}`)
+    .join("\n");
+  return (
+    `  <!-- FAQ — 由页面上那段可见问答生成，见 scripts/split-content-lang.mjs -->\n` +
+    `  <script type="application/ld+json">\n${json}\n  </script>\n\n`
+  );
+}
+
 // ── 地址 ────────────────────────────────────────────────────────────
 
 /**
@@ -273,8 +319,7 @@ function rewriteHead(head, { lang, rel, title, description }) {
     out = setMeta(out, /<meta\s+name="twitter:description"[^>]*>/, description);
     // 中文关键词对英文页没有意义，留着只会是噪音
     out = out.replace(/\s*<meta\s+name="keywords"[^>]*>\n?/, "\n");
-    // BlogPosting / Article 的 headline 与 description 跟着走；FAQPage 整块
-    // 不动 —— 那 74 条问题在页面上不可见，归 #82，在这里动会跟那张票打架。
+    // BlogPosting / Article 的 headline 与 description 跟着走
     out = out.replace(
       /("headline":\s*)"(?:[^"\\]|\\.)*"/,
       (_, k) => `${k}${JSON.stringify(title)}`,
@@ -349,7 +394,8 @@ function render(source, { rel, dir, lang, title, description }) {
   const cut = source.indexOf("</head>");
   const head = rewriteHead(source.slice(0, cut), { lang, rel, title, description });
   const body = collapse(source.slice(cut), lang);
-  let html = head + body;
+  // FAQPage 生成在 body 塌成单语之后 —— 标记里的问答与页面上看到的逐字相同
+  let html = head + faqScript(body) + body;
   html = html.replace(/<html\s+lang="[^"]*"/, `<html lang="${lang === "zh" ? "zh" : "en"}"`);
   html = rewriteUrls(html, dir, lang);
   html = rewriteLangToggle(html, rel, lang);

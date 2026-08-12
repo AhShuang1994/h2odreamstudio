@@ -72,55 +72,6 @@
   }
   </script>
 
-  <!-- FAQ — distilled from the visible article content, for AI answer engines -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "SEO 和 GEO 有什么区别？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "SEO（搜索引擎优化）是让你在 Google 的搜索结果里排前面，争的是「排名」和「点击」。GEO（生成式引擎优化）是让 ChatGPT、Perplexity、Google AI Overviews 这类 AI 在写答案时直接引用你、点你的名字，争的是「被 AI 当成答案来源」。一个让你被搜到，一个让你被引用——2026 年，两个都要。"
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "2026 年只做 SEO 还够吗？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "已经不够了。因为客户找东西的方式变了：Google 在搜索结果顶部放 AI Overviews，ChatGPT 和 Perplexity 能直接联网回答，越来越多人问完 AI 那段答案就走，根本不往下翻蓝色链接（这叫 zero-click，零点击）。如果 AI 的答案里没有你，你就在这批客户面前「隐形」了。但 SEO 没有死——GEO 是 SEO 的延伸，不是取代，地基还是要先打好。"
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "GEO 具体要做什么？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "一句话：让 AI 容易读懂你、容易信任你、容易直接引用你。落到网站上是这几件事——(1) 答案先行：每页开头就有一段直接、干脆、能被一眼抄走的答案；(2) 结构化数据 + 真人作者：用机器读得懂的格式告诉 AI 这家店卖什么、价格多少、在哪里、谁写的；(3) 具体可引用的事实：写清楚 RM590、2026、马来西亚这种数字和地名，而不是「价格实惠」这种空话；(4) 内容别塞进图片里：价格和服务要打成文字，AI 读不到海报图上的字；(5) 让 AI 爬得进来：robots.txt 别挡住 AI，还要有 sitemap 和 llms.txt。"
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "做 GEO 需要每月交钱请人做 SEO 吗？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "大多数小生意不需要。市面上的「SEO 月费服务」对要跟同行长期抢热门关键词第一名的大公司才有意义。对一间刚上线、只想被本地客户找到的小生意，你需要的是「地基一次打对」，不是每月交租。我的做法是建站时就把基础 SEO + GEO 内建进去（答案先行、结构化数据、真人作者、可爬取、llms.txt），一次性，跟着网站一起交给你，没有强制月费。"
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "怎么知道 ChatGPT 或 AI 搜不搜得到我的网站？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "做 3 个自测：(1) 打开 ChatGPT（开搜索）或 Perplexity，用你客户会用的话问一句，比如「Puchong 有没有推荐的冷气维修」，看 AI 的答案里有没有你、有没有同行；(2) 看你最重要的信息——价格、服务、地点——是打成文字，还是全塞在图片海报里，后者 AI 读不到；(3) 你的网站开头，有没有一段一眼就能被抄走的直接答案。如果三题里有两题答不上来，你缺的多半不是更多广告预算，而是把网站的 GEO 地基补好。"
-        }
-      }
-    ]
-  }
-  </script>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -864,6 +815,86 @@
       </div>
     </section>
     </article>
+
+    <!-- ============ FAQ ============ -->
+    <section class="detail-faq" id="faq">
+      <div class="section-inner">
+        <div class="section-label"
+             data-lang-en="FAQ"
+             data-lang-cn="常见问题">常见问题</div>
+        <h2 class="section-title"
+            data-lang-en="Questions I get asked a lot"
+            data-lang-cn="大家最常问我的问题">大家最常问我的问题</h2>
+        <div class="faq-list">
+
+          <details class="faq-item" open>
+            <summary>
+              <span data-lang-en="What is the difference between SEO and GEO?"
+                    data-lang-cn="SEO 和 GEO 有什么区别？">SEO 和 GEO 有什么区别？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="SEO (search engine optimisation) is about ranking high on Google's results page — it competes for rankings and clicks. GEO (generative engine optimisation) is about being named and quoted when ChatGPT, Perplexity or Google AI Overviews write the answer — it competes to be the source the AI trusts. One gets you found, the other gets you cited. In 2026 you want both."
+                 data-lang-cn="SEO（搜索引擎优化）是让你在 Google 的搜索结果里排前面，争的是「排名」和「点击」。GEO（生成式引擎优化）是让 ChatGPT、Perplexity、Google AI Overviews 这类 AI 在写答案时直接引用你、点你的名字，争的是「被 AI 当成答案来源」。一个让你被搜到，一个让你被引用——2026 年，两个都要。">
+              SEO（搜索引擎优化）是让你在 Google 的搜索结果里排前面，争的是「排名」和「点击」。GEO（生成式引擎优化）是让 ChatGPT、Perplexity、Google AI Overviews 这类 AI 在写答案时直接引用你、点你的名字，争的是「被 AI 当成答案来源」。一个让你被搜到，一个让你被引用——2026 年，两个都要。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="Is SEO alone still enough in 2026?"
+                    data-lang-cn="2026 年只做 SEO 还够吗？">2026 年只做 SEO 还够吗？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="Not any more, because the way customers look things up has changed. Google puts AI Overviews above the results, ChatGPT and Perplexity answer straight from the live web, and more and more people read that answer and leave without ever scrolling to the blue links — that is zero-click. If you are not in the AI's answer, you are invisible to those customers. SEO is not dead though: GEO extends it rather than replacing it, so the foundation still has to be laid first."
+                 data-lang-cn="已经不够了。因为客户找东西的方式变了：Google 在搜索结果顶部放 AI Overviews，ChatGPT 和 Perplexity 能直接联网回答，越来越多人问完 AI 那段答案就走，根本不往下翻蓝色链接（这叫 zero-click，零点击）。如果 AI 的答案里没有你，你就在这批客户面前「隐形」了。但 SEO 没有死——GEO 是 SEO 的延伸，不是取代，地基还是要先打好。">
+              已经不够了。因为客户找东西的方式变了：Google 在搜索结果顶部放 AI Overviews，ChatGPT 和 Perplexity 能直接联网回答，越来越多人问完 AI 那段答案就走，根本不往下翻蓝色链接（这叫 zero-click，零点击）。如果 AI 的答案里没有你，你就在这批客户面前「隐形」了。但 SEO 没有死——GEO 是 SEO 的延伸，不是取代，地基还是要先打好。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="What does GEO actually involve?"
+                    data-lang-cn="GEO 具体要做什么？">GEO 具体要做什么？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="In one line: make it easy for AI to read you, trust you and quote you directly. On a website that means — (1) answer first: a direct, self-contained answer at the top of every page that can be lifted as it is; (2) structured data plus a real human author: tell the AI in machine-readable form what this business sells, what it costs, where it is and who wrote the page; (3) specific, quotable facts: write RM 590, 2026, Malaysia, not vague lines like 'affordable pricing'; (4) do not bury content in images: prices and services have to be real text, because AI cannot read words baked into a poster; (5) let the crawlers in: do not block AI in robots.txt, and ship a sitemap and an llms.txt."
+                 data-lang-cn="一句话：让 AI 容易读懂你、容易信任你、容易直接引用你。落到网站上是这几件事——(1) 答案先行：每页开头就有一段直接、干脆、能被一眼抄走的答案；(2) 结构化数据 + 真人作者：用机器读得懂的格式告诉 AI 这家店卖什么、价格多少、在哪里、谁写的；(3) 具体可引用的事实：写清楚 RM590、2026、马来西亚这种数字和地名，而不是「价格实惠」这种空话；(4) 内容别塞进图片里：价格和服务要打成文字，AI 读不到海报图上的字；(5) 让 AI 爬得进来：robots.txt 别挡住 AI，还要有 sitemap 和 llms.txt。">
+              一句话：让 AI 容易读懂你、容易信任你、容易直接引用你。落到网站上是这几件事——(1) 答案先行：每页开头就有一段直接、干脆、能被一眼抄走的答案；(2) 结构化数据 + 真人作者：用机器读得懂的格式告诉 AI 这家店卖什么、价格多少、在哪里、谁写的；(3) 具体可引用的事实：写清楚 RM590、2026、马来西亚这种数字和地名，而不是「价格实惠」这种空话；(4) 内容别塞进图片里：价格和服务要打成文字，AI 读不到海报图上的字；(5) 让 AI 爬得进来：robots.txt 别挡住 AI，还要有 sitemap 和 llms.txt。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="Do I need a monthly SEO retainer to do GEO?"
+                    data-lang-cn="做 GEO 需要每月交钱请人做 SEO 吗？">做 GEO 需要每月交钱请人做 SEO 吗？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="Most small businesses do not. A monthly SEO retainer makes sense for a big company fighting rivals for the number-one spot on competitive keywords year after year. A small business that has just launched and wants to be found by local customers needs the foundation laid right once, not rent. The way I work, basic SEO and GEO are built in while the site is being made — answer-first content, structured data, a real author, crawlability, llms.txt — once, handed over together with the website, with no compulsory monthly fee."
+                 data-lang-cn="大多数小生意不需要。市面上的「SEO 月费服务」对要跟同行长期抢热门关键词第一名的大公司才有意义。对一间刚上线、只想被本地客户找到的小生意，你需要的是「地基一次打对」，不是每月交租。我的做法是建站时就把基础 SEO + GEO 内建进去（答案先行、结构化数据、真人作者、可爬取、llms.txt），一次性，跟着网站一起交给你，没有强制月费。">
+              大多数小生意不需要。市面上的「SEO 月费服务」对要跟同行长期抢热门关键词第一名的大公司才有意义。对一间刚上线、只想被本地客户找到的小生意，你需要的是「地基一次打对」，不是每月交租。我的做法是建站时就把基础 SEO + GEO 内建进去（答案先行、结构化数据、真人作者、可爬取、llms.txt），一次性，跟着网站一起交给你，没有强制月费。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="How do I know whether ChatGPT or other AI can find my website?"
+                    data-lang-cn="怎么知道 ChatGPT 或 AI 搜不搜得到我的网站？">怎么知道 ChatGPT 或 AI 搜不搜得到我的网站？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="Run three checks. (1) Open ChatGPT with search on, or Perplexity, and ask the way your customer would — something like 'any recommended aircon servicing in Puchong' — then see whether you or your competitors show up in the answer. (2) Look at your most important information — prices, services, location — and ask whether it is real text or trapped inside image posters, because AI cannot read the latter. (3) Check whether the top of your website carries one direct answer that can be lifted straight out. If you cannot answer two of the three, what you are missing is usually not more ad budget — it is the GEO foundation on your own website."
+                 data-lang-cn="做 3 个自测：(1) 打开 ChatGPT（开搜索）或 Perplexity，用你客户会用的话问一句，比如「Puchong 有没有推荐的冷气维修」，看 AI 的答案里有没有你、有没有同行；(2) 看你最重要的信息——价格、服务、地点——是打成文字，还是全塞在图片海报里，后者 AI 读不到；(3) 你的网站开头，有没有一段一眼就能被抄走的直接答案。如果三题里有两题答不上来，你缺的多半不是更多广告预算，而是把网站的 GEO 地基补好。">
+              做 3 个自测：(1) 打开 ChatGPT（开搜索）或 Perplexity，用你客户会用的话问一句，比如「Puchong 有没有推荐的冷气维修」，看 AI 的答案里有没有你、有没有同行；(2) 看你最重要的信息——价格、服务、地点——是打成文字，还是全塞在图片海报里，后者 AI 读不到；(3) 你的网站开头，有没有一段一眼就能被抄走的直接答案。如果三题里有两题答不上来，你缺的多半不是更多广告预算，而是把网站的 GEO 地基补好。
+            </div>
+          </details>
+
+        </div>
+      </div>
+    </section>
 
     <!-- ============ FINAL CTA ============ -->
     <section class="article-cta" id="cta">
