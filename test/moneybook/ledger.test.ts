@@ -1192,10 +1192,75 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.outstandingOnSide(s, "SGD", "2026-08")).toBe(4400);
     });
 
-    it("CSV 与备份照旧 —— 这一票不加任何新的统计数字", () => {
+    it("CSV 与备份照旧 —— #125 不加任何新的统计数字", () => {
       const s = withCard();
       expect(L.toCSV(s).split("\r\n")).toHaveLength(3);   // 表头 + 两笔
       expect(L.loadState(JSON.stringify(s)).state.records).toHaveLength(2);
+    });
+
+    // 「本月刷卡」≈ 下个月要还的钱（#126）。它**绝不叫「待还」** —— 那个词已经属于
+    // 分期（outstandingOnSide），同一页两个「待还」是最容易让人算错帐的一次撞车。
+    describe("本月刷卡：这一侧、这个自然月，带刷卡标记的支出合计", () => {
+      /** 两侧都刷过卡的一本帐。 */
+      function spent() {
+        const s = crossBorder();
+        L.addRecord(s, { type: "expense", amount: 68, currency: "SGD", cat: "food", date: "2026-08-03", card: true });
+        L.addRecord(s, { type: "expense", amount: 32.5, currency: "SGD", cat: "daily", date: "2026-08-20", card: true });
+        L.addRecord(s, { type: "expense", amount: 12, currency: "SGD", cat: "traffic", date: "2026-08-21" });
+        L.addRecord(s, { type: "expense", amount: 300, currency: "MYR", cat: "family", date: "2026-08-09", card: true });
+        return s;
+      }
+
+      it("只算带标记的支出，现金那几笔不算", () => {
+        expect(L.cardSpentOnSide(spent(), "SGD", "2026-08")).toBe(100.5);
+      });
+
+      it("两侧各算各的，永不相加", () => {
+        const s = spent();
+        expect(L.cardSpentOnSide(s, "MYR", "2026-08"), "马币那侧只该看见马币那笔").toBe(300);
+        expect(L.cardSpentOnSide(s, "SGD", "2026-08")).toBe(100.5);
+      });
+
+      it("按自然月切，上个月刷的不算进这个月 —— 这功能第一天就不能说谎", () => {
+        const s = spent();
+        L.addRecord(s, { type: "expense", amount: 999, currency: "SGD", cat: "food", date: "2026-07-31", card: true });
+        expect(L.cardSpentOnSide(s, "SGD", "2026-08"), "七月刷的钱算进八月，就正是这个功能要修的那个错").toBe(100.5);
+        expect(L.cardSpentOnSide(s, "SGD", "2026-07")).toBe(999);
+      });
+
+      it("转帐不在其中 —— 汇款不是刷卡，也不进任何一侧的收支汇总", () => {
+        const s = spent();
+        L.addTransfer(s, { amount: 1200, currency: "SGD", toAmount: 4080, toCurrency: "MYR", date: "2026-08-10" });
+        expect(L.cardSpentOnSide(s, "SGD", "2026-08")).toBe(100.5);
+        expect(L.cardSpentOnSide(s, "MYR", "2026-08")).toBe(300);
+      });
+
+      it("有过刷卡记录、但这个月一笔都没刷时是 0 ——「这个月我没刷卡」是一条看得见的信息", () => {
+        const s = spent();
+        expect(L.hasCard(s), "整本帐有过刷卡记录，所以这一行该出现").toBe(true);
+        expect(L.cardSpentOnSide(s, "SGD", "2026-09")).toBe(0);
+      });
+
+      it("从来不刷卡的人根本没有这一行 —— 不是显示 0，是它没被创建", () => {
+        const s = crossBorder();
+        L.addRecord(s, { type: "expense", amount: 12, currency: "SGD", cat: "traffic", date: "2026-08-21" });
+        expect(L.hasCard(s)).toBe(false);
+      });
+
+      it("派生值，不存 —— 取消一笔的标记，合计当场跟着变", () => {
+        const s = spent();
+        const r = s.records.find((x: any) => x.amount === 68);
+        L.updateRecord(s, r.id, { type: "expense", cat: "food", card: false });
+        expect(L.cardSpentOnSide(s, "SGD", "2026-08"), "合计存下来就会有第二个真相").toBe(32.5);
+      });
+
+      it("跟分期的「待还」是两个数，互不干扰 —— 同一页上不能是同一个词", () => {
+        const s = spent();
+        L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-08", terms: 12 });
+        L.applyRecurring(s, "2026-08-15");
+        expect(L.outstandingOnSide(s, "SGD", "2026-08"), "待还是分期还要付出去的钱").toBe(4400);
+        expect(L.cardSpentOnSide(s, "SGD", "2026-08"), "本月刷卡只数带标记的那几笔，自动补记的那笔还没标").toBe(100.5);
+      });
     });
   });
 

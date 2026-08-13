@@ -488,6 +488,19 @@ import * as L from './ledger.js';
         </div>
       </div>` : '';
 
+    // 本月刷卡：≈ 下个月要还的钱。整本帐从没出现过刷卡记录的人根本看不到这一行
+    // ——「有没有刷过卡」是它出现的条件，不是一个开关（比照第二币种）。
+    // 切到收入时也整块消失：收入不会刷卡，显示 0 等于暗示它可能。
+    // 有过之后，某个月一笔都没刷仍然照常显示 0 ——「这个月我没刷卡」是一条信息。
+    const showCard = statsType === 'expense' && L.hasCard(state);
+    $('#card-sum').innerHTML = showCard ? `<div class="card">
+        <div class="cat-row" style="border:none;padding:0">
+          <span>本月刷卡</span>
+          <b class="tnum">${money(L.cardSpentOnSide(state, side, curMonth))}</b>
+        </div>
+        <p class="muted small" style="margin-top:6px">≈ 下个月要还的钱，以银行账单为准</p>
+      </div>` : '';
+
     // 分类占比 —— 转帐不在其中，汇款不再盖住真实的消费结构
     const { total, rows } = L.categoryBreakdown(state, side, curMonth, statsType);
 

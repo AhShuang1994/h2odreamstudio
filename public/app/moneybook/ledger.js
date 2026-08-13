@@ -395,6 +395,28 @@ export function monthlySummary(state, currency, month) {
 }
 
 /**
+ * 这一侧这个月的**本月刷卡** —— 带刷卡标记的支出合计。
+ *
+ * 约等于下个月的账单，但**不承诺等于**：年费、外币手续费、退款都不在帐本里，
+ * 界面的措辞必须让这一点自明。
+ *
+ * **绝不叫「待还」** —— 那个词已经属于分期（outstandingOnSide）。同一页出现两个
+ * 「待还」是这个 app 最容易让人算错帐的一次撞车。
+ *
+ * 只算支出、只算这一侧、只算这个自然月；转帐的类型不是支出，于是自然被挡在外面
+ * （同 monthlySummary 的口径）。派生值，一个都不存（同 rateOf、outstandingOf）。
+ */
+export function cardSpentOnSide(state, currency, month) {
+  let sum = 0;
+  for (const r of state.records) {
+    if (r.type !== EXPENSE || !isCard(r)) continue;
+    if (r.currency !== currency || !r.date.startsWith(month)) continue;
+    sum += r.amount;
+  }
+  return round2(sum);
+}
+
+/**
  * 这一侧还剩多少 —— 定义是**使用本 app 以来这一侧的净流入**，不是银行户口余额。
  * 不引入期初余额（ADR-0001）。界面上的措辞必须让这一点自明。
  */
