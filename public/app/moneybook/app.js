@@ -489,10 +489,14 @@ import * as L from './ledger.js';
     const past = curMonth < thisMonth;
     const p = past ? null : L.projectedNet(state, side, curMonth, today);
     const net = past ? L.monthlySummary(state, side, curMonth).net : (p.extrapolated ?? p.certain);
+    // 小字一行讲两件事：确定的部分是多少、其余是估的。日均不认得「一次性」，一笔大额
+    // 消费会把它拉高、让这个数字偏低 —— 换记法那个月尤其明显（手动记的那笔「还卡」
+    // 没有规则来源，会被当成日常消费）。与其加一个「一次性支出」标记（每次记帐永久多
+    // 一个决定），不如把话说清楚，完整的说明在设定页（#123、#131）。
     const note = past ? ''
       : p.extrapolated == null
         ? '本月还早，先只算固定的'
-        : `已定 ${money(p.certain)}，主数字另含按日均估的日常消费`;
+        : `已定 ${money(p.certain)}，其余按日均估 —— 大额或一次性支出会让这个数字偏低`;
     $('#forecast').innerHTML = curMonth > thisMonth ? '' : `<div class="card">
         <div class="cat-row" style="border:none;padding:0">
           <span>${past ? '结余' : '月底预计结余'}</span>
