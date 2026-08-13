@@ -5,6 +5,7 @@ docs/
 # so installed skills survive a fresh clone.
 .claude/*
 !.claude/skills/
+!.claude/output-styles/
 
 # Xiaohongshu (小红书) post working images — deliverables for the XHS
 # platform, not referenced by the website
