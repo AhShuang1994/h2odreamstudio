@@ -48,6 +48,7 @@ export function defaultState() {
     currency: DEFAULT_CURRENCY,   // 主币种：必填，唯一
     currency2: null,              // 第二币种：可选，至多一个。有没有它就是唯一的「模式」
     lastSide: null,               // 上次记帐落在哪一侧（story 8）
+    lastCard: false,              // 上次记帐有没有勾刷卡（#125）
     budgets: {},                  // 按币种各持一份月预算
     cats: structuredCloneish(DEFAULT_CATS),
     recurring: [],
@@ -143,7 +144,12 @@ function sanitizeRecord(r, primary) {
   }
 
   const type = r.type === INCOME ? INCOME : EXPENSE;
-  return { ...base, type, cat: typeof r.cat === 'string' ? r.cat : '' };
+  const rec = { ...base, type, cat: typeof r.cat === 'string' ? r.cat : '' };
+  // 刷卡：**救援必须显式认得它**。这里是逐字段救援的，不认得的字段会被静默丢掉
+  // —— 勾了卡的记录重开 app 就变回没勾，而且帐面上完全看不出来（#125）。
+  // 只有支出带这个字段；旧资料没有它，于是一律视为不是刷卡（#123 story 28）。
+  if (type === EXPENSE && r.card) rec.card = true;
+  return rec;
 }
 
 function sanitizeRule(r, primary) {
@@ -166,6 +172,9 @@ function sanitizeRule(r, primary) {
   };
   // 期数坏掉只丢这个字段、退回无限期 —— 丢掉整条规则的话，使用者会莫名少一笔帐（#117）
   if (Number.isInteger(r.terms) && r.terms >= 1) rule.terms = r.terms;
+  // 规则的刷卡标记同样要显式救援（同 sanitizeRecord）—— 丢掉的话，订阅与卡上的
+  // 分期会静静变回现金，「本月刷卡」跟着系统性偏小，而且偏小的正是最稳定那一块（#127）
+  if (rule.type === EXPENSE && r.card) rule.card = true;
   return rule;
 }
 
@@ -189,6 +198,7 @@ export function migrate(data) {
     currency: primary,
     currency2: secondary && secondary !== primary ? secondary : null,
     lastSide: null,
+    lastCard: data.lastCard === true,
     budgets: {},
     cats: sanitizeCats(data.cats),
     recurring: [],
@@ -256,10 +266,31 @@ export function isTransfer(r) {
   return r.type === TRANSFER;
 }
 
+/**
+ * 这笔是不是**刷卡**。
+ *
+ * 刷卡只是支出上的一个标记，**不是**第四种记录类型、不是一侧、不是一个分类：它在
+ * 消费当天照常记成支出，进分类占比、进预算、进结余，跟现金一模一样（#123）。
+ * 缺席即不是刷卡 —— 旧资料因此一律视为现金，升级不问任何问题。
+ */
+export function isCard(r) {
+  return Boolean(r?.card);
+}
+
+/** 这本帐出现过刷卡记录没有。界面据此决定刷卡那些东西要不要被创建（比照 hasSecondary）。 */
+export function hasCard(state) {
+  return state.records.some(isCard);
+}
+
 /** 记帐时该默认落在哪一侧。 */
 export function activeSide(state) {
   const s = sides(state);
   return state.lastSide && s.includes(state.lastSide) ? state.lastSide : state.currency;
+}
+
+/** 下一笔支出的刷卡勾选框默认勾着没有 —— 沿用上次（比照 activeSide）。 */
+export function activeCard(state) {
+  return state.lastCard === true;
 }
 
 export function setActiveSide(state, currency) {
@@ -367,6 +398,28 @@ export function monthlySummary(state, currency, month) {
 }
 
 /**
+ * 这一侧这个月的**本月刷卡** —— 带刷卡标记的支出合计。
+ *
+ * 约等于下个月的账单，但**不承诺等于**：年费、外币手续费、退款都不在帐本里，
+ * 界面的措辞必须让这一点自明。
+ *
+ * **绝不叫「待还」** —— 那个词已经属于分期（outstandingOnSide）。同一页出现两个
+ * 「待还」是这个 app 最容易让人算错帐的一次撞车。
+ *
+ * 只算支出、只算这一侧、只算这个自然月；转帐的类型不是支出，于是自然被挡在外面
+ * （同 monthlySummary 的口径）。派生值，一个都不存（同 rateOf、outstandingOf）。
+ */
+export function cardSpentOnSide(state, currency, month) {
+  let sum = 0;
+  for (const r of state.records) {
+    if (r.type !== EXPENSE || !isCard(r)) continue;
+    if (r.currency !== currency || !r.date.startsWith(month)) continue;
+    sum += r.amount;
+  }
+  return round2(sum);
+}
+
+/**
  * 这一侧还剩多少 —— 定义是**使用本 app 以来这一侧的净流入**，不是银行户口余额。
  * 不引入期初余额（ADR-0001）。界面上的措辞必须让这一点自明。
  */
@@ -390,13 +443,19 @@ export function categoryBreakdown(state, currency, month, type) {
   return { total, rows };
 }
 
-/** 近 n 个月的收支趋势，仍然只属于这一侧。 */
+/**
+ * 近 n 个月的收支趋势，仍然只属于这一侧。
+ *
+ * 每个月多带一个 `card`，供渲染层把支出柱染成两段（#129）。它是 `expense` 的**子集**
+ * ——「刷卡」与「支出」不能相加，所以永远不该被画成并排的第二根柱子。口径直接借给
+ * cardSpentOnSide，这里不另写一套筛选。
+ */
 export function trend(state, currency, month, n = 6) {
   const out = [];
   for (let i = n - 1; i >= 0; i--) {
     const m = shiftMonth(month, -i);
     const { income, expense } = monthlySummary(state, currency, m);
-    out.push({ month: m, income, expense });
+    out.push({ month: m, income, expense, card: cardSpentOnSide(state, currency, m) });
   }
   return out;
 }
@@ -441,8 +500,8 @@ export function budgetStatus(state, currency, month) {
 
 // —— 增删改 ————————————————————————————————————————————————
 
-/** 记一笔支出或收入。币种决定它属于哪一侧。 */
-export function addRecord(state, { type, amount, currency, cat, date, note, ruleId }) {
+/** 记一笔支出或收入。币种决定它属于哪一侧；刷卡只是支出上的一个标记。 */
+export function addRecord(state, { type, amount, currency, cat, date, note, ruleId, card }) {
   const rec = {
     id: newId(),
     type: type === INCOME ? INCOME : EXPENSE,
@@ -454,8 +513,11 @@ export function addRecord(state, { type, amount, currency, cat, date, note, rule
   };
   if (!(rec.amount > 0)) throw new Error('金额要大于 0');
   if (ruleId) rec.ruleId = ruleId;
+  // 刷卡只属于支出 —— 收入上留一个旗标，等于暗示收入也可能刷卡
+  if (card && rec.type === EXPENSE) rec.card = true;
   state.records.push(rec);
   setActiveSide(state, rec.currency);
+  if (rec.type === EXPENSE) state.lastCard = isCard(rec);
   return rec;
 }
 
@@ -504,13 +566,18 @@ export function updateRecord(state, id, patch) {
     if (!(next.toAmount > 0)) throw new Error('请填到帐金额');
     if (!next.toCurrency || next.toCurrency === next.currency) throw new Error('转帐要跨两个不同的币种');
     delete next.cat;
+    delete next.card;
   } else {
     delete next.toAmount;
     delete next.toCurrency;
+    // 改成收入就把刷卡标记删掉，而不是留一个 false 在那里 —— 留着的话它是隐形的，
+    // 改回支出时会突然复活（同上面的 delete next.cat）
+    if (next.type === EXPENSE && next.card) next.card = true; else delete next.card;
   }
 
   state.records[i] = next;
   if (!isTransfer(next)) setActiveSide(state, next.currency);
+  if (next.type === EXPENSE) state.lastCard = isCard(next);
   return next;
 }
 
@@ -523,7 +590,7 @@ export function removeRecord(state, id) {
 
 // —— 每月固定收支 ————————————————————————————————————————
 
-export function addRule(state, { type, amount, currency, cat, day, note, from, terms }) {
+export function addRule(state, { type, amount, currency, cat, day, note, from, terms, card }) {
   const rule = {
     id: newId(),
     type: type === INCOME ? INCOME : EXPENSE,
@@ -536,6 +603,9 @@ export function addRule(state, { type, amount, currency, cat, day, note, from, t
     applied: []
   };
   if (!(rule.amount > 0)) throw new Error('金额要大于 0');
+
+  // 刷卡只属于支出的规则 —— 订阅、保费、卡上的分期。收入的规则不问这件事
+  if (card && rule.type === EXPENSE) rule.card = true;
 
   // 期数留空 = 一直重复，所以「没填」与「填错」必须分开：没填就不长这个字段，
   // 填错要当场说清楚，绝不悄悄退回无限期，也不建出一笔生下来就结束的分期（#117）
@@ -682,6 +752,9 @@ export function updateRule(state, id, patch) {
     throw new Error('币种不能改 —— 一条规则不能横跨两侧，要换侧请删了重建');
   }
   if (patch.type != null) next.type = patch.type === INCOME ? INCOME : EXPENSE;
+  if ('card' in patch) next.card = Boolean(patch.card);
+  // 改成收入就把标记删掉，而不是留一个 false —— 同 updateRecord，隐形的旗标会复活
+  if (next.type !== EXPENSE || !next.card) delete next.card;
   if (patch.amount != null) next.amount = round2(patch.amount);
   if (!(next.amount > 0)) throw new Error('金额要大于 0');
   if (patch.day != null) next.day = Math.min(31, Math.max(1, Math.round(Number(patch.day)) || 1));
@@ -714,6 +787,27 @@ export function removeRule(state, id) {
 }
 
 /**
+ * 一条规则在某个月**该记哪一天、记了没、日期到了没**。首期之前或过了最后一期
+ * 返回 null —— 那个月这条规则根本不该出现。
+ *
+ * 抽出来是因为「这个月还没到日子的固定收支」正是它的取反（#123 的月底预计结余）。
+ * 若补记与预测各写一遍月份行走与日期比较，两份实作**迟早会漂开** —— 预测说房租还
+ * 没记、补记逻辑却已经记下了，同一笔钱就被减两次，而且帐面上完全看不出异常。
+ *
+ * 到期仍然**按月份**算（首期往后数「总期数 − 1」个月），不按已补记的笔数。
+ * 「今天」由呼叫端传入，这一层不问系统时间（同 applyRecurring、defaultFirstMonth）。
+ */
+export function dueOf(rule, month, today) {
+  if (!rule || month < rule.from) return null;
+  const last = lastTermMonth(rule);              // 分期到最后一期为止；无限期为 null
+  if (last !== null && month > last) return null;
+  const date = `${month}-${pad(Math.min(rule.day, lastDayOfMonth(month)))}`;  // 2 月没有 31 号，缩到当月最后一天
+  const applied = (rule.applied || []).includes(month);
+  const arrived = date <= today;
+  return { month, date, applied, arrived, due: !applied && arrived };
+}
+
+/**
  * 把所有到期但还没记的固定收支补上，**各自落在它所属的那一侧**（story 25）。
  *
  * 每条规则自己记住已经套用过哪些月份，所以使用者手动删掉某个月的那一笔也不会被
@@ -732,30 +826,104 @@ export function applyRecurring(state, today) {
   for (const rule of state.recurring) {
     if (!live.includes(rule.currency)) continue;
     rule.applied ||= [];
-    const stop = lastTermMonth(rule);              // 分期补到最后一期就停；无限期为 null
-    let m = rule.from;
-    while (m <= thisMonth && (stop === null || m <= stop)) {
-      if (!rule.applied.includes(m)) {
-        const date = `${m}-${pad(Math.min(rule.day, lastDayOfMonth(m)))}`;  // 2 月没有 31 号，缩到当月最后一天
-        if (date <= today) {
-          state.records.push({
-            id: newId(),
-            type: rule.type,
-            amount: rule.amount,
-            currency: rule.currency,
-            cat: rule.cat,
-            date,
-            note: rule.note,
-            ruleId: rule.id
-          });
-          rule.applied.push(m);
-          added++;
-        }
-      }
-      m = shiftMonth(m, 1);
+    const stop = lastTermMonth(rule);
+    // 走到今天为止，分期走到最后一期为止 —— 这只是别白走几十个月，
+    // 「该不该记」的判定整个在 dueOf 手上
+    for (let m = rule.from; m <= thisMonth && (stop === null || m <= stop); m = shiftMonth(m, 1)) {
+      const slot = dueOf(rule, m, today);
+      if (!slot.due) continue;
+      const rec = {
+        id: newId(),
+        type: rule.type,
+        amount: rule.amount,
+        currency: rule.currency,
+        cat: rule.cat,
+        date: slot.date,
+        note: rule.note,
+        ruleId: rule.id
+      };
+      // 补记出来的每一笔继承规则的刷卡标记 —— 否则订阅与卡上的分期每个月都要手动去勾
+      if (isCard(rule)) rec.card = true;
+      state.records.push(rec);
+      rule.applied.push(m);
+      added++;
     }
   }
   return added;
+}
+
+// —— 月底预计结余 ————————————————————————————————————————
+//
+// 固定收支要到那一天才补记，所以 25 号才扣的房租在 13 号看不到 —— 月中的「本月结余」
+// 永远偏乐观。下面这两个推导把「还没发生但确定会发生」的那部分算进来（#128）。
+//
+// 这是**流量**推导，不是存量：它不需要知道户口里有多少钱，所以不碰 ADR-0001 那条
+// 「不引入期初余额」。全是派生值，一个都不存。
+
+/**
+ * 这一侧这个月**还没到日子**的固定收支 —— 还没补记、应记日期还没到、还没过最后一期。
+ *
+ * 判定整个借给 `dueOf`：这里就是它的取反（`!applied && !arrived`）。**不许在这里
+ * 另写一遍月份与日期的比较** —— 那正是 #124 抽出 `dueOf` 要防的事：两份实作漂开之后，
+ * 同一笔钱会既被算成「已记」又被算成「待发生」，而帐面上完全看不出异常。
+ *
+ * 「今天」由呼叫端传入。传一个未来的月份进来会把整月的规则都算成待发生（那个月一天
+ * 都还没过，本来就是这样）—— 界面因此不在未来月份显示预测，那是渲染层的判断。
+ */
+export function pendingRecurring(state, currency, month, today) {
+  let income = 0, expense = 0;
+  for (const rule of state.recurring) {
+    if (rule.currency !== currency) continue;
+    const slot = dueOf(rule, month, today);
+    if (!slot || slot.applied || slot.arrived) continue;
+    if (rule.type === INCOME) income += rule.amount; else expense += rule.amount;
+  }
+  return { currency, income: round2(income), expense: round2(expense), net: round2(income - expense) };
+}
+
+/**
+ * 月底预计结余 —— 「结余」（monthlySummary 的 net）把这个月还没发生的部分也算进去
+ * 之后的样子。同一个数的延伸，不是新概念。回传两个数：
+ *
+ * - `certain` **确定值**：已记净额 + 本月待发生的固定收支净额。只含已经发生的与确定
+ *   会发生的，所以是可以信的那个数。
+ * - `extrapolated` **外推值**：确定值再减去按日均估出来的、接下来还会花的日常钱。
+ *   它回答的是「这个月能存多少」，而确定值回答的是「从今天起一毛不花能存多少」——
+ *   后者不回答任何问题，因为他不会一毛不花。所以界面拿外推值当主角（#130）。
+ *   算不出来时为 null，渲染层据此退回只显示确定值。
+ *
+ * 日均的分子是**本月已记的非固定支出**，分母是**本月已过的天数**：
+ * - 排除规则产生的记录 —— 它们已经在确定值里，而且不是日常消费，会把日均拉歪
+ * - 排除转帐 —— 类型不是支出，自然被挡在外面（同 monthlySummary）
+ *
+ * 帐面口径 —— 支出含这个月刷的卡，因为刷卡本来就是支出。这一层不需要认识刷卡标记。
+ *
+ * **不做「一次性支出」标记，也不做自动大额门槛**：门槛定在哪都会错，而且会静静吃掉
+ * 真实的大额消费。换记法那个月的外推会偏高，那是已经接受的代价（#123）。
+ *
+ * 外推那一段刻意留在这里、不拆成独立模块 —— 它只被这一处使用，拆出去等于为了测试
+ * 多开一个公开接口，而它留在这里本来就测得到。
+ */
+export function projectedNet(state, currency, month, today) {
+  const recorded = monthlySummary(state, currency, month);
+  const pending = pendingRecurring(state, currency, month, today);
+  const certain = round2(recorded.net + pending.net);
+
+  // 外推只对**本月**说话。过去的月份日子已经过完，历史数字不该自己漂移
+  if (month !== today.slice(0, 7)) return { certain, extrapolated: null };
+
+  // 月初 7 天不外推：样本太少，2 号买台 800 的东西会外推出「这个月要花 12,400」
+  const passed = Number(today.slice(8, 10));
+  if (passed <= 7) return { certain, extrapolated: null };
+
+  let daily = 0;
+  for (const r of state.records) {
+    if (r.type !== EXPENSE || r.ruleId) continue;
+    if (r.currency !== currency || !r.date.startsWith(month)) continue;
+    daily += r.amount;
+  }
+  const left = lastDayOfMonth(month) - passed;
+  return { certain, extrapolated: round2(certain - (daily / passed) * left) };
 }
 
 // —— 导出 ————————————————————————————————————————————————

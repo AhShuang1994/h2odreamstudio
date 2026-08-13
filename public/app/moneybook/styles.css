@@ -40,6 +40,7 @@
   --income:#27a644;   /* 规格的 semantic-success，6.01:1 */
   --expense:#eb5757;  /* 5.47:1 */
   --xfer:#5ec8e8;     /* 转帐既不是收入也不是支出，用中性青色，9.89:1 */
+  --expense-card:#8c3b3b;  /* 支出柱里刷卡的那一段：同色相压暗，因为它是支出的子集 */
 
   /* 圆角，完全照规格的尺度 */
   --r-xs:4px; --r-sm:6px; --r-md:8px; --r-lg:12px; --r-xl:16px; --r-pill:9999px;
@@ -192,6 +193,20 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .xfer .field input{text-align:right}
 .xfer p{line-height:1.5;font-size:var(--t-xs)}
 
+/* ── 刷卡勾选框：只在支出时出现（#125） ── */
+.check{
+  display:flex;align-items:center;gap:var(--sp-3);width:100%;
+  background:var(--s1);border:1px solid var(--hairline);border-radius:var(--r-md);
+  padding:var(--sp-3);margin-bottom:var(--sp-5);
+}
+.check[hidden]{display:none}
+/* 固定收支表单里的那一个，跟着 .recrow 的密度走 */
+.check.compact{padding:var(--sp-2) var(--sp-3);margin-bottom:var(--sp-2)}
+.check input[type=checkbox]{flex:0 0 auto;width:20px;height:20px;accent-color:var(--accent)}
+.check-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.check-t b{font-size:var(--t-sm);font-weight:500}
+.check-t small{color:var(--ink-subtle);font-size:var(--t-xs)}
+
 /* ── 表单：规格的 text-input，标签置上 ── */
 .fields{display:flex;flex-direction:column;gap:var(--sp-2)}
 .field{
@@ -303,8 +318,12 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .trend .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:var(--sp-2);min-width:0}
 .trend .stack{display:flex;align-items:flex-end;gap:3px;flex:1;width:100%;justify-content:center}
 .trend .b{flex:1;max-width:10px;border-radius:var(--r-xs) var(--r-xs) 0 0;min-height:2px}
-.trend .b.e{background:var(--expense)}
+.trend .b.e{background:var(--expense);position:relative;overflow:hidden}
 .trend .b.i{background:var(--income)}
+/* 刷卡是支出的**子集**，所以画成支出柱底部的一段，不是并排的第三根柱 ——
+   并排会暗示两者可以相加，那会让人把钱数重（#129）。同色相压暗，一眼看得出
+   它属于这根柱子。 */
+.trend .b.e u{position:absolute;left:0;right:0;bottom:0;background:var(--expense-card)}
 .trend .col small{color:var(--ink-subtle);font-size:var(--t-xs);white-space:nowrap}
 
 /* ── 设定 ── */
@@ -362,6 +381,14 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .auto-tag{
   display:inline-block;font-size:var(--t-xs);color:var(--ink-muted);background:var(--s2);
   border-radius:var(--r-pill);padding:2px 8px;margin-left:6px;font-weight:400;letter-spacing:0;
+}
+
+/* 刷卡的记录带一个**文字**徽章。💳 已经属于分期的期次，两者长得一样的话，
+   一笔刷卡的分期就会挂着两个同样的符号（#125） */
+.card-tag{
+  display:inline-block;font-size:var(--t-xs);color:var(--accent-text);background:var(--s2);
+  border:1px solid var(--hairline-strong);border-radius:var(--r-sm);
+  padding:1px 6px;margin-left:6px;font-weight:500;letter-spacing:0;
 }
 
 .recform{margin-top:var(--sp-3)}

@@ -190,9 +190,20 @@ import * as L from './ledger.js';
     document.body.classList.toggle('xfer-mode', isXfer());
   }
 
+  /**
+   * 刷卡勾选框**只属于支出** —— 收入与转帐上不出现，不必回答一个没有意义的问题。
+   *
+   * 切到收入时只是收起来、不清掉勾选：切回支出时使用者本来就期待它还在那里，
+   * 而存下去时也只在支出上读它（saveRecord）。
+   */
+  function renderCard() {
+    $('#card-box').hidden = entryType !== 'expense';
+  }
+
   function renderEntry() {
     renderTypeSeg();
     renderCats();
+    renderCard();
     renderXfer();
     renderAmount();
   }
@@ -206,6 +217,7 @@ import * as L from './ledger.js';
     $('#date').value = L.dateOf(new Date());
     $('#note').value = '';
     $('#xfer-amount').value = '';
+    $('#card').checked = L.activeCard(state);   // 沿用上次，一整天刷同一张卡时不必每笔重勾
     $('#entry-title').textContent = '记一笔';
     $('#btn-delete').hidden = true;
     closeKeypad();
@@ -274,6 +286,7 @@ import * as L from './ledger.js';
     const date = $('#date').value || L.dateOf(new Date());
     const note = $('#note').value.trim();
     const wasEditing = !!editingId;
+    let firstCard = false;
 
     try {
       if (isXfer()) {
@@ -288,7 +301,11 @@ import * as L from './ledger.js';
       } else {
         if (!picked) return toast('请先选一个分类');
         const prev = wasEditing ? L.findRecord(state, editingId) : null;
-        const payload = { type: entryType, amount, currency: side, cat: picked, date, note };
+        const card = entryType === 'expense' && $('#card').checked;
+        // 帐本里还没有任何一笔刷卡记录 = 这是第一次勾着存下去。用推导而不是再存一个
+        // 「说明看过没」的旗标（同 rateOf、termOf 的做法）。要在写进去之前问。
+        firstCard = card && !L.hasCard(state);
+        const payload = { type: entryType, amount, currency: side, cat: picked, date, note, card };
         if (wasEditing) L.updateRecord(state, editingId, payload);
         else L.addRecord(state, { ...payload, ruleId: prev?.ruleId });
       }
@@ -300,6 +317,14 @@ import * as L from './ledger.js';
     save();
     curMonth = date.slice(0, 7);
     resetEntry();
+    // 第一次勾刷卡时把话说清楚：这是整件事里唯一会真正弄坏资料的动作 —— 扣款日再记
+    // 一笔「还卡」，同一笔钱就被算两次，而且记下去之后没有任何征兆（#123）。
+    if (firstCard) alert(
+      '这笔已经记成支出了。\n\n' +
+      '银行扣款那天不用再记一笔 —— 那笔钱在你刷卡的当天就已经离开了，' +
+      '扣款日再记一次「还卡」，同一笔钱会被算两次。\n\n' +
+      '这个说明只出现这一次。'
+    );
     if (wasEditing) show('list');
   }
 
@@ -332,6 +357,7 @@ import * as L from './ledger.js';
     $('#date').value = r.date;
     $('#note').value = r.note || '';
     $('#xfer-amount').value = L.isTransfer(r) ? String(r.toAmount) : '';
+    $('#card').checked = L.isCard(r);       // 编辑时看到的是这笔自己的标记，不是上次那笔的
     $('#entry-title').textContent = L.isTransfer(r) ? '编辑转帐' : '编辑记录';
     $('#btn-delete').hidden = false;
     renderEntry();
@@ -359,7 +385,8 @@ import * as L from './ledger.js';
       return [{
         id: r.id, icon: catOf(r.type, r.cat).icon, title: catOf(r.type, r.cat).name,
         note: r.note || '', sign: r.type === 'income' ? '+' : '-',
-        cls: r.type, amount: r.amount, ruleId: r.ruleId, term: L.termOf(state, r)
+        cls: r.type, amount: r.amount, ruleId: r.ruleId, term: L.termOf(state, r),
+        card: L.isCard(r)
       }];
     }
     const out = [];
@@ -418,9 +445,12 @@ import * as L from './ledger.js';
           const auto = it.ruleId
             ? `<span class="auto-tag">${it.term ? `💳 ${it.term.index}/${it.term.total}` : '🔁 固定'}</span>`
             : '';
+          // 刷卡用**文字**徽章 —— 期次那个 💳 不动，它已经在使用者眼睛里跑了一段时间，
+          // 而一笔刷卡的分期不该挂着两个一样的符号（#125）
+          const card = it.card ? '<span class="card-tag">卡</span>' : '';
           return `<button class="item" data-id="${esc(it.id)}">
             <i>${esc(it.icon)}</i>
-            <span class="t"><b>${esc(it.title)}${auto}</b><small>${esc(it.note)}</small></span>
+            <span class="t"><b>${esc(it.title)}${card}${auto}</b><small>${esc(it.note)}</small></span>
             <span class="v ${it.cls}">${it.sign}${money(it.amount)}</span>
           </button>`;
         }).join('')}</div>
@@ -445,6 +475,36 @@ import * as L from './ledger.js';
   function renderStats() {
     $('#stats-month').textContent = monthLabel(curMonth);
 
+    // 月底预计结余（#128）。固定收支要到那一天才补记，所以 25 号才扣的房租在 13 号
+    // 看不到 —— 月中的「本月结余」永远偏乐观。三种月份三种说法：
+    //   过去 → 实际结余，标签就叫「结余」，不做任何预测（历史数字不该自己漂移）
+    //   本月 → 确定值：已记净额 + 本月还没到日子的固定收支
+    //   未来 → 整块不显示。那个月一天都还没过，把房租薪水加减一遍看起来像预测，
+    //          其实什么都没预测
+    // 主数字是**外推值** —— 使用者问的是「这个月能存多少钱」，而确定值回答的是
+    // 「从今天起一毛不花能存多少」，那不回答任何问题（#130）。确定值退成底下的小字。
+    // 月初 7 天样本太少，那几天只显示确定值并说明原因。
+    const today = L.dateOf(new Date());
+    const thisMonth = today.slice(0, 7);
+    const past = curMonth < thisMonth;
+    const p = past ? null : L.projectedNet(state, side, curMonth, today);
+    const net = past ? L.monthlySummary(state, side, curMonth).net : (p.extrapolated ?? p.certain);
+    // 小字一行讲两件事：确定的部分是多少、其余是估的。日均不认得「一次性」，一笔大额
+    // 消费会把它拉高、让这个数字偏低 —— 换记法那个月尤其明显（手动记的那笔「还卡」
+    // 没有规则来源，会被当成日常消费）。与其加一个「一次性支出」标记（每次记帐永久多
+    // 一个决定），不如把话说清楚，完整的说明在设定页（#123、#131）。
+    const note = past ? ''
+      : p.extrapolated == null
+        ? '本月还早，先只算固定的'
+        : `已定 ${money(p.certain)}，其余按日均估 —— 大额或一次性支出会让这个数字偏低`;
+    $('#forecast').innerHTML = curMonth > thisMonth ? '' : `<div class="card">
+        <div class="cat-row" style="border:none;padding:0">
+          <span>${past ? '结余' : '月底预计结余'}</span>
+          <b class="tnum"${net < 0 ? ' style="color:var(--expense)"' : ''}>${money(net)}</b>
+        </div>${note ? `
+        <p class="muted small" style="margin-top:6px">${esc(note)}</p>` : ''}
+      </div>`;
+
     // 预算进度（只在看支出时显示），只吃本侧的支出
     const bs = statsType === 'expense' ? L.budgetStatus(state, side, curMonth) : null;
     $('#budget-box').innerHTML = bs ? `<div class="card">
@@ -456,6 +516,19 @@ import * as L from './ledger.js';
         <div class="bar-bg" style="height:6px;background:var(--hairline);border-radius:9999px;overflow:hidden">
           <i style="display:block;height:100%;width:${bs.pct}%;background:${bs.over ? 'var(--expense)' : 'var(--accent)'}"></i>
         </div>
+      </div>` : '';
+
+    // 本月刷卡：≈ 下个月要还的钱。整本帐从没出现过刷卡记录的人根本看不到这一行
+    // ——「有没有刷过卡」是它出现的条件，不是一个开关（比照第二币种）。
+    // 切到收入时也整块消失：收入不会刷卡，显示 0 等于暗示它可能。
+    // 有过之后，某个月一笔都没刷仍然照常显示 0 ——「这个月我没刷卡」是一条信息。
+    const showCard = statsType === 'expense' && L.hasCard(state);
+    $('#card-sum').innerHTML = showCard ? `<div class="card">
+        <div class="cat-row" style="border:none;padding:0">
+          <span>本月刷卡</span>
+          <b class="tnum">${money(L.cardSpentOnSide(state, side, curMonth))}</b>
+        </div>
+        <p class="muted small" style="margin-top:6px">≈ 下个月要还的钱，以银行账单为准</p>
       </div>` : '';
 
     // 分类占比 —— 转帐不在其中，汇款不再盖住真实的消费结构
@@ -492,16 +565,25 @@ import * as L from './ledger.js';
       }).join('');
     }
 
-    // 近 6 个月趋势，仍然只属于这一侧
+    // 近 6 个月趋势，仍然只属于这一侧。
+    // 支出柱染成两段：下段刷卡、上段现金。刷卡是支出的**子集**，所以画在柱子里面
+    // 而不是并排 —— 并排会暗示两者可以相加，那会让人把钱数重（#129）。
+    // 从没刷过卡的人、以及切到收入时，分段根本不被创建，柱子与今天完全一致。
     const data = L.trend(state, side, curMonth, 6);
     const max = Math.max(1, ...data.map(d => Math.max(d.expense, d.income)));
-    $('#trend').innerHTML = data.map(d => `<div class="col">
-      <span class="stack">
-        <i class="b e" style="height:${(d.expense / max * 100).toFixed(1)}%" title="支出 ${money(d.expense)}"></i>
-        <i class="b i" style="height:${(d.income / max * 100).toFixed(1)}%" title="收入 ${money(d.income)}"></i>
-      </span>
-      <small>${d.month.slice(5)}月</small>
-    </div>`).join('');
+    $('#trend').innerHTML = data.map(d => {
+      // 那个月一笔都没刷时不画高度为 0 的色块，柱子就是完整的一段
+      const seg = showCard && d.card > 0
+        ? `<u style="height:${(d.card / d.expense * 100).toFixed(1)}%"></u>` : '';
+      const title = seg ? `支出 ${money(d.expense)}（刷卡 ${money(d.card)}）` : `支出 ${money(d.expense)}`;
+      return `<div class="col">
+        <span class="stack">
+          <i class="b e" style="height:${(d.expense / max * 100).toFixed(1)}%" title="${title}">${seg}</i>
+          <i class="b i" style="height:${(d.income / max * 100).toFixed(1)}%" title="收入 ${money(d.income)}"></i>
+        </span>
+        <small>${d.month.slice(5)}月</small>
+      </div>`;
+    }).join('');
   }
 
   // ── 每月固定收支 ────────────────────────────────────
@@ -519,10 +601,12 @@ import * as L from './ledger.js';
       const word = r.type === 'expense' ? '待还' : '待收';
       meta = `每月 ${r.day} 号 · 还剩 ${left} 期 · ${word} ${money(L.outstandingOf(r, month), r.currency)}`;
     }
+    // 刷卡的规则带同一个「卡」徽章 —— 明细里那几笔继承来的记录长得跟它一样（#127）
+    const card = L.isCard(r) ? '<span class="card-tag">卡</span>' : '';
     return `<div class="rec-row${settled ? ' done' : ''}">
       <button class="rec-main" data-edit-rec="${esc(r.id)}">
         <i>${esc(c.icon)}</i>
-        <span class="t"><b>${esc(r.note || c.name)}</b><small>${meta}</small></span>
+        <span class="t"><b>${esc(r.note || c.name)}${card}</b><small>${meta}</small></span>
         <span class="v ${r.type}">${r.type === 'expense' ? '-' : '+'}${money(r.amount, r.currency)}</span>
       </button>
       <button class="x" data-del-rec="${esc(r.id)}" aria-label="删除">✕</button>
@@ -565,6 +649,8 @@ import * as L from './ledger.js';
       $('#rec-day').innerHTML = Array.from({ length: 31 }, (_, i) =>
         `<option value="${i + 1}">每月 ${i + 1} 号</option>`).join('');
     }
+    // 刷卡只属于支出的规则 —— 收入的规则不问这件事（同记帐页）
+    $('#rec-card-box').hidden = recType !== 'expense';
     syncRecEditMode();
     syncRecFirst();
   }
@@ -600,6 +686,7 @@ import * as L from './ledger.js';
     $('#rec-amount').value = String(rule.amount);
     $('#rec-day').value = String(rule.day);
     $('#rec-note').value = rule.note || '';
+    $('#rec-card').checked = L.isCard(rule);
     // 表单问的是「还剩几期」，所以带入的是还没补记的期数，不是总期数
     const left = L.unappliedTerms(rule);
     $('#rec-terms').value = left == null ? '' : String(left);
@@ -611,6 +698,7 @@ import * as L from './ledger.js';
   function resetRecForm() {
     editingRuleId = null;
     $('#rec-amount').value = ''; $('#rec-note').value = ''; $('#rec-terms').value = '';
+    $('#rec-card').checked = false;
     recFirstTouched = false;
     renderRecurring();
   }
@@ -631,6 +719,8 @@ import * as L from './ledger.js';
         cat: $('#rec-cat').value,
         day: Number($('#rec-day').value),
         note: $('#rec-note').value.trim(),
+        // 改刷卡标记同样只管以后：updateRule 一笔记录都不碰，当月已经记下的那笔保持原样
+        card: recType === 'expense' && $('#rec-card').checked,
         remaining: $('#rec-terms').value.trim()
       });
     } catch (err) {
@@ -710,12 +800,14 @@ import * as L from './ledger.js';
         note: $('#rec-note').value.trim(),
         // 分期的首期由使用者定；没填期数就跟今天一样，从本月起算
         from: terms ? $('#rec-first').value : L.monthOf(new Date()),
-        terms
+        terms,
+        card: recType === 'expense' && $('#rec-card').checked
       });
     } catch (err) {
       return toast(err.message);
     }
     $('#rec-amount').value = ''; $('#rec-note').value = ''; $('#rec-terms').value = '';
+    $('#rec-card').checked = false;
     recFirstTouched = false;
     const n = L.applyRecurring(state, L.dateOf(new Date()));
     save();

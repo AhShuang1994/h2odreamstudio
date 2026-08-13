@@ -45,6 +45,13 @@
 
     <div class="cats" id="cats"></div>
 
+    <!-- 刷卡：只属于支出，收入与转帐上不出现。刷卡的钱在**消费当天**就记成支出，
+         银行扣款那天什么都不记 —— 那笔钱那时早就离开了。 -->
+    <label class="check" id="card-box">
+      <input type="checkbox" id="card" />
+      <span class="check-t"><b>刷卡</b><small>记在信用卡上，下个月才从户口扣</small></span>
+    </label>
+
     <!-- 转帐才出现：到帐金额由使用者从转帐 app 上抄下来，含手续费，是真实成交价。
          app 不联网取汇率 —— 不猜汇率，问人。 -->
     <div class="xfer" id="xfer-box" hidden>
@@ -97,7 +104,15 @@
       <button data-type="income">收入</button>
     </div>
 
+    <!-- 月底预计结余：把本月还没到日子的固定收支也算进来。翻到过去的月份显示实际
+         结余、不预测；翻到未来的月份整块不显示 —— 那个月一天都还没过。 -->
+    <div id="forecast"></div>
+
     <div id="budget-box"></div>
+
+    <!-- 本月刷卡：整本帐从没出现过刷卡记录时，这一块根本不被创建（比照第二币种，
+         不是「模式关着」）。切到收入时同样整块消失 —— 收入不会刷卡。 -->
+    <div id="card-sum"></div>
 
     <div class="donut-wrap">
       <svg id="donut" viewBox="0 0 42 42" aria-hidden="true"></svg>
@@ -141,6 +156,25 @@
       </p>
     </div>
 
+    <!-- 过渡月说明：换记法那个月的外推一定会难看，与其抹平它，不如把话说清楚 —— #123
+         明写「接受这一个月不准」。也顺带把「扣款日什么都不记」再讲一次，那是唯一
+         会真正弄坏资料的动作。 -->
+    <h2 class="sec">刷卡与月底预计结余</h2>
+    <div class="card">
+      <p class="muted small">
+        记支出时勾「刷卡」，这笔钱就在<b>消费当天</b>记成支出，跟现金一模一样地进分类占比、
+        预算条与结余。<b>银行扣款那天什么都不记</b> —— 那笔钱早就离开了，扣款日再记一次
+        「还卡」，同一笔钱会被算两次。统计页的「本月刷卡」就是这个月刷掉的合计，约等于
+        下个月的账单，以银行账单为准。
+      </p>
+      <p class="muted small" style="margin-top:10px">
+        「月底预计结余」把本月<b>还没到日子</b>的固定收支也算进来，再按日均估上接下来还会花
+        的日常钱。日均认不出「一次性」：一笔大额消费会把它拉高，这个数字跟着偏低。
+        <b>刚换成刷卡记法的那个月尤其明显</b> —— 那笔手动记的「还卡」没有规则来源，会被当成
+        日常消费。那一个月不准是知道的，之后就正常了。月初 7 天样本太少，那几天只算固定的。
+      </p>
+    </div>
+
     <h2 class="sec">每月预算</h2>
     <div id="budget-settings"></div>
 
@@ -164,6 +198,12 @@
                  placeholder="还剩几期，留空 = 一直重复" aria-label="还剩几期" />
           <select id="rec-first" aria-label="首期" hidden></select>
         </div>
+        <!-- 订阅、保费、卡上的分期是刷卡消费里最稳定的一块，而它们在这里是规则不是
+             记录。不给规则这个勾选框，「本月刷卡」会系统性偏小。仅支出时出现。 -->
+        <label class="check compact" id="rec-card-box">
+          <input type="checkbox" id="rec-card" />
+          <span class="check-t"><b>刷卡</b><small>之后自动记的每一笔都带上「卡」</small></span>
+        </label>
         <div class="recrow">
           <input type="text" id="rec-note" maxlength="20" placeholder="备注，例如：房租" />
           <button id="btn-cancel-rec" hidden>取消</button>

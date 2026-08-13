@@ -1,6 +1,6 @@
 /* 小帐本 Service Worker — 让 App 完全离线可用。
    改版时把 CACHE 的版号 +1，使用者下次连线就会自动更新。 */
-const CACHE = 'moneybook-v7';
+const CACHE = 'moneybook-v8';
 const ASSETS = [
   './',
   './index.html',
