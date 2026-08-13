@@ -714,6 +714,27 @@ export function removeRule(state, id) {
 }
 
 /**
+ * 一条规则在某个月**该记哪一天、记了没、日期到了没**。首期之前或过了最后一期
+ * 返回 null —— 那个月这条规则根本不该出现。
+ *
+ * 抽出来是因为「这个月还没到日子的固定收支」正是它的取反（#123 的月底预计结余）。
+ * 若补记与预测各写一遍月份行走与日期比较，两份实作**迟早会漂开** —— 预测说房租还
+ * 没记、补记逻辑却已经记下了，同一笔钱就被减两次，而且帐面上完全看不出异常。
+ *
+ * 到期仍然**按月份**算（首期往后数「总期数 − 1」个月），不按已补记的笔数。
+ * 「今天」由呼叫端传入，这一层不问系统时间（同 applyRecurring、defaultFirstMonth）。
+ */
+export function dueOf(rule, month, today) {
+  if (!rule || month < rule.from) return null;
+  const last = lastTermMonth(rule);              // 分期到最后一期为止；无限期为 null
+  if (last !== null && month > last) return null;
+  const date = `${month}-${pad(Math.min(rule.day, lastDayOfMonth(month)))}`;  // 2 月没有 31 号，缩到当月最后一天
+  const applied = (rule.applied || []).includes(month);
+  const arrived = date <= today;
+  return { month, date, applied, arrived, due: !applied && arrived };
+}
+
+/**
  * 把所有到期但还没记的固定收支补上，**各自落在它所属的那一侧**（story 25）。
  *
  * 每条规则自己记住已经套用过哪些月份，所以使用者手动删掉某个月的那一笔也不会被
@@ -732,27 +753,24 @@ export function applyRecurring(state, today) {
   for (const rule of state.recurring) {
     if (!live.includes(rule.currency)) continue;
     rule.applied ||= [];
-    const stop = lastTermMonth(rule);              // 分期补到最后一期就停；无限期为 null
-    let m = rule.from;
-    while (m <= thisMonth && (stop === null || m <= stop)) {
-      if (!rule.applied.includes(m)) {
-        const date = `${m}-${pad(Math.min(rule.day, lastDayOfMonth(m)))}`;  // 2 月没有 31 号，缩到当月最后一天
-        if (date <= today) {
-          state.records.push({
-            id: newId(),
-            type: rule.type,
-            amount: rule.amount,
-            currency: rule.currency,
-            cat: rule.cat,
-            date,
-            note: rule.note,
-            ruleId: rule.id
-          });
-          rule.applied.push(m);
-          added++;
-        }
-      }
-      m = shiftMonth(m, 1);
+    const stop = lastTermMonth(rule);
+    // 走到今天为止，分期走到最后一期为止 —— 这只是别白走几十个月，
+    // 「该不该记」的判定整个在 dueOf 手上
+    for (let m = rule.from; m <= thisMonth && (stop === null || m <= stop); m = shiftMonth(m, 1)) {
+      const slot = dueOf(rule, m, today);
+      if (!slot.due) continue;
+      state.records.push({
+        id: newId(),
+        type: rule.type,
+        amount: rule.amount,
+        currency: rule.currency,
+        cat: rule.cat,
+        date: slot.date,
+        note: rule.note,
+        ruleId: rule.id
+      });
+      rule.applied.push(m);
+      added++;
     }
   }
   return added;

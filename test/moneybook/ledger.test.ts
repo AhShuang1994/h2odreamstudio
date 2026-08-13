@@ -864,7 +864,92 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.defaultFirstMonth("2026-02-28", 31), "2 月 28 号就是这个月的扣款日").toBe("2026-02");
       });
     });
+
+    // 「该记哪一天、记了没、日期到了没」是补记与预测**共用**的一份判定（#124）。
+    // 两处各写一遍的话，预测会说房租还没记、补记逻辑却已经记下了，同一笔钱被减两次
+    // —— 而且帐面上完全看不出异常。所以这里直接钉住这份判定本身。
+    describe("该记哪一天、记了没 —— 补记与预测共用的同一份判定", () => {
+      /** 25 号扣的房租，从三月起，无限期。 */
+      function rent() {
+        const s = crossBorder();
+        return L.addRule(s, { type: "expense", amount: 1800, currency: "SGD", cat: "home", day: 25, from: "2026-03", note: "房租" });
+      }
+
+      it("应记日期还没到 → 不该补记（预测要的「本月还没到日子」就是这一格）", () => {
+        const slot = L.dueOf(rent(), "2026-03", "2026-03-10");
+        expect(slot).toMatchObject({ date: "2026-03-25", applied: false, arrived: false, due: false });
+      });
+
+      it("日期到了又还没记 → 该补记。当天就算到了", () => {
+        expect(L.dueOf(rent(), "2026-03", "2026-03-25")).toMatchObject({ arrived: true, due: true });
+        expect(L.dueOf(rent(), "2026-03", "2026-03-26")).toMatchObject({ arrived: true, due: true });
+      });
+
+      it("已经补记过的月份不算 —— 补记一次之后同一格就不该再说「该记」", () => {
+        const s = crossBorder();
+        const rule = L.addRule(s, { type: "expense", amount: 1800, currency: "SGD", cat: "home", day: 25, from: "2026-03" });
+        L.applyRecurring(s, "2026-03-26");
+        expect(L.dueOf(rule, "2026-03", "2026-03-26"), "记过了就不能再被判成该记，否则同一笔钱记两次")
+          .toMatchObject({ applied: true, due: false });
+      });
+
+      it("超过最后一期的月份根本不成立 —— 那个月这条分期已经不存在了", () => {
+        const s = crossBorder();
+        const rule = L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-01", terms: 3 });
+        expect(L.dueOf(rule, "2026-03", "2026-12-31"), "第三期就是最后一期").toMatchObject({ due: true });
+        expect(L.dueOf(rule, "2026-04", "2026-12-31"), "过了最后一期不该还剩一格给人补记").toBeNull();
+      });
+
+      it("首期之前的月份同样不成立", () => {
+        expect(L.dueOf(rent(), "2026-02", "2026-12-31")).toBeNull();
+      });
+
+      it("无限期的规则在任何一个未来月份都成立 —— 它没有「完」这回事", () => {
+        expect(L.dueOf(rent(), "2099-12", "2099-12-31")).toMatchObject({ date: "2099-12-25", due: true });
+      });
+
+      it("应记日期遇上当月没有的日子时缩到当月最后一天", () => {
+        const s = crossBorder();
+        const rule = L.addRule(s, { type: "expense", amount: 100, currency: "SGD", cat: "home", day: 31, from: "2026-01" });
+        expect(L.dueOf(rule, "2026-02", "2026-12-31").date, "2 月没有 31 号，那一期不该被跳过").toBe("2026-02-28");
+      });
+
+      it("到期按月份算，不按已补记的笔数 —— 手动删掉中间那一笔也不往后顺延", () => {
+        const s = crossBorder();
+        const rule = L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-01", terms: 3 });
+        L.applyRecurring(s, "2026-02-15");
+        const victim = s.records.find((r: any) => r.date === "2026-02-01");
+        L.removeRecord(s, victim.id);
+        expect(L.dueOf(rule, "2026-04", "2026-12-31"), "删掉一笔不该让分期多长出第四个月").toBeNull();
+      });
+
+      it("「今天」是传进去的，不是问系统时间来的 —— 同一份状态换个今天就换个答案", () => {
+        const rule = rent();
+        expect(L.dueOf(rule, "2026-03", "2026-03-24").due).toBe(false);
+        expect(L.dueOf(rule, "2026-03", "2026-03-25").due).toBe(true);
+      });
+
+      it("被判成「该记」的那些，正是再跑一次补记时会被记下的那些", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 1800, currency: "SGD", cat: "home", day: 25, from: "2026-01", note: "房租" });
+        L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 5, from: "2026-02", terms: 2, note: "手机" });
+        const today = "2026-03-10";
+        const months = ["2026-01", "2026-02", "2026-03"];
+
+        const predicted = s.recurring.flatMap((rule: any) =>
+          months.map(m => L.dueOf(rule, m, today)).filter((slot: any) => slot?.due).map((slot: any) => slot.date),
+        );
+        const before = s.records.length;
+        L.applyRecurring(s, today);
+        const actual = s.records.slice(before).map((r: any) => r.date);
+
+        expect(actual.slice().sort(), "预测与补记必须是同一份判定，否则同一笔钱会既算已记又算待发生")
+          .toEqual(predicted.slice().sort());
+        expect(actual).not.toContain("2026-03-25");   // 三月的房租还没到日子
+      });
+    });
   });
+
 
   // ── 7. 单币种回归 ──────────────────────────────────────
   // 「不打扰没有跨境需求的人」的守门测试
