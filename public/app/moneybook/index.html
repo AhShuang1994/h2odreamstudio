@@ -45,6 +45,13 @@
 
     <div class="cats" id="cats"></div>
 
+    <!-- 刷卡：只属于支出，收入与转帐上不出现。刷卡的钱在**消费当天**就记成支出，
+         银行扣款那天什么都不记 —— 那笔钱那时早就离开了。 -->
+    <label class="check" id="card-box">
+      <input type="checkbox" id="card" />
+      <span class="check-t"><b>刷卡</b><small>记在信用卡上，下个月才从户口扣</small></span>
+    </label>
+
     <!-- 转帐才出现：到帐金额由使用者从转帐 app 上抄下来，含手续费，是真实成交价。
          app 不联网取汇率 —— 不猜汇率，问人。 -->
     <div class="xfer" id="xfer-box" hidden>

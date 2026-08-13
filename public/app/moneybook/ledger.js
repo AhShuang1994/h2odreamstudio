@@ -48,6 +48,7 @@ export function defaultState() {
     currency: DEFAULT_CURRENCY,   // 主币种：必填，唯一
     currency2: null,              // 第二币种：可选，至多一个。有没有它就是唯一的「模式」
     lastSide: null,               // 上次记帐落在哪一侧（story 8）
+    lastCard: false,              // 上次记帐有没有勾刷卡（#125）
     budgets: {},                  // 按币种各持一份月预算
     cats: structuredCloneish(DEFAULT_CATS),
     recurring: [],
@@ -143,7 +144,12 @@ function sanitizeRecord(r, primary) {
   }
 
   const type = r.type === INCOME ? INCOME : EXPENSE;
-  return { ...base, type, cat: typeof r.cat === 'string' ? r.cat : '' };
+  const rec = { ...base, type, cat: typeof r.cat === 'string' ? r.cat : '' };
+  // 刷卡：**救援必须显式认得它**。这里是逐字段救援的，不认得的字段会被静默丢掉
+  // —— 勾了卡的记录重开 app 就变回没勾，而且帐面上完全看不出来（#125）。
+  // 只有支出带这个字段；旧资料没有它，于是一律视为不是刷卡（#123 story 28）。
+  if (type === EXPENSE && r.card) rec.card = true;
+  return rec;
 }
 
 function sanitizeRule(r, primary) {
@@ -189,6 +195,7 @@ export function migrate(data) {
     currency: primary,
     currency2: secondary && secondary !== primary ? secondary : null,
     lastSide: null,
+    lastCard: data.lastCard === true,
     budgets: {},
     cats: sanitizeCats(data.cats),
     recurring: [],
@@ -256,10 +263,31 @@ export function isTransfer(r) {
   return r.type === TRANSFER;
 }
 
+/**
+ * 这笔是不是**刷卡**。
+ *
+ * 刷卡只是支出上的一个标记，**不是**第四种记录类型、不是一侧、不是一个分类：它在
+ * 消费当天照常记成支出，进分类占比、进预算、进结余，跟现金一模一样（#123）。
+ * 缺席即不是刷卡 —— 旧资料因此一律视为现金，升级不问任何问题。
+ */
+export function isCard(r) {
+  return Boolean(r?.card);
+}
+
+/** 这本帐出现过刷卡记录没有。界面据此决定刷卡那些东西要不要被创建（比照 hasSecondary）。 */
+export function hasCard(state) {
+  return state.records.some(isCard);
+}
+
 /** 记帐时该默认落在哪一侧。 */
 export function activeSide(state) {
   const s = sides(state);
   return state.lastSide && s.includes(state.lastSide) ? state.lastSide : state.currency;
+}
+
+/** 下一笔支出的刷卡勾选框默认勾着没有 —— 沿用上次（比照 activeSide）。 */
+export function activeCard(state) {
+  return state.lastCard === true;
 }
 
 export function setActiveSide(state, currency) {
@@ -441,8 +469,8 @@ export function budgetStatus(state, currency, month) {
 
 // —— 增删改 ————————————————————————————————————————————————
 
-/** 记一笔支出或收入。币种决定它属于哪一侧。 */
-export function addRecord(state, { type, amount, currency, cat, date, note, ruleId }) {
+/** 记一笔支出或收入。币种决定它属于哪一侧；刷卡只是支出上的一个标记。 */
+export function addRecord(state, { type, amount, currency, cat, date, note, ruleId, card }) {
   const rec = {
     id: newId(),
     type: type === INCOME ? INCOME : EXPENSE,
@@ -454,8 +482,11 @@ export function addRecord(state, { type, amount, currency, cat, date, note, rule
   };
   if (!(rec.amount > 0)) throw new Error('金额要大于 0');
   if (ruleId) rec.ruleId = ruleId;
+  // 刷卡只属于支出 —— 收入上留一个旗标，等于暗示收入也可能刷卡
+  if (card && rec.type === EXPENSE) rec.card = true;
   state.records.push(rec);
   setActiveSide(state, rec.currency);
+  if (rec.type === EXPENSE) state.lastCard = isCard(rec);
   return rec;
 }
 
@@ -504,13 +535,18 @@ export function updateRecord(state, id, patch) {
     if (!(next.toAmount > 0)) throw new Error('请填到帐金额');
     if (!next.toCurrency || next.toCurrency === next.currency) throw new Error('转帐要跨两个不同的币种');
     delete next.cat;
+    delete next.card;
   } else {
     delete next.toAmount;
     delete next.toCurrency;
+    // 改成收入就把刷卡标记删掉，而不是留一个 false 在那里 —— 留着的话它是隐形的，
+    // 改回支出时会突然复活（同上面的 delete next.cat）
+    if (next.type === EXPENSE && next.card) next.card = true; else delete next.card;
   }
 
   state.records[i] = next;
   if (!isTransfer(next)) setActiveSide(state, next.currency);
+  if (next.type === EXPENSE) state.lastCard = isCard(next);
   return next;
 }
 

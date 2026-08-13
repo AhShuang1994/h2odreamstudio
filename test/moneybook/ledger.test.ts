@@ -950,7 +950,6 @@ describe("小帐本 · ledger 核心", () => {
     });
   });
 
-
   // ── 7. 单币种回归 ──────────────────────────────────────
   // 「不打扰没有跨境需求的人」的守门测试
   describe("单币种回归：只有主币种时，一切与升级前一致", () => {
@@ -1070,6 +1069,133 @@ describe("小帐本 · ledger 核心", () => {
       const s = budgeted();
       L.setBudget(s, "SGD", 0);
       expect(L.budgetStatus(s, "SGD", "2026-03")).toBeNull();
+    });
+  });
+
+  // ── 9. 刷卡 ────────────────────────────────────────────
+  // 刷卡是**支出上的一个标记**，不是第四种记录类型、不是一侧、不是一个分类。
+  // 它在消费当天就记成支出，其他方面跟现金一模一样（#125）。
+  describe("刷卡：支出上的一个标记", () => {
+    /** 一笔刷卡的餐饮、一笔现金的交通。 */
+    function withCard() {
+      const s = crossBorder();
+      L.addRecord(s, { type: "expense", amount: 68, currency: "SGD", cat: "food", date: "2026-08-03", note: "晚餐", card: true });
+      L.addRecord(s, { type: "expense", amount: 12, currency: "SGD", cat: "traffic", date: "2026-08-03", note: "巴士" });
+      return s;
+    }
+    const byNote = (s: any, note: string) => s.records.find((r: any) => r.note === note);
+
+    it("勾了就带着标记，没勾的记录连这个字段都不长", () => {
+      const s = withCard();
+      expect(L.isCard(byNote(s, "晚餐"))).toBe(true);
+      expect(L.isCard(byNote(s, "巴士"))).toBe(false);
+      expect("card" in byNote(s, "巴士"), "没勾就不该留一个 false 在那里").toBe(false);
+    });
+
+    it("存下去、读回来，标记还在 —— 逐字段救援必须显式认得它", () => {
+      const s = withCard();
+      const back = L.loadState(JSON.stringify(s)).state;
+      expect(L.isCard(byNote(back, "晚餐")), "救援不认得这个字段的话，勾了卡的记录重开 app 就变回没勾").toBe(true);
+      expect(L.isCard(byNote(back, "巴士"))).toBe(false);
+    });
+
+    it("旧资料迁移后一律不是刷卡，且没有任何一笔帐被改动", () => {
+      const v1 = L.migrate(v1Fixture());
+      expect(v1.records.some((r: any) => L.isCard(r)), "升级不该替使用者猜哪几笔是刷的").toBe(false);
+      expect(L.hasCard(v1)).toBe(false);
+      expect(L.monthlySummary(v1, "NT$", "2026-03"), "多一个可选字段不该动到任何一个既有数字")
+        .toMatchObject({ income: 3000, expense: 30, net: 2970 });
+    });
+
+    it("收入上标不起来 —— 收入不必回答一个没有意义的问题", () => {
+      const s = crossBorder();
+      const r = L.addRecord(s, { type: "income", amount: 3000, currency: "SGD", cat: "salary", date: "2026-08-01", card: true });
+      expect(L.isCard(r)).toBe(false);
+    });
+
+    it("改成收入时标记被清掉，再改回支出也不会复活", () => {
+      const s = withCard();
+      const r = byNote(s, "晚餐");
+      L.updateRecord(s, r.id, { type: "income", cat: "bonus" });
+      expect("card" in L.findRecord(s, r.id), "留一个隐形的旗标，改回支出时它会突然复活").toBe(false);
+      L.updateRecord(s, r.id, { type: "expense", cat: "food" });
+      expect(L.isCard(L.findRecord(s, r.id))).toBe(false);
+    });
+
+    it("改成转帐时标记同样被清掉", () => {
+      const s = withCard();
+      const r = byNote(s, "晚餐");
+      L.updateRecord(s, r.id, { type: "transfer", toAmount: 200, toCurrency: "MYR" });
+      expect("card" in L.findRecord(s, r.id)).toBe(false);
+    });
+
+    it("编辑时取消勾选，标记就真的没了", () => {
+      const s = withCard();
+      const r = byNote(s, "晚餐");
+      L.updateRecord(s, r.id, { type: "expense", cat: "food", card: false });
+      expect(L.isCard(L.findRecord(s, r.id))).toBe(false);
+    });
+
+    it("勾选状态记住上次，下一笔默认沿用（比照 lastSide）", () => {
+      const s = crossBorder();
+      expect(L.activeCard(s), "全新的一本帐默认不勾").toBe(false);
+      L.addRecord(s, { type: "expense", amount: 68, currency: "SGD", cat: "food", date: "2026-08-03", card: true });
+      expect(L.activeCard(s)).toBe(true);
+      L.addRecord(s, { type: "expense", amount: 12, currency: "SGD", cat: "traffic", date: "2026-08-04" });
+      expect(L.activeCard(s), "这一笔没勾，下一笔就不该替他勾上").toBe(false);
+    });
+
+    it("上次勾了没跟着帐本一起存下来 —— 不然重开 app 又要重勾", () => {
+      const s = crossBorder();
+      L.addRecord(s, { type: "expense", amount: 68, currency: "SGD", cat: "food", date: "2026-08-03", card: true });
+      expect(L.activeCard(L.loadState(JSON.stringify(s)).state)).toBe(true);
+    });
+
+    it("收入不会改动上次勾了没 —— 记收入时那个勾选框根本不出现", () => {
+      const s = crossBorder();
+      L.addRecord(s, { type: "expense", amount: 68, currency: "SGD", cat: "food", date: "2026-08-03", card: true });
+      L.addRecord(s, { type: "income", amount: 3000, currency: "SGD", cat: "salary", date: "2026-08-05" });
+      expect(L.activeCard(s)).toBe(true);
+    });
+
+    it("整本帐从没出现过刷卡记录时，界面据此可以整块不创建", () => {
+      const s = crossBorder();
+      L.addRecord(s, { type: "expense", amount: 12, currency: "SGD", cat: "traffic", date: "2026-08-03" });
+      expect(L.hasCard(s)).toBe(false);
+      L.addRecord(s, { type: "expense", amount: 68, currency: "SGD", cat: "food", date: "2026-08-03", card: true });
+      expect(L.hasCard(s), "第一次勾着存下去时，界面就是靠这个判断该不该弹说明").toBe(true);
+    });
+
+    // 回归：刷卡的钱在消费当天就离开了，所以它在其余每一个数字里都跟现金一模一样。
+    it("照常进分类占比、预算条、月结余 —— 这些数字的口径一个都没变", () => {
+      const s = withCard();
+      L.setBudget(s, "SGD", 500);
+      L.addRecord(s, { type: "income", amount: 3000, currency: "SGD", cat: "salary", date: "2026-08-01" });
+
+      expect(L.monthlySummary(s, "SGD", "2026-08")).toMatchObject({ income: 3000, expense: 80, net: 2920 });
+      expect(L.budgetStatus(s, "SGD", "2026-08")).toMatchObject({ spent: 80, left: 420 });
+      expect(L.categoryBreakdown(s, "SGD", "2026-08", "expense").rows[0]).toMatchObject({ cat: "food", amount: 68 });
+      expect(L.cumulative(s, "SGD")).toBe(2920);
+      expect(L.trend(s, "SGD", "2026-08", 1)).toEqual([{ month: "2026-08", income: 3000, expense: 80 }]);
+    });
+
+    it("标了刷卡不影响分期的期次、还剩几期与待还小计", () => {
+      const s = crossBorder();
+      L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-08", terms: 12 });
+      L.applyRecurring(s, "2026-08-15");
+      const auto = s.records.find((r: any) => r.ruleId);
+      L.updateRecord(s, auto.id, { card: true });
+
+      expect(L.termOf(s, L.findRecord(s, auto.id)), "一笔刷卡的分期仍然是第 1 期")
+        .toMatchObject({ index: 1, total: 12 });
+      expect(L.remainingTerms(s.recurring[0], "2026-08")).toBe(11);
+      expect(L.outstandingOnSide(s, "SGD", "2026-08")).toBe(4400);
+    });
+
+    it("CSV 与备份照旧 —— 这一票不加任何新的统计数字", () => {
+      const s = withCard();
+      expect(L.toCSV(s).split("\r\n")).toHaveLength(3);   // 表头 + 两笔
+      expect(L.loadState(JSON.stringify(s)).state.records).toHaveLength(2);
     });
   });
 

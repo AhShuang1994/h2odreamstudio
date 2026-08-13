@@ -192,6 +192,18 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .xfer .field input{text-align:right}
 .xfer p{line-height:1.5;font-size:var(--t-xs)}
 
+/* ── 刷卡勾选框：只在支出时出现（#125） ── */
+.check{
+  display:flex;align-items:center;gap:var(--sp-3);width:100%;
+  background:var(--s1);border:1px solid var(--hairline);border-radius:var(--r-md);
+  padding:var(--sp-3);margin-bottom:var(--sp-5);
+}
+.check[hidden]{display:none}
+.check input[type=checkbox]{flex:0 0 auto;width:20px;height:20px;accent-color:var(--accent)}
+.check-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.check-t b{font-size:var(--t-sm);font-weight:500}
+.check-t small{color:var(--ink-subtle);font-size:var(--t-xs)}
+
 /* ── 表单：规格的 text-input，标签置上 ── */
 .fields{display:flex;flex-direction:column;gap:var(--sp-2)}
 .field{
@@ -362,6 +374,14 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .auto-tag{
   display:inline-block;font-size:var(--t-xs);color:var(--ink-muted);background:var(--s2);
   border-radius:var(--r-pill);padding:2px 8px;margin-left:6px;font-weight:400;letter-spacing:0;
+}
+
+/* 刷卡的记录带一个**文字**徽章。💳 已经属于分期的期次，两者长得一样的话，
+   一笔刷卡的分期就会挂着两个同样的符号（#125） */
+.card-tag{
+  display:inline-block;font-size:var(--t-xs);color:var(--accent-text);background:var(--s2);
+  border:1px solid var(--hairline-strong);border-radius:var(--r-sm);
+  padding:1px 6px;margin-left:6px;font-weight:500;letter-spacing:0;
 }
 
 .recform{margin-top:var(--sp-3)}

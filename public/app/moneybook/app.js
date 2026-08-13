@@ -190,9 +190,20 @@ import * as L from './ledger.js';
     document.body.classList.toggle('xfer-mode', isXfer());
   }
 
+  /**
+   * 刷卡勾选框**只属于支出** —— 收入与转帐上不出现，不必回答一个没有意义的问题。
+   *
+   * 切到收入时只是收起来、不清掉勾选：切回支出时使用者本来就期待它还在那里，
+   * 而存下去时也只在支出上读它（saveRecord）。
+   */
+  function renderCard() {
+    $('#card-box').hidden = entryType !== 'expense';
+  }
+
   function renderEntry() {
     renderTypeSeg();
     renderCats();
+    renderCard();
     renderXfer();
     renderAmount();
   }
@@ -206,6 +217,7 @@ import * as L from './ledger.js';
     $('#date').value = L.dateOf(new Date());
     $('#note').value = '';
     $('#xfer-amount').value = '';
+    $('#card').checked = L.activeCard(state);   // 沿用上次，一整天刷同一张卡时不必每笔重勾
     $('#entry-title').textContent = '记一笔';
     $('#btn-delete').hidden = true;
     closeKeypad();
@@ -274,6 +286,7 @@ import * as L from './ledger.js';
     const date = $('#date').value || L.dateOf(new Date());
     const note = $('#note').value.trim();
     const wasEditing = !!editingId;
+    let firstCard = false;
 
     try {
       if (isXfer()) {
@@ -288,7 +301,11 @@ import * as L from './ledger.js';
       } else {
         if (!picked) return toast('请先选一个分类');
         const prev = wasEditing ? L.findRecord(state, editingId) : null;
-        const payload = { type: entryType, amount, currency: side, cat: picked, date, note };
+        const card = entryType === 'expense' && $('#card').checked;
+        // 帐本里还没有任何一笔刷卡记录 = 这是第一次勾着存下去。用推导而不是再存一个
+        // 「说明看过没」的旗标（同 rateOf、termOf 的做法）。要在写进去之前问。
+        firstCard = card && !L.hasCard(state);
+        const payload = { type: entryType, amount, currency: side, cat: picked, date, note, card };
         if (wasEditing) L.updateRecord(state, editingId, payload);
         else L.addRecord(state, { ...payload, ruleId: prev?.ruleId });
       }
@@ -300,6 +317,14 @@ import * as L from './ledger.js';
     save();
     curMonth = date.slice(0, 7);
     resetEntry();
+    // 第一次勾刷卡时把话说清楚：这是整件事里唯一会真正弄坏资料的动作 —— 扣款日再记
+    // 一笔「还卡」，同一笔钱就被算两次，而且记下去之后没有任何征兆（#123）。
+    if (firstCard) alert(
+      '这笔已经记成支出了。\n\n' +
+      '银行扣款那天不用再记一笔 —— 那笔钱在你刷卡的当天就已经离开了，' +
+      '扣款日再记一次「还卡」，同一笔钱会被算两次。\n\n' +
+      '这个说明只出现这一次。'
+    );
     if (wasEditing) show('list');
   }
 
@@ -332,6 +357,7 @@ import * as L from './ledger.js';
     $('#date').value = r.date;
     $('#note').value = r.note || '';
     $('#xfer-amount').value = L.isTransfer(r) ? String(r.toAmount) : '';
+    $('#card').checked = L.isCard(r);       // 编辑时看到的是这笔自己的标记，不是上次那笔的
     $('#entry-title').textContent = L.isTransfer(r) ? '编辑转帐' : '编辑记录';
     $('#btn-delete').hidden = false;
     renderEntry();
@@ -359,7 +385,8 @@ import * as L from './ledger.js';
       return [{
         id: r.id, icon: catOf(r.type, r.cat).icon, title: catOf(r.type, r.cat).name,
         note: r.note || '', sign: r.type === 'income' ? '+' : '-',
-        cls: r.type, amount: r.amount, ruleId: r.ruleId, term: L.termOf(state, r)
+        cls: r.type, amount: r.amount, ruleId: r.ruleId, term: L.termOf(state, r),
+        card: L.isCard(r)
       }];
     }
     const out = [];
@@ -418,9 +445,12 @@ import * as L from './ledger.js';
           const auto = it.ruleId
             ? `<span class="auto-tag">${it.term ? `💳 ${it.term.index}/${it.term.total}` : '🔁 固定'}</span>`
             : '';
+          // 刷卡用**文字**徽章 —— 期次那个 💳 不动，它已经在使用者眼睛里跑了一段时间，
+          // 而一笔刷卡的分期不该挂着两个一样的符号（#125）
+          const card = it.card ? '<span class="card-tag">卡</span>' : '';
           return `<button class="item" data-id="${esc(it.id)}">
             <i>${esc(it.icon)}</i>
-            <span class="t"><b>${esc(it.title)}${auto}</b><small>${esc(it.note)}</small></span>
+            <span class="t"><b>${esc(it.title)}${card}${auto}</b><small>${esc(it.note)}</small></span>
             <span class="v ${it.cls}">${it.sign}${money(it.amount)}</span>
           </button>`;
         }).join('')}</div>
