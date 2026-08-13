@@ -1464,6 +1464,86 @@ describe("小帐本 · ledger 核心", () => {
       L.addTransfer(s, { amount: 1200, currency: "SGD", toAmount: 4080, toCurrency: "MYR", date: "2026-08-10" });
       expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").certain).toBe(1900);
     });
+
+    // 确定值回答的是「从今天起一毛不花能存多少」—— 那不回答任何问题，因为他不会
+    // 一毛不花。外推值把接下来还会花的日常钱估进来，回答「这个月能存多少」（#130）。
+    describe("日均外推：把接下来还会花的钱也估进去", () => {
+      it("外推值 = 确定值 − 日均 × 剩余天数", () => {
+        const s = payday();
+        // 已记的非固定支出 300，13 天 → 日均 23.0769；八月剩 18 天 → 再花 415.38
+        expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13")).toMatchObject({
+          certain: 1900,
+          extrapolated: 1484.62,
+        });
+      });
+
+      it("规则产生的记录不算进日均 —— 它们已经在确定值里，而且不是日常消费", () => {
+        const s = payday();
+        const auto = s.records.filter((r: any) => r.ruleId);
+        expect(auto.length, "薪水那笔是规则记的").toBeGreaterThan(0);
+        // 把同额的一笔手动支出加进来，日均就该跟着动；规则那几笔则完全不影响
+        const before = L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated;
+        L.addRule(s, { type: "expense", amount: 60, currency: "SGD", cat: "health", day: 3, from: "2026-08", note: "保费" });
+        L.applyRecurring(s, "2026-08-13");
+        const after = L.projectedNet(s, "SGD", "2026-08", "2026-08-13");
+        expect(after.certain, "保费是确定的支出，确定值要跟着少").toBe(1840);
+        expect(L.round2(before - after.extrapolated), "但它一分钱都不该进日均，否则外推会凭空多减一次").toBe(60);
+      });
+
+      it("转帐不算进日均 —— 汇款不是日常消费", () => {
+        const s = payday();
+        const before = L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated;
+        L.addTransfer(s, { amount: 1200, currency: "SGD", toAmount: 4080, toCurrency: "MYR", date: "2026-08-10" });
+        expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated).toBe(before);
+      });
+
+      it("月初 7 天内不外推 —— 2 号买台大的会外推出一个荒谬的数字", () => {
+        const s = payday();
+        expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-07").extrapolated, "第 7 天仍在月初，样本太少").toBeNull();
+        expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-08").extrapolated, "第 8 天起才开始外推").not.toBeNull();
+        expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-02").certain, "不外推时确定值照常给").toBe(1900);
+      });
+
+      it("过去的月份没有外推值 —— 历史数字不该自己漂移", () => {
+        const s = payday();
+        expect(L.projectedNet(s, "SGD", "2026-08", "2026-09-20").extrapolated).toBeNull();
+      });
+
+      it("「今天」是传进去的 —— 同一份状态，越接近月底外推的部分越小", () => {
+        const s = payday();
+        const mid = L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated!;
+        const late = L.projectedNet(s, "SGD", "2026-08", "2026-08-30").extrapolated!;
+        expect(late, "剩一天可花，外推值该逼近确定值").toBeGreaterThan(mid);
+      });
+
+      it("月份的最后一天没有剩余天数可外推，外推值就等于确定值", () => {
+        const s = payday();
+        L.applyRecurring(s, "2026-08-31");   // app 每次开都先补记，房租那时已经记下了
+        const p = L.projectedNet(s, "SGD", "2026-08", "2026-08-31");
+        expect(p.certain, "房租已经记下，它从「待发生」挪进了「已记」，确定值不变").toBe(1900);
+        expect(p.extrapolated).toBe(1900);
+      });
+
+      it("这个月一笔日常支出都没记时，外推值等于确定值", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 1800, currency: "SGD", cat: "home", day: 25, from: "2026-08" });
+        expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13")).toMatchObject({ certain: -1800, extrapolated: -1800 });
+      });
+
+      it("刷卡的日常消费照常进日均 —— 刷卡本来就是支出", () => {
+        const s = payday();
+        const before = L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated!;
+        L.addRecord(s, { type: "expense", amount: 130, currency: "SGD", cat: "food", date: "2026-08-13", card: true });
+        expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated!).toBeLessThan(before);
+      });
+
+      it("按侧各算各的 —— 另一侧的日常消费不该拉歪这一侧的日均", () => {
+        const s = payday();
+        const before = L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated;
+        L.addRecord(s, { type: "expense", amount: 500, currency: "MYR", cat: "family", date: "2026-08-11" });
+        expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated).toBe(before);
+      });
+    });
   });
 
   // ── 导出与备份 ─────────────────────────────────────────

@@ -883,17 +883,47 @@ export function pendingRecurring(state, currency, month, today) {
 
 /**
  * 月底预计结余 —— 「结余」（monthlySummary 的 net）把这个月还没发生的部分也算进去
- * 之后的样子。同一个数的延伸，不是新概念。
+ * 之后的样子。同一个数的延伸，不是新概念。回传两个数：
  *
- * `certain` 是**确定值**：已记净额 + 本月待发生的固定收支净额。它只含已经发生的、
- * 与确定会发生的，所以是可以信的那个数。
+ * - `certain` **确定值**：已记净额 + 本月待发生的固定收支净额。只含已经发生的与确定
+ *   会发生的，所以是可以信的那个数。
+ * - `extrapolated` **外推值**：确定值再减去按日均估出来的、接下来还会花的日常钱。
+ *   它回答的是「这个月能存多少」，而确定值回答的是「从今天起一毛不花能存多少」——
+ *   后者不回答任何问题，因为他不会一毛不花。所以界面拿外推值当主角（#130）。
+ *   算不出来时为 null，渲染层据此退回只显示确定值。
+ *
+ * 日均的分子是**本月已记的非固定支出**，分母是**本月已过的天数**：
+ * - 排除规则产生的记录 —— 它们已经在确定值里，而且不是日常消费，会把日均拉歪
+ * - 排除转帐 —— 类型不是支出，自然被挡在外面（同 monthlySummary）
  *
  * 帐面口径 —— 支出含这个月刷的卡，因为刷卡本来就是支出。这一层不需要认识刷卡标记。
+ *
+ * **不做「一次性支出」标记，也不做自动大额门槛**：门槛定在哪都会错，而且会静静吃掉
+ * 真实的大额消费。换记法那个月的外推会偏高，那是已经接受的代价（#123）。
+ *
+ * 外推那一段刻意留在这里、不拆成独立模块 —— 它只被这一处使用，拆出去等于为了测试
+ * 多开一个公开接口，而它留在这里本来就测得到。
  */
 export function projectedNet(state, currency, month, today) {
   const recorded = monthlySummary(state, currency, month);
   const pending = pendingRecurring(state, currency, month, today);
-  return { certain: round2(recorded.net + pending.net) };
+  const certain = round2(recorded.net + pending.net);
+
+  // 外推只对**本月**说话。过去的月份日子已经过完，历史数字不该自己漂移
+  if (month !== today.slice(0, 7)) return { certain, extrapolated: null };
+
+  // 月初 7 天不外推：样本太少，2 号买台 800 的东西会外推出「这个月要花 12,400」
+  const passed = Number(today.slice(8, 10));
+  if (passed <= 7) return { certain, extrapolated: null };
+
+  let daily = 0;
+  for (const r of state.records) {
+    if (r.type !== EXPENSE || r.ruleId) continue;
+    if (r.currency !== currency || !r.date.startsWith(month)) continue;
+    daily += r.amount;
+  }
+  const left = lastDayOfMonth(month) - passed;
+  return { certain, extrapolated: round2(certain - (daily / passed) * left) };
 }
 
 // —— 导出 ————————————————————————————————————————————————

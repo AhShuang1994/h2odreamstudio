@@ -481,17 +481,24 @@ import * as L from './ledger.js';
     //   本月 → 确定值：已记净额 + 本月还没到日子的固定收支
     //   未来 → 整块不显示。那个月一天都还没过，把房租薪水加减一遍看起来像预测，
     //          其实什么都没预测
+    // 主数字是**外推值** —— 使用者问的是「这个月能存多少钱」，而确定值回答的是
+    // 「从今天起一毛不花能存多少」，那不回答任何问题（#130）。确定值退成底下的小字。
+    // 月初 7 天样本太少，那几天只显示确定值并说明原因。
     const today = L.dateOf(new Date());
     const thisMonth = today.slice(0, 7);
     const past = curMonth < thisMonth;
-    const net = past ? L.monthlySummary(state, side, curMonth).net
-                     : L.projectedNet(state, side, curMonth, today).certain;
+    const p = past ? null : L.projectedNet(state, side, curMonth, today);
+    const net = past ? L.monthlySummary(state, side, curMonth).net : (p.extrapolated ?? p.certain);
+    const note = past ? ''
+      : p.extrapolated == null
+        ? '本月还早，先只算固定的'
+        : `已定 ${money(p.certain)}，主数字另含按日均估的日常消费`;
     $('#forecast').innerHTML = curMonth > thisMonth ? '' : `<div class="card">
         <div class="cat-row" style="border:none;padding:0">
           <span>${past ? '结余' : '月底预计结余'}</span>
           <b class="tnum"${net < 0 ? ' style="color:var(--expense)"' : ''}>${money(net)}</b>
-        </div>${past ? '' : `
-        <p class="muted small" style="margin-top:6px">已记的，加上本月还没到日子的固定收支</p>`}
+        </div>${note ? `
+        <p class="muted small" style="margin-top:6px">${esc(note)}</p>` : ''}
       </div>`;
 
     // 预算进度（只在看支出时显示），只吃本侧的支出
