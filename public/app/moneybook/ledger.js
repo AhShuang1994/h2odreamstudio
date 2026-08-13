@@ -172,6 +172,9 @@ function sanitizeRule(r, primary) {
   };
   // 期数坏掉只丢这个字段、退回无限期 —— 丢掉整条规则的话，使用者会莫名少一笔帐（#117）
   if (Number.isInteger(r.terms) && r.terms >= 1) rule.terms = r.terms;
+  // 规则的刷卡标记同样要显式救援（同 sanitizeRecord）—— 丢掉的话，订阅与卡上的
+  // 分期会静静变回现金，「本月刷卡」跟着系统性偏小，而且偏小的正是最稳定那一块（#127）
+  if (rule.type === EXPENSE && r.card) rule.card = true;
   return rule;
 }
 
@@ -581,7 +584,7 @@ export function removeRecord(state, id) {
 
 // —— 每月固定收支 ————————————————————————————————————————
 
-export function addRule(state, { type, amount, currency, cat, day, note, from, terms }) {
+export function addRule(state, { type, amount, currency, cat, day, note, from, terms, card }) {
   const rule = {
     id: newId(),
     type: type === INCOME ? INCOME : EXPENSE,
@@ -594,6 +597,9 @@ export function addRule(state, { type, amount, currency, cat, day, note, from, t
     applied: []
   };
   if (!(rule.amount > 0)) throw new Error('金额要大于 0');
+
+  // 刷卡只属于支出的规则 —— 订阅、保费、卡上的分期。收入的规则不问这件事
+  if (card && rule.type === EXPENSE) rule.card = true;
 
   // 期数留空 = 一直重复，所以「没填」与「填错」必须分开：没填就不长这个字段，
   // 填错要当场说清楚，绝不悄悄退回无限期，也不建出一笔生下来就结束的分期（#117）
@@ -740,6 +746,9 @@ export function updateRule(state, id, patch) {
     throw new Error('币种不能改 —— 一条规则不能横跨两侧，要换侧请删了重建');
   }
   if (patch.type != null) next.type = patch.type === INCOME ? INCOME : EXPENSE;
+  if ('card' in patch) next.card = Boolean(patch.card);
+  // 改成收入就把标记删掉，而不是留一个 false —— 同 updateRecord，隐形的旗标会复活
+  if (next.type !== EXPENSE || !next.card) delete next.card;
   if (patch.amount != null) next.amount = round2(patch.amount);
   if (!(next.amount > 0)) throw new Error('金额要大于 0');
   if (patch.day != null) next.day = Math.min(31, Math.max(1, Math.round(Number(patch.day)) || 1));
@@ -817,7 +826,7 @@ export function applyRecurring(state, today) {
     for (let m = rule.from; m <= thisMonth && (stop === null || m <= stop); m = shiftMonth(m, 1)) {
       const slot = dueOf(rule, m, today);
       if (!slot.due) continue;
-      state.records.push({
+      const rec = {
         id: newId(),
         type: rule.type,
         amount: rule.amount,
@@ -826,7 +835,10 @@ export function applyRecurring(state, today) {
         date: slot.date,
         note: rule.note,
         ruleId: rule.id
-      });
+      };
+      // 补记出来的每一笔继承规则的刷卡标记 —— 否则订阅与卡上的分期每个月都要手动去勾
+      if (isCard(rule)) rec.card = true;
+      state.records.push(rec);
       rule.applied.push(m);
       added++;
     }

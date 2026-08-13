@@ -199,6 +199,8 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
   padding:var(--sp-3);margin-bottom:var(--sp-5);
 }
 .check[hidden]{display:none}
+/* 固定收支表单里的那一个，跟着 .recrow 的密度走 */
+.check.compact{padding:var(--sp-2) var(--sp-3);margin-bottom:var(--sp-2)}
 .check input[type=checkbox]{flex:0 0 auto;width:20px;height:20px;accent-color:var(--accent)}
 .check-t{display:flex;flex-direction:column;gap:2px;min-width:0}
 .check-t b{font-size:var(--t-sm);font-weight:500}

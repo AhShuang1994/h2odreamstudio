@@ -175,6 +175,12 @@
                  placeholder="还剩几期，留空 = 一直重复" aria-label="还剩几期" />
           <select id="rec-first" aria-label="首期" hidden></select>
         </div>
+        <!-- 订阅、保费、卡上的分期是刷卡消费里最稳定的一块，而它们在这里是规则不是
+             记录。不给规则这个勾选框，「本月刷卡」会系统性偏小。仅支出时出现。 -->
+        <label class="check compact" id="rec-card-box">
+          <input type="checkbox" id="rec-card" />
+          <span class="check-t"><b>刷卡</b><small>之后自动记的每一笔都带上「卡」</small></span>
+        </label>
         <div class="recrow">
           <input type="text" id="rec-note" maxlength="20" placeholder="备注，例如：房租" />
           <button id="btn-cancel-rec" hidden>取消</button>

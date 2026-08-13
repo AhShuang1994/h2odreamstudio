@@ -1254,12 +1254,105 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.cardSpentOnSide(s, "SGD", "2026-08"), "合计存下来就会有第二个真相").toBe(32.5);
       });
 
+      it("规则补记出来的记录也算进去 —— 否则最稳定的那一块被系统性漏掉", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 15.9, currency: "SGD", cat: "fun", day: 2, from: "2026-08", note: "订阅", card: true });
+        L.applyRecurring(s, "2026-08-15");
+        expect(L.cardSpentOnSide(s, "SGD", "2026-08")).toBe(15.9);
+      });
+
       it("跟分期的「待还」是两个数，互不干扰 —— 同一页上不能是同一个词", () => {
         const s = spent();
         L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-08", terms: 12 });
         L.applyRecurring(s, "2026-08-15");
         expect(L.outstandingOnSide(s, "SGD", "2026-08"), "待还是分期还要付出去的钱").toBe(4400);
         expect(L.cardSpentOnSide(s, "SGD", "2026-08"), "本月刷卡只数带标记的那几笔，自动补记的那笔还没标").toBe(100.5);
+      });
+    });
+
+    // 订阅、保费、卡上的分期是刷卡消费里最稳定的一块，而它们在这个 app 里是**规则**
+    // 不是记录。规则标不了刷卡的话，「本月刷卡」会系统性偏小（#127）。
+    describe("固定收支与分期也能标成刷卡", () => {
+      /** 一条刷卡的订阅、一条现金的房租。 */
+      function rules() {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 15.9, currency: "SGD", cat: "fun", day: 2, from: "2026-08", note: "订阅", card: true });
+        L.addRule(s, { type: "expense", amount: 1800, currency: "SGD", cat: "home", day: 25, from: "2026-08", note: "房租" });
+        return s;
+      }
+      const byNote = (s: any, note: string) => s.recurring.find((r: any) => r.note === note);
+
+      it("规则带得起这个标记，没勾的规则连这个字段都不长", () => {
+        const s = rules();
+        expect(L.isCard(byNote(s, "订阅"))).toBe(true);
+        expect("card" in byNote(s, "房租")).toBe(false);
+      });
+
+      it("存下去、读回来，规则的标记还在 —— 救援同样必须认得它", () => {
+        const back = L.loadState(JSON.stringify(rules())).state;
+        expect(L.isCard(byNote(back, "订阅")), "丢掉的话订阅会静静变回现金，本月刷卡跟着偏小").toBe(true);
+      });
+
+      it("补记出来的每一笔继承规则的标记 —— 不必每个月手动去勾", () => {
+        const s = rules();
+        L.applyRecurring(s, "2026-10-15");
+        const auto = s.records.filter((r: any) => r.cat === "fun");
+        expect(auto).toHaveLength(3);
+        expect(auto.every((r: any) => L.isCard(r))).toBe(true);
+        expect(s.records.filter((r: any) => r.cat === "home").every((r: any) => L.isCard(r)), "现金的房租不该被标上").toBe(false);
+      });
+
+      it("收入的规则标不起来 —— 收入不会刷卡", () => {
+        const s = crossBorder();
+        const rule = L.addRule(s, { type: "income", amount: 3000, currency: "SGD", cat: "salary", day: 1, from: "2026-08", card: true });
+        expect(L.isCard(rule)).toBe(false);
+      });
+
+      it("改成收入时规则的标记被清掉，再改回支出也不会复活", () => {
+        const s = rules();
+        const rule = byNote(s, "订阅");
+        L.updateRule(s, rule.id, { type: "income", cat: "bonus" });
+        expect("card" in L.updateRule(s, rule.id, { type: "expense", cat: "fun" })).toBe(false);
+      });
+
+      it("改标记只管以后 —— 当月已经记下的那一笔不碰", () => {
+        const s = rules();
+        L.applyRecurring(s, "2026-08-15");
+        const done = s.records.find((r: any) => r.cat === "fun");
+        L.updateRule(s, byNote(s, "订阅").id, { card: false });
+        expect(L.isCard(L.findRecord(s, done.id)), "已经记下的那一笔是使用者眼睛看得见的，编辑规则不该回头改它").toBe(true);
+        L.applyRecurring(s, "2026-09-15");
+        expect(L.isCard(s.records.find((r: any) => r.date.startsWith("2026-09"))), "九月那笔才跟着新的标记走").toBe(false);
+      });
+
+      it("现有规则的日期一律不动 —— 那是跟银行账单对得上的唯一线索", () => {
+        const s = rules();
+        L.updateRule(s, byNote(s, "房租").id, { card: true });
+        expect(byNote(s, "房租").day, "标上刷卡不该动到扣款日").toBe(25);
+        L.applyRecurring(s, "2026-08-31");
+        expect(s.records.find((r: any) => r.cat === "home").date).toBe("2026-08-25");
+      });
+
+      // 回归：多一个标记不该动到分期原本的每一个数字
+      it("期次、还剩几期、待还小计都不因为多了刷卡标记而改变", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-08", terms: 12, note: "手机", card: true });
+        L.applyRecurring(s, "2026-09-15");
+        const rule = byNote(s, "手机");
+        expect(L.termOf(s, s.records[1])).toMatchObject({ index: 2, total: 12 });
+        expect(L.remainingTerms(rule, "2026-09")).toBe(10);
+        expect(L.outstandingOnSide(s, "SGD", "2026-09")).toBe(4000);
+        expect(L.cardSpentOnSide(s, "SGD", "2026-09")).toBe(400);
+      });
+
+      it("分期到期仍按月份算，不按已补记笔数 —— 标了刷卡也一样", () => {
+        const s = crossBorder();
+        L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-08", terms: 3, card: true });
+        L.applyRecurring(s, "2026-09-15");
+        const victim = s.records.find((r: any) => r.date === "2026-09-01");
+        L.removeRecord(s, victim.id);
+        L.applyRecurring(s, "2027-01-15");
+        expect(s.records.map((r: any) => r.date)).toEqual(["2026-08-01", "2026-10-01"]);
       });
     });
   });

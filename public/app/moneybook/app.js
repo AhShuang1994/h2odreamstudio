@@ -562,10 +562,12 @@ import * as L from './ledger.js';
       const word = r.type === 'expense' ? '待还' : '待收';
       meta = `每月 ${r.day} 号 · 还剩 ${left} 期 · ${word} ${money(L.outstandingOf(r, month), r.currency)}`;
     }
+    // 刷卡的规则带同一个「卡」徽章 —— 明细里那几笔继承来的记录长得跟它一样（#127）
+    const card = L.isCard(r) ? '<span class="card-tag">卡</span>' : '';
     return `<div class="rec-row${settled ? ' done' : ''}">
       <button class="rec-main" data-edit-rec="${esc(r.id)}">
         <i>${esc(c.icon)}</i>
-        <span class="t"><b>${esc(r.note || c.name)}</b><small>${meta}</small></span>
+        <span class="t"><b>${esc(r.note || c.name)}${card}</b><small>${meta}</small></span>
         <span class="v ${r.type}">${r.type === 'expense' ? '-' : '+'}${money(r.amount, r.currency)}</span>
       </button>
       <button class="x" data-del-rec="${esc(r.id)}" aria-label="删除">✕</button>
@@ -608,6 +610,8 @@ import * as L from './ledger.js';
       $('#rec-day').innerHTML = Array.from({ length: 31 }, (_, i) =>
         `<option value="${i + 1}">每月 ${i + 1} 号</option>`).join('');
     }
+    // 刷卡只属于支出的规则 —— 收入的规则不问这件事（同记帐页）
+    $('#rec-card-box').hidden = recType !== 'expense';
     syncRecEditMode();
     syncRecFirst();
   }
@@ -643,6 +647,7 @@ import * as L from './ledger.js';
     $('#rec-amount').value = String(rule.amount);
     $('#rec-day').value = String(rule.day);
     $('#rec-note').value = rule.note || '';
+    $('#rec-card').checked = L.isCard(rule);
     // 表单问的是「还剩几期」，所以带入的是还没补记的期数，不是总期数
     const left = L.unappliedTerms(rule);
     $('#rec-terms').value = left == null ? '' : String(left);
@@ -654,6 +659,7 @@ import * as L from './ledger.js';
   function resetRecForm() {
     editingRuleId = null;
     $('#rec-amount').value = ''; $('#rec-note').value = ''; $('#rec-terms').value = '';
+    $('#rec-card').checked = false;
     recFirstTouched = false;
     renderRecurring();
   }
@@ -674,6 +680,8 @@ import * as L from './ledger.js';
         cat: $('#rec-cat').value,
         day: Number($('#rec-day').value),
         note: $('#rec-note').value.trim(),
+        // 改刷卡标记同样只管以后：updateRule 一笔记录都不碰，当月已经记下的那笔保持原样
+        card: recType === 'expense' && $('#rec-card').checked,
         remaining: $('#rec-terms').value.trim()
       });
     } catch (err) {
@@ -753,12 +761,14 @@ import * as L from './ledger.js';
         note: $('#rec-note').value.trim(),
         // 分期的首期由使用者定；没填期数就跟今天一样，从本月起算
         from: terms ? $('#rec-first').value : L.monthOf(new Date()),
-        terms
+        terms,
+        card: recType === 'expense' && $('#rec-card').checked
       });
     } catch (err) {
       return toast(err.message);
     }
     $('#rec-amount').value = ''; $('#rec-note').value = ''; $('#rec-terms').value = '';
+    $('#rec-card').checked = false;
     recFirstTouched = false;
     const n = L.applyRecurring(state, L.dateOf(new Date()));
     save();
