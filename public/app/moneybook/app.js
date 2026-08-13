@@ -475,6 +475,25 @@ import * as L from './ledger.js';
   function renderStats() {
     $('#stats-month').textContent = monthLabel(curMonth);
 
+    // 月底预计结余（#128）。固定收支要到那一天才补记，所以 25 号才扣的房租在 13 号
+    // 看不到 —— 月中的「本月结余」永远偏乐观。三种月份三种说法：
+    //   过去 → 实际结余，标签就叫「结余」，不做任何预测（历史数字不该自己漂移）
+    //   本月 → 确定值：已记净额 + 本月还没到日子的固定收支
+    //   未来 → 整块不显示。那个月一天都还没过，把房租薪水加减一遍看起来像预测，
+    //          其实什么都没预测
+    const today = L.dateOf(new Date());
+    const thisMonth = today.slice(0, 7);
+    const past = curMonth < thisMonth;
+    const net = past ? L.monthlySummary(state, side, curMonth).net
+                     : L.projectedNet(state, side, curMonth, today).certain;
+    $('#forecast').innerHTML = curMonth > thisMonth ? '' : `<div class="card">
+        <div class="cat-row" style="border:none;padding:0">
+          <span>${past ? '结余' : '月底预计结余'}</span>
+          <b class="tnum"${net < 0 ? ' style="color:var(--expense)"' : ''}>${money(net)}</b>
+        </div>${past ? '' : `
+        <p class="muted small" style="margin-top:6px">已记的，加上本月还没到日子的固定收支</p>`}
+      </div>`;
+
     // 预算进度（只在看支出时显示），只吃本侧的支出
     const bs = statsType === 'expense' ? L.budgetStatus(state, side, curMonth) : null;
     $('#budget-box').innerHTML = bs ? `<div class="card">

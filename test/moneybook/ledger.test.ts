@@ -1357,6 +1357,92 @@ describe("小帐本 · ledger 核心", () => {
     });
   });
 
+  // ── 10. 月底预计结余 ───────────────────────────────────
+  // 固定收支要到那一天才补记，所以 25 号才扣的房租在 13 号看不到 —— 月中的「本月结余」
+  // 永远偏乐观。这一段把「还没发生但确定会发生」的那部分算进来（#128）。
+  describe("月底预计结余：把本月还没到日子的固定收支也算进来", () => {
+    /** 薪水 1 号进、房租 25 号扣，两笔手动记的支出。 */
+    function payday() {
+      const s = crossBorder();
+      L.addRule(s, { type: "income", amount: 4000, currency: "SGD", cat: "salary", day: 1, from: "2026-08", note: "薪水" });
+      L.addRule(s, { type: "expense", amount: 1800, currency: "SGD", cat: "home", day: 25, from: "2026-08", note: "房租" });
+      L.applyRecurring(s, "2026-08-13");     // 薪水已经进来了，房租还没
+      L.addRecord(s, { type: "expense", amount: 200, currency: "SGD", cat: "food", date: "2026-08-05" });
+      L.addRecord(s, { type: "expense", amount: 100, currency: "SGD", cat: "daily", date: "2026-08-12" });
+      return s;
+    }
+
+    it("确定值 = 已记净额 + 本月待发生的固定收支净额", () => {
+      const s = payday();
+      expect(L.monthlySummary(s, "SGD", "2026-08"), "已记的：薪水进了，房租还没").toMatchObject({ income: 4000, expense: 300, net: 3700 });
+      expect(L.pendingRecurring(s, "SGD", "2026-08", "2026-08-13")).toMatchObject({ income: 0, expense: 1800, net: -1800 });
+      expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").certain, "月中就要看得见 25 号的房租，否则这个数一直骗人").toBe(1900);
+    });
+
+    it("已补记过的月份不重复计入 —— 房租一记下，待发生就空了", () => {
+      const s = payday();
+      L.applyRecurring(s, "2026-08-25");
+      expect(L.pendingRecurring(s, "SGD", "2026-08", "2026-08-25").net).toBe(0);
+      expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-25").certain, "确定值不该因为那笔钱真的记下了就变").toBe(1900);
+    });
+
+    it("超过最后一期的分期不计入", () => {
+      const s = crossBorder();
+      L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 25, from: "2026-06", terms: 2 });
+      L.applyRecurring(s, "2026-08-13");
+      expect(L.pendingRecurring(s, "SGD", "2026-08", "2026-08-13").net, "六七月两期就还完了，八月不该再冒出一期").toBe(0);
+    });
+
+    it("按侧各算各的，两侧永不相加", () => {
+      const s = payday();
+      L.addRule(s, { type: "expense", amount: 300, currency: "MYR", cat: "family", day: 20, from: "2026-08", note: "家用" });
+      expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").certain).toBe(1900);
+      expect(L.projectedNet(s, "MYR", "2026-08", "2026-08-13").certain, "马币那侧只该看见马币那条规则").toBe(-300);
+    });
+
+    it("「今天」是传进去的 —— 同一份状态，换个今天就换个答案", () => {
+      const s = payday();
+      expect(L.pendingRecurring(s, "SGD", "2026-08", "2026-08-24").net, "24 号房租还没扣").toBe(-1800);
+      expect(L.pendingRecurring(s, "SGD", "2026-08", "2026-08-25").net, "25 号当天就算到了，它不再是「待发生」").toBe(0);
+    });
+
+    it("被判为待发生的那些，正是再跑一次补记时**不会**被记下的那些", () => {
+      const s = payday();
+      const today = "2026-08-13";
+      const pending = L.pendingRecurring(s, "SGD", "2026-08", today);
+      const before = s.records.length;
+      L.applyRecurring(s, today);
+      expect(s.records.length, "还没到日子的那几条，补记也不该记下来").toBe(before);
+      expect(pending.expense, "两份判定漂开的话，房租会既算已记又算待发生，同一笔钱减两次").toBe(1800);
+    });
+
+    it("过去的月份没有待发生 —— 那个月的日子全过完了", () => {
+      const s = payday();
+      L.applyRecurring(s, "2026-09-30");
+      expect(L.pendingRecurring(s, "SGD", "2026-08", "2026-09-30").net).toBe(0);
+      expect(L.projectedNet(s, "SGD", "2026-08", "2026-09-30").certain, "历史数字不该自己漂移")
+        .toBe(L.monthlySummary(s, "SGD", "2026-08").net);
+    });
+
+    it("派生值，不存 —— 多记一笔支出，预计结余当场跟着变", () => {
+      const s = payday();
+      L.addRecord(s, { type: "expense", amount: 50, currency: "SGD", cat: "food", date: "2026-08-13" });
+      expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").certain).toBe(1850);
+    });
+
+    it("刷卡的支出照常算进去 —— 刷卡本来就是支出，这一层不必认识那个标记", () => {
+      const s = payday();
+      L.addRecord(s, { type: "expense", amount: 68, currency: "SGD", cat: "food", date: "2026-08-13", card: true });
+      expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").certain).toBe(1832);
+    });
+
+    it("转帐不进预计结余 —— 汇款不是花钱，与 monthlySummary 同口径", () => {
+      const s = payday();
+      L.addTransfer(s, { amount: 1200, currency: "SGD", toAmount: 4080, toCurrency: "MYR", date: "2026-08-10" });
+      expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").certain).toBe(1900);
+    });
+  });
+
   // ── 导出与备份 ─────────────────────────────────────────
   describe("导出与备份", () => {
     it("CSV 每一行都带币种", () => {

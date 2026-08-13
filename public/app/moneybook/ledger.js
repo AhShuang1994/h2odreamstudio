@@ -846,6 +846,50 @@ export function applyRecurring(state, today) {
   return added;
 }
 
+// —— 月底预计结余 ————————————————————————————————————————
+//
+// 固定收支要到那一天才补记，所以 25 号才扣的房租在 13 号看不到 —— 月中的「本月结余」
+// 永远偏乐观。下面这两个推导把「还没发生但确定会发生」的那部分算进来（#128）。
+//
+// 这是**流量**推导，不是存量：它不需要知道户口里有多少钱，所以不碰 ADR-0001 那条
+// 「不引入期初余额」。全是派生值，一个都不存。
+
+/**
+ * 这一侧这个月**还没到日子**的固定收支 —— 还没补记、应记日期还没到、还没过最后一期。
+ *
+ * 判定整个借给 `dueOf`：这里就是它的取反（`!applied && !arrived`）。**不许在这里
+ * 另写一遍月份与日期的比较** —— 那正是 #124 抽出 `dueOf` 要防的事：两份实作漂开之后，
+ * 同一笔钱会既被算成「已记」又被算成「待发生」，而帐面上完全看不出异常。
+ *
+ * 「今天」由呼叫端传入。传一个未来的月份进来会把整月的规则都算成待发生（那个月一天
+ * 都还没过，本来就是这样）—— 界面因此不在未来月份显示预测，那是渲染层的判断。
+ */
+export function pendingRecurring(state, currency, month, today) {
+  let income = 0, expense = 0;
+  for (const rule of state.recurring) {
+    if (rule.currency !== currency) continue;
+    const slot = dueOf(rule, month, today);
+    if (!slot || slot.applied || slot.arrived) continue;
+    if (rule.type === INCOME) income += rule.amount; else expense += rule.amount;
+  }
+  return { currency, income: round2(income), expense: round2(expense), net: round2(income - expense) };
+}
+
+/**
+ * 月底预计结余 —— 「结余」（monthlySummary 的 net）把这个月还没发生的部分也算进去
+ * 之后的样子。同一个数的延伸，不是新概念。
+ *
+ * `certain` 是**确定值**：已记净额 + 本月待发生的固定收支净额。它只含已经发生的、
+ * 与确定会发生的，所以是可以信的那个数。
+ *
+ * 帐面口径 —— 支出含这个月刷的卡，因为刷卡本来就是支出。这一层不需要认识刷卡标记。
+ */
+export function projectedNet(state, currency, month, today) {
+  const recorded = monthlySummary(state, currency, month);
+  const pending = pendingRecurring(state, currency, month, today);
+  return { certain: round2(recorded.net + pending.net) };
+}
+
 // —— 导出 ————————————————————————————————————————————————
 
 /**
