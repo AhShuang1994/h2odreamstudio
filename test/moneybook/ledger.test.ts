@@ -1176,7 +1176,7 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.budgetStatus(s, "SGD", "2026-08")).toMatchObject({ spent: 80, left: 420 });
       expect(L.categoryBreakdown(s, "SGD", "2026-08", "expense").rows[0]).toMatchObject({ cat: "food", amount: 68 });
       expect(L.cumulative(s, "SGD")).toBe(2920);
-      expect(L.trend(s, "SGD", "2026-08", 1)).toEqual([{ month: "2026-08", income: 3000, expense: 80 }]);
+      expect(L.trend(s, "SGD", "2026-08", 1)).toEqual([{ month: "2026-08", income: 3000, expense: 80, card: 68 }]);
     });
 
     it("标了刷卡不影响分期的期次、还剩几期与待还小计", () => {
@@ -1259,6 +1259,29 @@ describe("小帐本 · ledger 核心", () => {
         L.addRule(s, { type: "expense", amount: 15.9, currency: "SGD", cat: "fun", day: 2, from: "2026-08", note: "订阅", card: true });
         L.applyRecurring(s, "2026-08-15");
         expect(L.cardSpentOnSide(s, "SGD", "2026-08")).toBe(15.9);
+      });
+
+      // 趋势里每个月多带一个刷卡数字，供渲染层把支出柱染成两段。**不加第三根柱**：
+      // 刷卡是支出的子集，并排会暗示两者可以相加（#129）。
+      it("近 6 个月的每个月都带一个刷卡数字，且它是该月支出的子集", () => {
+        const s = spent();
+        L.addRecord(s, { type: "expense", amount: 50, currency: "SGD", cat: "food", date: "2026-07-10", card: true });
+        const rows = L.trend(s, "SGD", "2026-08", 2);
+        expect(rows).toEqual([
+          { month: "2026-07", income: 0, expense: 50, card: 50 },
+          { month: "2026-08", income: 0, expense: 112.5, card: 100.5 },
+        ]);
+        expect(rows.every((r: any) => r.card <= r.expense), "刷卡永远不该大于当月支出，否则柱子会画出界").toBe(true);
+      });
+
+      it("那个月一笔都没刷时刷卡是 0 —— 渲染层据此不画高度为 0 的色块", () => {
+        const s = spent();
+        expect(L.trend(s, "SGD", "2026-09", 1)).toEqual([{ month: "2026-09", income: 0, expense: 0, card: 0 }]);
+      });
+
+      it("趋势里的刷卡也按侧各算各的", () => {
+        const s = spent();
+        expect(L.trend(s, "MYR", "2026-08", 1)[0]).toMatchObject({ expense: 300, card: 300 });
       });
 
       it("跟分期的「待还」是两个数，互不干扰 —— 同一页上不能是同一个词", () => {

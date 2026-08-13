@@ -554,16 +554,25 @@ import * as L from './ledger.js';
       }).join('');
     }
 
-    // 近 6 个月趋势，仍然只属于这一侧
+    // 近 6 个月趋势，仍然只属于这一侧。
+    // 支出柱染成两段：下段刷卡、上段现金。刷卡是支出的**子集**，所以画在柱子里面
+    // 而不是并排 —— 并排会暗示两者可以相加，那会让人把钱数重（#129）。
+    // 从没刷过卡的人、以及切到收入时，分段根本不被创建，柱子与今天完全一致。
     const data = L.trend(state, side, curMonth, 6);
     const max = Math.max(1, ...data.map(d => Math.max(d.expense, d.income)));
-    $('#trend').innerHTML = data.map(d => `<div class="col">
-      <span class="stack">
-        <i class="b e" style="height:${(d.expense / max * 100).toFixed(1)}%" title="支出 ${money(d.expense)}"></i>
-        <i class="b i" style="height:${(d.income / max * 100).toFixed(1)}%" title="收入 ${money(d.income)}"></i>
-      </span>
-      <small>${d.month.slice(5)}月</small>
-    </div>`).join('');
+    $('#trend').innerHTML = data.map(d => {
+      // 那个月一笔都没刷时不画高度为 0 的色块，柱子就是完整的一段
+      const seg = showCard && d.card > 0
+        ? `<u style="height:${(d.card / d.expense * 100).toFixed(1)}%"></u>` : '';
+      const title = seg ? `支出 ${money(d.expense)}（刷卡 ${money(d.card)}）` : `支出 ${money(d.expense)}`;
+      return `<div class="col">
+        <span class="stack">
+          <i class="b e" style="height:${(d.expense / max * 100).toFixed(1)}%" title="${title}">${seg}</i>
+          <i class="b i" style="height:${(d.income / max * 100).toFixed(1)}%" title="收入 ${money(d.income)}"></i>
+        </span>
+        <small>${d.month.slice(5)}月</small>
+      </div>`;
+    }).join('');
   }
 
   // ── 每月固定收支 ────────────────────────────────────

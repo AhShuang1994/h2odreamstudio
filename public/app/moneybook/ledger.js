@@ -443,13 +443,19 @@ export function categoryBreakdown(state, currency, month, type) {
   return { total, rows };
 }
 
-/** 近 n 个月的收支趋势，仍然只属于这一侧。 */
+/**
+ * 近 n 个月的收支趋势，仍然只属于这一侧。
+ *
+ * 每个月多带一个 `card`，供渲染层把支出柱染成两段（#129）。它是 `expense` 的**子集**
+ * ——「刷卡」与「支出」不能相加，所以永远不该被画成并排的第二根柱子。口径直接借给
+ * cardSpentOnSide，这里不另写一套筛选。
+ */
 export function trend(state, currency, month, n = 6) {
   const out = [];
   for (let i = n - 1; i >= 0; i--) {
     const m = shiftMonth(month, -i);
     const { income, expense } = monthlySummary(state, currency, m);
-    out.push({ month: m, income, expense });
+    out.push({ month: m, income, expense, card: cardSpentOnSide(state, currency, m) });
   }
   return out;
 }

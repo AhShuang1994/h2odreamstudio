@@ -40,6 +40,7 @@
   --income:#27a644;   /* 规格的 semantic-success，6.01:1 */
   --expense:#eb5757;  /* 5.47:1 */
   --xfer:#5ec8e8;     /* 转帐既不是收入也不是支出，用中性青色，9.89:1 */
+  --expense-card:#8c3b3b;  /* 支出柱里刷卡的那一段：同色相压暗，因为它是支出的子集 */
 
   /* 圆角，完全照规格的尺度 */
   --r-xs:4px; --r-sm:6px; --r-md:8px; --r-lg:12px; --r-xl:16px; --r-pill:9999px;
@@ -317,8 +318,12 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .trend .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:var(--sp-2);min-width:0}
 .trend .stack{display:flex;align-items:flex-end;gap:3px;flex:1;width:100%;justify-content:center}
 .trend .b{flex:1;max-width:10px;border-radius:var(--r-xs) var(--r-xs) 0 0;min-height:2px}
-.trend .b.e{background:var(--expense)}
+.trend .b.e{background:var(--expense);position:relative;overflow:hidden}
 .trend .b.i{background:var(--income)}
+/* 刷卡是支出的**子集**，所以画成支出柱底部的一段，不是并排的第三根柱 ——
+   并排会暗示两者可以相加，那会让人把钱数重（#129）。同色相压暗，一眼看得出
+   它属于这根柱子。 */
+.trend .b.e u{position:absolute;left:0;right:0;bottom:0;background:var(--expense-card)}
 .trend .col small{color:var(--ink-subtle);font-size:var(--t-xs);white-space:nowrap}
 
 /* ── 设定 ── */
