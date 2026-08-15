@@ -1,0 +1,22 @@
+name = "ktmb-watch"
+main = "src/index.js"
+compatibility_date = "2026-08-15"
+
+# 每 20 分钟查一次。KTMB 是别人的站，别调更密。
+[triggers]
+crons = ["*/20 * * * *"]
+
+[vars]
+ROUTE_FROM = "KLUANG"
+ROUTE_TO = "JB SENTRAL"
+WATCH_WEEKDAY = "0"   # 0 = 礼拜日
+WATCH_AFTER = "1600"  # 只看 16:00 之后开的车
+PAX = "1"
+
+# 存上一次的查询结果，用来判断「有没有变化」。
+# id 要换成 `wrangler kv namespace create STATE` 输出的那一串。
+[[kv_namespaces]]
+binding = "STATE"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# TELEGRAM_BOT_TOKEN 与 TELEGRAM_CHAT_ID 用 `wrangler secret put` 设，别写进这个文件。
