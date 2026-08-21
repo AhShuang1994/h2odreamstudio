@@ -17,7 +17,7 @@ OFFER_WINDOW_MINUTES = "3"  # queue 模式下，通知给一个人后等多久�
 [[d1_databases]]
 binding = "DB"
 database_name = "ktmb-watch"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "bff49da8-e2c8-4a30-972a-7011743318e6"
 
 # 用 `wrangler secret put` 设，别写进这个文件：
 #   TELEGRAM_BOT_TOKEN       @BotFather 给的
