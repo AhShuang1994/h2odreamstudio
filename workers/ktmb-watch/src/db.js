@@ -28,14 +28,24 @@ export function getUser(db, chatId) {
   return db.prepare("SELECT * FROM users WHERE chat_id = ?").bind(chatId).first();
 }
 
-export async function addUser(db, chatId, name, isAdmin = 0) {
+export async function addUser(db, chatId, name, isAdmin = 0, invitedBy = null) {
   await db
     .prepare(
-      `INSERT INTO users (chat_id, name, points, is_admin, created_at)
-       VALUES (?, ?, 0, ?, ?)
+      `INSERT INTO users (chat_id, name, points, is_admin, invited_by, created_at)
+       VALUES (?, ?, 0, ?, ?, ?)
        ON CONFLICT(chat_id) DO UPDATE SET name = excluded.name`,
     )
-    .bind(chatId, name, isAdmin, now())
+    .bind(chatId, name, isAdmin, invitedBy, now())
+    .run();
+}
+
+/** 第一次充值的时间戳。只写一次 —— 记的是「什么时候开始付钱的」。 */
+export async function markFirstTopup(db, chatId) {
+  await db
+    .prepare(
+      "UPDATE users SET first_topup_at = ? WHERE chat_id = ? AND first_topup_at IS NULL",
+    )
+    .bind(now(), chatId)
     .run();
 }
 

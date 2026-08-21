@@ -36,12 +36,27 @@ export const sender = (token) => (chatId, text, keyboard) =>
 
 /* ---------- 指令菜单 ---------- */
 
-/** 输入框旁边那个 Menu 键里列的东西，用户不用自己打字 */
+/**
+ * 输入框旁边那个 Menu 键里列的东西，用户不用自己打字。
+ *
+ * 分三层是体面问题不是安全问题 —— 免费会员看到 /start 会点，点了被拒，
+ * 第一次用就吃闭门羹。真正的防线是代码里的 isPaid / is_admin 判断。
+ */
+export const FREE_COMMANDS = [
+  { command: "list", description: "看现在挂着什么票" },
+  { command: "share", description: "我有票要挂出来" },
+  { command: "invite", description: "拿邀请链接给朋友" },
+  { command: "my", description: "我的资料" },
+];
+
 export const USER_COMMANDS = [
   { command: "start", description: "开始盯一班车" },
+  { command: "list", description: "看现在挂着什么票" },
+  { command: "share", description: "我有票要挂出来" },
   { command: "my", description: "我盯了什么、剩几点、排第几" },
-  { command: "stats", description: "这条线最近真的放过几次位" },
   { command: "cancel", description: "取消一条盯梢" },
+  { command: "stats", description: "这条线最近真的放过几次位" },
+  { command: "invite", description: "拿邀请链接给朋友" },
   { command: "appeal", description: "申诉刚才那次扣点" },
 ];
 
@@ -54,19 +69,29 @@ export const ADMIN_COMMANDS = [
   { command: "mode", description: "切轮流制 / 同时通知" },
 ];
 
+/** 这个人现在该看到哪一份 */
+export function commandsFor(user, nowIso) {
+  if (user?.is_admin) return ADMIN_COMMANDS;
+  return isPaid(user, nowIso) ? USER_COMMANDS : FREE_COMMANDS;
+}
+
+export const menuSetter = (token) => (chatId, commands) =>
+  call(token, "setMyCommands", {
+    commands,
+    scope: { type: "chat", chat_id: chatId },
+  });
+
 /** 把指令菜单推给 Telegram。部署后打一次 /setup 就好 */
-export async function registerCommands(env, adminChatIds) {
+export async function registerCommands(env, users) {
   const token = env.TELEGRAM_BOT_TOKEN;
+  // 名单外的人只看得到最保守的那份
   await call(token, "setMyCommands", {
-    commands: USER_COMMANDS,
+    commands: FREE_COMMANDS,
     scope: { type: "default" },
   });
-  for (const chatId of adminChatIds) {
-    await call(token, "setMyCommands", {
-      commands: ADMIN_COMMANDS,
-      scope: { type: "chat", chat_id: chatId },
-    });
-  }
+  const nowIso = new Date().toISOString();
+  const setMenu = menuSetter(token);
+  for (const u of users) await setMenu(u.chat_id, commandsFor(u, nowIso));
 }
 
 /* ---------- 日期工具 ---------- */
@@ -192,6 +217,8 @@ export async function handleUpdate(update, env, deps = {}) {
   const search = deps.search ?? searchTrips;
   const now = deps.now ? deps.now() : nowInMY();
 
+  const setMenu = deps.setMenu ?? menuSetter(env.TELEGRAM_BOT_TOKEN);
+
   if (update.callback_query) {
     if (!deps.send) {
       await call(env.TELEGRAM_BOT_TOKEN, "answerCallbackQuery", {
@@ -201,21 +228,26 @@ export async function handleUpdate(update, env, deps = {}) {
     return handleCallback(update.callback_query, env, send, search, now);
   }
   if (update.message?.text) {
-    return handleMessage(update.message, env, send, search, now);
+    return handleMessage(update.message, env, send, search, now, setMenu);
   }
 }
 
 /* ---------- 文字讯息 ---------- */
 
-async function handleMessage(msg, env, send, search, now) {
+async function handleMessage(msg, env, send, search, now, setMenu) {
   const chatId = msg.chat.id;
   const text = msg.text.trim();
   const user = await db.getUser(env.DB, chatId);
 
   // 管理员指令要先于白名单检查（管理员自己也在 users 表里）
   if (user?.is_admin && text.startsWith("/")) {
-    const handled = await handleAdmin(text, env, send, chatId);
+    const handled = await handleAdmin(text, env, send, chatId, setMenu);
     if (handled) return;
+  }
+
+  // 邀请链接：/start inv<邀请人的 chat_id>
+  if (!user && text.startsWith("/start ")) {
+    return acceptInvite(chatId, text.slice(7).trim(), env, send, setMenu, now);
   }
 
   if (!user) {
@@ -241,6 +273,14 @@ async function handleMessage(msg, env, send, search, now) {
       return send(chatId, "你那张票是哪个方向？", shareDirectionKeyboard());
     case "/list":
       return showListings(chatId, env, send, now);
+    case "/invite":
+      return send(
+        chatId,
+        `把这条链接丢给朋友，他点了就进来了：\n\n` +
+          `https://t.me/${env.BOT_USERNAME ?? "your_bot"}?start=inv${chatId}\n\n` +
+          `他进来是免费会员：能挂票、能看 /list，收不到自动通知。\n` +
+          `第一次挂票会拿到 ${TRIAL_DAYS} 天试用。`,
+      );
     case "/appeal":
       return appeal(chatId, env, send);
     case "/stats":
@@ -522,6 +562,40 @@ async function handleCallback(cq, env, send, search, now) {
         `按错了的话回 /appeal，我人工退给你。`,
     );
   }
+}
+
+/**
+ * 邀请链接进来的人。
+ *
+ * 这不是自助注册 —— 邀请人得是真的会员，随便编一个 ID 进不来。
+ * 它只是把「管理员一个一个加」这个瓶颈拿掉：挂票板要有货，
+ * 供货的那一边人太少就是一块空板。
+ */
+async function acceptInvite(chatId, payload, env, send, setMenu, now) {
+  const m = /^inv(\d+)$/.exec(payload);
+  const inviter = m ? await db.getUser(env.DB, Number(m[1])) : null;
+  if (!inviter) {
+    return send(
+      chatId,
+      `这是邀请制服务，你还不在名单上。\n\n你的 ID 是 ${chatId}\n把这串号码发给管理员，他加你进来。`,
+    );
+  }
+
+  await db.addUser(env.DB, chatId, null, 0, inviter.chat_id);
+  await setMenu(chatId, commandsFor({ points: 0 }, now.toISOString()));
+
+  await send(
+    inviter.chat_id,
+    `👋 你邀请的人（${chatId}）进来了。`,
+  );
+  return send(
+    chatId,
+    `欢迎 👋 你已经是会员了。\n\n` +
+      `现在可以：\n` +
+      `• /list 看看有谁挂了用不到的票\n` +
+      `• /share 把自己用不到的票挂上来 —— **第一次挂票送 ${TRIAL_DAYS} 天试用**\n\n` +
+      `试用期内跟付费会员一样：有位马上通知你，别人挂票也第一时间推给你。`,
+  );
 }
 
 /** 免费会员想盯车时给的两条路。别只说「不行」。 */
@@ -812,7 +886,7 @@ async function showStats(chatId, env, send, now) {
 
 /* ---------- 管理员 ---------- */
 
-async function handleAdmin(text, env, send, adminChatId) {
+async function handleAdmin(text, env, send, adminChatId, setMenu) {
   const [cmd, a, b] = text.split(/\s+/);
 
   if (cmd === "/adduser") {
@@ -840,7 +914,11 @@ async function handleAdmin(text, env, send, adminChatId) {
     const n = Number(b);
     const reason = cmd === "/topup" ? "topup" : "refund";
     await db.adjustPoints(env.DB, Number(a), n, reason);
+    // 退点不算「付过钱」—— 这个标记记的是他什么时候开始付的
+    if (reason === "topup") await db.markFirstTopup(env.DB, Number(a));
     const u = await db.getUser(env.DB, Number(a));
+    // 充完值他就跨层了，Menu 键要跟着换，否则还是免费版那四个
+    await setMenu(Number(a), commandsFor(u, new Date().toISOString()));
     await send(adminChatId, `${a} 现在有 ${u.points} 点。`);
     await send(
       Number(a),
