@@ -60,18 +60,26 @@ export function getDraft(db, chatId) {
   return db.prepare("SELECT * FROM drafts WHERE chat_id = ?").bind(chatId).first();
 }
 
-export async function saveDraft(db, chatId, { direction, date, trains }) {
+export async function saveDraft(db, chatId, { direction, date, trains, trips }) {
   await db
     .prepare(
-      `INSERT INTO drafts (chat_id, direction, date, trains, updated_at)
-       VALUES (?, ?, ?, ?, ?)
+      `INSERT INTO drafts (chat_id, direction, date, trains, trips, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?)
        ON CONFLICT(chat_id) DO UPDATE SET
          direction = excluded.direction,
          date = excluded.date,
          trains = excluded.trains,
+         trips = excluded.trips,
          updated_at = excluded.updated_at`,
     )
-    .bind(chatId, direction ?? null, date ?? null, JSON.stringify(trains ?? []), now())
+    .bind(
+      chatId,
+      direction ?? null,
+      date ?? null,
+      JSON.stringify(trains ?? []),
+      trips ? JSON.stringify(trips) : null,
+      now(),
+    )
     .run();
 }
 
@@ -80,6 +88,21 @@ export async function clearDraft(db, chatId) {
 }
 
 /* ---------- watches ---------- */
+
+/**
+ * 这个人手上还在跑的盯梢有几条。
+ * 没有上限的话，一个人就能把 MAX_ROUTES 撑爆，别人全部漏跑。
+ */
+export async function countWatches(db, chatId, today) {
+  const row = await db
+    .prepare(
+      `SELECT COUNT(*) AS n FROM watches
+       WHERE chat_id = ? AND active = 1 AND date >= ?`,
+    )
+    .bind(chatId, today)
+    .first();
+  return row.n;
+}
 
 export async function createWatch(db, chatId, direction, date, trains) {
   const r = await db

@@ -286,8 +286,16 @@ async function handleCallback(cq, env, send, search, now) {
     const next = selected.includes(hm)
       ? selected.filter((x) => x !== hm)
       : [...selected, hm].sort((a, b) => a - b);
-    await db.saveDraft(env.DB, chatId, { direction: dir, date, trains: next });
-    return showTrains(chatId, dir, date, next, env, send, search, now);
+
+    // 用草稿里缓存的班次表重画，别每勾一下就再打 KTMB 三个请求
+    const cached = draft.trips ? JSON.parse(draft.trips) : null;
+    await db.saveDraft(env.DB, chatId, {
+      direction: dir,
+      date,
+      trains: next,
+      trips: cached,
+    });
+    return showTrains(chatId, dir, date, next, env, send, search, now, cached);
   }
 
   if (data.startsWith("done:")) {
@@ -296,6 +304,19 @@ async function handleCallback(cq, env, send, search, now) {
     if (!draftMatches(draft, dir, date)) return send(chatId, STALE);
     const selected = JSON.parse(draft.trains);
     if (selected.length === 0) return send(chatId, "还没勾班次。");
+
+    // 一条线路吃掉全站 MAX_ROUTES 里的一格。不限人头的话，一个人建满
+    // 28 天 × 2 方向 = 56 条，别人一个通知都收不到。
+    const maxPerUser = Number(env.MAX_WATCHES_PER_USER ?? 5);
+    const mine = await db.countWatches(env.DB, chatId, now.toISOString().slice(0, 10));
+    if (mine >= maxPerUser) {
+      return send(
+        chatId,
+        `你已经盯了 ${mine} 条，一个人最多 ${maxPerUser} 条。\n\n` +
+          `先用 /cancel 取消一条再来。\n` +
+          `（这个上限是为了别让一个人把额度占光，其他人就收不到通知了。）`,
+      );
+    }
 
     const watchId = await db.createWatch(env.DB, chatId, dir, date, selected);
     await db.clearDraft(env.DB, chatId);
@@ -354,15 +375,23 @@ async function handleCallback(cq, env, send, search, now) {
 }
 
 /** 拉当天班次给用户勾 */
-async function showTrains(chatId, direction, date, selected, env, send, search, now) {
+async function showTrains(chatId, direction, date, selected, env, send, search, now, cached) {
   const route = ROUTES[direction];
   if (!route) return send(chatId, "打 /start 重新开始。");
 
-  let fetched;
-  try {
-    fetched = await search({ from: route.from, to: route.to, date });
-  } catch (err) {
-    return send(chatId, `查不到 ${date} 的班次：${err.message}`);
+  let fetched = cached;
+  if (!fetched) {
+    try {
+      fetched = await search({ from: route.from, to: route.to, date });
+    } catch (err) {
+      return send(chatId, `查不到 ${date} 的班次：${err.message}`);
+    }
+    await db.saveDraft(env.DB, chatId, {
+      direction,
+      date,
+      trains: selected,
+      trips: fetched,
+    });
   }
   if (fetched.length === 0) {
     return send(chatId, `${date} 这天没有班次。换一天试试，打 /start。`);

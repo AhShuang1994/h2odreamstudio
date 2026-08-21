@@ -57,6 +57,30 @@ export function capRoutes(routes, max) {
 }
 
 /**
+ * 把那 50 个对外请求分成「查 KTMB」和「发通知」两份。
+ *
+ * 发 Telegram 也算在同一份额度里 —— 这点很容易忘。broadcast 模式是每个
+ * 订户发一条，人一多就把整轮撑爆，所有人都收不到通知。
+ * 宁可这一轮少发几条（下一轮 5 分钟后就补上），也不能整轮炸掉。
+ */
+export function budgetFor(maxSubrequests, maxRoutes, perRoute) {
+  // 保底留这么多给通知 —— 查到了却发不出去，等于没查。
+  // 不按比例留，是因为通知本来就稀少（queue 模式一次只发一个人），
+  // 按比例会白白砍掉一半的线路容量。
+  const MIN_SENDS = 14;
+  const routes = Math.max(
+    1,
+    Math.min(maxRoutes, Math.floor((maxSubrequests - MIN_SENDS) / perRoute)),
+  );
+  const spentOnSearch = routes * perRoute;
+  return {
+    routes,
+    spentOnSearch,
+    sendsLeft: Math.max(MIN_SENDS, maxSubrequests - spentOnSearch),
+  };
+}
+
+/**
  * 有票事件：上一次 <= 基线、这一次 > 基线，才算真的放出位子。
  * 第一次观察（prev 为 null）不算 —— 没有基准，无法判断是不是刚放的。
  */
@@ -96,9 +120,27 @@ export async function runPoll(env, deps) {
   const now = deps.now ? deps.now() : nowInMY();
   const today = now.toISOString().slice(0, 10);
 
+  const budget = budgetFor(
+    Number(env.MAX_SUBREQUESTS ?? 50),
+    Number(env.MAX_ROUTES ?? 12),
+    3, // 一条线路要打 KTMB 三个请求
+  );
+
+  // 发通知也算在同一份额度里，所以包一层来数
+  let sendsLeft = budget.sendsLeft;
+  const send = async (chatId, text, keyboard) => {
+    if (sendsLeft <= 0) {
+      console.error(`请求额度用完，这一轮没发给 ${chatId}，下一轮会补`);
+      return;
+    }
+    sendsLeft -= 1;
+    return deps.send(chatId, text, keyboard);
+  };
+  const budgeted = { ...deps, send };
+
   const all = await db.activeRoutes(env.DB, today);
-  const { routes, skipped } = capRoutes(all, Number(env.MAX_ROUTES ?? 12));
-  if (skipped.length > 0) await warnAdmins(env, deps, all.length, skipped);
+  const { routes, skipped } = capRoutes(all, budget.routes);
+  if (skipped.length > 0) await warnAdmins(env, budgeted, all.length, skipped);
 
   for (const { direction, date } of routes) {
     const route = ROUTES[direction];
@@ -134,15 +176,15 @@ export async function runPoll(env, deps) {
       prev.set(t.hourMinute, await db.lastSeats(env.DB, direction, date, t.hourMinute));
     }
 
-    await settlePending(env, deps, { direction, date, seatsNow, baseline });
+    await settlePending(env, budgeted, { direction, date, seatsNow, baseline });
     await db.logSeats(env.DB, direction, date, fetched);
 
     const releases = detectReleases(trips, prev, baseline);
     for (const r of releases) {
       if (mode === "broadcast") {
-        await broadcast(env, deps, { direction, date, trip: r, route });
+        await broadcast(env, budgeted, { direction, date, trip: r, route });
       } else {
-        await offerToNext(env, deps, {
+        await offerToNext(env, budgeted, {
           direction,
           date,
           trip: r,
