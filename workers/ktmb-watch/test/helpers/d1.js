@@ -113,8 +113,8 @@ export function recorder() {
   const sent = [];
   return {
     sent,
-    send: async (chatId, text) => {
-      sent.push({ chatId, text });
+    send: async (chatId, text, keyboard) => {
+      sent.push({ chatId, text, keyboard });
     },
     to: (chatId) => sent.filter((s) => s.chatId === chatId),
   };

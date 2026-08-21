@@ -83,6 +83,62 @@ test("勾的班次现在没位，确定时说清楚我只在变有位那一刻�
   assert.match(confirm, /没位变有位|有位的那一刻/, "讲清楚通知的时机，免得又误会");
 });
 
+test("现在就有位时，附一个「我订到了，别盯了」的按钮", async () => {
+  const { db, tg, deps } = ctx();
+
+  await handleUpdate(tap(111, "dir:KJ"), env(db), deps);
+  await handleUpdate(tap(111, `date:KJ:${DATE}`), env(db), deps);
+  await handleUpdate(tap(111, `tr:KJ:${DATE}:2100`), env(db), deps);
+  await handleUpdate(tap(111, `done:KJ:${DATE}`), env(db), deps);
+
+  const watchId = rows(db, "SELECT id FROM watches")[0].id;
+  const buttons = (tg.sent.at(-1).keyboard ?? []).flat();
+  assert.ok(
+    buttons.some((b) => b.callback_data === `cx:${watchId}`),
+    "要能一按就删，别叫人去打 /cancel",
+  );
+});
+
+test("按了「我订到了」就把那条盯梢关掉", async () => {
+  const { db, tg, deps } = ctx();
+  await handleUpdate(tap(111, "dir:KJ"), env(db), deps);
+  await handleUpdate(tap(111, `date:KJ:${DATE}`), env(db), deps);
+  await handleUpdate(tap(111, `tr:KJ:${DATE}:2100`), env(db), deps);
+  await handleUpdate(tap(111, `done:KJ:${DATE}`), env(db), deps);
+
+  const watchId = rows(db, "SELECT id FROM watches")[0].id;
+  await handleUpdate(tap(111, `cx:${watchId}`), env(db), deps);
+
+  assert.equal(rows(db, "SELECT * FROM watches WHERE active=1").length, 0);
+});
+
+test("没位的时候不给那个按钮 —— 他还没订到，别引他关掉", async () => {
+  const { db, tg, deps } = ctx();
+  await handleUpdate(tap(111, "dir:KJ"), env(db), deps);
+  await handleUpdate(tap(111, `date:KJ:${DATE}`), env(db), deps);
+  await handleUpdate(tap(111, `tr:KJ:${DATE}:1840`), env(db), deps);
+  await handleUpdate(tap(111, `done:KJ:${DATE}`), env(db), deps);
+
+  assert.equal((tg.sent.at(-1).keyboard ?? []).flat().length, 0);
+});
+
+test("/my 不列已经过期的盯梢", async () => {
+  const db = freshDb();
+  seed(db, {
+    users: [{ chat_id: 111, points: 5 }],
+    watches: [
+      { chat_id: 111, direction: "KJ", date: "2020-01-01", trains: [1840] },
+      { chat_id: 111, direction: "KJ", date: DATE, trains: [2100] },
+    ],
+  });
+  const tg = recorder();
+  await handleUpdate(msg(111, "/my"), env(db), { send: tg.send, search: fakeSearch(trains) });
+
+  const out = tg.sent.at(-1).text;
+  assert.doesNotMatch(out, /2020-01-01/, "过期的不该再占版面");
+  assert.match(out, new RegExp(DATE));
+});
+
 test("勾了再点一次会取消勾选", async () => {
   const { db, deps } = ctx();
   await handleUpdate(tap(111, "dir:KJ"), env(db), deps);

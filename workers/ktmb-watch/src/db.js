@@ -92,14 +92,15 @@ export async function createWatch(db, chatId, direction, date, trains) {
   return r.id;
 }
 
-export async function listWatches(db, chatId) {
+/** 只列还有意义的：日期过了的自动不显示，免得堆成一长串死盯梢 */
+export async function listWatches(db, chatId, today) {
   const { results } = await db
     .prepare(
       `SELECT * FROM watches
-       WHERE chat_id = ? AND active = 1
+       WHERE chat_id = ? AND active = 1 AND date >= ?
        ORDER BY date, id`,
     )
-    .bind(chatId)
+    .bind(chatId, today)
     .all();
   return results;
 }

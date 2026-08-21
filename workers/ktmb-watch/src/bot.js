@@ -258,7 +258,7 @@ async function handleCallback(cq, env, send, search) {
     const selected = JSON.parse(draft.trains);
     if (selected.length === 0) return send(chatId, "还没勾班次。");
 
-    await db.createWatch(env.DB, chatId, dir, date, selected);
+    const watchId = await db.createWatch(env.DB, chatId, dir, date, selected);
     await db.clearDraft(env.DB, chatId);
 
     // 通知只在「没位 → 有位」那一刻发。所以如果勾的班次现在就有位，
@@ -279,13 +279,19 @@ async function handleCallback(cq, env, send, search) {
     const head = `盯上了：${route.label}\n${date} ${selected.map(hhmm).join("、")}`;
 
     if (openNow.length > 0) {
+      // 盯梢照留 —— 「现在能订」不等于「他已经订了」。他可能在开车、在上班。
+      // 删不删由他一按决定，系统不替他做主。
       return send(
         chatId,
         `${head}\n\n` +
           `⚠️ 现在就有位，别等通知，直接去订：\n` +
           openNow.map((t) => `  ${hhmm(t.hourMinute)} — ${t.seats} 个`).join("\n") +
           `\n\nhttps://online.ktmb.com.my/\n\n` +
-          `（这几班现在订得到，不扣点。之后没位了我再帮你盯。）`,
+          `订好了按下面那颗；还没订就先摆着，满了我会通知你。不扣点。`,
+        [
+          [{ text: "✅ 我订到了，别盯了", callback_data: `cx:${watchId}` }],
+          [{ text: "⏳ 先帮我盯着", callback_data: "keep" }],
+        ],
       );
     }
 
@@ -298,9 +304,13 @@ async function handleCallback(cq, env, send, search) {
     );
   }
 
+  if (data === "keep") {
+    return send(chatId, "好，继续盯着。满了再放出来我第一个通知你。");
+  }
+
   if (data.startsWith("cx:")) {
     const ok = await db.cancelWatch(env.DB, chatId, Number(data.slice(3)));
-    return send(chatId, ok ? "取消了。" : "找不到这条。");
+    return send(chatId, ok ? "取消了。" : "找不到这条，可能已经取消过。");
   }
 }
 
@@ -337,7 +347,7 @@ async function showTrains(chatId, direction, date, selected, env, send, search) 
 
 async function showMine(chatId, env, send) {
   const user = await db.getUser(env.DB, chatId);
-  const watches = await db.listWatches(env.DB, chatId);
+  const watches = await db.listWatches(env.DB, chatId, todayInMY());
   const mode = await db.getMode(env.DB);
 
   if (watches.length === 0) {
@@ -366,7 +376,7 @@ async function showMine(chatId, env, send) {
 }
 
 async function startCancel(chatId, env, send) {
-  const watches = await db.listWatches(env.DB, chatId);
+  const watches = await db.listWatches(env.DB, chatId, todayInMY());
   if (watches.length === 0) return send(chatId, "没有在盯的班次。");
   return send(
     chatId,
