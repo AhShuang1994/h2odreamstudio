@@ -260,10 +260,40 @@ async function handleCallback(cq, env, send, search) {
 
     await db.createWatch(env.DB, chatId, dir, date, selected);
     await db.clearDraft(env.DB, chatId);
+
+    // 通知只在「没位 → 有位」那一刻发。所以如果勾的班次现在就有位，
+    // 那一刻可能永远不会来 —— 得当场讲，否则人会盯着一班早就能订的车空等。
+    const baseline = Number(env.OKU_BASELINE ?? 4);
+    const route = ROUTES[dir];
+    let openNow = [];
+    try {
+      const trips = await search({ from: route.from, to: route.to, date });
+      openNow = trips.filter(
+        (t) => selected.includes(t.hourMinute) && t.seats > baseline,
+      );
+    } catch {
+      // 查不到就算了，盯梢已经建好，下一轮自然会跑
+    }
+
+    const points = (await db.getUser(env.DB, chatId)).points;
+    const head = `盯上了：${route.label}\n${date} ${selected.map(hhmm).join("、")}`;
+
+    if (openNow.length > 0) {
+      return send(
+        chatId,
+        `${head}\n\n` +
+          `⚠️ 现在就有位，别等通知，直接去订：\n` +
+          openNow.map((t) => `  ${hhmm(t.hourMinute)} — ${t.seats} 个`).join("\n") +
+          `\n\nhttps://online.ktmb.com.my/\n\n` +
+          `（这几班现在订得到，不扣点。之后没位了我再帮你盯。）`,
+      );
+    }
+
     return send(
       chatId,
-      `盯上了：${ROUTES[dir].label}\n${date} ${selected.map(hhmm).join("、")}\n\n` +
-        `有位我会通知你。余额 ${(await db.getUser(env.DB, chatId)).points} 点。\n` +
+      `${head}\n\n` +
+        `这几班现在都没位。我每 5 分钟查一次，有位的那一刻通知你。\n` +
+        `余额 ${points} 点，抢到才扣。\n` +
         `打 /my 看排队位置。`,
     );
   }

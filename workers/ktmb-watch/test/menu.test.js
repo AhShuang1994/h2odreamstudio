@@ -56,6 +56,33 @@ test("完整走一遍：选方向 → 选日期 → 勾班次 → 确定", async
   assert.match(tg.sent.at(-1).text, /盯上了/);
 });
 
+test("勾的班次现在就有位，确定时要马上讲，别让人干等通知", async () => {
+  const { db, tg, deps } = ctx();
+
+  await handleUpdate(tap(111, "dir:KJ"), env(db), deps);
+  await handleUpdate(tap(111, `date:KJ:${DATE}`), env(db), deps);
+  await handleUpdate(tap(111, `tr:KJ:${DATE}:2100`), env(db), deps); // 21:00 有 6 个位
+  await handleUpdate(tap(111, `done:KJ:${DATE}`), env(db), deps);
+
+  const confirm = tg.sent.at(-1).text;
+  assert.match(confirm, /现在就有位/, "别让人盯着一班早就能订的车空等");
+  assert.match(confirm, /21:00/);
+  assert.match(confirm, /6/);
+});
+
+test("勾的班次现在没位，确定时说清楚我只在变有位那一刻通知", async () => {
+  const { db, tg, deps } = ctx();
+
+  await handleUpdate(tap(111, "dir:KJ"), env(db), deps);
+  await handleUpdate(tap(111, `date:KJ:${DATE}`), env(db), deps);
+  await handleUpdate(tap(111, `tr:KJ:${DATE}:1840`), env(db), deps); // 18:40 只有 4 个（OKU）
+  await handleUpdate(tap(111, `done:KJ:${DATE}`), env(db), deps);
+
+  const confirm = tg.sent.at(-1).text;
+  assert.doesNotMatch(confirm, /现在就有位/);
+  assert.match(confirm, /没位变有位|有位的那一刻/, "讲清楚通知的时机，免得又误会");
+});
+
 test("勾了再点一次会取消勾选", async () => {
   const { db, deps } = ctx();
   await handleUpdate(tap(111, "dir:KJ"), env(db), deps);
