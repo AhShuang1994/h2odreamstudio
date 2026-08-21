@@ -128,7 +128,14 @@ test("点数用完的人不进队", async () => {
     search: fakeSearch({ [`${KJ}|${DATE}`]: [trip(1840, 6)] }),
   });
 
-  assert.equal(tg.sent[0].chatId, 222, "111 没点数了，跳过他");
+  const offers = tg.sent.filter((s) => /轮到你了/.test(s.text));
+  assert.equal(offers.length, 1);
+  assert.equal(offers[0].chatId, 222, "111 没点数了，跳过他");
+  assert.match(
+    tg.to(111)[0].text,
+    /停掉/,
+    "而且要告诉他为什么 —— 装死比停掉更糟",
+  );
 });
 
 test("同一班车已经有人在等，不会再发第二张", async () => {

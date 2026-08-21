@@ -196,6 +196,52 @@ export function dedupeByUser(watchers) {
   return [...seen.values()];
 }
 
+/**
+ * 手上还有 active 盯梢、但已经不是付费会员的人。
+ *
+ * 只捞「还有盯梢的」，所以停完一次之后自然就捞不到了 ——
+ * 不需要另一个「通知过没」的标记。
+ */
+export async function lapsedWatchers(db, nowIso, today) {
+  const { results } = await db
+    .prepare(
+      `SELECT DISTINCT u.chat_id FROM users u
+       JOIN watches w ON w.chat_id = u.chat_id
+       WHERE w.active = 1 AND w.date >= ?
+         AND u.points <= 0
+         AND (u.trial_until IS NULL OR u.trial_until <= ?)`,
+    )
+    .bind(today, nowIso)
+    .all();
+  return results;
+}
+
+/** 试用快到期、还没预告过的人 */
+export async function trialEndingSoon(db, nowIso, cutoffIso) {
+  const { results } = await db
+    .prepare(
+      `SELECT chat_id, trial_until FROM users
+       WHERE trial_until > ? AND trial_until <= ? AND trial_warned_at IS NULL`,
+    )
+    .bind(nowIso, cutoffIso)
+    .all();
+  return results;
+}
+
+export async function markTrialWarned(db, chatId, nowIso) {
+  await db
+    .prepare("UPDATE users SET trial_warned_at = ? WHERE chat_id = ?")
+    .bind(nowIso, chatId)
+    .run();
+}
+
+export async function deactivateAllWatches(db, chatId) {
+  await db
+    .prepare("UPDATE watches SET active = 0 WHERE chat_id = ? AND active = 1")
+    .bind(chatId)
+    .run();
+}
+
 /* ---------- listings（挂票告示板） ---------- */
 
 export function getListingDraft(db, chatId) {

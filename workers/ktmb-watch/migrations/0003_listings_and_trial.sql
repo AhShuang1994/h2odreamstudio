@@ -41,6 +41,9 @@ CREATE TABLE listing_drafts (
 -- 所以「一辈子一次」不需要另一个栏位。
 ALTER TABLE users ADD COLUMN trial_until TEXT;
 
+-- 试用到期前一天预告一次。没有这个标记的话，轮询每 5 分钟就提醒他一次。
+ALTER TABLE users ADD COLUMN trial_warned_at TEXT;
+
 -- 只有 /topup 会写。这是「谁真的付过钱」的标记，不是权限开关 ——
 -- 能不能盯梢看的是「有点数或试用中」。
 ALTER TABLE users ADD COLUMN first_topup_at TEXT;

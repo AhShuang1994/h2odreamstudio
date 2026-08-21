@@ -157,6 +157,8 @@ export async function runPoll(env, deps) {
   };
   const budgeted = { ...deps, send };
 
+  await settleMemberships(env, budgeted, now, today);
+
   const all = await db.activeRoutes(env.DB, today);
   const { routes, skipped } = capRoutes(all, budget.routes);
   if (skipped.length > 0) await warnAdmins(env, budgeted, all.length, skipped);
@@ -213,6 +215,40 @@ export async function runPoll(env, deps) {
         });
       }
     }
+  }
+}
+
+/**
+ * 试用快到期就预告，已经到期或点数归零就停掉盯梢。
+ *
+ * 一定要出声。最糟的失败模式不是「停掉」，是「装死」——
+ * 他以为有人在帮他盯，其实没有。这个坑踩过一次了。
+ *
+ * 不需要「通知过没」的标记：lapsedWatchers 只捞「还有 active 盯梢的人」，
+ * 停完一次自然就捞不到了。预告才要标记，否则每 5 分钟提醒一次。
+ */
+async function settleMemberships(env, deps, now, today) {
+  const nowIso = now.toISOString();
+
+  const soon = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+  for (const u of await db.trialEndingSoon(env.DB, nowIso, soon)) {
+    await db.markTrialWarned(env.DB, u.chat_id, nowIso);
+    await deps.send(
+      u.chat_id,
+      `⏳ 试用快到期了（${u.trial_until.slice(0, 10)}）。\n\n` +
+        `到期之后盯梢会全部停掉，也收不到挂票通知。\n` +
+        `想继续的话找管理员充值 RM5 换 5 点。`,
+    );
+  }
+
+  for (const u of await db.lapsedWatchers(env.DB, nowIso, today)) {
+    await db.deactivateAllWatches(env.DB, u.chat_id);
+    await deps.send(
+      u.chat_id,
+      `你的盯梢已经全部停掉了 —— 点数用完 / 试用到期。\n\n` +
+        `充值 RM5 换 5 点就能继续。\n` +
+        `现在你还是可以打 /list 看挂票，也可以 /share 挂自己的票。`,
+    );
   }
 }
 

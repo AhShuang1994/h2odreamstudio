@@ -228,6 +228,8 @@ async function handleMessage(msg, env, send, search, now) {
   const [cmd] = text.split(/\s+/);
   switch (cmd) {
     case "/start":
+      // 盯梢是付费的东西。免费会员放进菜单只会走到底才被拒，更难看。
+      if (!isPaid(user, now.toISOString())) return offerUpgrade(chatId, send);
       await db.clearDraft(env.DB, chatId);
       return send(chatId, "要盯哪个方向？", directionKeyboard());
     case "/my":
@@ -521,6 +523,17 @@ async function handleCallback(cq, env, send, search, now) {
     );
   }
 }
+
+/** 免费会员想盯车时给的两条路。别只说「不行」。 */
+const offerUpgrade = (chatId, send) =>
+  send(
+    chatId,
+    `盯车是付费会员的功能，你现在还不是。\n\n` +
+      `两条路：\n` +
+      `1️⃣ 手上有用不到的票？打 /share 挂上来 —— 第一次挂票送你 ${TRIAL_DAYS} 天试用\n` +
+      `2️⃣ 直接充值 RM5 换 5 点，找管理员\n\n` +
+      `在那之前你还是可以打 /list 看别人挂了什么票。`,
+  );
 
 /* ---------- 挂票 ---------- */
 
