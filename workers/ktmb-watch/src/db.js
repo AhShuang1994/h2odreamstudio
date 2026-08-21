@@ -138,7 +138,19 @@ export async function watchersOf(db, direction, date, hourMinute) {
     )
     .bind(direction, date)
     .all();
-  return results.filter((r) => JSON.parse(r.trains).includes(hourMinute));
+  return dedupeByUser(results.filter((r) => JSON.parse(r.trains).includes(hourMinute)));
+}
+
+/**
+ * 同一个人对同一班车建了两条 watch 时，只算一次。
+ * 否则他会占掉两个排队位置，等于插队。
+ */
+export function dedupeByUser(watchers) {
+  const seen = new Map();
+  for (const w of watchers) {
+    if (!seen.has(w.chat_id)) seen.set(w.chat_id, w);
+  }
+  return [...seen.values()];
 }
 
 /* ---------- seat_log ---------- */

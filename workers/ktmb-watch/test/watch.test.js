@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { detectReleases, settleDecision, hhmm } from "../src/watch.js";
-import { orderQueue } from "../src/db.js";
+import { orderQueue, dedupeByUser } from "../src/db.js";
 
 const trip = (hourMinute, seats) => ({ hourMinute, seats, train: "T", fare: "MYR 1" });
 
@@ -86,6 +86,20 @@ test("orderQueue：上次拿到的人排到队尾", () => {
     { chat_id: 2, last_offered_at: null },
   ];
   assert.deepEqual(orderQueue(after).map((w) => w.chat_id), [2, 1]);
+});
+
+test("dedupeByUser：同一个人建了两条 watch 也只占一个排队位", () => {
+  const watchers = [
+    { watch_id: 1, chat_id: 111, last_offered_at: null },
+    { watch_id: 2, chat_id: 111, last_offered_at: null }, // 同一个人再建一条
+    { watch_id: 3, chat_id: 222, last_offered_at: null },
+  ];
+  const got = dedupeByUser(watchers);
+  assert.deepEqual(got.map((w) => w.chat_id), [111, 222]);
+  assert.equal(got[0].watch_id, 1, "留最早那条 watch");
+
+  // 没去重的话 111 会占掉队列前两位，222 被挤到第三
+  assert.deepEqual(orderQueue(got).map((w) => w.chat_id), [111, 222]);
 });
 
 test("orderQueue 不改动传进来的数组", () => {
