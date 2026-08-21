@@ -13,7 +13,7 @@ OKU_BASELINE = "4"          # 剩这个数以内视为 OKU 保留位，算没票
 OFFER_WINDOW_MINUTES = "3"  # queue 模式下，通知给一个人后等多久传给下一位
 MAX_DAYS_AHEAD = "28"       # 最远能盯几天后。太远的日期 KTMB 还没开卖，却会一直占住线路额度
 MAX_ROUTES = "12"           # 一轮最多跑几条线路
-MAX_WATCHES_PER_USER = "5"  # 一个人最多盯几条。不限的话一个人就能占满 MAX_ROUTES
+MAX_WATCHES_PER_USER = "3"  # 一个人最多盯几条。不限的话一个人就能占满 MAX_ROUTES
 MAX_SUBREQUESTS = "50"      # Cloudflare 免费版一次执行的对外请求上限。查询与发通知共用这一份
 
 # 建库：npx wrangler d1 create ktmb-watch
