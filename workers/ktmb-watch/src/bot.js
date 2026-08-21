@@ -533,6 +533,13 @@ async function handleAdmin(text, env, send, adminChatId) {
     }
     await db.addUser(env.DB, Number(a), b ?? null);
     await send(adminChatId, `加了 ${a}。用 /topup ${a} 5 给点数。`);
+    // 也通知本人 —— 他多半在被加之前就打过一次 /start 吃了闭门羹，
+    // 没人叫他，他不会再打第二次。
+    await send(
+      Number(a),
+      `✅ 你的号已经开通了。\n\n打 /start 开始盯车：选方向 → 选日期 → 勾班次。\n` +
+        `有位的那一刻我发讯息给你。`,
+    );
     return true;
   }
 
