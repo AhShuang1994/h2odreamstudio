@@ -106,12 +106,17 @@ export function detectReleases(trips, prevByTrain, baseline) {
 }
 
 /**
- * 进行中的 offer 该怎么结算。
- * 先看座位再看过期：位子没了就当他订走了，哪怕窗口还没到。
+ * 进行中的 offer 该怎么关掉。**这里只关 offer，不碰钱。**
+ *
+ * 位子没了只代表「有人订走了」，不代表是收到通知的那个人 ——
+ * 这条线每次只放 0–1 个位，那几分钟里全马来西亚都在抢。所以是 `gone`，
+ * 不是 `booked`。扣点只有一条路：他自己按「我订到了」。
+ *
+ * 还是要关掉，否则一个不回应的人会挡住整个队伍。
  */
 export function settleDecision(offer, currentSeats, baseline, nowIso) {
   if (currentSeats === undefined || currentSeats === null) return null;
-  if (currentSeats <= baseline) return "taken";
+  if (currentSeats <= baseline) return "gone";
   if (nowIso >= offer.expires_at) return "passed";
   return null;
 }
@@ -242,16 +247,8 @@ async function settlePending(env, deps, { direction, date, seatsNow, baseline })
     );
     if (!decision) continue;
 
+    // 只关 offer，不扣钱。扣点唯一的路是他自己按「我订到了」。
     await db.settleOffer(env.DB, offer.id, decision);
-
-    if (decision === "taken") {
-      await db.adjustPoints(env.DB, offer.chat_id, -1, "booked", offer.id);
-      await deps.send(
-        offer.chat_id,
-        `已扣 1 点：${ROUTES[direction].label} ${date} ${hhmm(offer.hour_minute)}\n\n` +
-          `如果这个位不是你订的，回 /appeal 我人工退给你。`,
-      );
-    }
   }
 }
 
@@ -291,7 +288,10 @@ async function offerToNext(env, deps, { direction, date, trip, route, windowMinu
       `${date} ${hhmm(trip.hourMinute)} ${trip.train}\n` +
       `座位数 ${trip.seats} · ${trip.fare}\n\n` +
       `https://online.ktmb.com.my/\n\n` +
-      `${windowMinutes} 分钟内没订，就传给排在你后面的人。\n` +
-      `订到会自动扣 1 点（#${offerId}）。`,
+      `${windowMinutes} 分钟内没动作，就传给排在你后面的人。\n` +
+      `订到了记得按下面那颗钮（#${offerId}）。`,
+    // 扣点只认这颗钮。系统不替他判断「位子没了 = 他订的」——
+    // 那 5 分钟里谁都可能抢走，猜错就是跟朋友要错钱。
+    { inline_keyboard: [[{ text: "✅ 我订到了", callback_data: `got:${offerId}` }]] },
   );
 }

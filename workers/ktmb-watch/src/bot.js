@@ -8,6 +8,7 @@
 import { searchTrips } from "./ktmb.js";
 import * as db from "./db.js";
 import { ROUTES, hhmm, nowInMY, liveTrains, hasDeparted } from "./watch.js";
+import { isPaid, inTrial, grantTrial, TRIAL_DAYS } from "./membership.js";
 
 const API = "https://api.telegram.org/bot";
 
@@ -371,6 +372,32 @@ async function handleCallback(cq, env, send, search, now) {
   if (data.startsWith("cx:")) {
     const ok = await db.cancelWatch(env.DB, chatId, Number(data.slice(3)));
     return send(chatId, ok ? "取消了。" : "找不到这条，可能已经取消过。");
+  }
+
+  // 「✅ 我订到了」—— 全系统唯一会扣钱的地方
+  if (data.startsWith("got:")) {
+    const offer = await db.claimOffer(env.DB, Number(data.slice(4)), chatId);
+    if (!offer) return send(chatId, "这个已经处理过了。");
+
+    // 订到了就别再盯这条 —— 一颗钮两件事，省得他还要自己去 /cancel
+    await db.cancelWatch(env.DB, chatId, offer.watch_id);
+
+    const user = await db.getUser(env.DB, chatId);
+    if (inTrial(user, new Date().toISOString())) {
+      return send(
+        chatId,
+        `记下了，这次不扣点 —— 你还在试用期。\n\n` +
+          `那条盯梢已经停掉了。试用完想继续的话，充值 RM5 换 5 点。`,
+      );
+    }
+
+    await db.adjustPoints(env.DB, chatId, -1, "booked", offer.id);
+    const left = (await db.getUser(env.DB, chatId)).points;
+    return send(
+      chatId,
+      `扣 1 点，余额 ${left}。那条盯梢也停掉了。\n\n` +
+        `按错了的话回 /appeal，我人工退给你。`,
+    );
   }
 }
 

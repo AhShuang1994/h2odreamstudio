@@ -154,7 +154,7 @@ test("同一班车已经有人在等，不会再发第二张", async () => {
   assert.equal(rows(db, "SELECT * FROM offers WHERE outcome IS NULL").length, 1);
 });
 
-test("通知后位子没了：算他订走，扣 1 点", async () => {
+test("通知后位子没了：offer 关掉，但一分钱都不扣", async () => {
   const db = dbWithBaseline(
     [{ chat_id: 111, points: 5 }],
     [{ chat_id: 111, direction: "KJ", date: DATE, trains: [1840] }],
@@ -167,16 +167,16 @@ test("通知后位子没了：算他订走，扣 1 点", async () => {
   });
   await runPoll(baseEnv(db), {
     send: tg.send,
-    search: fakeSearch({ [`${KJ}|${DATE}`]: [trip(1840, 4)] }), // 位子被订走了
+    search: fakeSearch({ [`${KJ}|${DATE}`]: [trip(1840, 4)] }), // 位子没了，但不知道是谁订的
   });
 
-  assert.equal(rows(db, "SELECT points FROM users WHERE chat_id=111")[0].points, 4);
-  assert.equal(rows(db, "SELECT * FROM offers")[0].outcome, "taken");
-
-  const led = rows(db, "SELECT * FROM ledger");
-  assert.equal(led.length, 1);
-  assert.equal(led[0].delta, -1);
-  assert.equal(led[0].reason, "booked");
+  assert.equal(
+    rows(db, "SELECT points FROM users WHERE chat_id=111")[0].points,
+    5,
+    "位子可能是群外的人抢走的，扣他的点就是跟朋友要错钱",
+  );
+  assert.equal(rows(db, "SELECT * FROM offers")[0].outcome, "gone");
+  assert.equal(rows(db, "SELECT * FROM ledger").length, 0, "没有流水，因为没动钱");
 });
 
 test("broadcast 模式：全部通知，不建 offer、不扣点", async () => {

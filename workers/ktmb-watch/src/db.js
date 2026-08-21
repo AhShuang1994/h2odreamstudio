@@ -287,6 +287,26 @@ export async function createOffer(db, o, windowMinutes) {
   return r.id;
 }
 
+/**
+ * 认领一个还没结案的 offer。**扣点唯一的入口。**
+ *
+ * 条件里的 `chat_id = ?` 挡住「按别人的 offer」，`outcome IS NULL` 挡住重复按 ——
+ * 两个都靠 SQL 的原子性，不靠先读再写（那会有竞态）。
+ *
+ * @returns 认领成功的那笔 offer；已经结案或不是他的就回 null
+ */
+export async function claimOffer(db, offerId, chatId) {
+  const r = await db
+    .prepare(
+      `UPDATE offers SET outcome = 'booked'
+       WHERE id = ? AND chat_id = ? AND outcome IS NULL
+       RETURNING *`,
+    )
+    .bind(offerId, chatId)
+    .first();
+  return r ?? null;
+}
+
 export async function settleOffer(db, offerId, outcome) {
   await db
     .prepare("UPDATE offers SET outcome = ? WHERE id = ?")
@@ -299,7 +319,7 @@ export function lastTakenOffer(db, chatId) {
   return db
     .prepare(
       `SELECT * FROM offers
-       WHERE chat_id = ? AND outcome = 'taken'
+       WHERE chat_id = ? AND outcome = 'booked'
        ORDER BY offered_at DESC LIMIT 1`,
     )
     .bind(chatId)
