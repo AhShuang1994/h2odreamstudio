@@ -56,23 +56,40 @@ const directionKeyboard = () => [
   [{ text: "回程 " + ROUTES.JK.label, callback_data: "dir:JK" }],
 ];
 
-const dateKeyboard = () => [
+// 按钮都带上自己的方向与日期。Telegram 里旧讯息的按钮永远点得下去，
+// 不带的话，翻上去点旧勾勾会把班次塞进当前这条草稿 —— 盯上一班那天根本不开的车。
+const dateKeyboard = (dir) => [
   ...upcomingSundays(nowInMY(), 4).map((d) => [
-    { text: `礼拜日 ${d}`, callback_data: `date:${d}` },
+    { text: `礼拜日 ${d}`, callback_data: `date:${dir}:${d}` },
   ]),
-  [{ text: "其他日期…", callback_data: "date:other" }],
+  [{ text: "其他日期…", callback_data: `date:${dir}:other` }],
 ];
 
-function trainKeyboard(trips, selected) {
+function trainKeyboard(dir, date, trips, selected) {
   return [
     ...trips.map((t) => [
       {
         text: `${selected.includes(t.hourMinute) ? "✅" : "▫️"} ${hhmm(t.hourMinute)} ${t.train}`,
-        callback_data: `tr:${t.hourMinute}`,
+        callback_data: `tr:${dir}:${date}:${t.hourMinute}`,
       },
     ]),
-    [{ text: "确定，开始盯", callback_data: "done" }],
+    [{ text: "确定，开始盯", callback_data: `done:${dir}:${date}` }],
   ];
+}
+
+const STALE = "这是旧的选单了。打 /start 重新开始。";
+
+/**
+ * 这个按钮是不是属于用户当前那条草稿。
+ * 对不上就是翻旧讯息点的 —— 照做会把班次塞错日期。
+ */
+export const draftMatches = (draft, dir, date) =>
+  Boolean(draft) && draft.direction === dir && draft.date === date;
+
+/** `tr:KJ:2026-08-23:1840` → { dir, date, hm } */
+export function parseTrainCallback(data) {
+  const [dir, date, hm] = data.slice(3).split(":");
+  return { dir, date, hm: Number(hm) };
 }
 
 /* ---------- 入口 ---------- */
@@ -158,64 +175,52 @@ async function handleCallback(cq, env, send) {
   if (!user) return send(chatId, "你还不在名单上。");
 
   if (data.startsWith("dir:")) {
-    await db.saveDraft(env.DB, chatId, {
-      direction: data.slice(4),
-      date: null,
-      trains: [],
-    });
-    return send(chatId, "哪一天？", dateKeyboard());
-  }
-
-  if (data === "date:other") {
-    const draft = await db.getDraft(env.DB, chatId);
-    await db.saveDraft(env.DB, chatId, {
-      direction: draft?.direction,
-      date: "AWAIT",
-      trains: [],
-    });
-    return send(chatId, "打一个日期给我，格式 2026-08-16");
+    const dir = data.slice(4);
+    if (!ROUTES[dir]) return send(chatId, STALE);
+    await db.saveDraft(env.DB, chatId, { direction: dir, date: null, trains: [] });
+    return send(chatId, "哪一天？", dateKeyboard(dir));
   }
 
   if (data.startsWith("date:")) {
-    const draft = await db.getDraft(env.DB, chatId);
-    const date = data.slice(5);
-    await db.saveDraft(env.DB, chatId, {
-      direction: draft?.direction,
-      date,
-      trains: [],
-    });
-    return showTrains(chatId, draft?.direction, date, [], env, send);
+    const [dir, date] = data.slice(5).split(":");
+    if (!ROUTES[dir]) return send(chatId, STALE);
+
+    if (date === "other") {
+      await db.saveDraft(env.DB, chatId, {
+        direction: dir,
+        date: "AWAIT",
+        trains: [],
+      });
+      return send(chatId, "打一个日期给我，格式 2026-08-16");
+    }
+    await db.saveDraft(env.DB, chatId, { direction: dir, date, trains: [] });
+    return showTrains(chatId, dir, date, [], env, send);
   }
 
   if (data.startsWith("tr:")) {
+    const { dir, date, hm } = parseTrainCallback(data);
     const draft = await db.getDraft(env.DB, chatId);
-    if (!draft?.direction || !draft?.date) return send(chatId, "打 /start 重新开始。");
-    const hm = Number(data.slice(3));
+    if (!draftMatches(draft, dir, date)) return send(chatId, STALE);
     const selected = JSON.parse(draft.trains);
     const next = selected.includes(hm)
       ? selected.filter((x) => x !== hm)
       : [...selected, hm].sort((a, b) => a - b);
-    await db.saveDraft(env.DB, chatId, {
-      direction: draft.direction,
-      date: draft.date,
-      trains: next,
-    });
-    return showTrains(chatId, draft.direction, draft.date, next, env, send);
+    await db.saveDraft(env.DB, chatId, { direction: dir, date, trains: next });
+    return showTrains(chatId, dir, date, next, env, send);
   }
 
-  if (data === "done") {
+  if (data.startsWith("done:")) {
+    const [dir, date] = data.slice(5).split(":");
     const draft = await db.getDraft(env.DB, chatId);
-    const selected = draft ? JSON.parse(draft.trains) : [];
-    if (!draft?.direction || !draft?.date || selected.length === 0) {
-      return send(chatId, "还没选班次。");
-    }
-    await db.createWatch(env.DB, chatId, draft.direction, draft.date, selected);
+    if (!draftMatches(draft, dir, date)) return send(chatId, STALE);
+    const selected = JSON.parse(draft.trains);
+    if (selected.length === 0) return send(chatId, "还没勾班次。");
+
+    await db.createWatch(env.DB, chatId, dir, date, selected);
     await db.clearDraft(env.DB, chatId);
-    const label = ROUTES[draft.direction].label;
-    const list = selected.map(hhmm).join("、");
     return send(
       chatId,
-      `盯上了：${label}\n${draft.date} ${list}\n\n` +
+      `盯上了：${ROUTES[dir].label}\n${date} ${selected.map(hhmm).join("、")}\n\n` +
         `有位我会通知你。余额 ${(await db.getUser(env.DB, chatId)).points} 点。\n` +
         `打 /my 看排队位置。`,
     );
@@ -252,7 +257,7 @@ async function showTrains(chatId, direction, date, selected, env, send) {
     `${route.label} ${date}\n\n${lines.join("\n")}\n\n` +
       `勾要盯的班次（可多选）：\n` +
       `注：剩 ${baseline} 个以内是 OKU 保留位，一般人买不到，算没位。`,
-    trainKeyboard(trips, selected),
+    trainKeyboard(direction, date, trips, selected),
   );
 }
 
