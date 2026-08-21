@@ -7,7 +7,7 @@
 
 import { searchTrips } from "./ktmb.js";
 import * as db from "./db.js";
-import { ROUTES, hhmm, nowInMY, todayInMY, liveTrains } from "./watch.js";
+import { ROUTES, hhmm, nowInMY, liveTrains, hasDeparted } from "./watch.js";
 
 const API = "https://api.telegram.org/bot";
 
@@ -84,6 +84,18 @@ export function upcomingSundays(from, n) {
 
 const isIsoDate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s));
 
+const isoOf = (d) => d.toISOString().slice(0, 10);
+
+/**
+ * 手动输入日期的可选范围。
+ * 一条线路吃掉 MAX_ROUTES 里的一格，所以不能让人打个明年的日期占一整年。
+ */
+export function dateWindow(now, daysAhead) {
+  const last = new Date(now);
+  last.setUTCDate(last.getUTCDate() + daysAhead);
+  return { first: isoOf(now), last: isoOf(last) };
+}
+
 /* ---------- 菜单渲染 ---------- */
 
 const directionKeyboard = () => [
@@ -93,12 +105,17 @@ const directionKeyboard = () => [
 
 // 按钮都带上自己的方向与日期。Telegram 里旧讯息的按钮永远点得下去，
 // 不带的话，翻上去点旧勾勾会把班次塞进当前这条草稿 —— 盯上一班那天根本不开的车。
-const dateKeyboard = (dir) => [
-  ...upcomingSundays(nowInMY(), 4).map((d) => [
-    { text: `礼拜日 ${d}`, callback_data: `date:${dir}:${d}` },
-  ]),
-  [{ text: "其他日期…", callback_data: `date:${dir}:other` }],
-];
+// 按钮列的礼拜日也要卡在同一个窗口内 —— 手打限四星期、按钮却能选更远，
+// 是最容易被人绕过去的那种不一致。
+const dateKeyboard = (dir, now, daysAhead) => {
+  const { last } = dateWindow(now, daysAhead);
+  return [
+    ...upcomingSundays(now, 4)
+      .filter((d) => d <= last)
+      .map((d) => [{ text: `礼拜日 ${d}`, callback_data: `date:${dir}:${d}` }]),
+    [{ text: "其他日期…", callback_data: `date:${dir}:other` }],
+  ];
+};
 
 function trainKeyboard(dir, date, trips, selected) {
   return [
@@ -179,18 +196,18 @@ async function handleMessage(msg, env, send, search, now) {
     case "/my":
       return showMine(chatId, env, send, now);
     case "/cancel":
-      return startCancel(chatId, env, send);
+      return startCancel(chatId, env, send, now);
     case "/appeal":
       return appeal(chatId, env, send);
     case "/stats":
       return showStats(chatId, env, send, now);
     default:
-      return maybeCustomDate(chatId, text, env, send, search);
+      return maybeCustomDate(chatId, text, env, send, search, now);
   }
 }
 
 /** 用户按了「其他日期」之后打进来的那一句 */
-async function maybeCustomDate(chatId, text, env, send, search) {
+async function maybeCustomDate(chatId, text, env, send, search, now) {
   const draft = await db.getDraft(env.DB, chatId);
   if (draft?.date !== "AWAIT") {
     return send(chatId, "不认得这句。打 /start 重新开始。");
@@ -198,15 +215,25 @@ async function maybeCustomDate(chatId, text, env, send, search) {
   if (!isIsoDate(text)) {
     return send(chatId, "日期格式要像这样：2026-08-16");
   }
-  if (text < todayInMY()) {
+
+  const { first, last } = dateWindow(now, Number(env.MAX_DAYS_AHEAD ?? 28));
+  if (text < first) {
     return send(chatId, "这天已经过了。");
   }
+  if (text > last) {
+    return send(
+      chatId,
+      `太远了。最远只能到 ${last}（四个星期内）。\n\n` +
+        `再远的日期 KTMB 通常也还没开卖，而且会一直占着盯梢的额度。`,
+    );
+  }
+
   await db.saveDraft(env.DB, chatId, {
     direction: draft.direction,
     date: text,
     trains: [],
   });
-  return showTrains(chatId, draft.direction, text, [], env, send, search);
+  return showTrains(chatId, draft.direction, text, [], env, send, search, now);
 }
 
 /* ---------- 按钮 ---------- */
@@ -221,7 +248,7 @@ async function handleCallback(cq, env, send, search, now) {
     const dir = data.slice(4);
     if (!ROUTES[dir]) return send(chatId, STALE);
     await db.saveDraft(env.DB, chatId, { direction: dir, date: null, trains: [] });
-    return send(chatId, "哪一天？", dateKeyboard(dir));
+    return send(chatId, "哪一天？", dateKeyboard(dir, now, Number(env.MAX_DAYS_AHEAD ?? 28)));
   }
 
   if (data.startsWith("date:")) {
@@ -234,10 +261,21 @@ async function handleCallback(cq, env, send, search, now) {
         date: "AWAIT",
         trains: [],
       });
-      return send(chatId, "打一个日期给我，格式 2026-08-16");
+      const { first, last } = dateWindow(now, Number(env.MAX_DAYS_AHEAD ?? 28));
+      return send(
+        chatId,
+        `打一个日期给我，格式像 2026-08-16。\n\n可选范围：${first} 到 ${last}`,
+      );
     }
+    // 按钮已经卡过范围了，但旧讯息的按钮永远点得下去，所以这里再挡一次
+    const win = dateWindow(now, Number(env.MAX_DAYS_AHEAD ?? 28));
+    if (date < win.first) return send(chatId, "这天已经过了。");
+    if (date > win.last) {
+      return send(chatId, `太远了。最远只能到 ${win.last}（四个星期内）。`);
+    }
+
     await db.saveDraft(env.DB, chatId, { direction: dir, date, trains: [] });
-    return showTrains(chatId, dir, date, [], env, send, search);
+    return showTrains(chatId, dir, date, [], env, send, search, now);
   }
 
   if (data.startsWith("tr:")) {
@@ -249,7 +287,7 @@ async function handleCallback(cq, env, send, search, now) {
       ? selected.filter((x) => x !== hm)
       : [...selected, hm].sort((a, b) => a - b);
     await db.saveDraft(env.DB, chatId, { direction: dir, date, trains: next });
-    return showTrains(chatId, dir, date, next, env, send, search);
+    return showTrains(chatId, dir, date, next, env, send, search, now);
   }
 
   if (data.startsWith("done:")) {
@@ -316,18 +354,27 @@ async function handleCallback(cq, env, send, search, now) {
 }
 
 /** 拉当天班次给用户勾 */
-async function showTrains(chatId, direction, date, selected, env, send, search) {
+async function showTrains(chatId, direction, date, selected, env, send, search, now) {
   const route = ROUTES[direction];
   if (!route) return send(chatId, "打 /start 重新开始。");
 
-  let trips;
+  let fetched;
   try {
-    trips = await search({ from: route.from, to: route.to, date });
+    fetched = await search({ from: route.from, to: route.to, date });
   } catch (err) {
     return send(chatId, `查不到 ${date} 的班次：${err.message}`);
   }
-  if (trips.length === 0) {
+  if (fetched.length === 0) {
     return send(chatId, `${date} 这天没有班次。换一天试试，打 /start。`);
+  }
+
+  // 选今天的话，已经开走的别给他勾 —— 勾了也是建一条下一轮就被关掉的死盯梢
+  const trips = fetched.filter((t) => !hasDeparted(date, t.hourMinute, now));
+  if (trips.length === 0) {
+    return send(
+      chatId,
+      `${date} 的车都开走了，没有还没开的班次。\n换一天试试，打 /start。`,
+    );
   }
 
   const baseline = Number(env.OKU_BASELINE ?? 4);
@@ -380,8 +427,8 @@ async function showMine(chatId, env, send, now) {
   return send(chatId, parts.join("\n\n"));
 }
 
-async function startCancel(chatId, env, send) {
-  const watches = await db.listWatches(env.DB, chatId, todayInMY());
+async function startCancel(chatId, env, send, now) {
+  const watches = await db.listWatches(env.DB, chatId, now.toISOString().slice(0, 10));
   if (watches.length === 0) return send(chatId, "没有在盯的班次。");
   return send(
     chatId,

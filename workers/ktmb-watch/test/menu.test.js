@@ -12,7 +12,8 @@ import { handleUpdate } from "../src/bot.js";
 import { freshDb, seed, rows, recorder, fakeSearch, trip } from "./helpers/d1.js";
 
 const KJ = "KLUANG>JB SENTRAL";
-const DATE = "2999-01-04";
+const DATE = "2026-09-06"; // 固定「现在」的 16 天后，礼拜日，落在四星期窗口内
+const NOW = () => new Date("2026-08-21T08:00Z"); // 马来西亚时间
 
 const env = (DB) => ({ DB, OKU_BASELINE: "4", TELEGRAM_BOT_TOKEN: "fake" });
 
@@ -27,7 +28,7 @@ function ctx(users = [{ chat_id: 111, points: 5 }]) {
   const db = freshDb();
   seed(db, { users });
   const tg = recorder();
-  return { db, tg, deps: { send: tg.send, search: fakeSearch(trains) } };
+  return { db, tg, deps: { send: tg.send, search: fakeSearch(trains), now: NOW } };
 }
 
 test("不在名单上的人只拿到自己的 ID，进不了菜单", async () => {
@@ -132,7 +133,7 @@ test("/my 不列已经过期的盯梢", async () => {
     ],
   });
   const tg = recorder();
-  await handleUpdate(msg(111, "/my"), env(db), { send: tg.send, search: fakeSearch(trains) });
+  await handleUpdate(msg(111, "/my"), env(db), { send: tg.send, search: fakeSearch(trains), now: NOW });
 
   const out = tg.sent.at(-1).text;
   assert.doesNotMatch(out, /2020-01-01/, "过期的不该再占版面");
