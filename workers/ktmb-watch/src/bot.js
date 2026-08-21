@@ -7,7 +7,7 @@
 
 import { searchTrips } from "./ktmb.js";
 import * as db from "./db.js";
-import { ROUTES, hhmm, nowInMY, todayInMY } from "./watch.js";
+import { ROUTES, hhmm, nowInMY, todayInMY, liveTrains } from "./watch.js";
 
 const API = "https://api.telegram.org/bot";
 
@@ -136,6 +136,7 @@ export function parseTrainCallback(data) {
 export async function handleUpdate(update, env, deps = {}) {
   const send = deps.send ?? sender(env.TELEGRAM_BOT_TOKEN);
   const search = deps.search ?? searchTrips;
+  const now = deps.now ? deps.now() : nowInMY();
 
   if (update.callback_query) {
     if (!deps.send) {
@@ -143,16 +144,16 @@ export async function handleUpdate(update, env, deps = {}) {
         callback_query_id: update.callback_query.id,
       });
     }
-    return handleCallback(update.callback_query, env, send, search);
+    return handleCallback(update.callback_query, env, send, search, now);
   }
   if (update.message?.text) {
-    return handleMessage(update.message, env, send, search);
+    return handleMessage(update.message, env, send, search, now);
   }
 }
 
 /* ---------- 文字讯息 ---------- */
 
-async function handleMessage(msg, env, send, search) {
+async function handleMessage(msg, env, send, search, now) {
   const chatId = msg.chat.id;
   const text = msg.text.trim();
   const user = await db.getUser(env.DB, chatId);
@@ -176,13 +177,13 @@ async function handleMessage(msg, env, send, search) {
       await db.clearDraft(env.DB, chatId);
       return send(chatId, "要盯哪个方向？", directionKeyboard());
     case "/my":
-      return showMine(chatId, env, send);
+      return showMine(chatId, env, send, now);
     case "/cancel":
       return startCancel(chatId, env, send);
     case "/appeal":
       return appeal(chatId, env, send);
     case "/stats":
-      return showStats(chatId, env, send);
+      return showStats(chatId, env, send, now);
     default:
       return maybeCustomDate(chatId, text, env, send, search);
   }
@@ -210,7 +211,7 @@ async function maybeCustomDate(chatId, text, env, send, search) {
 
 /* ---------- 按钮 ---------- */
 
-async function handleCallback(cq, env, send, search) {
+async function handleCallback(cq, env, send, search, now) {
   const chatId = cq.message.chat.id;
   const data = cq.data;
   const user = await db.getUser(env.DB, chatId);
@@ -345,10 +346,15 @@ async function showTrains(chatId, direction, date, selected, env, send, search) 
 
 /* ---------- 查询类指令 ---------- */
 
-async function showMine(chatId, env, send) {
+async function showMine(chatId, env, send, now) {
   const user = await db.getUser(env.DB, chatId);
-  const watches = await db.listWatches(env.DB, chatId, todayInMY());
   const mode = await db.getMode(env.DB);
+  const all = await db.listWatches(env.DB, chatId, now.toISOString().slice(0, 10));
+
+  // 车开走了还列出来只会让人困惑，整条都开走的就整条不显示
+  const watches = all
+    .map((w) => ({ ...w, live: liveTrains(w.date, JSON.parse(w.trains), now) }))
+    .filter((w) => w.live.length > 0);
 
   if (watches.length === 0) {
     return send(chatId, `余额 ${user.points} 点。\n还没盯任何班次，打 /start。`);
@@ -356,9 +362,8 @@ async function showMine(chatId, env, send) {
 
   const parts = [`余额 ${user.points} 点 · 目前是 ${mode === "queue" ? "轮流制" : "同时通知"}`];
   for (const w of watches) {
-    const trains = JSON.parse(w.trains);
     const rows = [];
-    for (const hm of trains) {
+    for (const hm of w.live) {
       if (mode === "queue") {
         const p = await db.queuePosition(env.DB, chatId, w.direction, w.date, hm);
         rows.push(`  ${hhmm(hm)} — 排第 ${p?.position ?? "?"} / ${p?.total ?? "?"}`);
@@ -412,7 +417,7 @@ async function appeal(chatId, env, send) {
   }
 }
 
-async function showStats(chatId, env, send) {
+async function showStats(chatId, env, send, now) {
   const baseline = Number(env.OKU_BASELINE ?? 4);
   const since = new Date(Date.now() - 30 * 86400_000).toISOString();
   const parts = ["最近 30 天，每班车真的放出过几次位："];
@@ -426,6 +431,16 @@ async function showStats(chatId, env, send) {
           : "  还没有记录"),
     );
   }
+  // 容量是运营者要盯的第二个数字：满了就有人收不到通知
+  const max = Number(env.MAX_ROUTES ?? 12);
+  const active = await db.activeRoutes(env.DB, now.toISOString().slice(0, 10));
+  parts.push(
+    `\n目前在跑的线路：${active.length} / ${max}` +
+      (active.length >= max
+        ? "\n⚠️ 已经满了，最远的那几条会被漏跑。"
+        : `（还能再加 ${max - active.length} 个不同日期）`),
+  );
+
   parts.push("\n这个数字决定这门服务值不值得付钱。数据太少就再等等。");
   return send(chatId, parts.join("\n"));
 }

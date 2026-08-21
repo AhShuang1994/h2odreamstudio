@@ -126,6 +126,25 @@ export async function activeRoutes(db, today) {
   return results;
 }
 
+/** 这条线路上，所有还 active 的 watch（要看班次有没有开走，所以整条拿回来）。 */
+export async function watchesOnRoute(db, direction, date) {
+  const { results } = await db
+    .prepare(
+      `SELECT id, chat_id, trains FROM watches
+       WHERE active = 1 AND direction = ? AND date = ?`,
+    )
+    .bind(direction, date)
+    .all();
+  return results;
+}
+
+export async function deactivateWatches(db, ids) {
+  if (ids.length === 0) return;
+  await db.batch(
+    ids.map((id) => db.prepare("UPDATE watches SET active = 0 WHERE id = ?").bind(id)),
+  );
+}
+
 /** 某班次上，所有登记了的人（含点数与上次拿到通知的时间）。 */
 export async function watchersOf(db, direction, date, hourMinute) {
   const { results } = await db
