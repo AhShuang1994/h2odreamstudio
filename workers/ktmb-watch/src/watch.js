@@ -81,6 +81,20 @@ export function budgetFor(maxSubrequests, maxRoutes, perRoute) {
 }
 
 /**
+ * 只留下数字跟上一次不一样的班次。
+ *
+ * 座位数一整天不动，每 5 分钟照写一次的话大半是重复的
+ * （实测线上 504 行里只有 33 行真的有变动）。D1 免费版一天 10 万行写入，
+ * 这一条就是能同时盯几条线路的天花板。
+ *
+ * 没有上一次的（prev 是 null）一定要写 —— 没有基准就无从判断有没有放位。
+ * 少写不影响判定：lastSeats 读的是最后一行，而最后一行永远等于当下的值。
+ */
+export function changedOnly(trips, prevByTrain) {
+  return trips.filter((t) => prevByTrain.get(t.hourMinute) !== t.seats);
+}
+
+/**
  * 有票事件：上一次 <= 基线、这一次 > 基线，才算真的放出位子。
  * 第一次观察（prev 为 null）不算 —— 没有基准，无法判断是不是刚放的。
  */
@@ -166,18 +180,19 @@ export async function runPoll(env, deps) {
       continue;
     }
 
-    // seat_log 照记全部班次（试跑期的数据），但只有还没开走的才参与判定
+    // seat_log 全部班次都记（试跑期的数据），但只有还没开走的才参与判定
     const trips = fetched.filter((t) => !hasDeparted(date, t.hourMinute, now));
     const seatsNow = new Map(trips.map((t) => [t.hourMinute, t.seats]));
 
-    // 上一次的值必须在写入新记录之前读，否则读到的就是自己刚写的
+    // 上一次的值必须在写入新记录之前读，否则读到的就是自己刚写的。
+    // 全部班次都读，不只没开走的 —— 下面要靠它挑出哪几行值得写。
     const prev = new Map();
-    for (const t of trips) {
+    for (const t of fetched) {
       prev.set(t.hourMinute, await db.lastSeats(env.DB, direction, date, t.hourMinute));
     }
 
     await settlePending(env, budgeted, { direction, date, seatsNow, baseline });
-    await db.logSeats(env.DB, direction, date, fetched);
+    await db.logSeats(env.DB, direction, date, changedOnly(fetched, prev));
 
     const releases = detectReleases(trips, prev, baseline);
     for (const r of releases) {
