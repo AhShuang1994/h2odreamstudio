@@ -87,6 +87,45 @@ test("连跑三轮 4→4→6：中间不写，但该通知的还是通知", asyn
   assert.match(tg.sent[0].text, /轮到你了/);
 });
 
+/* ---------- 价钱搭便车 ---------- */
+
+test("写下来的那一行带着当时的价钱", async () => {
+  const { db, tg } = ctx(4);
+  await poll(db, tg, 6);
+
+  assert.equal(logRows(db).at(-1).fare, "MYR 27.00");
+});
+
+test("只有价钱变、座位没变：还是不写", async () => {
+  const db = freshDb();
+  seed(db, {
+    users: [{ chat_id: 111, points: 5 }],
+    watches: [{ chat_id: 111, direction: "KJ", date: DATE, trains: [1840] }],
+    seatLog: [
+      {
+        direction: "KJ",
+        date: DATE,
+        hour_minute: 1840,
+        seats: 4,
+        seen_at: "2020-01-01T00:00:00.000Z",
+      },
+    ],
+  });
+  const tg = recorder();
+  await runPoll(env(db), {
+    send: tg.send,
+    search: fakeSearch({
+      [`${KJ}|${DATE}`]: [{ ...trip(1840, 4), fare: "MYR 99.00" }],
+    }),
+  });
+
+  assert.equal(
+    logRows(db).length,
+    1,
+    "价钱天天在动，跟着写的话就白省了 —— 判定看的是座位数",
+  );
+});
+
 test("掉回去也算变动，要写", async () => {
   const { db, tg } = ctx(6);
   await poll(db, tg, 4);

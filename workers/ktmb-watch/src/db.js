@@ -357,10 +357,10 @@ export async function logSeats(db, direction, date, trips) {
     trips.map((x) =>
       db
         .prepare(
-          `INSERT INTO seat_log (direction, date, hour_minute, seats, seen_at)
-           VALUES (?, ?, ?, ?, ?)`,
+          `INSERT INTO seat_log (direction, date, hour_minute, seats, fare, seen_at)
+           VALUES (?, ?, ?, ?, ?, ?)`,
         )
-        .bind(direction, date, x.hourMinute, x.seats, t),
+        .bind(direction, date, x.hourMinute, x.seats, x.fare ?? null, t),
     ),
   );
 }
