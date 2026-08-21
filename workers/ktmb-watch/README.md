@@ -115,11 +115,14 @@ cd workers/ktmb-watch && npx wrangler d1 migrations apply ktmb-watch --remote
 cd workers/ktmb-watch && npx wrangler secret put TELEGRAM_BOT_TOKEN
 ```
 
-`TELEGRAM_WEBHOOK_SECRET` 自己编一串（下一步要用同一串）：
+`TELEGRAM_WEBHOOK_SECRET` 自己编一串：
 
 ```bash
 cd workers/ktmb-watch && npx wrangler secret put TELEGRAM_WEBHOOK_SECRET
 ```
+
+⚠️ 这串**只能用英文字母、数字、`_`、`-`**。空格或其他符号，Telegram 会回
+`secret token contains unallowed characters`。
 
 ### 4. 上线
 
@@ -129,11 +132,17 @@ cd workers/ktmb-watch && npm run deploy
 
 ### 5. 把 webhook 指过来
 
-用上面那两串换掉 `<TOKEN>`、`<SECRET>`，和你的 Worker 网址：
+打开 Worker 的 `/setup`，它会拿自己 env 里那两串密钥去 Telegram 登记，
+你不用再手贴 token：
 
 ```bash
-curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook" -d "url=https://ktmb-watch.<你的子域>.workers.dev/webhook" -d "secret_token=<SECRET>"
+curl -s https://ktmb-watch.<你的子域>.workers.dev/setup
 ```
+
+看到 `{"ok":true,...}` 就成了。
+
+回 `Failed to resolve host` 的话，是 `workers.dev` 子域名刚建、DNS 还没传开 ——
+等几分钟再打一次。
 
 ### 6. 把自己设成管理员
 
