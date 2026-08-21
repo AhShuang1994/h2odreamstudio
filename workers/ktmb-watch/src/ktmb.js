@@ -145,9 +145,11 @@ export function parseTrips(html) {
 /**
  * @param {{ from: string, to: string, date: string, pax?: number }} q
  *        date 用 ISO：2026-08-16
+ * @param {{ fetchImpl?: typeof fetch }} [deps] 测试时替掉 fetch，不打真站
  * @returns {Promise<Array<{train,depart,arrive,duration,seats,fare,hourMinute}>>}
  */
-export async function searchTrips({ from, to, date, pax = 1 }) {
+export async function searchTrips({ from, to, date, pax = 1 }, deps = {}) {
+  const fetch = deps.fetchImpl ?? globalThis.fetch;
   const jar = new Map();
   const headers = () => ({
     "User-Agent": UA,

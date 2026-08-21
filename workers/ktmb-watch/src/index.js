@@ -2,7 +2,7 @@
  * 入口：cron 触发轮询，webhook 接 Telegram。
  */
 
-import { handleUpdate, sender } from "./bot.js";
+import { handleUpdate, registerCommands, sender } from "./bot.js";
 import { runPoll } from "./watch.js";
 
 export default {
@@ -21,6 +21,11 @@ export default {
     // 省得人去终端贴 token —— 贴错或贴漏才是真风险。
     // 公开也无所谓：它只会把 webhook 指回自己，重复调用结果一样。
     if (url.pathname === "/setup") {
+      const { results } = await env.DB.prepare(
+        "SELECT chat_id FROM users WHERE is_admin = 1",
+      ).all();
+      await registerCommands(env, results.map((r) => r.chat_id));
+
       const res = await fetch(
         `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/setWebhook`,
         {

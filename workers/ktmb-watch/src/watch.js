@@ -53,11 +53,15 @@ export function settleDecision(offer, currentSeats, baseline, nowIso) {
 /* ---------- 编排 ---------- */
 
 /**
- * 跑一轮。deps 注入 send，方便测试时替换掉真的 Telegram。
+ * 跑一轮。
  * @param {{DB: D1Database, OKU_BASELINE?: string, OFFER_WINDOW_MINUTES?: string}} env
- * @param {{send: (chatId: number, text: string) => Promise<void>}} deps
+ * @param {{
+ *   send: (chatId: number, text: string) => Promise<void>,
+ *   search?: typeof searchTrips,
+ * }} deps 测试时把 send 与 search 换成假的，不打真站、不发真讯息
  */
 export async function runPoll(env, deps) {
+  const search = deps.search ?? searchTrips;
   const baseline = Number(env.OKU_BASELINE ?? 4);
   const windowMinutes = Number(env.OFFER_WINDOW_MINUTES ?? 3);
   const mode = await db.getMode(env.DB);
@@ -69,7 +73,7 @@ export async function runPoll(env, deps) {
 
     let trips;
     try {
-      trips = await searchTrips({ from: route.from, to: route.to, date });
+      trips = await search({ from: route.from, to: route.to, date });
     } catch (err) {
       console.error(`查询失败 ${direction} ${date}: ${err.message}`);
       continue;

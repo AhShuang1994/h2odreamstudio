@@ -33,6 +33,41 @@ export const sender = (token) => (chatId, text, keyboard) =>
     ...(keyboard ? { reply_markup: { inline_keyboard: keyboard } } : {}),
   });
 
+/* ---------- 指令菜单 ---------- */
+
+/** 输入框旁边那个 Menu 键里列的东西，用户不用自己打字 */
+export const USER_COMMANDS = [
+  { command: "start", description: "开始盯一班车" },
+  { command: "my", description: "我盯了什么、剩几点、排第几" },
+  { command: "stats", description: "这条线最近真的放过几次位" },
+  { command: "cancel", description: "取消一条盯梢" },
+  { command: "appeal", description: "申诉刚才那次扣点" },
+];
+
+/** 管理员多这几个。用 scope 挂在个人身上，别人看不到 */
+export const ADMIN_COMMANDS = [
+  ...USER_COMMANDS,
+  { command: "adduser", description: "加人进白名单" },
+  { command: "topup", description: "收到钱后加点数" },
+  { command: "refund", description: "退点数" },
+  { command: "mode", description: "切轮流制 / 同时通知" },
+];
+
+/** 把指令菜单推给 Telegram。部署后打一次 /setup 就好 */
+export async function registerCommands(env, adminChatIds) {
+  const token = env.TELEGRAM_BOT_TOKEN;
+  await call(token, "setMyCommands", {
+    commands: USER_COMMANDS,
+    scope: { type: "default" },
+  });
+  for (const chatId of adminChatIds) {
+    await call(token, "setMyCommands", {
+      commands: ADMIN_COMMANDS,
+      scope: { type: "chat", chat_id: chatId },
+    });
+  }
+}
+
 /* ---------- 日期工具 ---------- */
 
 /** 未来 n 个礼拜日（含今天，如果今天就是） */
@@ -94,23 +129,30 @@ export function parseTrainCallback(data) {
 
 /* ---------- 入口 ---------- */
 
-export async function handleUpdate(update, env) {
-  const send = sender(env.TELEGRAM_BOT_TOKEN);
+/**
+ * @param {{send?: Function, search?: Function}} [deps]
+ *        测试时换成假的，不发真讯息、不打真 KTMB
+ */
+export async function handleUpdate(update, env, deps = {}) {
+  const send = deps.send ?? sender(env.TELEGRAM_BOT_TOKEN);
+  const search = deps.search ?? searchTrips;
 
   if (update.callback_query) {
-    await call(env.TELEGRAM_BOT_TOKEN, "answerCallbackQuery", {
-      callback_query_id: update.callback_query.id,
-    });
-    return handleCallback(update.callback_query, env, send);
+    if (!deps.send) {
+      await call(env.TELEGRAM_BOT_TOKEN, "answerCallbackQuery", {
+        callback_query_id: update.callback_query.id,
+      });
+    }
+    return handleCallback(update.callback_query, env, send, search);
   }
   if (update.message?.text) {
-    return handleMessage(update.message, env, send);
+    return handleMessage(update.message, env, send, search);
   }
 }
 
 /* ---------- 文字讯息 ---------- */
 
-async function handleMessage(msg, env, send) {
+async function handleMessage(msg, env, send, search) {
   const chatId = msg.chat.id;
   const text = msg.text.trim();
   const user = await db.getUser(env.DB, chatId);
@@ -142,12 +184,12 @@ async function handleMessage(msg, env, send) {
     case "/stats":
       return showStats(chatId, env, send);
     default:
-      return maybeCustomDate(chatId, text, env, send);
+      return maybeCustomDate(chatId, text, env, send, search);
   }
 }
 
 /** 用户按了「其他日期」之后打进来的那一句 */
-async function maybeCustomDate(chatId, text, env, send) {
+async function maybeCustomDate(chatId, text, env, send, search) {
   const draft = await db.getDraft(env.DB, chatId);
   if (draft?.date !== "AWAIT") {
     return send(chatId, "不认得这句。打 /start 重新开始。");
@@ -163,12 +205,12 @@ async function maybeCustomDate(chatId, text, env, send) {
     date: text,
     trains: [],
   });
-  return showTrains(chatId, draft.direction, text, [], env, send);
+  return showTrains(chatId, draft.direction, text, [], env, send, search);
 }
 
 /* ---------- 按钮 ---------- */
 
-async function handleCallback(cq, env, send) {
+async function handleCallback(cq, env, send, search) {
   const chatId = cq.message.chat.id;
   const data = cq.data;
   const user = await db.getUser(env.DB, chatId);
@@ -194,7 +236,7 @@ async function handleCallback(cq, env, send) {
       return send(chatId, "打一个日期给我，格式 2026-08-16");
     }
     await db.saveDraft(env.DB, chatId, { direction: dir, date, trains: [] });
-    return showTrains(chatId, dir, date, [], env, send);
+    return showTrains(chatId, dir, date, [], env, send, search);
   }
 
   if (data.startsWith("tr:")) {
@@ -206,7 +248,7 @@ async function handleCallback(cq, env, send) {
       ? selected.filter((x) => x !== hm)
       : [...selected, hm].sort((a, b) => a - b);
     await db.saveDraft(env.DB, chatId, { direction: dir, date, trains: next });
-    return showTrains(chatId, dir, date, next, env, send);
+    return showTrains(chatId, dir, date, next, env, send, search);
   }
 
   if (data.startsWith("done:")) {
@@ -233,13 +275,13 @@ async function handleCallback(cq, env, send) {
 }
 
 /** 拉当天班次给用户勾 */
-async function showTrains(chatId, direction, date, selected, env, send) {
+async function showTrains(chatId, direction, date, selected, env, send, search) {
   const route = ROUTES[direction];
   if (!route) return send(chatId, "打 /start 重新开始。");
 
   let trips;
   try {
-    trips = await searchTrips({ from: route.from, to: route.to, date });
+    trips = await search({ from: route.from, to: route.to, date });
   } catch (err) {
     return send(chatId, `查不到 ${date} 的班次：${err.message}`);
   }
