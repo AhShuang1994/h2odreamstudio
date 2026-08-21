@@ -172,7 +172,7 @@ export async function deactivateWatches(db, ids) {
 export async function watchersOf(db, direction, date, hourMinute) {
   const { results } = await db
     .prepare(
-      `SELECT w.id AS watch_id, w.chat_id, w.trains, u.points,
+      `SELECT w.id AS watch_id, w.chat_id, w.trains, u.points, u.trial_until,
               (SELECT MAX(offered_at) FROM offers o WHERE o.chat_id = w.chat_id)
                 AS last_offered_at
        FROM watches w
@@ -194,6 +194,89 @@ export function dedupeByUser(watchers) {
     if (!seen.has(w.chat_id)) seen.set(w.chat_id, w);
   }
   return [...seen.values()];
+}
+
+/* ---------- listings（挂票告示板） ---------- */
+
+export function getListingDraft(db, chatId) {
+  return db
+    .prepare("SELECT * FROM listing_drafts WHERE chat_id = ?")
+    .bind(chatId)
+    .first();
+}
+
+/** 部分更新：只覆盖有给的字段，没给的保持原样 */
+export async function saveListingDraft(db, chatId, patch) {
+  const old = (await getListingDraft(db, chatId)) ?? {};
+  const v = (k) => (k in patch ? patch[k] : (old[k] ?? null));
+  await db
+    .prepare(
+      `INSERT INTO listing_drafts
+         (chat_id, direction, date, hour_minute, qty, gender, fare, trips, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(chat_id) DO UPDATE SET
+         direction = excluded.direction, date = excluded.date,
+         hour_minute = excluded.hour_minute, qty = excluded.qty,
+         gender = excluded.gender, fare = excluded.fare,
+         trips = excluded.trips, updated_at = excluded.updated_at`,
+    )
+    .bind(
+      chatId,
+      v("direction"),
+      v("date"),
+      v("hour_minute"),
+      v("qty"),
+      v("gender"),
+      v("fare"),
+      v("trips"),
+      now(),
+    )
+    .run();
+}
+
+export async function clearListingDraft(db, chatId) {
+  await db.prepare("DELETE FROM listing_drafts WHERE chat_id = ?").bind(chatId).run();
+}
+
+export async function createListing(db, chatId, l) {
+  const r = await db
+    .prepare(
+      `INSERT INTO listings
+         (chat_id, direction, date, hour_minute, qty, fare, gender, active, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?) RETURNING id`,
+    )
+    .bind(chatId, l.direction, l.date, l.hour_minute, l.qty, l.fare, l.gender, now())
+    .first();
+  return r.id;
+}
+
+/**
+ * 还挂着的票。日期过了的不算 —— 车开走的票留在板上只会浪费大家时间。
+ * 同一天里哪几班已经开走，由呼叫端用 hasDeparted 再滤一次。
+ */
+export async function openListings(db, today) {
+  const { results } = await db
+    .prepare(
+      `SELECT * FROM listings
+       WHERE active = 1 AND date >= ?
+       ORDER BY date, hour_minute, id`,
+    )
+    .bind(today)
+    .all();
+  return results;
+}
+
+export function getListing(db, id) {
+  return db.prepare("SELECT * FROM listings WHERE id = ?").bind(id).first();
+}
+
+/** 卖掉了。只有挂的人本人下得了架。 */
+export async function closeListing(db, id, chatId) {
+  const r = await db
+    .prepare("UPDATE listings SET active = 0 WHERE id = ? AND chat_id = ?")
+    .bind(id, chatId)
+    .run();
+  return r.meta.changes > 0;
 }
 
 /* ---------- seat_log ---------- */

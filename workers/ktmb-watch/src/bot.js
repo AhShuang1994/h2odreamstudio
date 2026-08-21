@@ -118,6 +118,42 @@ const dateKeyboard = (dir, now, daysAhead) => {
   ];
 };
 
+/* ----- 挂票的菜单。callback 一律 s: 开头，跟盯梢那套分开 ----- */
+
+const shareDirectionKeyboard = () => [
+  [{ text: "去程 " + ROUTES.KJ.label, callback_data: "s:dir:KJ" }],
+  [{ text: "回程 " + ROUTES.JK.label, callback_data: "s:dir:JK" }],
+];
+
+const shareDateKeyboard = (dir, now, daysAhead) => {
+  const { last } = dateWindow(now, daysAhead);
+  return upcomingSundays(now, 4)
+    .filter((d) => d <= last)
+    .map((d) => [{ text: `礼拜日 ${d}`, callback_data: `s:date:${dir}:${d}` }]);
+};
+
+// 挂票只挑一班，不像盯梢可以多选
+const shareTrainKeyboard = (dir, date, trips) =>
+  trips.map((t) => [
+    {
+      text: `${hhmm(t.hourMinute)} ${t.train}`,
+      callback_data: `s:tr:${dir}:${date}:${t.hourMinute}`,
+    },
+  ]);
+
+const qtyKeyboard = () => [
+  [1, 2, 3, 4].map((n) => ({ text: `${n} 张`, callback_data: `s:qty:${n}` })),
+];
+
+// 买家是顶着票上那个人的身份上车，男女对不上被查的风险差很多，
+// 所以他在答应之前得知道。名字与证件号一律不存。
+const genderKeyboard = () => [
+  [
+    { text: "票上是男生", callback_data: "s:g:M" },
+    { text: "票上是女生", callback_data: "s:g:F" },
+  ],
+];
+
 function trainKeyboard(dir, date, trips, selected) {
   return [
     ...trips.map((t) => [
@@ -198,6 +234,11 @@ async function handleMessage(msg, env, send, search, now) {
       return showMine(chatId, env, send, now);
     case "/cancel":
       return startCancel(chatId, env, send, now);
+    case "/share":
+      await db.clearListingDraft(env.DB, chatId);
+      return send(chatId, "你那张票是哪个方向？", shareDirectionKeyboard());
+    case "/list":
+      return showListings(chatId, env, send, now);
     case "/appeal":
       return appeal(chatId, env, send);
     case "/stats":
@@ -374,6 +415,86 @@ async function handleCallback(cq, env, send, search, now) {
     return send(chatId, ok ? "取消了。" : "找不到这条，可能已经取消过。");
   }
 
+  // ----- 挂票 -----
+
+  if (data.startsWith("s:dir:")) {
+    await db.saveListingDraft(env.DB, chatId, {
+      direction: data.slice(6),
+      date: null,
+      hour_minute: null,
+      qty: null,
+      gender: null,
+      fare: null,
+      trips: null,
+    });
+    return send(
+      chatId,
+      "哪一天？",
+      shareDateKeyboard(data.slice(6), now, Number(env.MAX_DAYS_AHEAD ?? 28)),
+    );
+  }
+
+  if (data.startsWith("s:date:")) {
+    const [dir, date] = data.slice(7).split(":");
+    const route = ROUTES[dir];
+    if (!route) return send(chatId, STALE);
+
+    let trips;
+    try {
+      trips = await search({ from: route.from, to: route.to, date });
+    } catch (err) {
+      return send(chatId, `查不到 ${date} 的班次：${err.message}`);
+    }
+    const live = trips.filter((t) => !hasDeparted(date, t.hourMinute, now));
+    if (live.length === 0) return send(chatId, `${date} 这天没有还没开走的班次。`);
+
+    await db.saveListingDraft(env.DB, chatId, {
+      direction: dir,
+      date,
+      trips: JSON.stringify(live),
+    });
+    return send(chatId, "哪一班？", shareTrainKeyboard(dir, date, live));
+  }
+
+  if (data.startsWith("s:tr:")) {
+    const [dir, date, hm] = data.slice(5).split(":");
+    const draft = await db.getListingDraft(env.DB, chatId);
+    if (!draft || draft.direction !== dir || draft.date !== date) {
+      return send(chatId, STALE);
+    }
+    // 票价从缓存里那班车抓，不让他自己填 —— 全程不用打字，
+    // 而且「不能加价」这条规矩才有个能对照的锚。
+    const trips = draft.trips ? JSON.parse(draft.trips) : [];
+    const t = trips.find((x) => x.hourMinute === Number(hm));
+    await db.saveListingDraft(env.DB, chatId, {
+      hour_minute: Number(hm),
+      fare: t?.fare ?? null,
+    });
+    return send(chatId, "有几张？", qtyKeyboard());
+  }
+
+  if (data.startsWith("s:qty:")) {
+    const draft = await db.getListingDraft(env.DB, chatId);
+    if (!draft?.hour_minute) return send(chatId, STALE);
+    await db.saveListingDraft(env.DB, chatId, { qty: Number(data.slice(6)) });
+    return send(chatId, "票上那个人是男是女？\n（买的人要顶着这个身份上车）", genderKeyboard());
+  }
+
+  if (data.startsWith("s:g:")) {
+    const draft = await db.getListingDraft(env.DB, chatId);
+    if (!draft?.qty) return send(chatId, STALE);
+    return finishListing(chatId, { ...draft, gender: data.slice(4) }, env, send, now);
+  }
+
+  if (data.startsWith("want:")) {
+    return wantListing(chatId, Number(data.slice(5)), env, send);
+  }
+
+  if (data.startsWith("sold:")) {
+    const ok = await db.closeListing(env.DB, Number(data.slice(5)), chatId);
+    return send(chatId, ok ? "下架了。" : "找不到这张，可能已经下架过。");
+  }
+
   // 「✅ 我订到了」—— 全系统唯一会扣钱的地方
   if (data.startsWith("got:")) {
     const offer = await db.claimOffer(env.DB, Number(data.slice(4)), chatId);
@@ -399,6 +520,134 @@ async function handleCallback(cq, env, send, search, now) {
         `按错了的话回 /appeal，我人工退给你。`,
     );
   }
+}
+
+/* ---------- 挂票 ---------- */
+
+const GENDER = { M: "男生", F: "女生" };
+
+const listingLine = (l) =>
+  `${ROUTES[l.direction]?.label ?? l.direction}\n` +
+  `${l.date} ${hhmm(l.hour_minute)} · ${l.qty} 张 · 票上是${GENDER[l.gender] ?? "?"}` +
+  (l.fare ? `\n原价 ${l.fare}` : "");
+
+/** 挂上去、送试用、推给在盯那班车的付费会员 */
+async function finishListing(chatId, draft, env, send, now) {
+  const id = await db.createListing(env.DB, chatId, {
+    direction: draft.direction,
+    date: draft.date,
+    hour_minute: draft.hour_minute,
+    qty: draft.qty,
+    fare: draft.fare,
+    gender: draft.gender,
+  });
+  await db.clearListingDraft(env.DB, chatId);
+
+  const listing = { ...draft, id };
+  const watchers = await pushListing(chatId, listing, env, send, now);
+
+  // 第一次挂票送 30 天试用，一辈子一次。这是转化工具不是供货工具 ——
+  // 挂票的人本来就有 RM7-27 的动机（退票拿不回全额），不靠这个才肯挂。
+  const trial = await grantTrial(env.DB, chatId, now.toISOString(), TRIAL_DAYS);
+
+  const parts = [
+    `挂上去了 👍\n\n${listingLine(listing)}`,
+    watchers > 0
+      ? `已经通知 ${watchers} 个在盯这班车的人。`
+      : `目前没人在盯这班车。有人打 /list 就看得到。`,
+    `卖掉了记得按一下下面那颗钮，别让人白问。`,
+  ];
+  if (trial) {
+    parts.push(
+      `\n🎁 第一次挂票，送你 30 天试用（到 ${trial.slice(0, 10)}）。\n` +
+        `试用期内跟付费会员一样：能盯车、有位马上通知你，抢到也不扣点。`,
+    );
+  }
+
+  return send(chatId, parts.join("\n\n"), {
+    inline_keyboard: [[{ text: "✅ 卖掉了", callback_data: `sold:${id}` }]],
+  });
+}
+
+/**
+ * 推给正在盯这班车的**付费会员**。免费会员收不到 —— 推送就是付费买的东西。
+ *
+ * 发讯息也吃 Cloudflare 那 50 个对外请求，所以数着发。人多到发不完时
+ * 宁可少发几条，也不能整次执行炸掉。
+ */
+async function pushListing(sellerId, l, env, send, now) {
+  const watchers = await db.watchersOf(env.DB, l.direction, l.date, l.hour_minute);
+  const targets = watchers.filter(
+    (w) => w.chat_id !== sellerId && isPaid(w, now.toISOString()),
+  );
+
+  let budget = Number(env.MAX_SUBREQUESTS ?? 50) - 5;
+  let sent = 0;
+  for (const w of targets) {
+    if (budget <= 0) {
+      console.error(`请求额度用完，${w.chat_id} 这次没收到挂票通知`);
+      break;
+    }
+    budget -= 1;
+    sent += 1;
+    await send(
+      w.chat_id,
+      `🎫 有人挂了一张你在盯的票\n\n${listingLine(l)}\n\n` +
+        `要的话按下面，我帮你转告卖家。`,
+      { inline_keyboard: [[{ text: "我要这张", callback_data: `want:${l.id}` }]] },
+    );
+  }
+  return sent;
+}
+
+/** bot 当门铃：转告卖家，不把双方的联络方式丢出来 */
+async function wantListing(chatId, listingId, env, send) {
+  const l = await db.getListing(env.DB, listingId);
+  if (!l || !l.active) return send(chatId, "这张已经不在了。");
+  if (l.chat_id === chatId) return send(chatId, "这是你自己挂的。");
+
+  const me = await db.getUser(env.DB, chatId);
+  await send(
+    l.chat_id,
+    `🙋 有人要你那张票\n\n${listingLine(l)}\n\n` +
+      `想要的是：${me?.name ?? chatId}\n` +
+      `你主动私讯他谈就好。谈成了按「卖掉了」下架。`,
+    { inline_keyboard: [[{ text: "✅ 卖掉了", callback_data: `sold:${l.id}` }]] },
+  );
+  return send(chatId, `已经帮你转告卖家了，等他私讯你。\n\n${listingLine(l)}`);
+}
+
+/** /list —— 免费会员唯一看得到挂票的地方 */
+async function showListings(chatId, env, send, now) {
+  const today = now.toISOString().slice(0, 10);
+  const all = await db.openListings(env.DB, today);
+  const live = all.filter((l) => !hasDeparted(l.date, l.hour_minute, now));
+
+  if (live.length === 0) {
+    return send(
+      chatId,
+      "目前没有人挂票。\n\n手上有用不到的票的话，打 /share 挂上来。",
+    );
+  }
+
+  return send(
+    chatId,
+    `目前挂着 ${live.length} 张：`,
+    undefined,
+  ).then(async () => {
+    for (const l of live) {
+      const mine = l.chat_id === chatId;
+      await send(chatId, listingLine(l), {
+        inline_keyboard: [
+          [
+            mine
+              ? { text: "✅ 卖掉了", callback_data: `sold:${l.id}` }
+              : { text: "我要这张", callback_data: `want:${l.id}` },
+          ],
+        ],
+      });
+    }
+  });
 }
 
 /** 拉当天班次给用户勾 */
