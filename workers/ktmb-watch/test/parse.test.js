@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { parseTrips, toKtmbDate } from "../src/ktmb.js";
-import { nextWeekday } from "../src/index.js";
+import { upcomingSundays } from "../src/bot.js";
 
 // 从 /Trip/Trip 真实响应里截的两行：一行有票，一行卖完（class="disabled"）。
 const FIXTURE = `
@@ -51,11 +51,15 @@ test("toKtmbDate 转成表单要的格式", () => {
   assert.equal(toKtmbDate("2026-01-05"), "5 Jan 2026");
 });
 
-test("nextWeekday 找下一个礼拜日", () => {
+test("upcomingSundays 列出接下来几个礼拜日", () => {
   // 2026-08-15 是礼拜六
-  assert.equal(nextWeekday(new Date("2026-08-15T12:00:00Z"), 0), "2026-08-16");
-  // 当天就是礼拜日的话，返回当天
-  assert.equal(nextWeekday(new Date("2026-08-16T12:00:00Z"), 0), "2026-08-16");
+  assert.deepEqual(upcomingSundays(new Date("2026-08-15T12:00:00Z"), 3), [
+    "2026-08-16",
+    "2026-08-23",
+    "2026-08-30",
+  ]);
+  // 当天就是礼拜日的话，从当天开始算
+  assert.equal(upcomingSundays(new Date("2026-08-16T12:00:00Z"), 1)[0], "2026-08-16");
   // 礼拜一要等六天
-  assert.equal(nextWeekday(new Date("2026-08-17T12:00:00Z"), 0), "2026-08-23");
+  assert.equal(upcomingSundays(new Date("2026-08-17T12:00:00Z"), 1)[0], "2026-08-23");
 });

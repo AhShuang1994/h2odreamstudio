@@ -1,22 +1,24 @@
 name = "ktmb-watch"
 main = "src/index.js"
 compatibility_date = "2026-08-15"
+compatibility_flags = ["nodejs_compat"]
 
-# 每 20 分钟查一次。KTMB 是别人的站，别调更密。
+# 每 5 分钟查一次。要抢的可能只有 1 个位，20 分钟太慢。
+# KTMB 是别人的站，别再调密。
 [triggers]
-crons = ["*/20 * * * *"]
+crons = ["*/5 * * * *"]
 
 [vars]
-ROUTE_FROM = "KLUANG"
-ROUTE_TO = "JB SENTRAL"
-WATCH_WEEKDAY = "0"   # 0 = 礼拜日
-WATCH_AFTER = "1600"  # 只看 16:00 之后开的车
-PAX = "1"
+OKU_BASELINE = "4"          # 剩这个数以内视为 OKU 保留位，算没票
+OFFER_WINDOW_MINUTES = "3"  # queue 模式下，通知给一个人后等多久传给下一位
 
-# 存上一次的查询结果，用来判断「有没有变化」。
-# id 要换成 `wrangler kv namespace create STATE` 输出的那一串。
-[[kv_namespaces]]
-binding = "STATE"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+# 建库：npx wrangler d1 create ktmb-watch
+# 把输出的 database_id 贴到下面，再跑 migration（--local 和 --remote 各一次）
+[[d1_databases]]
+binding = "DB"
+database_name = "ktmb-watch"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
 
-# TELEGRAM_BOT_TOKEN 与 TELEGRAM_CHAT_ID 用 `wrangler secret put` 设，别写进这个文件。
+# 用 `wrangler secret put` 设，别写进这个文件：
+#   TELEGRAM_BOT_TOKEN       @BotFather 给的
+#   TELEGRAM_WEBHOOK_SECRET  自己随便编一串，设 webhook 时要用同一串
