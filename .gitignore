@@ -15,3 +15,6 @@ assets/blog/*.png
 
 # Raw PNG sources for demo mockup photos (converted to .webp; keep local, do not commit)
 assets/demos/**/*.png
+
+# Raw PNG output from scripts/gen-image.js (convert to .webp via dewatermark.js)
+assets/gen/*.png
