@@ -4,8 +4,10 @@
  *
  * Talks straight to generativelanguage.googleapis.com, so it runs anywhere that
  * has network + a key: your laptop, CI, or a Claude Code cloud session. Output is
- * a PNG carrying Gemini's corner watermark — pipe it through dewatermark.js to
- * strip that and convert to WebP.
+ * a full-size PNG; pipe it through dewatermark.js to resize and convert to WebP
+ * before using it on the site. Recent Gemini output no longer carries the visible
+ * corner watermark, and that step passes clean images through untouched, so it is
+ * now mainly a resize/convert pass.
  *
  * Auth: set GEMINI_API_KEY (or GOOGLE_API_KEY) in the environment. Never pass the
  * key on the command line — it lands in your shell history and in `ps` output.
@@ -26,7 +28,8 @@
  *   node scripts/gen-image.js "minimal blog cover, dark, abstract" --n 3 --out assets/blog/cover.png
  *   node scripts/gen-image.js "make the sky warmer" --ref assets/blog/cover.png
  *
- * Then: node scripts/dewatermark.js assets/gen/*.png --width 1440
+ * Then resize + convert for the site:
+ *   node scripts/dewatermark.js assets/gen/*.png --width 1440
  */
 const fs = require('fs');
 const path = require('path');
@@ -143,7 +146,7 @@ async function generate(index) {
       catch (e) { console.error(`  ✗ variant ${i + 1}: ${e.message}`); }
     }
     if (!ok) process.exit(1);                        // nothing produced => fail the build
-    console.log('\nNext: node scripts/dewatermark.js <files> --width 1440');
+    console.log('\nNext (resize + WebP): node scripts/dewatermark.js <files> --width 1440');
   } catch (e) {
     console.error(`✗ ${e.message}`);
     process.exit(1);
