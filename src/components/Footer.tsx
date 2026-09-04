@@ -93,12 +93,16 @@ export function Footer({ lang }: { lang: Lang }) {
         <div className="mt-12 flex flex-col gap-3 border-t border-hairline pt-6 text-xs text-ink-subtle sm:flex-row sm:justify-between">
           <span>© {new Date().getFullYear()} H2ODreamer Studio · Johor, Malaysia</span>
           <div className="flex gap-5">
-            <Link href="/privacy" className="hover:text-ink-muted">
+            {/* 原生 <a>，不是 next/link —— /privacy 与 /terms 是 public/ 下手写的
+                静态页，不是 Next 路由。用 <Link> 的话它会去预取 /privacy.txt 与
+                /terms.txt 这两份不存在的 RSC 载荷，每开一个页面白挨两个 404。
+                地址本身一个字没动。这两页迁进 Next 之后可以换回 <Link>。 */}
+            <a href="/privacy" className="hover:text-ink-muted">
               {t({ cn: "隐私政策", en: "Privacy" }, lang)}
-            </Link>
-            <Link href="/terms" className="hover:text-ink-muted">
+            </a>
+            <a href="/terms" className="hover:text-ink-muted">
               {t({ cn: "条款", en: "Terms" }, lang)}
-            </Link>
+            </a>
             {/* SIL OFL 第 2 条：随字体分发必须附带许可证全文并可被取得。
                 两份都要列 —— 思源黑体版权方是 Adobe，宋体是 Google。
                 见 docs/adr/0004-noto-cjk-self-hosted-subset.md。 */}
