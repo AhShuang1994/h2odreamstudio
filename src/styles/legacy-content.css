@@ -13,14 +13,20 @@
  * layout 里 import 的 CSS 排在其下 page 的 CSS 之前，所以 `globals.css` 永远在
  * 这份之前。React 的 `<link precedence>` 提升给不了这个保证。
  *
- * 实测过的冲突面（详见迁移计划 §3.2）：
+ * ⚠️ **必须进 `layer(legacy)`** —— 未分层的 CSS 会整体压过任何分层的 CSS，
+ * 跟优先级无关。第一版没分层，`style.css` 里的 `* { margin:0; padding:0 }` 把
+ * Nav 与 Footer 上所有 Tailwind 的 padding / max-width 都吃掉了，导航栏贴到了
+ * 屏幕左边缘。层的顺序在 `src/app/globals.css` 顶部声明，`legacy` 排在
+ * `utilities` 之前。
+ *
+ * 实测过的冲突面：
  * · CSS 变量 27 vs 15，**只有 `--color-accent` 同名，两边都是 #7c82f0**
  * · 类选择器零碰撞 —— Next 的 Nav/Footer/Shell 只发 Tailwind 工具类
  * · 元素选择器只有 5 条会漏出去，其中只有 scroll-padding-top 要纠回来
  */
-@import "../../public/css/style.css";
-@import "../../public/css/article.css";
-@import "../../public/css/case-study.css";
+@import "../../public/css/style.css" layer(legacy);
+@import "../../public/css/article.css" layer(legacy);
+@import "../../public/css/case-study.css" layer(legacy);
 
 /* style.css 的 html 规则写的是 84px，globals.css 是 80px。锚点偏移全站要一致，
    否则从核心页跳进内容页的同一个锚点会差 4px。 */

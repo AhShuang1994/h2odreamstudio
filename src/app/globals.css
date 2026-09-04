@@ -1,3 +1,16 @@
+/* 层叠层的顺序 —— **必须在 @import "tailwindcss" 之前声明**，因为顺序由第一次
+   出现决定。
+
+   `legacy` 装的是内容页正文那套老样式表（src/styles/legacy-content.css）。它要
+   排在 Tailwind 的 `utilities` **之前**：
+
+   未分层的 CSS 会整体压过任何分层的 CSS，**跟优先级无关**。老样式表里那句
+   `* { margin: 0; padding: 0 }` 如果不分层，就会把 Nav / Footer 上所有 Tailwind
+   的 padding、margin、max-width 全部吃掉 —— 导航栏会贴到屏幕左边缘。
+   放进 `legacy` 层之后：它仍然压得过 Tailwind 的 preflight（base 在它之前），
+   但压不过工具类（utilities 在它之后）。这正是要的分工。 */
+@layer theme, base, components, legacy, utilities;
+
 @import "tailwindcss";
 
 /* ── 中文字体 ────────────────────────────────────────────────────────────
