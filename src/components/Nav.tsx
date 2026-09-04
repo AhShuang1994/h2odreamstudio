@@ -1,43 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { localize, t, type Lang } from "@/lib/i18n";
 import { LangToggle } from "./LangToggle";
 import { nav } from "@/content/site";
-
-/**
- * 静态目录索引（`/blog/`）不是 Next 路由 —— 它的规范地址**带**尾斜杠，
- * sitemap 与 canonical 都是那个形态。`<Link>` 在 `trailingSlash: false` 下会把
- * 尾斜杠规范掉，点一下多一次跳转，也跟内容页的导航对不上。
- *
- * trailingSlash 不能改（ADR-0003），所以这类地址走原生 `<a>` ——
- * 与首页作品区链到 `/case-studies/` 的写法一致。
- */
-function NavLink({
-  href,
-  className,
-  onClick,
-  children,
-}: {
-  href: string;
-  className: string;
-  onClick?: () => void;
-  children: ReactNode;
-}) {
-  if (href !== "/" && href.endsWith("/")) {
-    return (
-      <a href={href} className={className} onClick={onClick}>
-        {children}
-      </a>
-    );
-  }
-  return (
-    <Link href={href} className={className} onClick={onClick}>
-      {children}
-    </Link>
-  );
-}
+import { SiteLink } from "./SiteLink";
 
 export function Nav({ lang }: { lang: Lang }) {
   const [scrolled, setScrolled] = useState(false);
@@ -103,13 +71,13 @@ export function Nav({ lang }: { lang: Lang }) {
             </div>
 
             {nav.links.map((l) => (
-              <NavLink
+              <SiteLink
                 key={l.href}
                 href={localize(l.href, lang)}
                 className="text-sm text-ink-muted transition-colors hover:text-ink"
               >
                 {t(l.label, lang)}
-              </NavLink>
+              </SiteLink>
             ))}
 
             <LangToggle lang={lang} className="text-sm" />
@@ -140,14 +108,14 @@ export function Nav({ lang }: { lang: Lang }) {
                 </Link>
               ))}
               {nav.links.map((l) => (
-                <NavLink
+                <SiteLink
                   key={l.href}
                   href={localize(l.href, lang)}
                   onClick={() => setOpen(false)}
                   className="py-2 text-ink-muted"
                 >
                   {t(l.label, lang)}
-                </NavLink>
+                </SiteLink>
               ))}
               <LangToggle lang={lang} className="mt-2 self-start text-sm" />
             </div>

@@ -26,6 +26,7 @@ import { writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { headInline, bodyScripts } from "./lib/motion-tags.mjs";
 import { listDocs } from "../src/lib/content/doc.mjs";
+import { SECTIONS } from "../src/lib/content/manifest.mjs";
 import { collapse, visibleFaq, rewriteUrls } from "../src/lib/content/html.mjs";
 
 const OUT = join(process.cwd(), "public");
@@ -189,7 +190,14 @@ function render(doc, lang) {
 }
 
 function main() {
-  const docs = listDocs();
+  // 已经迁进 Next 路由的家族由 src/app/** 渲染，这里不再产出 —— 见 manifest.mjs。
+  // 陈旧产物由 scripts/clean-legacy-output.mjs 在本脚本之前清掉，否则会和路由撞车。
+  const owned = new Set(SECTIONS.filter((s) => s.nextOwned).map((s) => s.id));
+  const docs = listDocs().filter((d) => !owned.has(d.section));
+  if (docs.length === 0) {
+    console.log("split-content-lang: 所有家族都已迁进 Next 路由，这个脚本可以删了");
+    return;
+  }
   for (const doc of docs) {
     for (const [lang, outRel] of [
       ["en", doc.rel],

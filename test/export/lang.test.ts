@@ -83,19 +83,51 @@ describe("导出产物 · 双语路由", () => {
   const x = loadExport();
 
   it("核心页中英一一对应，没有孤儿", () => {
-    // Next 渲染出来的页面都引用 /_next/ 下的产物；手写静态页不会。
     // 404 中英各一份，但它们不是「核心页」—— 没有 canonical、不进 sitemap、
     // 不互相 hreflang 指认（见 #93），所以不参与这条配对。
-    const rendered = x.htmlPages.filter(
-      (p) =>
-        p !== "404.html" &&
-        !p.endsWith("/404.html") &&
-        x.read(p).includes("/_next/static"),
-    );
-    const expected = PAIRS.flatMap((p) => [p.en, p.zh]).sort();
+    const core = PAIRS.flatMap((p) => [p.en, p.zh]).sort();
+    for (const f of core) {
+      expect(x.has(f), `${f} 不见了 —— 每个英文核心页必须有 /zh 下的中文对偶`).toBe(true);
+      expect(x.read(f).includes("/_next/static"), `${f} 不是 Next 渲染的`).toBe(true);
+    }
+  });
+
+  /**
+   * 反过来守：**还没进 Next 的页面**是一份会越来越短的白名单。
+   *
+   * 原先这条写成「Next 渲染的页面恰好是这 8 个核心页」。内容页正在逐个家族迁进
+   * Next 路由，那种写法每迁一批就要改一次，而且改的是「期望值」——
+   * 等于每次都把断言往实际结果上凑，守不住任何东西。
+   *
+   * 倒过来列「谁还没迁」才守得住：迁完一个家族就从这份名单里划掉一批，
+   * 名单只能变短。某个页面**意外**掉出 Next（比如路由删了、被 public/ 下的陈旧
+   * 产物遮住），它会突然出现在这里，这条就红。
+   */
+  it("还没迁进 Next 的页面，恰好是白名单上那些", () => {
+    const notNext = x.htmlPages
+      .filter((p) => !p.startsWith("demos/") && !p.startsWith("app/"))
+      .filter((p) => !x.read(p).includes("/_next/static"))
+      .sort();
+
+    const expected = [
+      // 手写静态页，还没迁
+      "privacy.html",
+      "terms.html",
+      "xhs.html",
+      // 四个服务页 —— 一个地址塞两种语言，靠运行时 JS 切换。迁进 Next 时
+      // 会拆成中英各一条路由，那时从这里划掉。
+      "landing-page.html",
+      "shopify-migration.html",
+      "wedding-basic.html",
+      "wedding-premium.html",
+      // 案例拆解 —— 仍由 scripts/split-content-lang.mjs 产出
+      ...x.htmlPages.filter((p) => /^(zh\/)?case-studies\//.test(p)),
+    ].sort();
+
     expect(
-      rendered.sort(),
-      "核心页多了或少了一份 —— 每个英文页必须有 /zh 下的中文对偶，反之亦然",
+      notNext,
+      "这份名单只能变短。多出来的页面意外掉出了 Next —— " +
+        "多半是路由没建，或者被 public/ 下的陈旧产物遮住了（见 scripts/clean-legacy-output.mjs）",
     ).toEqual(expected);
   });
 

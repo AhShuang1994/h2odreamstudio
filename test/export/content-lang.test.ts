@@ -124,15 +124,27 @@ describe("导出产物 · 内容页语言拆分", () => {
         );
       });
 
-      /** 正文一字不改：原稿里每一段标注，都要逐字出现在对应语言的产物里。 */
+      /**
+       * 正文一字不改：原稿 `<main>` 里每一段标注，都要逐字出现在对应语言的产物里。
+       *
+       * ⚠️ **范围是 `<main>`，不是整份原稿。** 原稿是完整的独立 HTML 文档，自带
+       * 导航与页脚，那些也挂着双语标注。内容页迁进 Next 路由之后，导航与页脚改由
+       * `Nav.tsx` / `Footer.tsx` 渲染，与核心页共用一套文字 —— 那正是迁移买到的
+       * 东西，不是「弄丢了」。实测差异就两处：页脚的 Privacy Policy → Privacy、
+       * Terms of Service → Terms。
+       *
+       * 正文本身仍然一个字都不许动（#65），这条断言守的就是它。
+       */
       it("两份产物的正文与原稿逐字一致", () => {
         const source = readFileSync(join(SRC, rel), "utf8");
+        const main = source.slice(source.indexOf("<main"), source.lastIndexOf("</main>"));
+        expect(main.length, `${rel} 里找不到 <main> —— 正文边界没了`).toBeGreaterThan(0);
         for (const [attr, file] of [
           ["data-lang-en", p.en.file],
           ["data-lang-cn", p.zh.file],
         ] as const) {
           const rendered = plainText(x.read(file));
-          const missing = [...source.matchAll(new RegExp(`${attr}="([^"]*)"`, "g"))]
+          const missing = [...main.matchAll(new RegExp(`${attr}="([^"]*)"`, "g"))]
             .map((m) => plainText(m[1]))
             .filter((t) => t && !rendered.includes(t));
           expect(
@@ -175,11 +187,36 @@ describe("导出产物 · 内容页语言拆分", () => {
         }
       });
 
+      /**
+       * ⚠️ 断言写成**与渲染器无关**：找一个 href 恰为对偶地址、hrefLang 为另一语言
+       * 的 `<a>`，而不是找 `class="lang-toggle"`。
+       *
+       * 拆分脚本发的是手写的 `<a class="lang-toggle">`；迁进 Next 路由之后是
+       * `LangToggle.tsx` 渲染的 `<Link>`，带一串 Tailwind 类。两种都该通过 ——
+       * 这条守的是「切到同一篇的另一语言」，不是切换器长什么样。
+       *
+       * 地址必须**逐字等于 canonical**（索引页带尾斜杠、文章页带 .html），
+       * 不能是需要 Cloudflare 跳一次才到的形态。
+       */
       it("语言切换指向对应语言的同一篇，不是回首页", () => {
-        const toggle = (file: string) =>
-          x.read(file).match(/<a class="lang-toggle"[^>]*href="([^"]+)"/)?.[1];
-        expect(toggle(p.en.file)).toBe(p.zh.url.replace(/^https?:\/\/[^/]+/, ""));
-        expect(toggle(p.zh.file)).toBe(p.en.url.replace(/^https?:\/\/[^/]+/, ""));
+        const pointsTo = (file: string, target: string, hrefLang: string) => {
+          const want = target.replace(/^https?:\/\/[^/]+/, "");
+          return [...x.read(file).matchAll(/<a\b[^>]*>/g)].some((m) => {
+            const tag = m[0];
+            return (
+              tag.includes(`href="${want}"`) &&
+              new RegExp(`hreflang="${hrefLang}"`, "i").test(tag)
+            );
+          });
+        };
+        expect(
+          pointsTo(p.en.file, p.zh.url, "zh-CN"),
+          `${p.en.file} 里没有指向 ${p.zh.url} 的语言切换链接`,
+        ).toBe(true);
+        expect(
+          pointsTo(p.zh.file, p.en.url, "en"),
+          `${p.zh.file} 里没有指向 ${p.en.url} 的语言切换链接`,
+        ).toBe(true);
       });
 
       /**

@@ -1,0 +1,29 @@
+/**
+ * 内容页正文的样式 —— 老那套，原样复用。
+ *
+ * 正文 HTML 按 #65 冻结「一字不改」，它依赖的类（detail-hero、quick-answer、
+ * faq-item、section-title …）住在 `public/css/style.css` 与两份文章样式表里。
+ * 把它们移植到 Tailwind 变量上等于重实现 76KB，再人眼比对 44 页 × 2 语言 ——
+ * 迁网址的时候做这个，交换比不对。
+ *
+ * **是 import 不是复制**：`public/css/*.css` 仍是唯一源，也仍在公开地址上供
+ * `public/{privacy,terms,xhs}.html` 直接 link。
+ *
+ * 为什么用 import 而不是在组件里发 `<link>`：**层叠顺序确定**。Next 保证
+ * layout 里 import 的 CSS 排在其下 page 的 CSS 之前，所以 `globals.css` 永远在
+ * 这份之前。React 的 `<link precedence>` 提升给不了这个保证。
+ *
+ * 实测过的冲突面（详见迁移计划 §3.2）：
+ * · CSS 变量 27 vs 15，**只有 `--color-accent` 同名，两边都是 #7c82f0**
+ * · 类选择器零碰撞 —— Next 的 Nav/Footer/Shell 只发 Tailwind 工具类
+ * · 元素选择器只有 5 条会漏出去，其中只有 scroll-padding-top 要纠回来
+ */
+@import "../../public/css/style.css";
+@import "../../public/css/article.css";
+@import "../../public/css/case-study.css";
+
+/* style.css 的 html 规则写的是 84px，globals.css 是 80px。锚点偏移全站要一致，
+   否则从核心页跳进内容页的同一个锚点会差 4px。 */
+html {
+  scroll-padding-top: 80px;
+}

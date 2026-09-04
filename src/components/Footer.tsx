@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SiteLink } from "./SiteLink";
 import { localize, t, type Lang } from "@/lib/i18n";
 import { site, nav } from "@/content/site";
 
@@ -48,12 +49,13 @@ export function Footer({ lang }: { lang: Lang }) {
               <ul className="space-y-2">
                 {nav.links.map((l) => (
                   <li key={l.href}>
-                    <Link
+                    {/* 这一组含 /blog/ —— 尾斜杠地址不能走 next/link，见 SiteLink */}
+                    <SiteLink
                       href={localize(l.href, lang)}
                       className="text-sm text-ink-muted hover:text-ink"
                     >
                       {t(l.label, lang)}
-                    </Link>
+                    </SiteLink>
                   </li>
                 ))}
               </ul>

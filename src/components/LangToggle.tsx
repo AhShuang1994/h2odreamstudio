@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { otherLangHref, type Lang } from "@/lib/i18n";
+import { SiteLink } from "./SiteLink";
 
 /**
  * 语言切换 —— 跳到**当前页面**的另一语言版本，不是回首页（ADR-0002）。
@@ -13,10 +13,12 @@ import { otherLangHref, type Lang } from "@/lib/i18n";
  */
 export function LangToggle({ lang, className = "" }: { lang: Lang; className?: string }) {
   const pathname = usePathname();
+  // 走 SiteLink 而不是 next/link：内容页的对偶地址带尾斜杠（/zh/blog/）或
+  // 扩展名（/zh/blog/x.html），next/link 会把尾斜杠规范掉，切一次多跳一次。
   const href = otherLangHref(pathname, lang);
 
   return (
-    <Link
+    <SiteLink
       href={href}
       hrefLang={lang === "zh" ? "en" : "zh-CN"}
       onClick={() => {
@@ -30,6 +32,6 @@ export function LangToggle({ lang, className = "" }: { lang: Lang; className?: s
       <span className={lang === "zh" ? "text-ink" : "text-ink-subtle"}>中文</span>
       <span className="text-ink-subtle"> / </span>
       <span className={lang === "en" ? "text-ink" : "text-ink-subtle"}>EN</span>
-    </Link>
+    </SiteLink>
   );
 }
