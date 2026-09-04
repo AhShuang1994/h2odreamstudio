@@ -61,7 +61,8 @@ describe("导出产物 · 收录入口", () => {
 
     it("中英两个语言树都在", () => {
       const zh = locs.filter((u) => u === `${DOMAIN}/zh` || u.startsWith(`${DOMAIN}/zh/`));
-      expect(zh.length, "sitemap 里没有中文树").toBeGreaterThanOrEqual(22);
+      // 26 = 4 核心 + 18 内容 + 4 服务页（服务页迁进 Next 时才有了中文对偶版）
+      expect(zh.length, "sitemap 里没有中文树").toBeGreaterThanOrEqual(26);
       expect(locs.length - zh.length, "sitemap 里没有英文树").toBeGreaterThanOrEqual(28);
     });
 

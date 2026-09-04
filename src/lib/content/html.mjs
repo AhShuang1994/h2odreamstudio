@@ -200,35 +200,54 @@ export function attrOf(tagRaw, name) {
   return new RegExp(`\\s${name}="([^"]*)"`).exec(tagRaw)?.[1] ?? null;
 }
 
-/** 截到词边界，不切半个词。 */
-export function trim(text, max) {
+/** 截到词边界，不切半个词。中文没有词间空格，直接硬截。 */
+export function trim(text, max, lang = "en") {
   if (text.length <= max) return text;
   const cut = text.slice(0, max);
+  if (lang === "zh") return `${cut}…`;
   return `${cut.slice(0, cut.lastIndexOf(" "))}…`;
 }
 
-/** 英文 title 取 h1 的英文标注 —— 那是作者自己写的英文标题，不是新造的。 */
-export function englishTitle(source) {
+const LANG_ATTR = { en: "data-lang-en", zh: "data-lang-cn" };
+
+/**
+ * description 的长度门槛，按语言分开。
+ *
+ * 一个汉字顶好几个英文字母的信息量：60 个汉字在导语里已经算长，而 60 个英文
+ * 字母才一句话。搜索结果里的显示上限也差不多是这个比例（英文约 160、中文约 80）。
+ * 拿英文那套去卡中文，会把本来合格的导语全判成「太短」。
+ */
+const DESC_LIMITS = { en: { min: 60, max: 160 }, zh: { min: 30, max: 80 } };
+
+/**
+ * title 取 `<h1>` 上该语言的标注 —— 那是作者自己写的标题，不是新造的。
+ *
+ * 英文版一直这么取（原稿的 `<title>` 是中文）。服务页迁进 Next 之后中文版也走
+ * 这条：那四页历史上只有一个英文地址，`<title>` 与 description 从来只有英文，
+ * 但作者在 `<h1>` 上写过中文。
+ */
+export function titleFromH1(source, lang) {
   for (const tag of annotatedTags(source)) {
     if (tag.name !== "h1") continue;
-    const en = attrOf(tag.raw, "data-lang-en");
-    if (en) return `${textOf(decodeAttr(en))} · H2ODreamer Studio`;
+    const v = attrOf(tag.raw, LANG_ATTR[lang]);
+    if (v) return `${textOf(decodeAttr(v))} · H2ODreamer Studio`;
   }
-  throw new Error("找不到带英文标注的 <h1>");
+  throw new Error(`找不到带 ${LANG_ATTR[lang]} 标注的 <h1>`);
 }
 
 /**
- * 英文 description 取正文里第一段有实质长度的英文标注。
+ * description 取正文里第一段有实质长度的该语言标注。
  * 内容页的第一段是「快速答案」或导语，本来就是写给人一眼看懂的。
  */
-export function englishDescription(source) {
+export function descriptionFromBody(source, lang) {
+  const { min, max } = DESC_LIMITS[lang];
   const body = source.split("</head>")[1] ?? source;
   for (const tag of annotatedTags(body)) {
     if (tag.name !== "p") continue;
-    const en = attrOf(tag.raw, "data-lang-en");
-    if (!en) continue;
-    const text = textOf(decodeAttr(en));
-    if (text.length >= 60) return trim(text, 160);
+    const v = attrOf(tag.raw, LANG_ATTR[lang]);
+    if (!v) continue;
+    const text = textOf(decodeAttr(v));
+    if (text.length >= min) return trim(text, max, lang);
   }
-  throw new Error("找不到够长的英文段落做 description");
+  throw new Error(`找不到够长的 ${LANG_ATTR[lang]} 段落做 description（至少 ${min} 字）`);
 }

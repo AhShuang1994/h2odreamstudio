@@ -63,7 +63,9 @@ for (const file of htmlFiles(OUT)) {
 const GROUPS = [
   ["核心页 · 英文", (u) => /^\/(|about|contact|pricing)$/.test(u)],
   ["核心页 · 中文", (u) => /^\/zh(\/(about|contact|pricing))?$/.test(u)],
-  ["服务页（两种语言共用）", (u) => /^\/(landing-page|wedding-basic|wedding-premium|shopify-migration)$/.test(u)],
+  // 服务页迁进 Next 路由之后中英各有一个地址，不再共用一份（ADR-0002）
+  ["服务页 · 英文", (u) => /^\/(landing-page|wedding-basic|wedding-premium|shopify-migration)$/.test(u)],
+  ["服务页 · 中文", (u) => /^\/zh\/(landing-page|wedding-basic|wedding-premium|shopify-migration)$/.test(u)],
   ["Blog · 英文", (u) => u.startsWith("/blog/")],
   ["Blog · 中文", (u) => u.startsWith("/zh/blog/")],
   ["案例拆解 · 英文", (u) => u.startsWith("/case-studies/")],

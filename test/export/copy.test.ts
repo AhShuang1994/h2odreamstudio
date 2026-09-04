@@ -31,12 +31,14 @@ const CORE_PAGES = [
 ];
 
 /** 仍是手写 HTML 的服务页。价格在里面是硬编码的，只能靠断言看住（见文件末）。 */
-const SERVICE_PAGES = [
-  "landing-page.html",
-  "shopify-migration.html",
-  "wedding-basic.html",
-  "wedding-premium.html",
+/** 四个服务页，中英各一份 —— 迁进 Next 路由之后才有了中文对偶版（ADR-0002）。 */
+const SERVICE_SLUGS = [
+  "landing-page",
+  "shopify-migration",
+  "wedding-basic",
+  "wedding-premium",
 ];
+const SERVICE_PAGES = SERVICE_SLUGS.flatMap((s) => [`${s}.html`, `zh/${s}.html`]);
 
 /** 静态导出可能生成 about.html 或 about/index.html，两种都认。 */
 function findPage(files: string[], name: string): string | undefined {
@@ -139,26 +141,55 @@ describe("导出产物 · 文案口径", () => {
     });
 
     /**
-     * 手写 HTML 的服务页还没有接进数据源（那要等它们迁进 Next 路由）。
-     * 在那之前，改 prices.json 会让下面这条红 —— 逼着人一起改，而不是悄悄脱节。
+     * 服务页的价格**已经接进 prices.json**（迁进 Next 路由时做的）——
+     * 原稿里写的是 `{{starter}}` 这类占位符，构建期填。
+     *
+     * 这条现在守的是「填对了」，不是「有人手动同步了」。
      */
-    const LEGACY: [string, string[]][] = [
-      ["landing-page.html", [prices.starter, prices.basic, prices.standard]],
-      ["shopify-migration.html", [prices.shopify]],
-      ["wedding-basic.html", [prices.weddingStandard]],
-      ["wedding-premium.html", [prices.weddingPremium]],
+    const SERVICE_PRICES: [string, string[]][] = [
+      ["landing-page", [prices.starter, prices.basic, prices.standard]],
+      ["shopify-migration", [prices.shopify]],
+      ["wedding-basic", [prices.weddingStandard]],
+      ["wedding-premium", [prices.weddingPremium]],
     ];
 
-    for (const [name, expected] of LEGACY) {
-      it(`${name} 写的价格与报价页一致`, () => {
-        const text = visibleText(x.read(findPage(x.files, name)!));
-        const missing = expected.filter((p) => !text.includes(p));
-        expect(
-          missing,
-          `${name} 里找不到 ${missing.join(", ")} —— prices.json 改过了，` +
-            `这个手写页面要跟着改（它还没接进数据源）`,
-        ).toEqual([]);
-      });
+    for (const [slug, expected] of SERVICE_PRICES) {
+      for (const name of [`${slug}.html`, `zh/${slug}.html`]) {
+        it(`${name} 写的价格与报价页一致`, () => {
+          const text = visibleText(x.read(findPage(x.files, name)!));
+          const missing = expected.filter((p) => !text.includes(p));
+          expect(
+            missing,
+            `${name} 里找不到 ${missing.join(", ")} —— 占位符没填上？` +
+              `见 src/lib/content/doc.mjs 的 fillPrices()`,
+          ).toEqual([]);
+        });
+      }
     }
+
+    /**
+     * 源级守卫：原稿里不许再出现字面价格。
+     *
+     * 上面那条只查得到「替换器坏了」；真正会让价格再次脱节的是有人在原稿里
+     * 手写一个新价格 —— 那样输出是对的，数据源却不知道。这条堵的是那个。
+     *
+     * 域名、寄存这类杂费（RM 10 / RM 40 / RM 150）不在报价单里，是允许的字面量。
+     */
+    it("服务页原稿里没有字面价格，只有占位符", () => {
+      const tiers = Object.entries(prices)
+        .filter(([k]) => k !== "$comment")
+        .map(([, v]) => v as string);
+      const offenders: string[] = [];
+      for (const slug of SERVICE_SLUGS) {
+        const src = readFileSync(join(process.cwd(), `src/content/services/${slug}.html`), "utf8");
+        for (const tier of tiers) {
+          if (src.includes(tier)) offenders.push(`${slug}.html 里写死了 ${tier}`);
+        }
+      }
+      expect(
+        offenders,
+        `${offenders.join("；")} —— 改用占位符（如 {{starter}}），价格的唯一真相是 prices.json`,
+      ).toEqual([]);
+    });
   });
 });

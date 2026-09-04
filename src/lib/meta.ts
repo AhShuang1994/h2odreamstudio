@@ -72,8 +72,12 @@ export function articleMetadata(
     urls: Record<Lang, string>;
     title: Record<Lang, string>;
     description: Record<Lang, string>;
-    isIndex: boolean;
-    meta: { image: string | null; datePublished: string | null; section: string | null };
+    meta: {
+      image: string | null;
+      datePublished: string | null;
+      section: string | null;
+      ogType: "website" | "article";
+    };
   },
   lang: Lang,
 ): Metadata {
@@ -83,8 +87,9 @@ export function articleMetadata(
     title: { cn: doc.title.zh, en: doc.title.en },
     description: { cn: doc.description.zh, en: doc.description.en },
     og: {
-      // 索引页是清单不是文章 —— og:type 跟着语义走，不跟着目录走
-      type: doc.isIndex ? "website" : "article",
+      // 原稿自己声明的 —— 文章是 article，索引页与服务页是 website。
+      // 别按目录推：服务页不在 pages/ 下，索引页与文章同目录。
+      type: doc.meta.ogType,
       image: doc.meta.image,
       publishedTime: doc.meta.datePublished,
       section: doc.meta.section,

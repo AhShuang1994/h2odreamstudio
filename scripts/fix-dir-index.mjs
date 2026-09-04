@@ -24,11 +24,15 @@
  */
 import { existsSync, statSync, readFileSync, renameSync } from "node:fs";
 import { join } from "node:path";
-import { SECTIONS } from "../src/lib/content/manifest.mjs";
+import { listDocs } from "../src/lib/content/doc.mjs";
 
 const OUT = join(process.cwd(), "out");
 
-const targets = SECTIONS.flatMap((s) => [s.id, `zh/${s.id}`]);
+// 只有带索引页的家族需要这一步。服务页（/landing-page 之类）没有索引页，
+// 地址本来就是扁平的，跳过。
+const targets = [...new Set(listDocs().filter((d) => d.isIndex).map((d) => d.section))].flatMap(
+  (id) => [id, `zh/${id}`],
+);
 
 for (const rel of targets) {
   const flat = join(OUT, `${rel}.html`);

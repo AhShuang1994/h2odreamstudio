@@ -110,16 +110,10 @@ describe("导出产物 · 双语路由", () => {
       .sort();
 
     const expected = [
-      // 手写静态页，还没迁
+      // 只剩这三个手写静态页没迁。
       "privacy.html",
       "terms.html",
       "xhs.html",
-      // 四个服务页 —— 一个地址塞两种语言，靠运行时 JS 切换。迁进 Next 时
-      // 会拆成中英各一条路由，那时从这里划掉。
-      "landing-page.html",
-      "shopify-migration.html",
-      "wedding-basic.html",
-      "wedding-premium.html",
     ].sort();
 
     expect(

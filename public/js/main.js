@@ -142,83 +142,6 @@
   });
 })();
 
-// Mobile lang-toggle: clone into burger menu
-(function () {
-  const mq = window.matchMedia('(max-width: 768px)');
-  const langBtn = document.getElementById('langToggle');
-  const navLinks = document.getElementById('navLinks');
-  if (!langBtn || !navLinks) return;
-
-  let clone = null;
-  function sync() {
-    if (mq.matches && !clone) {
-      clone = langBtn.cloneNode(true);
-      clone.removeAttribute('id');
-      clone.classList.add('lang-toggle-mobile');
-      const li = document.createElement('li');
-      li.appendChild(clone);
-      navLinks.appendChild(li);
-      clone.addEventListener('click', () => langBtn.click());
-    } else if (!mq.matches && clone) {
-      clone.closest('li').remove();
-      clone = null;
-    }
-  }
-  mq.addEventListener('change', sync);
-  sync();
-})();
-
-// Language toggle
-(function () {
-  const STORAGE_KEY = 'h2od-lang';
-  const toggle = document.getElementById('langToggle');
-  if (!toggle) return;
-
-  // 拆分过语言的页面（blog 与案例拆解，#76）把切换器换成了 <a>，直接跳到
-  // 对应语言的地址 —— 那些页面只渲染一种语言，没有 data-lang-* 可切。
-  // 还是 <button> 的是尚未拆分的手写服务页，下面这套运行时切换只服务它们。
-  if (toggle.tagName === 'A') return;
-
-  let cjkFontLoaded = false;
-  function loadCJKFont() {
-    if (cjkFontLoaded) return;
-    cjkFontLoaded = true;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap';
-    document.head.appendChild(link);
-  }
-
-  function applyLang(lang) {
-    if (lang === 'cn') loadCJKFont();
-    document.documentElement.setAttribute('data-lang', lang);
-    document.documentElement.lang = lang === 'cn' ? 'zh' : 'en';
-
-    document.querySelectorAll('[data-lang-en], [data-lang-cn]').forEach(el => {
-      const en = el.getAttribute('data-lang-en');
-      const cn = el.getAttribute('data-lang-cn');
-      if (lang === 'en' && en !== null) el.innerHTML = en;
-      else if (lang === 'cn' && cn !== null) el.innerHTML = cn;
-    });
-
-    toggle.querySelector('.lang-en').classList.toggle('active', lang === 'en');
-    toggle.querySelector('.lang-cn').classList.toggle('active', lang === 'cn');
-    try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) {}
-  }
-
-  let initialLang = 'en';
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'en' || stored === 'cn') initialLang = stored;
-  } catch (e) {}
-  applyLang(initialLang);
-
-  toggle.addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-lang') || 'cn';
-    applyLang(current === 'cn' ? 'en' : 'cn');
-  });
-})();
-
 // Scroll reveal with varied entrance directions — deferred to avoid blocking first paint
 (function () {
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -514,13 +437,6 @@
         ga('faq_open', { event_category: 'engagement', event_label: q ? q.textContent.trim().slice(0, 80) : 'faq_' + i });
       }
     });
-  });
-
-  // Language switch
-  var langToggle = document.getElementById('langToggle');
-  if (langToggle) langToggle.addEventListener('click', function () {
-    var current = document.documentElement.getAttribute('data-lang') || 'en';
-    ga('lang_switch', { event_category: 'engagement', event_label: current === 'cn' ? 'to_en' : 'to_cn' });
   });
 
   // Section visibility — high-intent sections

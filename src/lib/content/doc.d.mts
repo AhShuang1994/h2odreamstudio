@@ -26,6 +26,7 @@ export interface ContentDoc {
     image: string | null;
     datePublished: string | null;
     section: string | null;
+    ogType: "website" | "article";
   };
   /** 正文，塌成一种语言、站内地址已改绝对。 */
   bodyHtml(lang: ContentLang, localize?: (href: string) => string): string;

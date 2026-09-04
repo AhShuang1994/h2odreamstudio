@@ -11,9 +11,10 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { SECTIONS } from "./manifest.mjs";
+import prices from "../../content/prices.json" with { type: "json" };
 import {
-  englishTitle,
-  englishDescription,
+  titleFromH1,
+  descriptionFromBody,
   urlsFor,
   attrOf,
   iterTags,
@@ -24,6 +25,31 @@ import {
 } from "./html.mjs";
 
 const ROOT = process.cwd();
+
+/**
+ * 把 `{{starter}}` 这类占位符换成 `src/content/prices.json` 里的价格。
+ *
+ * 在解析之前对**整份原稿**跑一遍，所以可见文本、成对的 `data-lang-*` 属性值、
+ * 以及 JSON-LD 三处一起命中 —— 三处脱节正是这四个页面以前的老毛病。
+ *
+ * `{{starterNum}}` 给 JSON-LD 的 `minPrice` 用：它是数字，不能带 `RM ` 和逗号。
+ *
+ * 用不存在的键会抛错，不是静默留着占位符 —— 页面上出现 `{{typo}}` 比构建失败
+ * 难发现得多，而这是商业页面上的价格。
+ */
+function fillPrices(source, rel) {
+  return source.replace(/\{\{(\w+)\}\}/g, (whole, key) => {
+    const num = key.endsWith("Num");
+    const value = prices[num ? key.slice(0, -3) : key];
+    if (value === undefined) throw new Error(`${rel} 里的 ${whole} 在 prices.json 里没有对应的键`);
+    return num ? value.replace(/[^0-9]/g, "") : value;
+  });
+}
+
+/** 有没有汉字 —— 用来判断原稿 head 上那份 meta 到底是不是中文的。 */
+function hasCJK(text) {
+  return /[一-鿿]/.test(text ?? "");
+}
 
 /** head 里某条 meta 的 content。`key` 是 name= 或 property= 的值。 */
 function metaOf(head, key) {
@@ -82,27 +108,59 @@ function jsonLdBlocks(head) {
   return blocks;
 }
 
+/** 地址的目录部分，去掉首尾斜杠 —— `/blog/x.html` → `blog`，`/landing-page` → ``。 */
+function dirOf(url) {
+  return url.replace(/^\//, "").replace(/[^/]*$/, "").replace(/\/$/, "");
+}
+
 function load(section, file) {
   const rel = `${section.id}/${file}`;
-  const source = readFileSync(join(ROOT, section.dir, file), "utf8");
+  const slug = file.replace(/\.html$/, "");
+  const raw0 = readFileSync(join(ROOT, section.dir, file), "utf8");
+  const source = section.prices ? fillPrices(raw0, rel) : raw0;
   const head = source.split("</head>")[0] ?? source;
   const zh = chineseMeta(source);
-  const dir = section.id;
-  const title = { en: englishTitle(source), zh: zh.title };
-  const description = { en: englishDescription(source), zh: zh.description };
+
+  // 英文一直从 <h1> 的标注取（原稿的 <title> 是中文）。中文优先用原稿 head 上
+  // 那份手写的 —— 它是已收录的中文标题；但服务页那四份 head 只有英文（历史上
+  // 它们只有一个英文地址），那时退回同样从 <h1> 的中文标注取。
+  const zhHead = hasCJK(zh.title);
+  const title = { en: titleFromH1(source, "en"), zh: zhHead ? zh.title : titleFromH1(source, "zh") };
+  const description = {
+    en: descriptionFromBody(source, "en"),
+    zh: hasCJK(zh.description) ? zh.description : descriptionFromBody(source, "zh"),
+  };
   const raw = mainInner(source);
+
+  /**
+   * 两种语言的**已收录地址**，一个字都不能动。
+   *
+   * 默认从相对路径推（文章页带 `.html`、索引页是目录形态）。服务页的地址不带
+   * 分区名（`/landing-page` 而不是 `/services/landing-page`），推不出来，
+   * 由 manifest 显式给。
+   */
+  const urls = section.url
+    ? { en: section.url(slug), zh: `/zh${section.url(slug)}` }
+    : urlsFor(rel);
+  const dir = dirOf(urls.en);
 
   return {
     section: section.id,
     /** 不带扩展名的文件名 —— Next 动态路由的 `[slug]`。 */
-    slug: file.replace(/\.html$/, ""),
+    slug,
     /** 相对 `src/content/pages/` 的路径，也是英文版在 `public/` 下的输出路径。 */
     rel,
-    /** 原稿所在目录，`toAbsolute()` 拿它把相对链接接对。 */
+    /**
+     * 相对链接的基准目录 —— 取自**地址**，不是分区名。
+     *
+     * 原稿里的图片写成 `assets/portfolio/x.webp` 这种相对路径。文章页住在
+     * `/blog/x.html`，基准是 `blog/`，两者恰好同名；服务页住在根上的
+     * `/landing-page`，基准是空 —— 拿分区名会解析成 `/services/assets/...`，
+     * 32 张图全部 404（`assets.test.ts` 抓到过）。
+     */
     dir,
     isIndex: file === "index.html",
-    /** 两种语言的**已收录地址**，一个字都不能动。 */
-    urls: urlsFor(rel),
+    urls,
     source,
     title,
     description,
@@ -111,6 +169,8 @@ function load(section, file) {
       image: metaOf(head, "og:image"),
       datePublished: metaOf(head, "article:published_time"),
       section: metaOf(head, "article:section"),
+      /** 原稿自己声明的 og:type —— 文章是 article，服务页与索引页是 website。 */
+      ogType: metaOf(head, "og:type") === "article" ? "article" : "website",
     },
 
     /**
