@@ -28,7 +28,7 @@ import { SECTIONS } from "../src/lib/content/manifest.mjs";
 
 const OUT = join(process.cwd(), "out");
 
-const targets = SECTIONS.filter((s) => s.nextOwned).flatMap((s) => [s.id, `zh/${s.id}`]);
+const targets = SECTIONS.flatMap((s) => [s.id, `zh/${s.id}`]);
 
 for (const rel of targets) {
   const flat = join(OUT, `${rel}.html`);

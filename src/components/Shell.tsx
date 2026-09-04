@@ -17,8 +17,8 @@ const inter = Inter({
 });
 
 /**
- * 构建期读进来内联。同一份源码也被 `scripts/split-content-lang.mjs` 注进
- * 静态内容页 —— 幕布覆盖全部页面，两边的行为必须逐字一致，见 ADR-0001。
+ * 构建期读进来内联。幕布覆盖全部页面（ADR-0001）—— 内容页迁进 Next 路由之后
+ * 它们也从这里拿，全站只剩这一条注入路径。
  */
 const headInline = readFileSync(
   join(process.cwd(), "src/motion/head-inline.js"),

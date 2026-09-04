@@ -16,7 +16,7 @@ import { SECTIONS } from "../src/lib/content/manifest.mjs";
 
 const PUB = join(process.cwd(), "public");
 
-const owned = SECTIONS.filter((s) => s.nextOwned).map((s) => s.id);
+const owned = SECTIONS.map((s) => s.id);
 for (const id of owned) {
   for (const rel of [id, `zh/${id}`]) {
     rmSync(join(PUB, rel), { recursive: true, force: true });

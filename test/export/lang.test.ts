@@ -120,8 +120,6 @@ describe("导出产物 · 双语路由", () => {
       "shopify-migration.html",
       "wedding-basic.html",
       "wedding-premium.html",
-      // 案例拆解 —— 仍由 scripts/split-content-lang.mjs 产出
-      ...x.htmlPages.filter((p) => /^(zh\/)?case-studies\//.test(p)),
     ].sort();
 
     expect(

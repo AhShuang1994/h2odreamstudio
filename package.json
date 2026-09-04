@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/vendor-lenis.mjs && node scripts/clean-legacy-output.mjs && node scripts/split-content-lang.mjs",
+    "prebuild": "node scripts/vendor-lenis.mjs && node scripts/clean-legacy-output.mjs",
     "postbuild": "node scripts/fix-dir-index.mjs && node scripts/gen-content-fonts.mjs && node scripts/gen-sitemap.mjs && node scripts/gen-llms.mjs",
     "build": "next build",
     "start": "next start",
