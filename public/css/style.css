@@ -18,12 +18,32 @@
   --color-text-secondary: #c2c9d6;
   --color-text-muted: #868d9c;
   --color-border: #1c1f27;
+  /* 补齐四阶里缺的两档，与 globals.css 的 surface-3 / hairline-strong 对应。
+     浮在页面上方的件（下拉菜单）靠这两档拉开层次，不靠投影。 */
+  --color-bg-raised: #191b23;
+  --color-border-strong: #2b2f3a;
   --color-wa: #25D366;
   --color-danger: #ef4444;
 
-  /* Typography */
-  --font-display: 'Space Grotesk', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --font-body: 'DM Sans', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  /* ── 字体 ────────────────────────────────────────────────────────
+     内容页与核心页用同一套字体（#94）。拉丁走 Inter，中文落到自托管的思源黑体
+     子集 —— 与 src/app/globals.css 的 `--font-sans` 逐字对应。
+
+     `--font-inter` 由 `out/css/fonts.css` 提供：那份表在构建后从 Next 的产物里
+     抄出 `@font-face` 与变量值（`scripts/gen-content-fonts.mjs`），因为
+     next/font 的文件名带内容哈希，手写路径下次构建就 404。
+     内容页要引 `/css/fonts.css`，少引这一行字体就落回系统字体。
+
+     以前这两行是 Space Grotesk + DM Sans，从 Google Fonts 拉 —— 一次阻塞渲染的
+     外部往返，中文还落回微软雅黑／苹方／Noto 三个设备三种样子，正是 ADR-0004
+     要修的那件事。
+
+     ⚠️ 没有单独的标题栈：核心页的 h1/h2 中文走思源**宋体**，内容页这里全是黑体。
+     差这一档是**故意留着**的 —— `--font-display` 在这份样式表里同时驱动标题、
+     按钮、徽章与眉标，宋体套上去按钮会变成宋体；要分开就得先给标题一个自己的
+     变量，而标题该不该是衬线本来就还没定（#95）。等 #95 落定再一起动。 */
+  --font-display: var(--font-inter), 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-inter), 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
 
   /* Layout */
   --max-width: 1200px;
@@ -34,6 +54,13 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --stagger-base: 600ms;
+
+  /* 圆角一套。内容页的 article.css 与 case-study.css 都用这四档，
+     对齐核心页的 rounded-lg / xl / 2xl / full。 */
+  --art-radius-sm: 8px;
+  --art-radius-md: 12px;
+  --art-radius-lg: 16px;
+  --art-radius-full: 999px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -70,48 +97,17 @@ body::after {
 img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }
 
-/* ============ WAVE DIVIDERS ============ */
-.wave-divider {
-  position: relative;
-  width: 100%;
-  line-height: 0;
-  margin-top: -2px;
-  margin-bottom: -2px;
-  z-index: 2;
+/* ============ SECTION RULE ============ */
+/* 区块分界。原先这里是一条装饰波浪（.wave-divider 加 .wave-2..6），
+   用曲线把上下两块的底色切开。Linear 语言里区块靠留白与一根
+   发丝线分开，不放装饰件 —— 两块直接相接，这根线压在交界上。
+   见 #90。 */
+.section-rule {
+  height: 1px;
+  background: var(--color-border);
+  border: 0;
+  margin: 0;
 }
-.wave-divider svg {
-  display: block;
-  width: 100%;
-  height: 60px;
-}
-.wave-divider path {
-  transition: d 1.5s var(--ease-out-expo);
-}
-
-.wave-2-over {
-  margin-top: -2px;
-  margin-bottom: -2px;
-  position: relative;
-  z-index: 3;
-  background: var(--color-bg-deep);
-}
-.wave-2-over svg { height: 70px; }
-.wave-2b { background: var(--color-bg-deep); }
-.wave-2b path { fill: var(--color-bg-mid); }
-.wave-3 { background: var(--color-bg-mid); }
-.wave-3 path { fill: var(--color-bg-deep); }
-.wave-4 { background: var(--color-bg-deep); }
-.wave-4 path { fill: var(--color-bg-mid); }
-.wave-5 { background: var(--color-bg-mid); }
-.wave-5 path { fill: var(--color-bg-deep); }
-.wave-6-over {
-  margin-top: -2px;
-  margin-bottom: -2px;
-  position: relative;
-  z-index: 3;
-  background: var(--color-bg-mid);
-}
-.wave-6-over svg { height: 70px; }
 
 /* ============ BACKGROUND ORBS ============ */
 .bg-orb {
@@ -320,7 +316,14 @@ a { color: inherit; text-decoration: none; }
 /* ============ NAVBAR ============ */
 .navbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  padding: 16px 24px;
+  /* 高度写死 56px，与核心页的 h-14 一致 —— 原先靠 padding 撑，
+     内容一变高度就变，换页时导航会跳。
+
+     左右内边距挪到 .nav-inner 上了：核心页那条 nav 把 max-width 与
+     `px-5 sm:px-8` 写在**同一个**元素上，内边距算在 1200px 里面；
+     这边原先把 padding 放在外层，内容区就多出两边各 32px，
+     同一条导航在两边横向差 32px。 */
+  padding: 0;
   background: transparent;
   transition: background 300ms var(--ease-out-expo), border-color 300ms var(--ease-out-expo);
   border-bottom: 1px solid transparent;
@@ -335,10 +338,19 @@ a { color: inherit; text-decoration: none; }
 .nav-inner {
   max-width: var(--max-width);
   margin: 0 auto;
+  /* 与核心页 nav 的 `px-5 sm:px-8` 逐档对应（sm 断点 640px）。 */
+  padding: 0 20px;
+  height: 56px;
   display: flex; align-items: center; justify-content: space-between;
-  gap: 24px;
+  /* 28px = 核心页菜单与语言切换之间的 `gap-7`。logo 与菜单之间靠
+     `.nav-links` 的 auto margin 撑开，这个值只管右边那一道缝。 */
+  gap: 28px;
   position: relative;
 }
+@media (min-width: 640px) {
+  .nav-inner { padding: 0 32px; }
+}
+
 .nav-logo {
   font-family: var(--font-display);
   font-weight: 500;
@@ -353,43 +365,44 @@ a { color: inherit; text-decoration: none; }
 }
 
 .nav-links {
-  display: flex; gap: 32px; list-style: none;
-  flex: 1; justify-content: center; align-items: center;
+  /* 字号 14px、间距 28px、不带字距 —— 与核心页 Nav.tsx 的
+     `text-sm` / `gap-7` 逐项对应。
+
+     `margin-left: auto` 把菜单连同后面的语言切换一起推到右边。
+     核心页把这两块放在**同一个** div 里（`gap-7`），靠外层的
+     `justify-between` 整体靠右；这边是三个平级子元素，原先用
+     `flex: 1; justify-content: center` 把菜单撑在中间 —— 同一条导航
+     在两边落在不同位置，换页时菜单会横向飘一下。 */
+  display: flex; gap: 28px; list-style: none;
+  margin-left: auto; align-items: center;
 }
 .nav-links a {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text-secondary);
-  letter-spacing: 0.5px;
   transition: color 200ms var(--ease-out-expo);
   position: relative;
 }
-.nav-links a::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 50%; right: 50%;
-  height: 2px;
-  background: var(--color-primary);
-  border-radius: 1px;
-  transition: left 300ms var(--ease-out-expo), right 300ms var(--ease-out-expo);
-}
-.nav-links a:hover { color: var(--color-primary); }
-.nav-links a:hover::after { left: 0; right: 0; }
+/* hover 只提亮，与核心页的 `hover:text-ink` 一致。原先还会从中间
+   展开一条 2px 的靛紫下划线 —— accent 留给品牌字、主行动按钮、
+   焦点环与链接强调（ADR-0007），导航项的 hover 不在这几类里。 */
+.nav-links a:hover { color: var(--color-text); }
 
 .lang-toggle {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(124, 130, 240, 0.2);
-  color: var(--color-primary);
-  padding: 6px 16px;
-  border-radius: 30% 70% 70% 30% / 60% 40% 60% 40%;
-  font-size: 13px;
+  /* 纯文字，与核心页的 LangToggle 一致。原先是个 blob 形状的按钮
+     （border-radius 四角百分比，hover 还会变形），既跟 Linear 语言不搭，
+     也是导航高出 13px 的原因。 */
+  background: none;
+  border: 0;
+  color: var(--color-text-secondary);
+  padding: 0;
+  font-size: 14px;
   font-family: var(--font-body);
+  letter-spacing: 0.025em;
   cursor: pointer;
-  transition: background 200ms var(--ease-out-expo), border-radius 500ms var(--ease-out-expo);
+  transition: color 200ms var(--ease-out-expo);
 }
 .lang-toggle:hover {
-  background: rgba(124, 130, 240, 0.08);
-  border-radius: 70% 30% 30% 70% / 40% 60% 40% 60%;
+  color: var(--color-text);
 }
 
 .nav-toggle {
@@ -412,7 +425,8 @@ a { color: inherit; text-decoration: none; }
   .nav-inner > .lang-toggle { display: none; }
   .nav-links {
     position: fixed; inset: 0;
-    width: 100%; height: 100vh;
+    /* dvh 不是 vh：手机地址栏收起或展开时 100vh 不跟着变，菜单底部会被截掉。 */
+    width: 100%; height: 100dvh;
     background: var(--color-bg-deep);
     flex-direction: column;
     justify-content: center; align-items: center;
@@ -447,11 +461,11 @@ a { color: inherit; text-decoration: none; }
 .nav-links .has-dropdown { position: relative; }
 .nav-parent {
   display: inline-flex; align-items: center; gap: 5px;
-  font-size: 13px; color: var(--color-text-secondary);
-  letter-spacing: 0.5px; cursor: pointer;
+  font-size: 14px; color: var(--color-text-secondary);
+  cursor: pointer;
   transition: color 200ms var(--ease-out-expo);
 }
-.nav-parent:hover { color: var(--color-primary); }
+.nav-parent:hover { color: var(--color-text); }
 .nav-parent .caret { font-size: 9px; line-height: 1; transition: transform 200ms var(--ease-out-expo); }
 /* hover bridge so the gap between trigger and menu doesn't drop it */
 .has-dropdown::after {
@@ -462,21 +476,24 @@ a { color: inherit; text-decoration: none; }
   position: absolute; top: calc(100% + 12px); left: 50%;
   transform: translateX(-50%) translateY(8px);
   min-width: 190px;
-  background: rgba(7, 8, 11, 0.97);
-  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
-  border: 1px solid var(--color-border); border-radius: 14px;
-  padding: 8px; display: flex; flex-direction: column; gap: 2px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  /* 实底加一层亮一档的描边，与核心页的下拉一致。
+     原先是 rgba + backdrop-filter 毛玻璃加投影 —— 导航栏本体已经为此
+     改过一次（见上面 .navbar.scrolled 的注释），这里是那次漏下的。 */
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--art-radius-md);
+  padding: 6px; display: flex; flex-direction: column; gap: 2px;
   opacity: 0; visibility: hidden;
   transition: opacity 200ms var(--ease-out-expo), transform 200ms var(--ease-out-expo), visibility 200ms;
   z-index: 200;
 }
 .dropdown-menu a {
-  display: block; padding: 9px 14px; border-radius: 9px;
-  font-size: 13.5px; color: var(--color-text-secondary); white-space: nowrap;
+  display: block; padding: 8px 12px; border-radius: var(--art-radius-sm);
+  font-size: 14px; color: var(--color-text-secondary); white-space: nowrap;
 }
 .dropdown-menu a::after { display: none; }
-.dropdown-menu a:hover { background: rgba(124, 130, 240, 0.08); color: var(--color-primary); }
+/* hover 抬一档表面并把字提亮，不用靛紫底 —— accent 不做块面填充（ADR-0007）。 */
+.dropdown-menu a:hover { background: var(--color-bg-raised); color: var(--color-text); }
 .has-dropdown:hover .dropdown-menu,
 .has-dropdown:focus-within .dropdown-menu {
   opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
@@ -1831,7 +1848,6 @@ a { color: inherit; text-decoration: none; }
   .faq-item summary { padding: 16px 18px; font-size: 15px; }
   .faq-answer { padding: 0 18px 16px; font-size: 13px; }
 
-  .wave-divider svg { height: 40px; }
 
   .blob-1 { width: 250px; height: 250px; }
   .blob-2 { width: 200px; height: 200px; }
@@ -1843,7 +1859,6 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 480px) {
   :root { --section-padding-y-mobile: 40px; }
   .nav-logo { font-size: 16px; }
-  .wave-divider svg { height: 30px; }
 }
 
 /* ============================================================

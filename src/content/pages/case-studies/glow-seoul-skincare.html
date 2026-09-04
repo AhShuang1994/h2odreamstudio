@@ -59,11 +59,9 @@
   </script>
 
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap"></noscript>
+  <!-- 拉丁 Inter + 中文思源黑体子集，全部自托管。这张表由构建后的
+       scripts/gen-content-fonts.mjs 生成，路径固定、内容跟着 next/font 走（#94）。 -->
+  <link rel="stylesheet" href="/css/fonts.css">
 
   <link rel="stylesheet" href="../css/style.min.css">
   <link rel="stylesheet" href="../css/case-study.css">
@@ -82,7 +80,7 @@
   <!-- ============ NAVBAR ============ -->
   <nav class="navbar" id="navbar">
     <div class="nav-inner">
-      <a href="../index.html#portfolio" class="nav-back" aria-label="Back to Portfolio">←</a>
+      <a href="../index.html#work" class="nav-back" aria-label="Back to Work">←</a>
       <a href="../index.html" class="nav-logo">H2O<span>Dreamer</span> Studio</a>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
       <ul class="nav-links" id="navLinks">
@@ -95,18 +93,12 @@
             <li><a href="../pricing" data-lang-en="Pricing" data-lang-cn="价格方案">价格方案</a></li>
           </ul>
         </li>
-        <li class="has-dropdown">
-          <span class="nav-parent" tabindex="0" role="button" aria-expanded="false"><span data-lang-en="About" data-lang-cn="关于">关于</span><span class="caret" aria-hidden="true">▾</span></span>
-          <ul class="dropdown-menu">
-            <li><a href="../about" data-lang-en="About Ah Shuang" data-lang-cn="关于阿爽">关于阿爽</a></li>
-            <li><a href="index.html" data-lang-en="Case Studies" data-lang-cn="案例拆解">案例拆解</a></li>
-            <li><a href="../index.html#portfolio" data-lang-en="Portfolio" data-lang-cn="作品集">作品集</a></li>
-          </ul>
-        </li>
+        <li><a href="../about" data-lang-en="About" data-lang-cn="关于">关于</a></li>
+        <li><a href="../index.html#work" data-lang-en="Work" data-lang-cn="作品">作品</a></li>
         <li><a href="../blog/index.html" data-lang-en="Blog" data-lang-cn="博客">博客</a></li>
         <li><a href="../contact" data-lang-en="Contact" data-lang-cn="联系">联系</a></li>
       </ul>
-      <button class="lang-toggle" id="langToggle" aria-label="Toggle language"><span class="lang-en">EN</span> / <span class="lang-cn">中文</span></button>
+      <button class="lang-toggle" id="langToggle" aria-label="Toggle language"><span class="lang-cn">中文</span> / <span class="lang-en">EN</span></button>
     </div>
   </nav>
 
@@ -115,7 +107,7 @@
     <!-- ============ HERO ============ -->
     <section class="detail-hero article-hero" id="hero">
       <div class="floating-blobs" aria-hidden="true"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
-      <a href="../index.html#portfolio" class="back-link" data-lang-en="← Back to Portfolio" data-lang-cn="← 返回作品集">← 返回作品集</a>
+      <a href="../index.html#work" class="back-link" data-lang-en="← Back to Portfolio" data-lang-cn="← 返回作品集">← 返回作品集</a>
       <div class="hero-inner">
         <div class="hero-badge" data-lang-en="Landing Page · Case Study" data-lang-cn="Landing Page · 设计拆解">Landing Page · 设计拆解</div>
         <h1 data-lang-en="Glow Seoul: how <em>one hero product</em> convinces sensitive skin to buy"

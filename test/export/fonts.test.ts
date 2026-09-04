@@ -116,3 +116,81 @@ describe("导出产物 · 中文字体", () => {
     );
   });
 });
+
+/**
+ * 内容页与核心页用同一套字体（#94）。
+ *
+ * 静态内容页原先自己从 Google Fonts 拉 Space Grotesk + DM Sans：与核心页看起来
+ * 像两个站，多一次阻塞渲染的外部往返，中文还落回系统字体（Windows 微软雅黑、
+ * Mac 苹方、Android Noto，三个设备三种样子）—— 正是 ADR-0004 自托管要修的那件事。
+ *
+ * 现在两边共用 `out/css/fonts.css`：构建后由 `scripts/gen-content-fonts.mjs`
+ * 从 Next 的产物里抄出 `@font-face` 与 `--font-inter`。**字体文件名带内容哈希**，
+ * 手写路径下次构建就 404，所以这里连「引用的 woff2 确实存在」也一起断言。
+ */
+describe("导出产物 · 内容页字体", () => {
+  const x = loadExport();
+
+  /**
+   * 仍允许对外取字体的页面。
+   *
+   * - `demos/` —— 11 个虚构品牌的成品演示，冻结不动（CONTEXT.md 的「样板站」词条）
+   * - `xhs.html` —— 小红书落地页，自带一套 editorial 排版（衬线 + 等宽 + 青色），
+   *   与全站视觉外壳不是同一套东西。它要不要并进来是一个设计决定，不是这张票的
+   *   字体统一工作，**没有票之前别顺手改**。
+   */
+  const MAY_USE_GOOGLE = (rel: string) => rel.startsWith("demos/") || rel === "xhs.html";
+
+  it("字体表在产物里，且抄全了", () => {
+    expect(x.has("css/fonts.css"), "缺 out/css/fonts.css —— 它由 postbuild 生成").toBe(
+      true,
+    );
+    const css = x.read("css/fonts.css");
+    expect(css, "字体表里没有 --font-inter，内容页的 --font-display 会解析成空").toContain(
+      "--font-inter:",
+    );
+    expect(css, "字体表里没有 Inter 的 @font-face").toMatch(/font-family:\s*Inter/);
+    for (const f of ["NotoSansSC-400", "NotoSansSC-600", "NotoSerifSC-600"]) {
+      expect(css, `字体表里没有 ${f}`).toContain(f);
+    }
+  });
+
+  it("字体表引用的 woff2 都真的在产物里", () => {
+    const css = x.read("css/fonts.css");
+    const missing = [...css.matchAll(/url\((\/[^)]*\.woff2)\)/g)]
+      .map((m) => m[1].slice(1))
+      .filter((rel) => !x.has(rel));
+
+    expect(
+      missing,
+      `字体表指向不存在的文件：\n  ${missing.join("\n  ")}\n` +
+        `next/font 的文件名带内容哈希，这份表必须由构建后的脚本生成，不能手写。`,
+    ).toEqual([]);
+  });
+
+  it("引了主样式表的页面都引了字体表", () => {
+    const naked = x.htmlPages.filter(
+      (rel) =>
+        !MAY_USE_GOOGLE(rel) &&
+        /(^|["'/])css\/style(\.min)?\.css/.test(x.read(rel)) &&
+        !x.read(rel).includes("/css/fonts.css"),
+    );
+
+    expect(
+      naked,
+      `这些页面用了内容页的样式表却没引字体表，中文会落回系统字体：\n  ${naked.join("\n  ")}`,
+    ).toEqual([]);
+  });
+
+  it("除样板站与小红书落地页外，没有页面对外取字体", () => {
+    const offenders = x.htmlPages.filter(
+      (rel) => !MAY_USE_GOOGLE(rel) && /fonts\.(googleapis|gstatic)\.com/.test(x.read(rel)),
+    );
+
+    expect(
+      offenders,
+      `这些页面还在从 Google Fonts 取字体：\n  ${offenders.join("\n  ")}\n` +
+        `自托管的整个理由见 ADR-0004：少一次阻塞渲染的外部往返，中文不落回系统字体。`,
+    ).toEqual([]);
+  });
+});

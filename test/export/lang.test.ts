@@ -84,8 +84,13 @@ describe("导出产物 · 双语路由", () => {
 
   it("核心页中英一一对应，没有孤儿", () => {
     // Next 渲染出来的页面都引用 /_next/ 下的产物；手写静态页不会。
+    // 404 中英各一份，但它们不是「核心页」—— 没有 canonical、不进 sitemap、
+    // 不互相 hreflang 指认（见 #93），所以不参与这条配对。
     const rendered = x.htmlPages.filter(
-      (p) => p !== "404.html" && x.read(p).includes("/_next/static"),
+      (p) =>
+        p !== "404.html" &&
+        !p.endsWith("/404.html") &&
+        x.read(p).includes("/_next/static"),
     );
     const expected = PAIRS.flatMap((p) => [p.en, p.zh]).sort();
     expect(

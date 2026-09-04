@@ -49,11 +49,9 @@
   }
   </script>
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap"></noscript>
+  <!-- 拉丁 Inter + 中文思源黑体子集，全部自托管。这张表由构建后的
+       scripts/gen-content-fonts.mjs 生成，路径固定、内容跟着 next/font 走（#94）。 -->
+  <link rel="stylesheet" href="/css/fonts.css">
 
   <link rel="stylesheet" href="../css/style.min.css">
   <link rel="stylesheet" href="../css/case-study.css">
@@ -72,7 +70,7 @@
   <!-- ============ NAVBAR ============ -->
   <nav class="navbar" id="navbar">
     <div class="nav-inner">
-      <a href="../index.html#portfolio" class="nav-back" aria-label="Back to Home">←</a>
+      <a href="../index.html#work" class="nav-back" aria-label="Back to Home">←</a>
       <a href="../index.html" class="nav-logo">H2O<span>Dreamer</span> Studio</a>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
       <ul class="nav-links" id="navLinks">
@@ -85,18 +83,12 @@
             <li><a href="../pricing" data-lang-en="Pricing" data-lang-cn="价格方案">价格方案</a></li>
           </ul>
         </li>
-        <li class="has-dropdown">
-          <span class="nav-parent" tabindex="0" role="button" aria-expanded="false"><span data-lang-en="About" data-lang-cn="关于">关于</span><span class="caret" aria-hidden="true">▾</span></span>
-          <ul class="dropdown-menu">
-            <li><a href="../about" data-lang-en="About Ah Shuang" data-lang-cn="关于阿爽">关于阿爽</a></li>
-            <li><a href="index.html" data-lang-en="Case Studies" data-lang-cn="案例拆解">案例拆解</a></li>
-            <li><a href="../index.html#portfolio" data-lang-en="Portfolio" data-lang-cn="作品集">作品集</a></li>
-          </ul>
-        </li>
+        <li><a href="../about" data-lang-en="About" data-lang-cn="关于">关于</a></li>
+        <li><a href="../index.html#work" data-lang-en="Work" data-lang-cn="作品">作品</a></li>
         <li><a href="../blog/index.html" data-lang-en="Blog" data-lang-cn="博客">博客</a></li>
         <li><a href="../contact" data-lang-en="Contact" data-lang-cn="联系">联系</a></li>
       </ul>
-      <button class="lang-toggle" id="langToggle" aria-label="Toggle language"><span class="lang-en">EN</span> / <span class="lang-cn">中文</span></button>
+      <button class="lang-toggle" id="langToggle" aria-label="Toggle language"><span class="lang-cn">中文</span> / <span class="lang-en">EN</span></button>
     </div>
   </nav>
 
@@ -256,7 +248,7 @@
            data-lang-cn="告诉我你做什么、客户是谁。我帮你指到对的做法——还会老实告诉你适合哪一档、哪些可以先省。">告诉我你做什么、客户是谁。我帮你指到对的做法——还会老实告诉你适合哪一档、哪些可以先省。</p>
         <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20%E6%88%91%E7%9C%8B%E4%BA%86%E4%BD%A0%E4%BB%AC%E7%9A%84%E6%A1%88%E4%BE%8B%E6%8B%86%E8%A7%A3%EF%BC%8C%E6%83%B3%E5%92%A8%E8%AF%A2%E4%B8%80%E4%B8%8B%E6%88%91%E7%9A%84%E9%A1%B9%E7%9B%AE%E3%80%82" class="btn-primary" target="_blank" rel="noopener" onclick="gtag('event','click',{event_category:'WhatsApp',event_label:'Case Studies Index Final CTA'})" data-lang-en="💬 WhatsApp us →" data-lang-cn="💬 WhatsApp 我们 →">💬 WhatsApp 我们 →</a>
         <div class="article-footer-nav">
-          <a href="../index.html#portfolio" data-lang-en="← Back to portfolio" data-lang-cn="← 返回作品集">← 返回作品集</a>
+          <a href="../index.html#work" data-lang-en="← Back to portfolio" data-lang-cn="← 返回作品集">← 返回作品集</a>
           <a href="../blog/index.html" data-lang-en="Read the blog →" data-lang-cn="去看博客 →">去看博客 →</a>
         </div>
       </div>

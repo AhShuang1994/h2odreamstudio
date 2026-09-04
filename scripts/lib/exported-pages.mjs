@@ -16,7 +16,8 @@ export const OUT_DIR = join(process.cwd(), "out");
 /**
  * 不进 sitemap 与 llms.txt 的页面。
  *
- * - `404.html` —— 错误页，也是全站唯一没有 canonical 的页面
+ * - `404.html` —— 错误页，也是全站唯一没有 canonical 的页面。中英各一份
+ *   （`404.html` 与 `zh/404.html`，见 #93），所以按文件名匹配而不是按整条路径
  * - `demos/**` —— 样板站，`robots.txt` 里本来就 Disallow（见 CONTEXT.md 的
  *   「样板站」词条：11 个虚构品牌的成品演示，冻结不动）
  * - `xhs.html` —— 小红书落地页，链接印在站外、纯中文、不参与语言拆分（#65）
@@ -26,6 +27,7 @@ export const OUT_DIR = join(process.cwd(), "out");
 function isExcluded(rel) {
   return (
     rel === "404.html" ||
+    rel.endsWith("/404.html") ||
     rel === "xhs.html" ||
     rel.startsWith("demos/") ||
     rel.startsWith("app/")

@@ -26,12 +26,15 @@ const ENTRY_PAGES = ["index.html", "zh.html"];
  *
  * - `demos/` —— 11 个虚构品牌的成品演示，不属于品牌视觉范围，冻结不动。
  *   见 CONTEXT.md 的「样板站」词条。
- * - `404.html` —— **已知缺失，#93 在跟**。两个 root layout 之间没有共同的根
- *   布局，Next 只能对未匹配路径回退到它的内建 404，那一页不经过 Shell。
- *   下面配了反向断言：#93 修好之后这里会红，提醒把这行删掉。
+ * - `app/` —— 小帐本那种离线小工具。它是装到主屏幕用的**应用外壳**，不是这个站的
+ *   页面（见 test/README.md：它自成一个接缝）。幕布是页面之间的转场，应用里没有
+ *   「上一页」可言。`scripts/lib/exported-pages.mjs` 早就按同一条理由把 `app/**`
+ *   排除在收录范围外，这里补齐 —— 少了这一条，#98 的 PWA 一进产物这条断言就红。
+ *
+ * `404.html` 曾经也在这里被豁免（Next 的内建 404 不经过 `Shell`），#93 已经把它
+ * 换成一条真实路由 `/404`，现在与其余页面同源，不再有豁免。
  */
-const NOT_COVERED = (rel: string) => rel.startsWith("demos/") || rel === "404.html";
-const KNOWN_MISSING = ["404.html"];
+const NOT_COVERED = (rel: string) => rel.startsWith("demos/") || rel.startsWith("app/");
 
 describe("导出产物 · 动效", () => {
   /**
@@ -136,18 +139,25 @@ describe("导出产物 · 动效", () => {
   });
 
   /**
-   * 已知缺失清单的反向断言（见 test/README.md 的「两条特殊约定」）：
-   * 修好了却没从清单里删，同样会红 —— 不许用清单掩盖新问题。
+   * 404 是靠 `/404` 这条真实路由导出成 `out/404.html` 的（#93），它盖掉了 Next
+   * 的内建 404。两者写的是同一个文件名，一旦哪次升级把写入顺序换了、或者
+   * 有人删掉那条路由，产物会悄悄退回内建的英文白页 —— 上面的「每个页面都注入了
+   * 动效外壳」会先红，这里再补一条更直白的。
    */
-  it("已知缺失清单里的页面确实还缺着", () => {
-    const x = loadExport();
-    const fixed = KNOWN_MISSING.filter(
-      (rel) => x.has(rel) && x.read(rel).includes("/js/motion.js"),
-    );
+  it("404 是本站的页面，不是 Next 的内建页", () => {
+    const html = loadExport().read("404.html");
 
+    // 认导航而不是认「404: This page could not be found.」那句话 —— 那句话在**我们
+    // 自己的**产物里也找得到：Next 把 notFound 边界的兜底渲染一起塞进了内联的 RSC
+    // 资料。认外壳才是真的区分（内建页没有导航、没有页脚、没有样式表）。
     expect(
-      fixed,
-      `这些页面已经有动效外壳了，请从 KNOWN_MISSING 与 NOT_COVERED 里删掉（#93）：\n  ${fixed.join("\n  ")}`,
-    ).toEqual([]);
+      html.includes("H2O<!-- -->") || html.includes("Dreamer</span> Studio"),
+      "out/404.html 退回成 Next 的内建 404 了 —— 检查 src/app/(en)/404/page.tsx 还在不在",
+    ).toBe(true);
+    expect(html, "404 页缺样式表 —— 内建页是白底系统字").toMatch(
+      /rel="stylesheet"[^>]*_next\/static\/css/,
+    );
+    expect(html, "404 页缺中文 —— 中文访客走丢也只看到英文").toContain("这个页面走丢了");
+    expect(html, "404 页必须是 noindex").toMatch(/name="robots"[^>]*noindex/);
   });
 });

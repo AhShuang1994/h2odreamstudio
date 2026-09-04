@@ -48,3 +48,9 @@ public/case-studies/
 public/zh/
 public/js/lenis.min.js
 docs/parallax/*.source.png
+
+# 过页清单（npm run checklist 生成，只在本机看）
+checklist.html
+
+# wrangler pages dev 的本机状态（npm run preview 生成，4MB+）
+.wrangler/

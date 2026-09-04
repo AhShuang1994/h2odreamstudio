@@ -159,7 +159,7 @@ export function SelectedWork({ lang }: { lang: Lang }) {
             <SectionHeading>{t(selectedWork.heading, lang)}</SectionHeading>
           </div>
           <a
-            href="/case-studies/"
+            href={localize("/case-studies/", lang)}
             className="group hidden shrink-0 items-center gap-1.5 border-b border-hairline-strong pb-1 text-sm text-ink-muted transition-colors hover:border-ink-muted hover:text-ink sm:inline-flex"
           >
             {t(selectedWork.cta, lang)}
@@ -172,7 +172,7 @@ export function SelectedWork({ lang }: { lang: Lang }) {
           {selectedWork.items.map((w, i) => (
             <a
               key={i}
-              href={w.href}
+              href={localize(w.href, lang)}
               className="group overflow-hidden rounded-xl border border-hairline bg-surface-1 transition-colors duration-150 hover:border-hairline-strong"
             >
               {/* 遮罩视差的裁切框：图比框大 20%，滚动时在框内反向位移。

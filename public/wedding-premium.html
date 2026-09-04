@@ -27,11 +27,9 @@
   <!-- Favicon -->
   <link rel="icon" href="assets/favicon.svg?v=43282a1f" type="image/svg+xml">
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap"></noscript>
+  <!-- 拉丁 Inter + 中文思源黑体子集，全部自托管。这张表由构建后的
+       scripts/gen-content-fonts.mjs 生成，路径固定、内容跟着 next/font 走（#94）。 -->
+  <link rel="stylesheet" href="/css/fonts.css">
 
   <link rel="stylesheet" href="css/style.min.css">
 
@@ -138,20 +136,14 @@
             <li><a href="pricing" data-lang-en="Pricing" data-lang-cn="价格方案">价格方案</a></li>
           </ul>
         </li>
-        <li class="has-dropdown">
-          <span class="nav-parent" tabindex="0" role="button" aria-expanded="false"><span data-lang-en="About" data-lang-cn="关于">关于</span><span class="caret" aria-hidden="true">▾</span></span>
-          <ul class="dropdown-menu">
-            <li><a href="about" data-lang-en="About Ah Shuang" data-lang-cn="关于阿爽">关于阿爽</a></li>
-            <li><a href="index.html#portfolio" data-lang-en="Portfolio" data-lang-cn="作品集">作品集</a></li>
-            <li><a href="index.html#faq" data-lang-en="FAQ" data-lang-cn="常见问题">常见问题</a></li>
-          </ul>
-        </li>
+        <li><a href="about" data-lang-en="About" data-lang-cn="关于">关于</a></li>
+        <li><a href="index.html#work" data-lang-en="Work" data-lang-cn="作品">作品</a></li>
         <li><a href="blog/index.html" data-lang-en="Blog" data-lang-cn="博客">博客</a></li>
         <li><a href="contact" data-lang-en="Contact" data-lang-cn="联系">联系</a></li>
       </ul>
 
       <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
-        <span class="lang-en">EN</span> / <span class="lang-cn">中文</span>
+        <span class="lang-cn">中文</span> / <span class="lang-en">EN</span>
       </button>
     </div>
   </nav>
@@ -312,9 +304,7 @@
     </section>
 
     <!-- ============ WAVE DIVIDER-DOWN ============ -->
-    <div class="wave-divider wave-2-over" aria-hidden="true">
-      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,0 L0,40 C240,80 480,20 720,50 C960,80 1200,25 1440,45 L1440,0Z" fill="var(--color-bg-mid)"/></svg>
-    </div>
+    <div class="section-rule" aria-hidden="true"></div>
 
     <!-- ============ WHAT'S INCLUDED ============ -->
     <section class="included-section" id="included">
@@ -415,9 +405,7 @@
     </section>
 
      <!-- ============ WAVE DIVIDER-UP ============ -->
-    <div class="wave-divider wave-4" aria-hidden="true">
-      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,50 C180,10 360,70 540,30 C720,0 900,60 1080,25 C1260,0 1380,45 1440,30 L1440,80 L0,80Z"/></svg>
-    </div>
+    <div class="section-rule" aria-hidden="true"></div>
 
     <!-- ============ PROCESS STEPS ============ -->
     <section class="process-section" id="process">
@@ -543,9 +531,7 @@
     </section>
 
      <!-- ============ WAVE DIVIDER-DOWN ============ -->
-    <div class="wave-divider wave-2-over" aria-hidden="true">
-      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,0 L0,40 C240,80 480,20 720,50 C960,80 1200,25 1440,45 L1440,0Z" fill="var(--color-bg-mid)"/></svg>
-    </div>
+    <div class="section-rule" aria-hidden="true"></div>
 
     <!-- ============ FINAL CTA ============ -->
     <section class="detail-cta" id="cta">

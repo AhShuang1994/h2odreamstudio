@@ -18,29 +18,31 @@
   <meta property="og:image" content="https://www.h2o-dreamer-studio.com/og/og-image.jpg">
   <meta property="og:locale" content="zh_CN">
 
-  <meta name="theme-color" content="#030B1A">
+  <meta name="theme-color" content="#07080b">
 
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700;900&display=swap"></noscript>
+  <!-- 拉丁 Inter + 中文思源黑体／宋体子集，自托管。
+       这一行与其余静态页同一份，由 scripts/gen-content-fonts.mjs 生成。 -->
+  <link rel="stylesheet" href="/css/fonts.css">
 
   <link rel="stylesheet" href="css/style.min.css">
 
   <!-- XHS landing — editorial design (serif + mono, asymmetric, single solid cyan accent) -->
   <style>
     :root {
-      --bg-deep: #030B1A;
-      --bg-mid: #071428;
-      --accent: #00E5FF;
-      --btn-text: #020818;
-      --text: #F0F6FF;
-      --text-2: #8BA4C4;
-      --border: #1A3352;
-      --serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
-      --mono: 'JetBrains Mono', ui-monospace, 'Noto Sans SC', monospace;
-      --sans: 'DM Sans', 'Noto Sans SC', system-ui, sans-serif;
+      --bg-deep: #07080b;
+      --bg-mid: #0e1015;
+      --accent: #7c82f0;
+      --btn-text: #07080b;
+      --text: #f3f5f9;
+      --text-2: #c2c9d6;
+      --border: #1c1f27;
+      /* 与其余静态页同一套栈。原先这三行是 DM Sans + JetBrains Mono
+         + 思源，从 Google Fonts 拉 —— 全站最后一处阻塞渲染的外部往返。
+         等宽没有自托管的那一份，落回系统等宽栈。 */
+      --serif: var(--font-inter), 'Noto Serif SC', ui-serif, Georgia, serif;
+      --mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Noto Sans SC', monospace;
+      --sans: var(--font-inter), 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
     }
 
     html, body { margin: 0; }
@@ -61,7 +63,7 @@
     .x-mlink { transition: color 180ms, border-color 180ms; }
     .x-mlink:hover { color: var(--accent); border-color: var(--accent); }
     .x-service { transition: background 180ms; }
-    .x-service:hover { background: rgba(0, 229, 255, 0.06); }
+    .x-service:hover { background: rgba(124, 130, 240, 0.06); }
     .x-work-frame { transition: border-color 200ms; }
     .x-work:hover .x-work-frame { border-color: var(--accent); }
 
@@ -409,7 +411,7 @@
   </footer>
 
   <!-- Floating WhatsApp -->
-  <a class="x-cta" href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20%E6%88%91%E4%BB%8E%E5%B0%8F%E7%BA%A2%E4%B9%A6%E8%BF%87%E6%9D%A5%E3%80%82" target="_blank" rel="noopener" aria-label="Chat on WhatsApp" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Floating WhatsApp'})" style="position:fixed;right:clamp(14px,3vw,24px);bottom:clamp(14px,3vw,24px);z-index:50;display:inline-flex;align-items:center;gap:8px;min-height:48px;background:var(--accent);color:var(--btn-text);font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.1em;padding:14px 16px;text-decoration:none;border:1px solid var(--accent);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.45)">WHATSAPP →</a>
+  <a class="x-cta" href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20%E6%88%91%E4%BB%8E%E5%B0%8F%E7%BA%A2%E4%B9%A6%E8%BF%87%E6%9D%A5%E3%80%82" target="_blank" rel="noopener" aria-label="Chat on WhatsApp" onclick="gtag('event','click',{event_category:'XHS Landing',event_label:'Floating WhatsApp'})" style="position:fixed;right:clamp(14px,3vw,24px);bottom:clamp(14px,3vw,24px);z-index:50;display:inline-flex;align-items:center;gap:8px;min-height:48px;background:var(--accent);color:var(--btn-text);font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.1em;padding:14px 16px;text-decoration:none;border:1px solid var(--accent);border-radius:6px">WHATSAPP →</a>
 
   <script src="/js/lenis.min.js" defer></script>
   <script src="/js/motion.js" defer></script>

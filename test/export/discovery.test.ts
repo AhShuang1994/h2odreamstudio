@@ -21,6 +21,7 @@ const DOMAIN = "https://www.h2o-dreamer-studio.com";
 function isExcluded(file: string): boolean {
   return (
     file === "404.html" ||
+    file.endsWith("/404.html") || // 中文那份，见 #93
     file === "xhs.html" ||
     file.startsWith("demos/") ||
     file.startsWith("app/")
