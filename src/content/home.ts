@@ -34,6 +34,8 @@ export const hero = {
     en: "Hi Ah Shuang, I'd like to ask about a website",
   } as Bilingual,
   scaleWord: { cn: "梦想", en: "Dream" } as Bilingual,
+  /** 首屏的滚动提示。第一屏文案还没浮上来，得有个东西告诉人这里要滚。 */
+  scrollHint: { cn: "向下滚动", en: "Scroll" } as Bilingual,
 };
 
 export const quickAnswer = {

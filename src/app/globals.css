@@ -131,6 +131,31 @@ h2 {
   opacity: 0;
 }
 
+/* 首屏滚动提示的箭头，一下一下往下点。
+
+   写成 CSS 关键帧而不是交给 gsap：它是一个不看滚动位置的常驻循环，扔给合成器
+   就行，没必要每帧过一遍 JS。淡出才归 HeroScrub 管。
+
+   ⚠️ 无限动画在手机上关掉 —— GEO 清单 §6 的性能条款，低端安卓上一个常驻
+   合成层就够把滚动帧率拖下来。减弱动态偏好由下面那条全局规则接管。 */
+@keyframes hero-hint-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(5px);
+    opacity: 1;
+  }
+}
+
+@media (min-width: 769px) {
+  [data-hero-hint] svg {
+    animation: hero-hint-bob 1.8s ease-in-out infinite;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

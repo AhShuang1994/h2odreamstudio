@@ -69,7 +69,12 @@ export function Reveal() {
 
       const build = () => {
         ctx = gsap.context(() => {
-          for (const el of document.querySelectorAll<HTMLElement>("[data-reveal]")) {
+          // 首屏文案排除在外：它带 `data-reveal` 只为吃 `.reveal-armed` 的首帧
+          // 隐藏，动画归 `HeroScrub` —— 那一段要跟着滚动进度慢慢浮，而这里是
+          // 一进视口就演完。两个都挂上去会互相抢同一个 opacity。
+          for (const el of document.querySelectorAll<HTMLElement>(
+            "[data-reveal]:not([data-hero-copy] [data-reveal])",
+          )) {
             SplitText.create(el, {
               type: "lines",
               // 中文断行的关键，规则见文件头 WORD_DELIMITER 的注释。

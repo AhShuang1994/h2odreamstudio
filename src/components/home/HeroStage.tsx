@@ -1,86 +1,79 @@
-import { HERO_LAYERS } from "@/content/parallax";
+import { HERO_LAYERS, HERO_RIVER } from "@/content/parallax";
 
 /**
- * 首屏的分层舞台。四层，从远到近：暗空 → 水汽 → 液态球体 → 水面。
+ * 首屏舞台。四层，从远到近：暗空 → 星河视频 → 水面 → 暗罩。
  *
- * 层的**滚动位移**由 `Parallax.tsx` 扫 `[data-hero-layer]` 驱动，
- * 这里只负责摆位与合成方式。k 值写在 data 属性上，两端各一份。
+ * 视频的**播放进度**由 `HeroScrub.tsx` 按滚动位置拉，这里只负责摆位与合成。
+ * 它不自动播放、不循环、没有音轨 —— 一帧都不动，除非有人滚。
  *
- * 合成：球体与水面都是**黑底发光板**，走 `mix-blend-mode: screen` ——
- * 黑色在 screen 下等于透明，所以两张图都不用抠、也不用补透明画布。
- * 这正是本站现有球体一直在用的合成方式。
+ * 合成：视频是**黑底发光板**，走 `mix-blend-mode: screen` —— 黑色在 screen 下
+ * 等于透明，所以不用抠、也不用带 alpha 通道的编码格式（ADR-0001）。
+ * 舞台整体 `isolation: isolate`，让 screen 只在这几层之间发生。
  *
- * 舞台整体 `isolation: isolate`，让 screen 只在四层之间发生，
- * 不去和页面其它内容混。
+ * ⚠️ 这里**不再有 `data-hero-layer`**。原来那套多层不同 k 值的位移与「整屏定住
+ * 拉视频进度条」是同一块屏幕的两种互斥方案，视频接管之后前者自然退场；
+ * `Parallax.tsx` 里的 `buildHeroLayers` 因此扫不到东西，成了休眠代码 —— 留着是
+ * 因为它是这套 k 值机制的文档本体，想退回分层版随时能接回来。
  */
 export function HeroStage() {
-  const { void: base, mist, orb } = HERO_LAYERS;
+  const { void: base } = HERO_LAYERS;
 
   return (
     <div
       aria-hidden
       className="pointer-events-none absolute inset-0 isolate overflow-hidden bg-bg"
     >
-      <div
-        data-hero-layer
-        data-k-desktop={base.k.desktop}
-        data-k-mobile={base.k.mobile}
-        className="absolute inset-x-0 -top-[20%] h-[140%]"
-        style={{ background: base.background }}
+      <div className="absolute inset-0" style={{ background: base.background }} />
+
+      {/* `data-orb` 是给序幕认的 —— 穿过水滴那一下要把它从 0.75 放到 1。
+          原来挂在静态球体图上，球体现在是视频的第 0 帧，标记就跟过来。
+
+          `preload="none"` 是 ADR-0008 的硬要求：首屏交给 poster，1.3MB 的视频
+          等 load 事件之后由 HeroScrub 主动拉。不要改成 auto。 */}
+      <video
+        data-hero-river
+        data-orb
+        src={HERO_RIVER.src}
+        poster={HERO_RIVER.poster}
+        width={HERO_RIVER.w}
+        height={HERO_RIVER.h}
+        preload="none"
+        muted
+        playsInline
+        disablePictureInPicture
+        className="absolute inset-0 h-full w-full object-cover mix-blend-screen"
       />
 
+      {/* 水面。s1 → s2 那次穿透的「洞」。
+          静止时整层钉在首屏盒子**下方**（`top-full`），只靠 HeroDive 给的
+          `translateY` 提上来一截（见 HERO_LAYERS.surface.peek），露出的是图顶部
+          那段纯黑，屏幕上什么都看不见。退场段由 HeroDive 拉着往上刷过视口。
+
+          摆在暗罩**下面**是有意的：退场段文案还在屏幕上往上走，桌面暗罩左浓右淡
+          正好压住焦散压到标题的那一侧 —— 可读性硬件重用一次，不另开一层。 */}
       <div
-        data-hero-layer
-        data-k-desktop={mist.k.desktop}
-        data-k-mobile={mist.k.mobile}
-        className="absolute inset-x-0 -top-[20%] h-[140%]"
-        style={{ background: mist.background }}
+        data-hero-surface
+        className="absolute inset-x-0 top-full will-change-transform mix-blend-screen"
+        style={{
+          aspectRatio: `${HERO_LAYERS.surface.w} / ${HERO_LAYERS.surface.h}`,
+          backgroundImage: `url(${HERO_LAYERS.surface.src})`,
+          backgroundSize: "100% 100%",
+          backgroundRepeat: "no-repeat",
+          transform: `translate3d(0, ${-HERO_LAYERS.surface.peek * 100}%, 0)`,
+        }}
       />
 
-      {/* 球体跨过中线往右溢出；左侧那块干净暗区是标题与行动按钮的地盘，
-          球体只允许轻微探入（ADR-0001）。
-
-          ⚠️ 这一层套了三个盒子，**每个盒子的 transform 只有一个主人**，
-          不是多余嵌套：
-
-            外盒  ← Parallax 写 y（滚动位移）
-            中盒  ← Tailwind 的 -translate-y-1/2（垂直居中）
-            img   ← Overture 写 scale（序幕里 0.75 → 1 迎上来）
-
-          第一版把居中和滚动位移挂在同一个元素上，GSAP 的 `y: 0` 起手就把
-          `-translate-y-1/2` 冲掉，球体当场往下跳半个自己的高度。 */}
+      {/* 暗罩。理由与实测数字见 HERO_RIVER.scrim 的注释 —— 这是可读性硬件，
+          不是氛围渐变。两端各一道：手机文案占满宽度压上半屏，桌面文案在左侧
+          压左边。 */}
       <div
-        data-hero-layer
-        data-k-desktop={orb.k.desktop}
-        data-k-mobile={orb.k.mobile}
-        className="absolute -right-[24%] top-[44%] w-[86%] mix-blend-screen sm:-right-[10%] sm:w-[54%] lg:-right-[6%] lg:w-[40%]"
-      >
-        <div className="-translate-y-1/2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            data-orb
-            src={orb.src}
-            alt=""
-            width={orb.w}
-            height={orb.h}
-            fetchPriority="high"
-            className="h-auto w-full"
-          />
-        </div>
-      </div>
-
-      {/* ⚠️ 水面层（s1-L3-surface）**暂时不渲染**。
-          素材、规格、生成器都还在（parallax/s1-drop.json · scripts/gen-caustics.py），
-          随时能接回来，但现在挂上去不好看：
-
-          · 它是从水下看水面的图，摆在首屏底部等于观众俯视脚下的水面 ——
-            而这一屏的设定是「悬在水面之上」，语义拧着
-          · 横向平铺的规律性一眼看得出来，读起来像发光的蜂窝布料不像水
-          · 紫色网格与球体的橙青虹彩互相抢视觉重音
-
-          代价要记住：**它原本是 s1 → s2 那次 zoom-through 的「洞」**。
-          去掉之后那次转场需要重新找一个洞（球体本身是最自然的候选：
-          穿过球体进入水下）。这条没定之前，转场先不做。 */}
+        className="absolute inset-0 sm:hidden"
+        style={{ background: HERO_RIVER.scrim.mobile }}
+      />
+      <div
+        className="absolute inset-0 hidden sm:block"
+        style={{ background: HERO_RIVER.scrim.desktop }}
+      />
     </div>
   );
 }
