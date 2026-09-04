@@ -52,6 +52,13 @@ export const HERO_LAYERS = {
    * 右下角那个 ✦ 水印已按坐标涂掉（四周实测 max 4，即纯黑，涂黑零痕迹）——
    * `scripts/dewatermark.js` 认不出它，那个脚本是为浅灰水印调的。
    */
+  /**
+   * ⚠️ **休眠中（2026-09-04）** —— 规格与素材都留着，但 `HeroStage` 已经不渲染它。
+   *
+   * 理由见那个文件的「水面层拿掉了」一段：叠在星河视频上，两个纹理互相打架，
+   * 看到的是网格不是水。想接回来就把 `<div data-hero-surface>` 放回 `HeroStage`，
+   * 再从 git 里取回 `HeroDive.tsx`（它唯一的任务就是推这一层）。
+   */
   surface: {
     k: { desktop: 1.5, mobile: 1.3 } as LayerK,
     src: "/assets/parallax/s1-l3-surface.webp",

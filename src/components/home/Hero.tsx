@@ -2,7 +2,6 @@ import { localize, t, type Lang } from "@/lib/i18n";
 import { Button, Container, Eyebrow } from "@/components/ui";
 import { HeroStage } from "@/components/home/HeroStage";
 import { HeroScrub } from "@/components/home/HeroScrub";
-import { HeroDive } from "@/components/home/HeroDive";
 import { HERO_RIVER } from "@/content/parallax";
 import { site } from "@/content/site";
 import { hero } from "@/content/home";
@@ -30,7 +29,6 @@ export function Hero({ lang }: { lang: Lang }) {
       style={{ height: `${HERO_RIVER.scrollVh}svh` }}
     >
       <HeroScrub />
-      <HeroDive />
 
       {/* pt-14 是给固定导航让位 —— 视口高的盒子里居中，短屏上标题会顶到导航。 */}
       <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden pt-14">

@@ -1,7 +1,7 @@
 import { HERO_LAYERS, HERO_RIVER } from "@/content/parallax";
 
 /**
- * 首屏舞台。四层，从远到近：暗空 → 星河视频 → 水面 → 暗罩。
+ * 首屏舞台。三层，从远到近：暗空 → 星河视频 → 暗罩。
  *
  * 视频的**播放进度**由 `HeroScrub.tsx` 按滚动位置拉，这里只负责摆位与合成。
  * 它不自动播放、不循环、没有音轨 —— 一帧都不动，除非有人滚。
@@ -14,6 +14,21 @@ import { HERO_LAYERS, HERO_RIVER } from "@/content/parallax";
  * 拉视频进度条」是同一块屏幕的两种互斥方案，视频接管之后前者自然退场；
  * `Parallax.tsx` 里的 `buildHeroLayers` 因此扫不到东西，成了休眠代码 —— 留着是
  * 因为它是这套 k 值机制的文档本体，想退回分层版随时能接回来。
+ *
+ * ## 水面层拿掉了（2026-09-04）
+ *
+ * 它原本在退场段以 k=1.5 往上刷过视口，读作「你在往下沉」。真机上不成立：
+ * 视频本身已经是一片流动的星河，再叠一层规律的横向波纹，两个纹理互相打架 ——
+ * 看到的是网格，不是水。这与球体版当初否掉它的理由是同一条（那时的说法是
+ * 「横向平铺的规律性一眼看得出来，读起来像发光的蜂窝布料不像水」）。
+ *
+ * 规格与素材都还在（`HERO_LAYERS.surface`、`assets/parallax/s1-l3-surface.webp`、
+ * `scripts/gen-parallax-art.mjs`），随时能接回来。驱动它的 `HeroDive.tsx` 已经
+ * 删掉 —— 那个组件除了推这一层没有别的任务。
+ *
+ * **代价要记住**：它原本是 s1 → s2 那次 zoom-through 的「洞」。去掉之后那次
+ * 转场需要重新找一个洞（穿过星河尽头那个光环是最自然的候选）。这条没定之前，
+ * 转场先不做。
  */
 export function HeroStage() {
   const { void: base } = HERO_LAYERS;
@@ -42,25 +57,6 @@ export function HeroStage() {
         playsInline
         disablePictureInPicture
         className="absolute inset-0 h-full w-full object-cover mix-blend-screen"
-      />
-
-      {/* 水面。s1 → s2 那次穿透的「洞」。
-          静止时整层钉在首屏盒子**下方**（`top-full`），只靠 HeroDive 给的
-          `translateY` 提上来一截（见 HERO_LAYERS.surface.peek），露出的是图顶部
-          那段纯黑，屏幕上什么都看不见。退场段由 HeroDive 拉着往上刷过视口。
-
-          摆在暗罩**下面**是有意的：退场段文案还在屏幕上往上走，桌面暗罩左浓右淡
-          正好压住焦散压到标题的那一侧 —— 可读性硬件重用一次，不另开一层。 */}
-      <div
-        data-hero-surface
-        className="absolute inset-x-0 top-full will-change-transform mix-blend-screen"
-        style={{
-          aspectRatio: `${HERO_LAYERS.surface.w} / ${HERO_LAYERS.surface.h}`,
-          backgroundImage: `url(${HERO_LAYERS.surface.src})`,
-          backgroundSize: "100% 100%",
-          backgroundRepeat: "no-repeat",
-          transform: `translate3d(0, ${-HERO_LAYERS.surface.peek * 100}%, 0)`,
-        }}
       />
 
       {/* 暗罩。理由与实测数字见 HERO_RIVER.scrim 的注释 —— 这是可读性硬件，
