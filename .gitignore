@@ -15,3 +15,6 @@ assets/blog/*.png
 
 # Raw PNG sources for demo mockup photos (converted to .webp; keep local, do not commit)
 assets/demos/**/*.png
+
+# 看图复刻的产物 —— 默认不进 git、不上线（screenshot-to-web 技能）
+_replicas/
