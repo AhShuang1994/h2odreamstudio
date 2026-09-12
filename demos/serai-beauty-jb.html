@@ -220,6 +220,17 @@ section{padding:88px 0}
 .group li b{font-weight:500;color:var(--terracotta-deep);white-space:nowrap}
 .sgd{margin-top:34px;font-size:.86rem;color:var(--text-muted);text-align:center}
 @media (max-width:900px){.groups{grid-template-columns:1fr}}
+@media (max-width:768px){
+  .groups{
+    display:flex;position:relative;grid-template-columns:none;
+    overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
+    gap:14px;margin:0 -20px;padding:4px 20px 12px;
+    scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+  }
+  .groups::-webkit-scrollbar{display:none}
+  .groups>.group{flex:0 0 84%;scroll-snap-align:center;scroll-snap-stop:always}
+}
 
 /* ───── Packages: asymmetric 2-up ───── */
 .packs{display:grid;grid-template-columns:1.35fr 1fr;gap:22px;align-items:stretch}
@@ -330,8 +341,8 @@ footer .brand span{opacity:.72}
     <a href="#" class="brand"><b>SERAI</b><span>Skin Studio</span></a>
     <div class="nav-links" id="navlinks">
       <a href="#" class="on">Home</a>
-      <a href="#treatments">Treatments</a>
       <a href="#prices">Prices</a>
+      <a href="#treatments">Treatments</a>
       <a href="#studio">About</a>
       <a href="#visit">Visit</a>
     </div>
@@ -359,6 +370,56 @@ footer .brand span{opacity:.72}
       <img src="https://picsum.photos/seed/serai-studio-treatment-room/900/1125" alt="Treatment room at Serai Skin Studio" width="900" height="1125" loading="eager">
       <div class="badge"><small>First visit</small><b>RM 88</b><s>usually RM 188</s></div>
     </div>
+  </div>
+</section>
+
+<!-- ══ Full price list ══ -->
+<section class="pricelist" id="prices">
+  <div class="wrap">
+    <div class="head-block rv">
+      <h2>Full price list</h2>
+      <p class="lede">Updated September 2026. Prices include consultation and aftercare advice.</p>
+    </div>
+    <div class="groups">
+      <div class="group rv">
+        <h3>Facials</h3>
+        <p class="zh">面部护理</p>
+        <ul>
+          <li><div>Hydra Glow Facial<span>75 min</span></div><b>RM 188</b></li>
+          <li><div>Acne Rescue Facial<span>90 min</span></div><b>RM 228</b></li>
+          <li><div>Vitamin C Brightening<span>75 min</span></div><b>RM 208</b></li>
+          <li><div>Collagen Lift<span>90 min</span></div><b>RM 288</b></li>
+          <li><div>Express Lunch Facial<span>45 min</span></div><b>RM 128</b></li>
+        </ul>
+      </div>
+      <div class="group rv">
+        <h3>Brows and lashes</h3>
+        <p class="zh">眉毛与睫毛</p>
+        <ul>
+          <li><div>Misty Brow Embroidery<span>2 hr, 1 touch up included</span></div><b>RM 680</b></li>
+          <li><div>Brow Trim and Tint<span>30 min</span></div><b>RM 45</b></li>
+          <li><div>Classic Lash Set<span>90 min</span></div><b>RM 138</b></li>
+          <li><div>Volume Lash Set<span>2 hr</span></div><b>RM 188</b></li>
+          <li><div>Lash Lift and Tint<span>60 min</span></div><b>RM 118</b></li>
+        </ul>
+      </div>
+      <div class="group rv">
+        <h3>Waxing and body</h3>
+        <p class="zh">脱毛与身体护理</p>
+        <ul>
+          <li><div>Underarm Wax<span>15 min</span></div><b>RM 38</b></li>
+          <li><div>Full Leg Wax<span>45 min</span></div><b>RM 128</b></li>
+          <li><div>Brazilian Wax<span>40 min</span></div><b>RM 98</b></li>
+          <li><div>Back Treatment<span>60 min</span></div><b>RM 158</b></li>
+          <li><div>Shoulder and Neck Relief<span>45 min</span></div><b>RM 88</b></li>
+        </ul>
+      </div>
+    </div>
+    <div class="car-ui" id="priceui">
+      <div class="dots" role="tablist" aria-label="Choose a price group"></div>
+      <button class="car-pause" type="button" aria-label="Pause automatic scrolling"><i class="ph ph-pause"></i></button>
+    </div>
+    <p class="sgd">Singapore customers: RM 188 is roughly SGD 56. We are 15 minutes from Johor Bahru CIQ and parking is free.</p>
   </div>
 </section>
 
@@ -451,55 +512,9 @@ footer .brand span{opacity:.72}
       </article>
     </div>
     <div class="car-ui" id="carui">
-      <div class="dots" id="cardots" role="tablist" aria-label="Choose a treatment"></div>
-      <button class="car-pause" id="carpause" type="button" aria-label="Pause automatic scrolling"><i class="ph ph-pause"></i></button>
+      <div class="dots" role="tablist" aria-label="Choose a treatment"></div>
+      <button class="car-pause" type="button" aria-label="Pause automatic scrolling"><i class="ph ph-pause"></i></button>
     </div>
-  </div>
-</section>
-
-<!-- ══ Full price list ══ -->
-<section class="pricelist" id="prices">
-  <div class="wrap">
-    <div class="head-block rv">
-      <h2>Full price list</h2>
-      <p class="lede">Updated September 2026. Prices include consultation and aftercare advice.</p>
-    </div>
-    <div class="groups">
-      <div class="group rv">
-        <h3>Facials</h3>
-        <p class="zh">面部护理</p>
-        <ul>
-          <li><div>Hydra Glow Facial<span>75 min</span></div><b>RM 188</b></li>
-          <li><div>Acne Rescue Facial<span>90 min</span></div><b>RM 228</b></li>
-          <li><div>Vitamin C Brightening<span>75 min</span></div><b>RM 208</b></li>
-          <li><div>Collagen Lift<span>90 min</span></div><b>RM 288</b></li>
-          <li><div>Express Lunch Facial<span>45 min</span></div><b>RM 128</b></li>
-        </ul>
-      </div>
-      <div class="group rv">
-        <h3>Brows and lashes</h3>
-        <p class="zh">眉毛与睫毛</p>
-        <ul>
-          <li><div>Misty Brow Embroidery<span>2 hr, 1 touch up included</span></div><b>RM 680</b></li>
-          <li><div>Brow Trim and Tint<span>30 min</span></div><b>RM 45</b></li>
-          <li><div>Classic Lash Set<span>90 min</span></div><b>RM 138</b></li>
-          <li><div>Volume Lash Set<span>2 hr</span></div><b>RM 188</b></li>
-          <li><div>Lash Lift and Tint<span>60 min</span></div><b>RM 118</b></li>
-        </ul>
-      </div>
-      <div class="group rv">
-        <h3>Waxing and body</h3>
-        <p class="zh">脱毛与身体护理</p>
-        <ul>
-          <li><div>Underarm Wax<span>15 min</span></div><b>RM 38</b></li>
-          <li><div>Full Leg Wax<span>45 min</span></div><b>RM 128</b></li>
-          <li><div>Brazilian Wax<span>40 min</span></div><b>RM 98</b></li>
-          <li><div>Back Treatment<span>60 min</span></div><b>RM 158</b></li>
-          <li><div>Shoulder and Neck Relief<span>45 min</span></div><b>RM 88</b></li>
-        </ul>
-      </div>
-    </div>
-    <p class="sgd">Singapore customers: RM 188 is roughly SGD 56. We are 15 minutes from Johor Bahru CIQ and parking is free.</p>
   </div>
 </section>
 
@@ -694,24 +709,28 @@ footer .brand span{opacity:.72}
     document.getElementById('statustext').textContent='Open six days a week';
   }
 
-  // ── Mobile treatment carousel: auto advances every 3s, stops the moment
-  //    the visitor touches it, leaves the screen, or asks it to stop. ──
-  (function(){
-    var track=document.querySelector('#treatments .cards');
-    var ui=document.getElementById('carui'), dotWrap=document.getElementById('cardots'), pauseBtn=document.getElementById('carpause');
+  // ── Mobile carousels. One factory drives both the treatment row and the
+  //    price groups, so the pause rules stay identical between them. ──
+  function makeCarousel(opt){
+    var track=document.querySelector(opt.track);
+    var ui=document.querySelector(opt.ui);
     if(!track||!ui) return;
+    var dotWrap=ui.querySelector('.dots'), pauseBtn=ui.querySelector('.car-pause');
+    if(!dotWrap||!pauseBtn) return;
+    var items=[].slice.call(track.querySelectorAll(opt.item));
+    if(items.length<2) return;
+
     var mqMobile=window.matchMedia('(max-width:768px)');
     var mqReduce=window.matchMedia('(prefers-reduced-motion: reduce)');
     var STEP=3000, RESUME_AFTER=6000;
     var timer=null, resumeTimer=null, idx=0, stoppedByUser=false, onScreen=true, active=false;
-    var cards=[].slice.call(track.querySelectorAll('.card'));
 
     function buildDots(){
       dotWrap.innerHTML='';
-      cards.forEach(function(c,i){
+      items.forEach(function(_,i){
         var b=document.createElement('button');
         b.type='button'; b.setAttribute('role','tab');
-        b.setAttribute('aria-label','Treatment '+(i+1)+' of '+cards.length);
+        b.setAttribute('aria-label',opt.label+' '+(i+1)+' of '+items.length);
         b.addEventListener('click',function(){ go(i,true); nudge(); });
         dotWrap.appendChild(b);
       });
@@ -725,9 +744,8 @@ footer .brand span{opacity:.72}
       }
     }
     function go(i,smooth){
-      if(!cards.length) return;
-      idx=(i%cards.length+cards.length)%cards.length;
-      var c=cards[idx];
+      idx=(i%items.length+items.length)%items.length;
+      var c=items[idx];
       var left=c.offsetLeft-(track.clientWidth-c.offsetWidth)/2;
       var how=(smooth && !mqReduce.matches)?'smooth':'auto';
       if(track.scrollTo) track.scrollTo({left:left,behavior:how}); else track.scrollLeft=left;
@@ -738,12 +756,12 @@ footer .brand span{opacity:.72}
       timer=setInterval(function(){ go(idx+1,true); },STEP);
     }
     function halt(){ if(timer){clearInterval(timer);timer=null;} }
-    function nudge(){            // visitor touched it: hold off, then resume
+    function nudge(){                      // visitor touched it: hold, then resume
       halt(); clearTimeout(resumeTimer);
       resumeTimer=setTimeout(play,RESUME_AFTER);
     }
 
-    // Keep the dots honest when the visitor swipes by hand.
+    // Dots follow scroll position, so a hand swipe keeps them honest.
     var raf=null;
     track.addEventListener('scroll',function(){
       if(raf) return;
@@ -751,7 +769,7 @@ footer .brand span{opacity:.72}
         raf=null;
         if(!active) return;
         var mid=track.scrollLeft+track.clientWidth/2, best=0, dist=Infinity;
-        cards.forEach(function(c,i){
+        items.forEach(function(c,i){
           var d=Math.abs((c.offsetLeft+c.offsetWidth/2)-mid);
           if(d<dist){dist=d;best=i;}
         });
@@ -765,8 +783,7 @@ footer .brand span{opacity:.72}
 
     pauseBtn.addEventListener('click',function(){
       stoppedByUser=!stoppedByUser;
-      if(stoppedByUser){ halt(); clearTimeout(resumeTimer); }
-      else play();
+      if(stoppedByUser){ halt(); clearTimeout(resumeTimer); } else play();
       pauseBtn.innerHTML=stoppedByUser?'<i class="ph ph-play"></i>':'<i class="ph ph-pause"></i>';
       pauseBtn.setAttribute('aria-label',stoppedByUser?'Resume automatic scrolling':'Pause automatic scrolling');
     });
@@ -784,9 +801,9 @@ footer .brand span{opacity:.72}
       active=mqMobile.matches;
       ui.classList.toggle('on',active);
       if(active){
-        // Cards scrolled out of the track are clipped, so the page-wide reveal
+        // Items scrolled outside the track are clipped, so the page wide reveal
         // observer would never fire for them. Show them all up front here.
-        cards.forEach(function(c){ c.classList.add('in'); c.style.transitionDelay='0ms'; });
+        items.forEach(function(c){ c.classList.add('in'); c.style.transitionDelay='0ms'; });
         if(!dotWrap.children.length) buildDots();
         go(0,false); play();
       }else{
@@ -796,7 +813,10 @@ footer .brand span{opacity:.72}
     }
     mqMobile.addEventListener? mqMobile.addEventListener('change',setup) : mqMobile.addListener(setup);
     setup();
-  })();
+  }
+
+  makeCarousel({track:'#treatments .cards', ui:'#carui',   item:'.card',  label:'Treatment'});
+  makeCarousel({track:'#prices .groups',    ui:'#priceui', item:'.group', label:'Price group'});
 
   // ── Scroll reveal via IntersectionObserver, sequences a long information page ──
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
