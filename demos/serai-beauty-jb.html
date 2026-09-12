@@ -173,7 +173,39 @@ section{padding:88px 0}
 .card .price{display:flex;align-items:baseline;gap:8px;font-family:'Playfair Display',serif;font-size:1.32rem;color:var(--terracotta-deep)}
 .card .price small{font-family:'DM Sans',sans-serif;font-size:.76rem;color:var(--text-muted)}
 @media (max-width:980px){.cards{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:560px){.cards{grid-template-columns:1fr}}
+
+/* Mobile: the treatment grid becomes a snap carousel that auto advances.
+   Cards bleed to the screen edge so the next one peeks in and reads as swipeable. */
+@media (max-width:768px){
+  .cards{
+    display:flex;position:relative;grid-template-columns:none;
+    overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
+    gap:14px;margin:0 -20px;padding:4px 20px 12px;
+    scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+  }
+  .cards::-webkit-scrollbar{display:none}
+  .cards>.card{flex:0 0 80%;scroll-snap-align:center;scroll-snap-stop:always}
+  .cards>.card:hover{transform:none;box-shadow:var(--shadow)}
+}
+
+/* Carousel controls. Dots carry real state (which card you are on), and the
+   pause button is required because the rotation starts on its own. */
+.car-ui{display:none;align-items:center;justify-content:center;gap:16px;margin-top:18px}
+.car-ui.on{display:flex}
+.dots{display:flex;gap:8px}
+.dots button{
+  width:8px;height:8px;padding:0;border:0;border-radius:50%;
+  background:var(--border);cursor:pointer;transition:background .2s var(--ease),width .2s var(--ease)
+}
+.dots button.on{background:var(--terracotta-deep);width:22px;border-radius:var(--r-pill)}
+.dots button:focus-visible,.car-pause:focus-visible{outline:2px solid var(--terracotta-deep);outline-offset:3px}
+.car-pause{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:50%;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-muted);cursor:pointer;font-size:.95rem
+}
+.car-pause:hover{color:var(--text)}
 
 /* ───── Full price list: 3 grouped panels ───── */
 .pricelist{background:var(--surface-2)}
@@ -418,6 +450,10 @@ footer .brand span{opacity:.72}
         </div>
       </article>
     </div>
+    <div class="car-ui" id="carui">
+      <div class="dots" id="cardots" role="tablist" aria-label="Choose a treatment"></div>
+      <button class="car-pause" id="carpause" type="button" aria-label="Pause automatic scrolling"><i class="ph ph-pause"></i></button>
+    </div>
   </div>
 </section>
 
@@ -657,6 +693,110 @@ footer .brand span{opacity:.72}
   }catch(e){
     document.getElementById('statustext').textContent='Open six days a week';
   }
+
+  // ── Mobile treatment carousel: auto advances every 3s, stops the moment
+  //    the visitor touches it, leaves the screen, or asks it to stop. ──
+  (function(){
+    var track=document.querySelector('#treatments .cards');
+    var ui=document.getElementById('carui'), dotWrap=document.getElementById('cardots'), pauseBtn=document.getElementById('carpause');
+    if(!track||!ui) return;
+    var mqMobile=window.matchMedia('(max-width:768px)');
+    var mqReduce=window.matchMedia('(prefers-reduced-motion: reduce)');
+    var STEP=3000, RESUME_AFTER=6000;
+    var timer=null, resumeTimer=null, idx=0, stoppedByUser=false, onScreen=true, active=false;
+    var cards=[].slice.call(track.querySelectorAll('.card'));
+
+    function buildDots(){
+      dotWrap.innerHTML='';
+      cards.forEach(function(c,i){
+        var b=document.createElement('button');
+        b.type='button'; b.setAttribute('role','tab');
+        b.setAttribute('aria-label','Treatment '+(i+1)+' of '+cards.length);
+        b.addEventListener('click',function(){ go(i,true); nudge(); });
+        dotWrap.appendChild(b);
+      });
+    }
+    function paintDots(){
+      var ds=dotWrap.children;
+      for(var i=0;i<ds.length;i++){
+        var on=(i===idx);
+        ds[i].classList.toggle('on',on);
+        ds[i].setAttribute('aria-selected',on?'true':'false');
+      }
+    }
+    function go(i,smooth){
+      if(!cards.length) return;
+      idx=(i%cards.length+cards.length)%cards.length;
+      var c=cards[idx];
+      var left=c.offsetLeft-(track.clientWidth-c.offsetWidth)/2;
+      var how=(smooth && !mqReduce.matches)?'smooth':'auto';
+      if(track.scrollTo) track.scrollTo({left:left,behavior:how}); else track.scrollLeft=left;
+      paintDots();
+    }
+    function play(){
+      if(timer||!active||stoppedByUser||!onScreen||document.hidden||mqReduce.matches) return;
+      timer=setInterval(function(){ go(idx+1,true); },STEP);
+    }
+    function halt(){ if(timer){clearInterval(timer);timer=null;} }
+    function nudge(){            // visitor touched it: hold off, then resume
+      halt(); clearTimeout(resumeTimer);
+      resumeTimer=setTimeout(play,RESUME_AFTER);
+    }
+
+    // Keep the dots honest when the visitor swipes by hand.
+    var raf=null;
+    track.addEventListener('scroll',function(){
+      if(raf) return;
+      raf=requestAnimationFrame(function(){
+        raf=null;
+        if(!active) return;
+        var mid=track.scrollLeft+track.clientWidth/2, best=0, dist=Infinity;
+        cards.forEach(function(c,i){
+          var d=Math.abs((c.offsetLeft+c.offsetWidth/2)-mid);
+          if(d<dist){dist=d;best=i;}
+        });
+        if(best!==idx){ idx=best; paintDots(); }
+      });
+    },{passive:true});
+
+    ['pointerdown','touchstart','wheel'].forEach(function(ev){
+      track.addEventListener(ev,nudge,{passive:true});
+    });
+
+    pauseBtn.addEventListener('click',function(){
+      stoppedByUser=!stoppedByUser;
+      if(stoppedByUser){ halt(); clearTimeout(resumeTimer); }
+      else play();
+      pauseBtn.innerHTML=stoppedByUser?'<i class="ph ph-play"></i>':'<i class="ph ph-pause"></i>';
+      pauseBtn.setAttribute('aria-label',stoppedByUser?'Resume automatic scrolling':'Pause automatic scrolling');
+    });
+
+    document.addEventListener('visibilitychange',function(){ document.hidden?halt():play(); });
+
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(es){
+        onScreen=es[0].isIntersecting;
+        onScreen?play():halt();
+      },{threshold:.25}).observe(track);
+    }
+
+    function setup(){
+      active=mqMobile.matches;
+      ui.classList.toggle('on',active);
+      if(active){
+        // Cards scrolled out of the track are clipped, so the page-wide reveal
+        // observer would never fire for them. Show them all up front here.
+        cards.forEach(function(c){ c.classList.add('in'); c.style.transitionDelay='0ms'; });
+        if(!dotWrap.children.length) buildDots();
+        go(0,false); play();
+      }else{
+        halt(); clearTimeout(resumeTimer);
+        track.scrollLeft=0;
+      }
+    }
+    mqMobile.addEventListener? mqMobile.addEventListener('change',setup) : mqMobile.addListener(setup);
+    setup();
+  })();
 
   // ── Scroll reveal via IntersectionObserver, sequences a long information page ──
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
