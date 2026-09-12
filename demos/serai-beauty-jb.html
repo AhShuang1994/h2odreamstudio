@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,follow">
+<title>Serai Skin Studio | Facial, Brows &amp; Lashes in Johor Bahru</title>
+<meta name="description" content="Licensed beauty studio in Taman Mount Austin, Johor Bahru. Facials, brow embroidery, lash extensions and waxing. Transparent pricing, WhatsApp booking, open 6 days a week.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Noto+Sans+SC:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ───── Tokens. One accent (terracotta) + cool slate neutrals. ─────
+   Radius rule, applied everywhere: panels/cards/images 14px,
+   interactive controls (buttons, chips) full pill, inputs 10px. */
+:root{
+  --bg:#FAFAFA; --surface:#FFFFFF; --surface-2:#F1F2F4; --surface-warm:#FBF3EF;
+  --terracotta:#C2603F; --terracotta-deep:#A24B2E; --terracotta-soft:#F3DED5;
+  --text:#1F2429; --text-muted:#5A6470; --border:#E2E5E9;
+  --shadow:0 1px 2px rgba(31,36,41,.04), 0 8px 28px rgba(31,36,41,.06);
+  --shadow-lift:0 2px 4px rgba(31,36,41,.05), 0 16px 44px rgba(31,36,41,.10);
+  --r:14px; --r-pill:999px; --r-input:10px;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#14171A; --surface:#1C2024; --surface-2:#23282D; --surface-warm:#241C19;
+    --terracotta:#E08A67; --terracotta-deep:#E08A67; --terracotta-soft:#3A2620;
+    --text:#EDEFF1; --text-muted:#A2ACB8; --border:#2C3238;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+    --shadow-lift:0 2px 4px rgba(0,0,0,.35), 0 16px 44px rgba(0,0,0,.45);
+  }
+}
+
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans','Noto Sans SC',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg); color:var(--text); line-height:1.6;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+h1,h2,h3{font-family:'Playfair Display',Georgia,'Noto Sans SC',serif;font-weight:600;line-height:1.14;letter-spacing:-.01em}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.zh{font-family:'Noto Sans SC',sans-serif}
+
+.wrap{width:100%;max-width:1180px;margin:0 auto;padding:0 24px}
+/* Grid children default to min-width:auto, so an image's intrinsic width can
+   blow out its track before the file loads. Pin every grid child to min-width:0. */
+.hero-grid>*,.hours-grid>*,.studio-grid>*,.contact-grid>*,.cards>*,.groups>*,.packs>*,.quotes>*,.trust>*,.foot-grid>*,.mosaic>*{min-width:0}
+section{padding:88px 0}
+@media (max-width:768px){section{padding:56px 0}.wrap{padding:0 20px}}
+
+.skip{position:absolute;top:-100px;left:16px;background:var(--terracotta-deep);color:#fff;padding:10px 18px;border-radius:var(--r-input);z-index:200}
+.skip:focus{top:16px}
+
+/* ───── Buttons ───── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  white-space:nowrap;border-radius:var(--r-pill);font-weight:500;font-size:.95rem;
+  padding:13px 26px;border:1px solid transparent;cursor:pointer;
+  transition:transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
+}
+.btn-primary{background:var(--terracotta-deep);color:#fff}
+.btn-primary:hover{background:#8E3F25}
+.btn-ghost{background:transparent;color:var(--text);border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--text-muted)}
+.btn:active{transform:scale(.98)}
+.btn:focus-visible{outline:2px solid var(--terracotta-deep);outline-offset:3px}
+@media (prefers-color-scheme:dark){
+  .btn-primary{background:var(--terracotta);color:#14171A}
+  .btn-primary:hover{background:#EEA184}
+}
+
+.eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--terracotta-deep);font-weight:500;margin-bottom:14px}
+.lede{color:var(--text-muted);max-width:62ch}
+
+/* ───── Nav ───── */
+.nav{position:sticky;top:0;z-index:100;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-in{height:72px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{display:flex;flex-direction:column;line-height:1.05}
+.brand b{font-family:'Playfair Display',serif;font-size:1.22rem;font-weight:600;letter-spacing:.1em}
+.brand span{font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--text-muted);margin-top:3px}
+.nav-links{display:flex;gap:30px;font-size:.92rem}
+.nav-links a{color:var(--text-muted);transition:color .18s var(--ease)}
+.nav-links a:hover,.nav-links a.on{color:var(--text)}
+.nav-links a.on{position:relative}
+.nav-links a.on::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;background:var(--terracotta-deep)}
+.nav-toggle{display:none;background:none;border:1px solid var(--border);border-radius:var(--r-pill);width:42px;height:42px;color:var(--text);font-size:1.2rem;cursor:pointer}
+@media (max-width:900px){
+  .nav-links{display:none;position:absolute;top:72px;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border);flex-direction:column;gap:0;padding:8px 24px 18px}
+  .nav-links.open{display:flex}
+  .nav-links a{padding:13px 0;border-bottom:1px solid var(--border)}
+  .nav-links a.on::after{display:none}
+  .nav-toggle{display:inline-flex;align-items:center;justify-content:center}
+  .nav .btn{display:none}
+}
+
+/* ───── Hero: asymmetric split ───── */
+.hero{padding-top:64px;padding-bottom:72px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
+.hero h1{font-size:clamp(2.4rem,4.6vw,3.9rem)}
+.hero h1 i{font-style:italic;color:var(--terracotta);line-height:1.12;display:inline-block;padding-bottom:.06em}
+.hero .lede{margin:22px 0 30px;font-size:1.05rem}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.hero-media{position:relative}
+.hero-media img{width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:var(--r)}
+.badge{
+  position:absolute;right:-14px;bottom:26px;width:132px;height:132px;border-radius:50%;
+  background:var(--terracotta-deep);color:#fff;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;box-shadow:var(--shadow-lift);
+}
+.badge b{font-family:'Playfair Display',serif;font-size:1.6rem;line-height:1}
+.badge small{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;margin-top:5px;opacity:.9}
+.badge s{font-size:.68rem;opacity:.72;margin-top:2px}
+@media (prefers-color-scheme:dark){.badge{background:var(--terracotta);color:#14171A}}
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:1fr;gap:36px}
+  .hero{padding-top:40px}
+  .badge{width:106px;height:106px;right:10px;bottom:14px}
+}
+
+/* ───── Hours band ───── */
+.hours{background:var(--surface-warm);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:52px 0}
+.hours-grid{display:grid;grid-template-columns:.9fr 1.5fr;gap:48px;align-items:start}
+.status{display:inline-flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-pill);padding:8px 16px;font-size:.88rem;font-weight:500;margin-bottom:18px}
+.status .dot{width:8px;height:8px;border-radius:50%;background:var(--text-muted);flex:none}
+.status.is-open .dot{background:#2E7D52}
+.status.is-shut .dot{background:#B3472F}
+.hours h2{font-size:1.9rem;margin-bottom:10px}
+.week{display:grid;grid-template-columns:repeat(2,1fr);gap:0 40px}
+.week div{display:flex;justify-content:space-between;gap:16px;padding:11px 0;font-size:.94rem}
+.week div+div{border-top:1px solid var(--border)}
+.week .day{color:var(--text-muted)}
+.week .shut .time{color:var(--terracotta-deep)}
+.week .today{font-weight:700}
+.ph-note{margin-top:18px;font-size:.86rem;color:var(--text-muted)}
+@media (max-width:860px){.hours-grid{grid-template-columns:1fr;gap:28px}.week{grid-template-columns:1fr}.week div:nth-child(5){border-top:1px solid var(--border)}}
+
+/* ───── Trust strip ───── */
+.trust{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.trust > div{padding:0 30px;text-align:center}
+.trust > div+div{border-left:1px solid var(--border)}
+.trust i{font-size:1.7rem;color:var(--terracotta);display:block;margin-bottom:12px}
+.trust b{display:block;font-size:.98rem;margin-bottom:6px;font-weight:500}
+.trust p{font-size:.86rem;color:var(--text-muted);line-height:1.5}
+.rating{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:44px;padding-top:32px;border-top:1px solid var(--border);flex-wrap:wrap;text-align:center}
+.rating .score{font-family:'Playfair Display',serif;font-size:1.6rem}
+.rating .stars{color:var(--terracotta);letter-spacing:.1em}
+.rating span{font-size:.9rem;color:var(--text-muted)}
+@media (max-width:860px){
+  .trust{grid-template-columns:repeat(2,1fr);gap:34px 0}
+  .trust > div{padding:0 14px}
+  .trust > div+div{border-left:none}
+  .trust > div:nth-child(even){border-left:1px solid var(--border)}
+}
+
+/* ───── Signature treatment cards ───── */
+.head-block{max-width:60ch;margin-bottom:44px}
+.head-block h2{font-size:clamp(1.9rem,3.2vw,2.6rem);margin-bottom:14px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);transition:transform .22s var(--ease),box-shadow .22s var(--ease)}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift)}
+.card img{width:100%;height:auto;aspect-ratio:5/4;object-fit:cover}
+.card-body{padding:20px}
+.card .dur{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+.card h3{font-size:1.12rem;margin:8px 0 3px}
+.card .zh{font-size:.86rem;color:var(--text-muted);margin-bottom:14px}
+.card .price{display:flex;align-items:baseline;gap:8px;font-family:'Playfair Display',serif;font-size:1.32rem;color:var(--terracotta-deep)}
+.card .price small{font-family:'DM Sans',sans-serif;font-size:.76rem;color:var(--text-muted)}
+@media (max-width:980px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.cards{grid-template-columns:1fr}}
+
+/* ───── Full price list: 3 grouped panels ───── */
+.pricelist{background:var(--surface-2)}
+.groups{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.group{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px 26px}
+.group h3{font-size:1.25rem;margin-bottom:4px}
+.group .zh{font-size:.85rem;color:var(--text-muted);margin-bottom:22px}
+.group ul{list-style:none}
+.group li{display:flex;justify-content:space-between;align-items:baseline;gap:18px;padding:12px 0;font-size:.94rem}
+.group li+li{border-top:1px solid var(--border)}
+.group li span{color:var(--text-muted);font-size:.84rem;display:block}
+.group li b{font-weight:500;color:var(--terracotta-deep);white-space:nowrap}
+.sgd{margin-top:34px;font-size:.86rem;color:var(--text-muted);text-align:center}
+@media (max-width:900px){.groups{grid-template-columns:1fr}}
+
+/* ───── Packages: asymmetric 2-up ───── */
+.packs{display:grid;grid-template-columns:1.35fr 1fr;gap:22px;align-items:stretch}
+.pack{border-radius:var(--r);padding:38px 34px;display:flex;flex-direction:column}
+.pack-lead{background:var(--terracotta-deep);color:#fff}
+.pack-lead h3{color:#fff;font-size:1.9rem}
+.pack-lead .amt{font-family:'Playfair Display',serif;font-size:3.2rem;line-height:1;margin:18px 0 6px}
+.pack-lead .was{opacity:.78;font-size:.92rem}
+.pack-lead p{opacity:.9;margin:18px 0 26px;font-size:.95rem;max-width:44ch}
+.pack-lead .btn{background:#fff;color:var(--terracotta-deep);align-self:flex-start}
+.pack-lead .btn:hover{background:#F3DED5}
+.pack-alt{background:var(--surface);border:1px solid var(--border)}
+.pack-alt h3{font-size:1.4rem;margin-bottom:16px}
+.pack-alt ul{list-style:none;margin-top:auto}
+.pack-alt li{display:flex;gap:11px;padding:11px 0;font-size:.93rem;align-items:flex-start}
+.pack-alt li i{color:var(--terracotta);font-size:1.05rem;flex:none;margin-top:2px}
+.pack-alt li b{color:var(--terracotta-deep);font-weight:500}
+@media (prefers-color-scheme:dark){
+  .pack-lead{background:var(--terracotta);color:#14171A}
+  .pack-lead h3{color:#14171A}
+  .pack-lead .btn{background:#14171A;color:var(--terracotta)}
+  .pack-lead .btn:hover{background:#23282D}
+}
+@media (max-width:900px){.packs{grid-template-columns:1fr}.pack{padding:30px 26px}}
+
+/* ───── Studio mosaic ───── */
+.studio-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.mosaic{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:14px}
+.mosaic img{width:100%;height:100%;object-fit:cover;border-radius:var(--r)}
+.mosaic .tall{grid-row:span 2;aspect-ratio:3/4.3}
+.mosaic .sq{aspect-ratio:1/1;height:auto}
+.studio h2{font-size:clamp(1.9rem,3.2vw,2.6rem);margin-bottom:16px}
+.studio p{color:var(--text-muted);margin-bottom:14px}
+@media (max-width:900px){.studio-grid{grid-template-columns:1fr;gap:32px}}
+
+/* ───── Testimonials ───── */
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.quote{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px 26px;display:flex;flex-direction:column}
+.quote p{font-size:.97rem;margin-bottom:22px}
+.quote .who{display:flex;align-items:center;gap:12px;margin-top:auto}
+.quote .who img{width:40px;height:40px;border-radius:50%;object-fit:cover;flex:none}
+.quote .who b{display:block;font-size:.9rem;font-weight:500}
+.quote .who span{display:block;font-size:.79rem;color:var(--text-muted)}
+@media (max-width:900px){.quotes{grid-template-columns:1fr}}
+
+/* ───── Contact split ───── */
+.contact{background:var(--surface-2)}
+.contact-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:48px;align-items:start}
+.contact h2{font-size:clamp(1.9rem,3.2vw,2.6rem);margin-bottom:16px}
+.info{list-style:none;margin:26px 0}
+.info li{display:flex;gap:14px;padding:13px 0;align-items:flex-start;font-size:.95rem}
+.info li+li{border-top:1px solid var(--border)}
+.info i{color:var(--terracotta);font-size:1.2rem;flex:none;margin-top:2px}
+.info a{color:var(--terracotta-deep);text-decoration:underline;text-underline-offset:3px}
+.map{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--surface);min-height:340px}
+.map iframe{width:100%;height:100%;min-height:340px;border:0;display:block}
+.map-links{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+@media (max-width:900px){.contact-grid{grid-template-columns:1fr;gap:30px}}
+
+/* ───── Footer ───── */
+footer{background:var(--terracotta-deep);color:#fff;padding:64px 0 30px}
+@media (prefers-color-scheme:dark){footer{background:#241C19}}
+.foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.1fr;gap:40px}
+footer .brand b,footer .brand span{color:#fff}
+footer .brand span{opacity:.72}
+.foot-grid p{opacity:.82;font-size:.9rem;margin-top:16px;max-width:34ch}
+.foot-grid h4{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;opacity:.72;margin-bottom:16px;font-weight:500}
+.foot-grid ul{list-style:none}
+.foot-grid li{padding:6px 0;font-size:.91rem}
+.foot-grid a{opacity:.88}
+.foot-grid a:hover{opacity:1;text-decoration:underline;text-underline-offset:3px}
+.socials{display:flex;gap:12px;margin-top:20px}
+.socials a{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.32);display:flex;align-items:center;justify-content:center;font-size:1.05rem;transition:background .18s var(--ease)}
+.socials a:hover{background:rgba(255,255,255,.14)}
+.pay{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pay span{border:1px solid rgba(255,255,255,.3);border-radius:var(--r-pill);padding:5px 13px;font-size:.75rem;opacity:.88}
+.foot-base{margin-top:46px;padding-top:24px;border-top:1px solid rgba(255,255,255,.2);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:.84rem;opacity:.76}
+@media (max-width:900px){.foot-grid{grid-template-columns:1fr 1fr;gap:34px}}
+@media (max-width:560px){.foot-grid{grid-template-columns:1fr}}
+
+/* ───── Floating WhatsApp ───── */
+.float{
+  position:fixed;right:20px;bottom:20px;z-index:120;
+  display:inline-flex;align-items:center;gap:10px;background:#1FA855;color:#fff;
+  border-radius:var(--r-pill);padding:14px 22px;font-weight:500;font-size:.93rem;
+  box-shadow:0 6px 24px rgba(0,0,0,.22);transition:transform .18s var(--ease)
+}
+.float:hover{transform:translateY(-2px)}
+.float i{font-size:1.25rem}
+@media (max-width:560px){.float{padding:14px;right:16px;bottom:16px}.float span{display:none}}
+
+/* ───── Scroll reveal, motivated: sequences a long info page ───── */
+.rv{opacity:0;transform:translateY(20px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .rv{opacity:1;transform:none;transition:none}
+  .btn,.card,.float{transition:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ══ Nav ══ -->
+<nav class="nav">
+  <div class="wrap nav-in">
+    <a href="#" class="brand"><b>SERAI</b><span>Skin Studio</span></a>
+    <div class="nav-links" id="navlinks">
+      <a href="#" class="on">Home</a>
+      <a href="#treatments">Treatments</a>
+      <a href="#prices">Prices</a>
+      <a href="#studio">About</a>
+      <a href="#visit">Visit</a>
+    </div>
+    <a class="btn btn-primary" href="https://wa.me/60127784163?text=Hi%20Serai%2C%20I%27d%20like%20to%20book%20an%20appointment.">Book on WhatsApp</a>
+    <button class="nav-toggle" id="navtoggle" aria-label="Open menu" aria-expanded="false"><i class="ph ph-list"></i></button>
+  </div>
+</nav>
+
+<main id="main">
+
+<!-- ══ Hero ══ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="rv">
+      <p class="eyebrow">Taman Mount Austin, Johor Bahru</p>
+      <h1>Skin that feels<br>like <i>yours</i> again.</h1>
+      <p class="lede">Licensed facials, brows and lashes in a quiet two room studio. Real prices, no hard selling.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://wa.me/60127784163?text=Hi%20Serai%2C%20I%27d%20like%20to%20book%20an%20appointment.">Book on WhatsApp</a>
+        <a class="btn btn-ghost" href="#prices">See treatments and prices</a>
+      </div>
+    </div>
+    <div class="hero-media rv">
+      <!-- REPLACE: real photo of the treatment room or a facial in progress, 4:5 -->
+      <img src="https://picsum.photos/seed/serai-studio-treatment-room/900/1125" alt="Treatment room at Serai Skin Studio" width="900" height="1125" loading="eager">
+      <div class="badge"><small>First visit</small><b>RM 88</b><s>usually RM 188</s></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Opening hours ══ -->
+<section class="hours" id="hours">
+  <div class="wrap hours-grid">
+    <div class="rv">
+      <div class="status" id="status"><span class="dot"></span><span id="statustext">Checking hours</span></div>
+      <h2>Opening hours</h2>
+      <p class="lede">We take one appointment at a time, so walk ins are limited. Message us and we will hold a slot.</p>
+      <p class="ph-note">Closed on Tuesdays. Public holidays announced on Instagram.</p>
+    </div>
+    <div class="week rv" id="week">
+      <div data-d="1"><span class="day">Monday</span><span class="time">10:00 to 20:00</span></div>
+      <div data-d="2" class="shut"><span class="day">Tuesday</span><span class="time">Closed</span></div>
+      <div data-d="3"><span class="day">Wednesday</span><span class="time">10:00 to 20:00</span></div>
+      <div data-d="4"><span class="day">Thursday</span><span class="time">10:00 to 20:00</span></div>
+      <div data-d="5"><span class="day">Friday</span><span class="time">10:00 to 20:00</span></div>
+      <div data-d="6"><span class="day">Saturday</span><span class="time">09:30 to 19:00</span></div>
+      <div data-d="0"><span class="day">Sunday</span><span class="time">10:00 to 17:00</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Trust strip ══ -->
+<section>
+  <div class="wrap">
+    <div class="trust rv">
+      <div><i class="ph ph-certificate"></i><b>Licensed therapists</b><p>Every treatment is done by a certified beautician, never a trainee.</p></div>
+      <div><i class="ph ph-seal-check"></i><b>Sealed products</b><p>We open the product in front of you. Authentic stock only.</p></div>
+      <div><i class="ph ph-chat-circle-text"></i><b>One to one consult</b><p>Fifteen minutes of skin reading before we touch your face.</p></div>
+      <div><i class="ph ph-tag"></i><b>Price on the wall</b><p>What you see here is what you pay. No surprise add ons.</p></div>
+    </div>
+    <div class="rating rv">
+      <span class="score">4.8</span>
+      <span class="stars"><i class="ph ph-star-fill"></i><i class="ph ph-star-fill"></i><i class="ph ph-star-fill"></i><i class="ph ph-star-fill"></i><i class="ph ph-star-half"></i></span>
+      <span>from 213 Google reviews</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Signature treatments ══ -->
+<section id="treatments">
+  <div class="wrap">
+    <div class="head-block rv">
+      <p class="eyebrow">Most booked</p>
+      <h2>Four treatments we are known for</h2>
+      <p class="lede">Each one includes cleansing, extraction where needed, and a cool down mask.</p>
+    </div>
+    <div class="cards">
+      <article class="card rv">
+        <!-- REPLACE: hydrating facial in progress -->
+        <img src="https://picsum.photos/seed/serai-hydra-facial/600/480" alt="Hydra glow facial" width="600" height="480" loading="lazy">
+        <div class="card-body">
+          <p class="dur">75 minutes</p>
+          <h3>Hydra Glow Facial</h3>
+          <p class="zh">水光补水护理</p>
+          <p class="price">RM 188 <small>first visit RM 88</small></p>
+        </div>
+      </article>
+      <article class="card rv">
+        <!-- REPLACE: acne treatment close up -->
+        <img src="https://picsum.photos/seed/serai-acne-rescue/600/480" alt="Acne rescue facial" width="600" height="480" loading="lazy">
+        <div class="card-body">
+          <p class="dur">90 minutes</p>
+          <h3>Acne Rescue Facial</h3>
+          <p class="zh">抗痘净肤护理</p>
+          <p class="price">RM 228</p>
+        </div>
+      </article>
+      <article class="card rv">
+        <!-- REPLACE: brow embroidery in progress -->
+        <img src="https://picsum.photos/seed/serai-brow-embroidery/600/480" alt="Korean misty brow embroidery" width="600" height="480" loading="lazy">
+        <div class="card-body">
+          <p class="dur">2 hours</p>
+          <h3>Misty Brow Embroidery</h3>
+          <p class="zh">韩式雾眉</p>
+          <p class="price">RM 680 <small>includes 1 touch up</small></p>
+        </div>
+      </article>
+      <article class="card rv">
+        <!-- REPLACE: lash extension close up -->
+        <img src="https://picsum.photos/seed/serai-volume-lash/600/480" alt="Volume lash extensions" width="600" height="480" loading="lazy">
+        <div class="card-body">
+          <p class="dur">2 hours</p>
+          <h3>Volume Lash Set</h3>
+          <p class="zh">浓密接睫毛</p>
+          <p class="price">RM 188 <small>refill from RM 98</small></p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Full price list ══ -->
+<section class="pricelist" id="prices">
+  <div class="wrap">
+    <div class="head-block rv">
+      <h2>Full price list</h2>
+      <p class="lede">Updated September 2026. Prices include consultation and aftercare advice.</p>
+    </div>
+    <div class="groups">
+      <div class="group rv">
+        <h3>Facials</h3>
+        <p class="zh">面部护理</p>
+        <ul>
+          <li><div>Hydra Glow Facial<span>75 min</span></div><b>RM 188</b></li>
+          <li><div>Acne Rescue Facial<span>90 min</span></div><b>RM 228</b></li>
+          <li><div>Vitamin C Brightening<span>75 min</span></div><b>RM 208</b></li>
+          <li><div>Collagen Lift<span>90 min</span></div><b>RM 288</b></li>
+          <li><div>Express Lunch Facial<span>45 min</span></div><b>RM 128</b></li>
+        </ul>
+      </div>
+      <div class="group rv">
+        <h3>Brows and lashes</h3>
+        <p class="zh">眉毛与睫毛</p>
+        <ul>
+          <li><div>Misty Brow Embroidery<span>2 hr, 1 touch up included</span></div><b>RM 680</b></li>
+          <li><div>Brow Trim and Tint<span>30 min</span></div><b>RM 45</b></li>
+          <li><div>Classic Lash Set<span>90 min</span></div><b>RM 138</b></li>
+          <li><div>Volume Lash Set<span>2 hr</span></div><b>RM 188</b></li>
+          <li><div>Lash Lift and Tint<span>60 min</span></div><b>RM 118</b></li>
+        </ul>
+      </div>
+      <div class="group rv">
+        <h3>Waxing and body</h3>
+        <p class="zh">脱毛与身体护理</p>
+        <ul>
+          <li><div>Underarm Wax<span>15 min</span></div><b>RM 38</b></li>
+          <li><div>Full Leg Wax<span>45 min</span></div><b>RM 128</b></li>
+          <li><div>Brazilian Wax<span>40 min</span></div><b>RM 98</b></li>
+          <li><div>Back Treatment<span>60 min</span></div><b>RM 158</b></li>
+          <li><div>Shoulder and Neck Relief<span>45 min</span></div><b>RM 88</b></li>
+        </ul>
+      </div>
+    </div>
+    <p class="sgd">Singapore customers: RM 188 is roughly SGD 56. We are 15 minutes from Johor Bahru CIQ and parking is free.</p>
+  </div>
+</section>
+
+<!-- ══ Packages ══ -->
+<section>
+  <div class="wrap packs">
+    <div class="pack pack-lead rv">
+      <h3>First visit price</h3>
+      <p class="amt">RM 88</p>
+      <p class="was">Hydra Glow Facial, usually RM 188</p>
+      <p>One time offer for new customers. Seventy five minutes, full consultation, no package signing at the end. Bring a friend and both of you get it.</p>
+      <a class="btn" href="https://wa.me/60127784163?text=Hi%20Serai%2C%20I%27d%20like%20to%20book%20the%20RM88%20first%20visit%20facial.">Book on WhatsApp</a>
+    </div>
+    <div class="pack pack-alt rv">
+      <h3>If you come back</h3>
+      <ul>
+        <li><i class="ph ph-check"></i><div>Six facial sessions for <b>RM 998</b>, valid 12 months</div></li>
+        <li><i class="ph ph-check"></i><div>Member card <b>RM 188 a year</b>, 15% off everything</div></li>
+        <li><i class="ph ph-check"></i><div>Lash refill within 3 weeks from <b>RM 98</b></div></li>
+        <li><i class="ph ph-check"></i><div>Birthday month facial at <b>half price</b></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Studio ══ -->
+<section class="studio" id="studio">
+  <div class="wrap studio-grid">
+    <div class="mosaic rv">
+      <!-- REPLACE: real studio interior and treatment shots -->
+      <img class="tall" src="https://picsum.photos/seed/serai-interior-reception/600/860" alt="Studio reception" width="600" height="860" loading="lazy">
+      <img class="sq" src="https://picsum.photos/seed/serai-product-shelf/500/500" alt="Product shelf" width="500" height="500" loading="lazy">
+      <img class="sq" src="https://picsum.photos/seed/serai-facial-steam/500/500" alt="Facial steamer in use" width="500" height="500" loading="lazy">
+    </div>
+    <div class="rv">
+      <p class="eyebrow">Since 2019</p>
+      <h2>Two rooms, one client at a time</h2>
+      <p>Serai started in a shoplot behind Austin Heights with one bed and a borrowed steamer. We never grew into a chain because the part we liked was knowing every face that walked in.</p>
+      <p>Today there are two treatment rooms and four certified therapists. Tools are sterilised between every client, products are opened in front of you, and nobody will push a package on you while you are lying down.</p>
+      <p>If you are not sure what your skin needs, book the consultation alone. It is free and takes twenty minutes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Testimonials ══ -->
+<section>
+  <div class="wrap">
+    <div class="head-block rv"><h2>What our regulars say</h2></div>
+    <div class="quotes">
+      <article class="quote rv">
+        <p>"Third year coming here. They remember my skin cycle better than I do and never once pushed a package."</p>
+        <div class="who">
+          <!-- REPLACE: real customer photo, with written permission -->
+          <img src="https://picsum.photos/seed/serai-review-weiling/120/120" alt="" width="120" height="120" loading="lazy">
+          <div><b>Tan Wei Ling</b><span>Skudai, facial regular</span></div>
+        </div>
+      </article>
+      <article class="quote rv">
+        <p>"Brow embroidery healed so naturally my mother thought I just had them trimmed. Worth the drive from Bukit Indah."</p>
+        <div class="who">
+          <img src="https://picsum.photos/seed/serai-review-aqilah/120/120" alt="" width="120" height="120" loading="lazy">
+          <div><b>Nurul Aqilah</b><span>Bukit Indah, brow embroidery</span></div>
+        </div>
+      </article>
+      <article class="quote rv">
+        <p>"I cross the causeway every six weeks for lashes. Still cheaper than Singapore and the retention is better."</p>
+        <div class="who">
+          <img src="https://picsum.photos/seed/serai-review-jasmine/120/120" alt="" width="120" height="120" loading="lazy">
+          <div><b>Jasmine Foo</b><span>Singapore, lash extensions</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Visit ══ -->
+<section class="contact" id="visit">
+  <div class="wrap contact-grid">
+    <div class="rv">
+      <h2>Come and find us</h2>
+      <p class="lede">Ground floor shoplot with free parking right in front. Look for the terracotta door.</p>
+      <ul class="info">
+        <li><i class="ph ph-map-pin"></i><div>23A, Jalan Austin Heights 8/3<br>Taman Mount Austin, 81100 Johor Bahru</div></li>
+        <li><i class="ph ph-whatsapp-logo"></i><div><a href="https://wa.me/60127784163">+60 12-778 4163</a> for booking and questions</div></li>
+        <li><i class="ph ph-clock"></i><div>Monday to Friday 10:00 to 20:00, Saturday 09:30 to 19:00, Sunday 10:00 to 17:00. Closed Tuesday.</div></li>
+        <li><i class="ph ph-envelope-simple"></i><div><a href="mailto:hello@seraiskin.my">hello@seraiskin.my</a></div></li>
+      </ul>
+      <a class="btn btn-primary" href="https://wa.me/60127784163?text=Hi%20Serai%2C%20I%27d%20like%20to%20book%20an%20appointment.">Book on WhatsApp</a>
+    </div>
+    <div class="rv">
+      <div class="map">
+        <iframe title="Map to Serai Skin Studio, Taman Mount Austin" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.google.com/maps?q=Taman+Mount+Austin+Johor+Bahru&output=embed"></iframe>
+      </div>
+      <div class="map-links">
+        <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=Taman+Mount+Austin+Johor+Bahru"><i class="ph ph-map-trifold"></i> Google Maps</a>
+        <a class="btn btn-ghost" href="https://waze.com/ul?q=Taman%20Mount%20Austin%20Johor%20Bahru"><i class="ph ph-navigation-arrow"></i> Open in Waze</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══ Footer ══ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="brand"><b>SERAI</b><span>Skin Studio</span></div>
+        <p>A small licensed beauty studio in Taman Mount Austin, Johor Bahru. Open six days a week.</p>
+        <div class="socials">
+          <a href="#" aria-label="Instagram"><i class="ph ph-instagram-logo"></i></a>
+          <a href="#" aria-label="Facebook"><i class="ph ph-facebook-logo"></i></a>
+          <a href="#" aria-label="TikTok"><i class="ph ph-tiktok-logo"></i></a>
+          <a href="#" aria-label="Xiaohongshu"><i class="ph ph-book-open"></i></a>
+        </div>
+      </div>
+      <div>
+        <h4>Treatments</h4>
+        <ul>
+          <li><a href="#prices">Facials</a></li>
+          <li><a href="#prices">Brow embroidery</a></li>
+          <li><a href="#prices">Lash extensions</a></li>
+          <li><a href="#prices">Waxing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Studio</h4>
+        <ul>
+          <li><a href="#studio">About us</a></li>
+          <li><a href="#hours">Opening hours</a></li>
+          <li><a href="#visit">How to find us</a></li>
+          <li><a href="#">Privacy notice</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>We accept</h4>
+        <div class="pay">
+          <span>DuitNow QR</span><span>Touch n Go</span><span>GrabPay</span><span>FPX</span><span>Visa</span><span>Mastercard</span><span>Cash</span>
+        </div>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>&copy; 2026 Serai Skin Studio. All rights reserved.</span>
+      <span>Demo layout by H2O Dream Studio</span>
+    </div>
+  </div>
+</footer>
+
+<a class="float" href="https://wa.me/60127784163?text=Hi%20Serai%2C%20I%27d%20like%20to%20book%20an%20appointment." aria-label="Book on WhatsApp">
+  <i class="ph ph-whatsapp-logo"></i><span>Book on WhatsApp</span>
+</a>
+
+<script>
+(function(){
+  // ── Mobile nav ──
+  var t=document.getElementById('navtoggle'), l=document.getElementById('navlinks');
+  t.addEventListener('click',function(){
+    var open=l.classList.toggle('open');
+    t.setAttribute('aria-expanded',open?'true':'false');
+    t.innerHTML=open?'<i class="ph ph-x"></i>':'<i class="ph ph-list"></i>';
+  });
+  l.addEventListener('click',function(e){
+    if(e.target.tagName==='A'){l.classList.remove('open');t.setAttribute('aria-expanded','false');t.innerHTML='<i class="ph ph-list"></i>';}
+  });
+
+  // ── Open / closed status, always in Malaysia time regardless of visitor timezone ──
+  var HOURS={0:[600,1020],1:[600,1200],2:null,3:[600,1200],4:[600,1200],5:[600,1200],6:[570,1140]};
+  function myNow(){
+    var p=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Kuala_Lumpur',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date());
+    var o={}; p.forEach(function(x){o[x.type]=x.value;});
+    var map={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+    return {d:map[o.weekday],m:parseInt(o.hour,10)*60+parseInt(o.minute,10)};
+  }
+  function fmt(m){var h=Math.floor(m/60),n=m%60;return (h<10?'0':'')+h+':'+(n<10?'0':'')+n;}
+  try{
+    var n=myNow(), box=document.getElementById('status'), txt=document.getElementById('statustext'), today=HOURS[n.d];
+    if(today && n.m>=today[0] && n.m<today[1]){
+      box.classList.add('is-open'); txt.textContent='Open now, until '+fmt(today[1]);
+    }else{
+      box.classList.add('is-shut');
+      var i=1,next=null;
+      while(i<=7){ var d=(n.d+i)%7; if(HOURS[d]){ next=HOURS[d]; break; } i++; }
+      if(today && n.m<today[0]) txt.textContent='Opens today at '+fmt(today[0]);
+      else if(next) txt.textContent='Closed now, opens '+(i===1?'tomorrow':['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][(n.d+i)%7])+' at '+fmt(next[0]);
+      else txt.textContent='Closed now';
+    }
+    var row=document.querySelector('#week [data-d="'+n.d+'"]');
+    if(row) row.classList.add('today');
+  }catch(e){
+    document.getElementById('statustext').textContent='Open six days a week';
+  }
+
+  // ── Scroll reveal via IntersectionObserver, sequences a long information page ──
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items=document.querySelectorAll('.rv');
+  if(reduce || !('IntersectionObserver' in window)){
+    items.forEach(function(el){el.classList.add('in');});
+  }else{
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    },{threshold:.14,rootMargin:'0px 0px -40px 0px'});
+    items.forEach(function(el,i){ el.style.transitionDelay=(i%4*60)+'ms'; io.observe(el); });
+  }
+})();
+</script>
+</body>
+</html>
