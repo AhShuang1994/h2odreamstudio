@@ -31,10 +31,14 @@
    So: bright orange is a fill and a display colour. Any text under
    24px sitting on cream uses --deep, never --pop.
 
+   Theme: light is the only default. The dark palette is still here but it is
+   opted into with <html data-theme="dark">, never by the visitor's OS setting,
+   so the demo looks the same on every machine it is opened on.
+
    Radius rule: panels 34px, cards 22px, images 18px, controls pill.
    ═══════════════════════════════════════════════════════════════════ */
 :root{
-  --cream:#FDF3E9; --cream-2:#FCECE0; --paper:#FFFFFF;
+  --cream:#FBF3E1; --cream-2:#FCEDDC; --paper:#FFFFFF;
   --pop:#F4561E; --deep:#C33A0A; --pink:#EC6E8C; --pink-soft:#FBD9E1; --script:#D94A6E;
   --peach:#FBC9A8; --butter:#FFDFA6;
   --ink:#2A1A14; --ink-muted:#7A5B50; --line:#F1D8C6;
@@ -42,16 +46,16 @@
   --shadow-lift:0 4px 8px rgba(42,26,20,.06), 0 22px 56px rgba(42,26,20,.13);
   --r-panel:34px; --r-card:22px; --r-img:18px; --r-pill:999px;
   --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
 }
-@media (prefers-color-scheme:dark){
-  :root{
-    --cream:#1A100C; --cream-2:#2B1A12; --paper:#332017;
-    --pop:#FF7A45; --deep:#FF9B6E; --pink:#F08BA4; --pink-soft:#3A2029; --script:#F08BA4;
-    --peach:#6B4127; --butter:#5C4321;
-    --ink:#FBEDE4; --ink-muted:#C7A79A; --line:#402A20;
-    --shadow:0 2px 4px rgba(0,0,0,.4), 0 14px 40px rgba(0,0,0,.45);
-    --shadow-lift:0 4px 8px rgba(0,0,0,.45), 0 22px 56px rgba(0,0,0,.55);
-  }
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --cream:#1A100C; --cream-2:#2B1A12; --paper:#332017;
+  --pop:#FF7A45; --deep:#FF9B6E; --pink:#F08BA4; --pink-soft:#3A2029; --script:#F08BA4;
+  --peach:#6B4127; --butter:#5C4321;
+  --ink:#FBEDE4; --ink-muted:#C7A79A; --line:#402A20;
+  --shadow:0 2px 4px rgba(0,0,0,.4), 0 14px 40px rgba(0,0,0,.45);
+  --shadow-lift:0 4px 8px rgba(0,0,0,.45), 0 22px 56px rgba(0,0,0,.55);
 }
 
 html{scroll-behavior:smooth}
@@ -135,11 +139,9 @@ section > .wrap, section > .wrap-tight, .hero-grid{position:relative;z-index:1}
 .btn-cream:hover{background:#fff}
 .btn:active{transform:scale(.98)}
 .btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
-@media (prefers-color-scheme:dark){
-  .btn-primary{background:var(--pop);color:#1A100C}
-  .btn-primary:hover{background:#FF9B6E}
-  .btn-cream{background:var(--ink);color:var(--cream)}
-}
+:root[data-theme="dark"] .btn-primary{background:var(--pop);color:#1A100C}
+:root[data-theme="dark"] .btn-primary:hover{background:#FF9B6E}
+:root[data-theme="dark"] .btn-cream{background:var(--ink);color:var(--cream)}
 
 /* ───── Eyebrow chip. Small pill label instead of the usual tracked caps. ───── */
 .chip{
@@ -149,15 +151,13 @@ section > .wrap, section > .wrap-tight, .hero-grid{position:relative;z-index:1}
 }
 .chip-ink{background:var(--ink);color:var(--cream)}
 .chip-cream{background:var(--cream);color:var(--deep)}
-@media (prefers-color-scheme:dark){.chip{color:#1A100C}}
+:root[data-theme="dark"] .chip{color:#1A100C}
 .lede{color:var(--ink-muted);max-width:58ch}
 .panel-peach .lede{color:var(--ink);opacity:.82}
 .panel-pop .lede{color:var(--ink);opacity:1}
 .panel-pop .script{color:var(--cream)}
-@media (prefers-color-scheme:dark){
-  .panel-pop,.panel-pop .lede,.panel-pop h2{color:#1A100C}
-  .panel-pop .script{color:#1A100C}
-}
+:root[data-theme="dark"] .panel-pop,:root[data-theme="dark"] .panel-pop .lede,:root[data-theme="dark"] .panel-pop h2{color:#1A100C}
+:root[data-theme="dark"] .panel-pop .script{color:#1A100C}
 
 /* ───── Nav: floating pill bar ───── */
 .nav{position:sticky;top:0;z-index:100;padding:14px 0}
@@ -289,7 +289,7 @@ section > .wrap, section > .wrap-tight, .hero-grid{position:relative;z-index:1}
 .stat:nth-child(4){background:var(--pop);color:var(--ink)}
 .stat b{font-family:'Archivo Black',sans-serif;font-size:clamp(2rem,3.6vw,2.9rem);line-height:1;display:block}
 .stat span{display:block;margin-top:9px;font-size:.74rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;opacity:.82}
-@media (prefers-color-scheme:dark){.stat:nth-child(4){color:#1A100C}}
+:root[data-theme="dark"] .stat:nth-child(4){color:#1A100C}
 @media (max-width:900px){.trust,.stats{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:520px){.trust{grid-template-columns:1fr}}
 
@@ -368,9 +368,7 @@ section > .wrap, section > .wrap-tight, .hero-grid{position:relative;z-index:1}
 /* White copy on hot orange clears 3:1 only at display sizes, so every word
    inside this card is the dark ink instead. Measured 4.93:1. */
 .pack-lead,.pack-lead h3,.pack-lead p,.pack-lead .was,.pack-lead .amt{color:var(--ink)}
-@media (prefers-color-scheme:dark){
-  .pack-lead,.pack-lead h3,.pack-lead p,.pack-lead .was,.pack-lead .amt{color:#1A100C}
-}
+:root[data-theme="dark"] .pack-lead,:root[data-theme="dark"] .pack-lead h3,:root[data-theme="dark"] .pack-lead p,:root[data-theme="dark"] .pack-lead .was,:root[data-theme="dark"] .pack-lead .amt{color:#1A100C}
 @media (max-width:900px){.packs{grid-template-columns:1fr}.pack{padding:34px 28px}}
 
 /* ───── Story ───── */
@@ -409,7 +407,7 @@ section > .wrap, section > .wrap-tight, .hero-grid{position:relative;z-index:1}
   display:grid;place-items:center;font-size:1.05rem;flex:none
 }
 .info a{color:var(--deep);font-weight:700;text-decoration:underline;text-underline-offset:3px}
-@media (prefers-color-scheme:dark){.info i{color:#1A100C}}
+:root[data-theme="dark"] .info i{color:#1A100C}
 .map{border:2px solid var(--ink);border-radius:var(--r-card);overflow:hidden;background:var(--paper);min-height:360px}
 .map iframe{width:100%;height:100%;min-height:360px;border:0;display:block}
 .map-links{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
@@ -457,7 +455,20 @@ footer .brand span{color:var(--cream);opacity:.6}
 }
 .float:hover{transform:translateY(-3px)}
 .float i{font-size:1.25rem}
-@media (max-width:560px){.float{padding:15px;right:16px;bottom:16px}.float span{display:none}}
+/* On a phone the icon only circle disappeared into the hero photo, so the
+   button keeps its label, spans the screen and gets a cream ring to cut it
+   out of whatever is behind it. Body padding keeps it off the last line. */
+@media (max-width:560px){
+  .float{
+    left:16px;right:16px;bottom:16px;justify-content:center;
+    padding:17px 22px;font-size:1.02rem;
+    border:3px solid var(--cream);
+    box-shadow:0 10px 30px rgba(42,26,20,.34)
+  }
+  .float i{font-size:1.4rem}
+  .float span{display:inline}
+  body{padding-bottom:88px}
+}
 
 /* ───── Scroll reveal, motivated: sequences a long information page ───── */
 .rv{opacity:0;transform:translateY(22px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
