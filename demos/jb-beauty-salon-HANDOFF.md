@@ -1,5 +1,10 @@
 # JB 美容院网站 — Session 交接
 
+> ⚠️ **2026-09-15 更新：暖陶土版 `demos/serai-beauty-jb.html` 已删除。**
+> 原因：整页图都是 `picsum.photos` 随机占位图，不适合公开展示。
+> **留下的是 Pop 版 `demos/serai-beauty-jb-pop.html`**（真实图，已上 `landing-page.html`）。
+> 下面提到暖陶土版的段落、以及那个分支预览链接，都是历史记录，文件本身已不存在。
+
 给下一个 session 的接手文件。读完这份 + `demos/jb-beauty-salon-BRIEF.md` 就能接着做，不需要前面的对话。
 
 交接时间：2026-09-12
