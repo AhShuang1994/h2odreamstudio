@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Wireframe — &lt;NAME&gt; &amp; &lt;NAME&gt; invitation</title>
+<style>
+  :root{
+    --ink:#2b2b2b; --mute:#8b8b8b; --faint:#ababab;
+    --line:#d6d6d6; --line2:#b4b4b4; --fill:#e9e9e9; --panel:#fff; --page:#f6f5f3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:28px 20px 48px;background:var(--page);color:var(--ink);
+       font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  .wrap{max-width:860px;margin:0 auto}
+
+  header{margin-bottom:22px}
+  h1{font-size:17px;font-weight:600;margin:0 0 4px}
+  .sub{font-size:12px;color:var(--mute);margin:0 0 14px}
+  .sub b{font-weight:600;color:var(--ink)}
+
+  .pal{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;align-items:flex-end}
+  .pal div{font-size:10px;color:var(--mute);text-align:center;line-height:1.5}
+  .pal i{display:block;width:42px;height:26px;border:1px solid var(--line2);border-radius:3px;margin-bottom:3px}
+  .pal .none{text-align:left;max-width:190px}
+
+  .key{display:flex;flex-wrap:wrap;gap:16px;font-size:11px;color:var(--mute);
+       border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0}
+  .key span{display:flex;align-items:center;gap:6px}
+  .key u{display:inline-block;width:16px;height:12px;border-radius:2px;text-decoration:none}
+  .k-pho{background:var(--fill);border:1px solid var(--line2)}
+  .k-ill{border:1px dashed var(--line2)}
+  .k-txt{height:5px!important;background:var(--line2)}
+  .k-div{height:0!important;border-top:2px solid var(--line2)}
+
+  .board{display:flex;gap:18px;align-items:flex-start;margin-top:20px}
+  .col{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);
+       border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:18px}
+  .colhead{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+           border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:-4px}
+
+  .blk-h{font-size:11px;color:var(--mute);margin-bottom:7px}
+  .blk-h b{font-weight:600;color:var(--ink)}
+  .stack{display:flex;flex-direction:column;align-items:center;gap:7px}
+
+  .photo{border:1px solid var(--line2);border-radius:4px;background:var(--fill);
+         display:flex;flex-direction:column;align-items:center;justify-content:center;
+         gap:3px;padding:10px;min-height:86px}
+  .photo b{font:600 11px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .photo span{font-size:10px;color:var(--mute)}
+  .photo.tall{min-height:170px}
+  .photo.arch{border-radius:70px 70px 4px 4px}
+
+  .sagepanel{border:1px solid var(--line2);border-radius:70px 70px 4px 4px;
+             background:var(--fill);padding:16px 12px 12px;margin-top:-34px;
+             position:relative;width:84%;margin-left:auto;margin-right:auto}
+  .sagepanel .cap{font-size:10px;color:var(--mute);text-align:center;margin-bottom:8px}
+
+  .ill{border:1px dashed var(--line2);border-radius:4px;display:flex;flex-direction:column;
+       align-items:center;justify-content:center;gap:2px;padding:7px;min-height:42px}
+  .ill b{font:600 11px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .ill span{font-size:10px;color:var(--mute)}
+  .ill.sm{width:52px;min-height:40px}
+  .ill.tallsm{width:40px;min-height:78px}
+
+  .bar{height:6px;border-radius:3px;background:var(--line2)}
+  .bar.display{height:13px;background:#9c9c9c}
+  .w30{width:30%}.w40{width:40%}.w50{width:50%}.w60{width:60%}
+  .w70{width:70%}.w80{width:80%}.w90{width:90%}.wfull{width:100%}
+
+  svg.tear{display:block;width:100%;height:20px;color:var(--line2)}
+  .tear-l{font:600 10px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+          color:var(--mute);text-align:center;margin-top:2px}
+
+  .btn{border:1px solid var(--line2);border-radius:999px;height:24px;width:150px;
+       display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--mute)}
+
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;width:100%}
+  .cal i{height:17px;border-radius:2px;background:var(--fill);font-style:normal}
+  .cal i.on{border:1px solid var(--ink);background:transparent;border-radius:50%}
+  .cal u{height:12px;font-size:8px;color:var(--faint);text-decoration:none;text-align:center;
+         display:block;line-height:12px}
+
+  .dots{display:flex;gap:10px;justify-content:center}
+  .dots i{width:34px;height:34px;border-radius:50%;background:var(--fill);
+          border:1px solid var(--line2);font-style:normal}
+
+  .note{display:flex;flex-direction:column;gap:5px;width:100%}
+
+  footer{font-size:11px;color:var(--mute);margin-top:18px;line-height:1.7}
+
+  @media (max-width:640px){ .board{flex-direction:column} }
+  @media print{ body{background:#fff;padding:0} .col{break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>&lt;NAME&gt; &amp; &lt;NAME&gt; — invitation wireframe</h1>
+  <p class="sub">Style <b>sage-arch-minimal</b> · <b>9</b> blocks · <b>5</b> client photos · <b>2</b> assets to generate · slot IDs match <b>wedding-sage-arch-DESIGN.md</b> section 3</p>
+
+  <div class="pal">
+    <div><i style="background:#FFFFFF"></i>#FFFFFF ground</div>
+    <div><i style="background:#5E6E66"></i>#5E6E66 dominant</div>
+    <div><i style="background:#4A5750"></i>#4A5750 ink on white</div>
+    <div><i style="background:#F2F0EA"></i>#F2F0EA ink on sage</div>
+    <div><i style="background:#C6CCC7"></i>#C6CCC7 hairline</div>
+    <div class="none"><b>No accent colour.</b> Two values plus the photographs — that is the style. Every button is outlined.</div>
+  </div>
+
+  <div class="key">
+    <span><u class="k-pho"></u>photo — client supplies</span>
+    <span><u class="k-ill"></u>illustration — needs a prompt</span>
+    <span><u class="k-txt"></u>copy slot</span>
+    <span><u class="k-div"></u>arch mask — the only divider motif</span>
+  </div>
+</header>
+
+<!-- ==================== BOARD ==================== -->
+<div class="board">
+
+<div class="col">
+<div class="colhead">column 1 of 2 — continues right</div>
+
+  <div>
+    <div class="blk-h"><b>01</b> · hero · full bleed, square corners</div>
+    <div class="photo tall">
+      <b>PHO-01</b><span>3:4 · veil kiss · faces in upper 55%</span>
+    </div>
+    <div class="sagepanel">
+      <div class="cap">arch panel overlaps the photo's lower half — arch #1</div>
+      <div class="stack">
+        <div class="bar w50"></div>
+        <div class="bar display w80"></div>
+        <div class="bar w40"></div>
+        <div class="ill sm" style="margin-top:4px"><b>ILL-01</b><span>heart</span></div>
+      </div>
+    </div>
+    <div class="blk-h" style="margin:7px 0 0">TXT-01 label · TXT-02 names, all-caps display · TXT-03 date + city</div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>02</b> · invitation · sage field, no photo</div>
+    <div class="stack">
+      <div class="bar display w50"></div>
+      <div class="bar wfull"></div>
+      <div class="bar w90"></div>
+      <div class="bar w90"></div>
+      <div class="bar w60"></div>
+    </div>
+    <div class="blk-h" style="margin:7px 0 0">TXT-04 heading · TXT-05 paragraph, 3–4 lines</div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>03</b> · calendar · date circled, hairline ring</div>
+    <div class="stack" style="margin-bottom:8px"><div class="bar display w40"></div></div>
+    <div class="cal">
+      <u>M</u><u>T</u><u>W</u><u>T</u><u>F</u><u>S</u><u>S</u>
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i class="on"></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <div class="blk-h" style="margin:7px 0 0">TXT-06 month label · TXT-07 ceremony time</div>
+  </div>
+
+  <div>
+    <svg class="tear" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 L0 14 Q150 -6 300 14 L300 20" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <div class="tear-l">arch mask #2 · the only motif on this page</div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>04</b> · photo · full bleed, square corners, arch above</div>
+    <div class="photo"><b>PHO-02</b><span>4:5 · laughing hug on the lawn</span></div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>05</b> · location · arch #3</div>
+    <div class="stack">
+      <div class="photo arch" style="width:100%;min-height:150px"><b>PHO-03</b><span>2:3 · arch top · 15% headroom</span></div>
+      <div class="bar display w50" style="margin-top:4px"></div>
+      <div class="bar w60"></div>
+      <div class="bar w80"></div>
+      <div class="btn">outlined · directions</div>
+    </div>
+    <div class="blk-h" style="margin:7px 0 0">TXT-08 heading · TXT-09 venue · TXT-10 address · TXT-11 button label</div>
+  </div>
+
+</div>
+
+<div class="col">
+<div class="colhead">column 2 of 2 — continued</div>
+
+  <div>
+    <svg class="tear" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 L0 14 Q150 -6 300 14 L300 20" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <div class="tear-l">arch mask #4</div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>06</b> · dress code · four swatch dots</div>
+    <div class="stack">
+      <div class="bar display w40"></div>
+      <div class="bar w80"></div>
+      <div class="dots"><i></i><i></i><i></i><i></i></div>
+      <div class="ill tallsm" style="margin-top:6px"><b>ILL-02</b><span>sprig</span></div>
+    </div>
+    <div class="blk-h" style="margin:7px 0 0">TXT-12 heading · TXT-13 one-line guidance · dots are the sage tonal ladder, not beige/black</div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>07</b> · guest form · outlined link out</div>
+    <div class="stack">
+      <div class="bar display w50"></div>
+      <div class="bar w70"></div>
+      <div class="btn">outlined · RSVP</div>
+    </div>
+    <div class="blk-h" style="margin:7px 0 0">TXT-14 heading · TXT-15 one line · TXT-16 button label · no solid button on this page</div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>08</b> · details · arch #5 · the second look</div>
+    <div class="stack">
+      <div class="photo arch" style="width:100%;min-height:150px"><b>PHO-04</b><span>2:3 · arch top · black tuxedo set</span></div>
+      <div class="bar display w40" style="margin-top:4px"></div>
+      <div class="note">
+        <span class="bar w30"></span><span class="bar w80"></span>
+        <span class="bar w30"></span><span class="bar w70"></span>
+        <span class="bar w30"></span><span class="bar w80"></span>
+      </div>
+    </div>
+    <div class="blk-h" style="margin:7px 0 0">TXT-17 heading · TXT-18 / TXT-19 / TXT-20 three short notes (gifts folded in here)</div>
+  </div>
+
+  <div>
+    <svg class="tear" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 L0 14 Q150 -6 300 14 L300 20" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <div class="tear-l">arch mask #6 · six total, within the 5–7 range</div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>09</b> · closing · full bleed, square corners</div>
+    <div class="photo tall"><b>PHO-05</b><span>3:4 · walking away / balcony</span></div>
+    <div class="stack" style="margin-top:9px">
+      <div class="bar display w60"></div>
+      <div class="ill sm"><b>ILL-01</b><span>heart, reused</span></div>
+    </div>
+    <div class="blk-h" style="margin:7px 0 0">TXT-21 closing line, all caps · third and last hand-drawn mark</div>
+  </div>
+
+</div>
+</div>
+<!-- ==================== end BOARD ==================== -->
+
+<footer>
+  Left column continues into the right — this is one continuous vertical page, roughly 1:5.<br>
+  Grey throughout on purpose: this is a layout schematic, not a colour comp.<br>
+  Three hand-drawn marks total (ILL-01 twice, ILL-02 once) — that is the ceiling for this style.
+</footer>
+
+</div>
+</body>
+</html>
