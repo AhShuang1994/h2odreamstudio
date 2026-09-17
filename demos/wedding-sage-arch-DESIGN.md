@@ -5,7 +5,7 @@
 | Style | `sage-arch-minimal` |
 | Date | 2026-09-16 |
 | Wireframe | `demos/wedding-sage-arch-wireframe.html` |
-| Blocks | 9 |
+| Blocks | 10 |
 | Assets to generate | 2 |
 | Client photo slots | 5 |
 
@@ -83,11 +83,19 @@ type reversed on sage to weight 400; leave body type at 300 — Jost holds at 30
 --radius-photo:  240px 240px 4px 4px;  /* arch crop — radius ≈ half the column width */
 --radius-button: 999px;                /* pill */
 --block-gap:     0;                    /* blocks butt directly; the arch is the seam */
---column-max:    480px;                /* the invitation column */
+--column-max:    480px;                /* the invitation column on phones */
 ```
 
 Arch radius is deliberately half the column width so it reads as a doorway, not as a rounded
 corner. At `--column-max: 480px` that is `240px`.
+
+### Responsive canvas
+
+The phone composition is a `480px` invitation column. From `768px`, it can expand to `900px` so
+the type and imagery have breathing room without changing the block order. From `1024px`, it can
+expand to `1280px`: the hero becomes a photo-and-arch-panel spread, while the location and details
+blocks place their arch-cropped photograph alongside the copy. The two full-bleed photo blocks stay
+at a `960px` editorial measure so their arch seams remain proportionate.
 
 ### Divider motif
 
@@ -107,12 +115,13 @@ In order. This order is the wireframe's order — they match.
 | 01 | hero | `TXT-01` label · `TXT-02` names, display · `TXT-03` date + city | `PHO-01` | `ILL-01` |
 | 02 | invitation | `TXT-04` heading · `TXT-05` paragraph, 3–4 lines | — | — |
 | 03 | calendar | `TXT-06` month label · `TXT-07` ceremony time | — | — |
-| 04 | photo | — | `PHO-02` | — |
-| 05 | location | `TXT-08` heading · `TXT-09` venue name · `TXT-10` address · `TXT-11` button label | `PHO-03` | — |
-| 06 | dress code | `TXT-12` heading · `TXT-13` one-line guidance | — | `ILL-02` |
-| 07 | guest form | `TXT-14` heading · `TXT-15` one line · `TXT-16` button label | — | — |
-| 08 | details | `TXT-17` heading · `TXT-18` `TXT-19` `TXT-20` three short notes | `PHO-04` | — |
-| 09 | closing | `TXT-21` closing line, all caps | `PHO-05` | `ILL-01` (reused) |
+| 04 | countdown | `TXT-08` label · `TXT-09` heading; live days, hours, minutes, seconds | — | — |
+| 05 | photo | — | `PHO-02` | — |
+| 06 | location | `TXT-10` heading · `TXT-11` venue name · `TXT-12` address · `TXT-13` button label | `PHO-03` | — |
+| 07 | dress code | `TXT-14` heading · `TXT-15` one-line guidance | — | `ILL-02` |
+| 08 | guest form | `TXT-16` heading · `TXT-17` one line · `TXT-18` button label; name, attendance and optional note fields | — | — |
+| 09 | details | `TXT-19` heading · `TXT-20` `TXT-21` `TXT-22` three short notes | `PHO-04` | — |
+| 10 | closing | `TXT-23` closing line, all caps | `PHO-05` | `ILL-01` (reused) |
 
 **No timeline block.** The style's own rhythm has none, and a mid-formality invitation with a
 calendar already answers "when". If the couple later wants a run-of-show, it inserts between 05
@@ -120,6 +129,10 @@ and 06 and needs four more line icons — which would breach the three-hand-draw
 section 5 below, so it would be a real design change, not an addition.
 
 **No wishes-and-gifts block.** Folded into 08 details as one of the three notes.
+
+**Premium build override.** The countdown runs to the wedding date in the browser. The RSVP form
+shows a local confirmation only; it does not retain or send guest responses until a production
+submission endpoint is approved and connected.
 
 **`ILL-01` is used twice** (hero and closing) and `ILL-02` once. That is three hand-drawn marks
 on the page, which is the ceiling. A fourth mark stops reading as a signature and starts reading
@@ -230,6 +243,8 @@ so a later session does not "fix" them back:
 2. **Fonts are loaded from Google Fonts, not self-hosted.** The demo matches the rest of
    `demos/` in this repo. A real client build should still self-host per the bullet above — a
    venue with weak signal is a real constraint and a portfolio demo is not.
+3. **The demo has responsive layouts at `768px` and `1024px`.** Phone remains a single invitation
+   card. Tablet widens its measure and type; desktop uses the responsive canvas described above.
 
 Photographs used: `PHO-01` ZEN-1852, `PHO-02` ZEN-1625, `PHO-03` ZEN-1655, `PHO-04` ZEN-2218,
 `PHO-05` ZEN-1674, cropped to the section 3 pixel sizes into

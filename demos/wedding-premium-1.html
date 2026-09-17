@@ -44,7 +44,7 @@
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0;
-  background:var(--dominant);
+  background:var(--ground);
   color:var(--ink);
   font-family:var(--font-body);
   font-weight:300;
@@ -87,6 +87,7 @@ p{margin:0}
 .on-sage{background:var(--dominant);color:var(--ink-invert)}
 .on-white{background:var(--ground);color:var(--ink)}
 .stack{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
+.stack>p{max-width:46ch}
 
 /* ---------- photography ---------- */
 img.shot{display:block;width:100%;height:auto;border-radius:0}
@@ -177,11 +178,141 @@ img.arch{border-radius:var(--radius-arch)}
 .rule{width:44px;height:1px;background:var(--hairline);border:0;margin:0}
 .addr{font-size:13px;line-height:1.9}
 
+/* ---------- premium additions: countdown + RSVP ---------- */
+.countdown{display:grid;grid-template-columns:repeat(4,1fr);width:100%;max-width:400px;border:1px solid var(--hairline)}
+.countdown-item{padding:16px 8px;border-right:1px solid var(--hairline);text-align:center}
+.countdown-item:last-child{border-right:0}
+.countdown-num{font-family:var(--font-display);font-size:32px;line-height:1;font-weight:300}
+.countdown-label{margin-top:8px;font-family:var(--font-label);font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.65}
+.rsvp-form{display:grid;width:100%;max-width:400px;gap:16px;text-align:left}
+.rsvp-form[hidden],.rsvp-success[hidden]{display:none}
+.rsvp-field{display:flex;flex-direction:column;gap:6px}
+.rsvp-field label{font-family:var(--font-label);font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+.rsvp-field input,.rsvp-field select,.rsvp-field textarea{width:100%;min-height:44px;padding:10px 12px;border:1px solid currentColor;border-radius:0;background:transparent;color:inherit;font:300 14px/1.5 var(--font-body)}
+.rsvp-field textarea{min-height:88px;resize:vertical}
+.rsvp-field select{appearance:auto}
+.rsvp-field select option{background:var(--ground);color:var(--ink)}
+.rsvp-form .btn{justify-self:center;background:transparent;cursor:pointer}
+.rsvp-success{text-align:center}
+
 @media (max-width:420px){
   .block{padding:44px 24px}
   .display{font-size:26px}
   .display.names{font-size:28px}
   .hero-panel{padding:60px 24px 36px}
+}
+
+/* ---------- responsive invitation canvas ---------- */
+/* Phone keeps the single-card invitation. Tablet gives the composition room;
+   desktop turns the image-led sections into an editorial spread. */
+@media (min-width:768px){
+  :root{--column-max:900px}
+
+  body{font-size:15px}
+  .sheet{
+    box-shadow:0 18px 56px rgba(50,65,58,.16),0 0 0 1px rgba(74,87,80,.08);
+  }
+  .block{padding:76px 64px}
+  .stack{gap:20px}
+  .display{font-size:38px}
+  .display.names{font-size:48px}
+  .label{font-size:12px}
+  .hero>.shot{
+    height:min(78svh,760px);
+    object-fit:cover;
+    object-position:center 28%;
+  }
+  .hero-panel{
+    max-width:580px;
+    margin:-300px auto 0;
+    padding:104px 64px 60px;
+    font-size:15px;
+    box-shadow:0 18px 42px rgba(50,65,58,.22);
+  }
+  .cal{max-width:380px}
+  .cal th{font-size:11px}
+  .cal td{font-size:13px;padding:7px 0}
+  .cal td.on span{width:30px;height:30px}
+  .btn{width:176px;height:40px}
+  .notes{max-width:560px}
+  .arched.block{padding-top:calc(50% + 44px)}
+  .countdown{max-width:480px}
+  .countdown-item{padding:22px 12px}
+  .countdown-num{font-size:40px}
+}
+
+@media (min-width:1024px){
+  :root{--column-max:1280px}
+
+  .block{padding:104px 88px}
+  .block>.stack{max-width:640px;margin:0 auto}
+  .display{font-size:42px}
+  .display.names{font-size:52px}
+
+  .hero{
+    display:grid;
+    grid-template-columns:minmax(0,1.15fr) minmax(440px,.85fr);
+    align-items:center;
+    min-height:800px;
+    background:var(--dominant);
+    overflow:hidden;
+  }
+  .hero>.shot{
+    grid-column:1;
+    width:100%;
+    height:800px;
+    object-position:center 25%;
+  }
+  .hero-panel{
+    grid-column:2;
+    z-index:1;
+    width:calc(100% + 72px);
+    max-width:none;
+    margin:0 0 0 -72px;
+    padding:156px 84px 92px;
+    border-radius:360px 360px 4px 4px;
+    box-shadow:-18px 22px 46px rgba(50,65,58,.24);
+  }
+  .hero-panel .stack{max-width:400px;margin:0 auto}
+
+  .photo-band{max-width:960px;margin:0 auto}
+
+  .location>.stack,
+  .details>.stack{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(300px,.82fr);
+    align-items:center;
+    column-gap:clamp(56px,7vw,96px);
+    row-gap:18px;
+    max-width:1040px;
+    text-align:left;
+  }
+  .location .shot,
+  .details .shot{
+    grid-column:1;
+    grid-row:1 / span 5;
+    align-self:stretch;
+    width:100%;
+    height:590px;
+    object-fit:cover;
+    object-position:center;
+  }
+  .location .display,
+  .location .rule,
+  .location .label,
+  .location .addr,
+  .location .btn,
+  .details .display,
+  .details .rule,
+  .details .notes{grid-column:2;justify-self:start}
+  .location .btn{justify-self:start}
+  .details .notes{max-width:none}
+}
+
+@media (max-width:420px){
+  .countdown{grid-template-columns:repeat(2,1fr)}
+  .countdown-item:nth-child(2){border-right:0}
+  .countdown-item:nth-child(-n+2){border-bottom:1px solid var(--hairline)}
 }
 </style>
 </head>
@@ -243,8 +374,22 @@ img.arch{border-radius:var(--radius-arch)}
     </div>
   </section>
 
+  <!-- ============ PREMIUM · COUNTDOWN ============ -->
+  <section class="block on-white">
+    <div class="stack">
+      <p class="label">Until we say I do</p>
+      <h2 class="display">Counting down</h2>
+      <div class="countdown" aria-label="Countdown to the wedding">
+        <div class="countdown-item"><div class="countdown-num" id="countdown-days">000</div><div class="countdown-label">Days</div></div>
+        <div class="countdown-item"><div class="countdown-num" id="countdown-hours">00</div><div class="countdown-label">Hours</div></div>
+        <div class="countdown-item"><div class="countdown-num" id="countdown-minutes">00</div><div class="countdown-label">Minutes</div></div>
+        <div class="countdown-item"><div class="countdown-num" id="countdown-seconds">00</div><div class="countdown-label">Seconds</div></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ 04 · PHOTO · full bleed, square corners, arch #2 above ============ -->
-  <div class="arched">
+  <div class="arched photo-band">
     <img class="shot" src="../assets/demos/wedding-sage-arch/pho-02.webp"
          width="960" height="1200" loading="lazy"
          alt="The couple laughing together on the lawn, the bride holding her bouquet.">
@@ -254,7 +399,7 @@ img.arch{border-radius:var(--radius-arch)}
   </div>
 
   <!-- ============ 05 · LOCATION · arch #3 is the photograph itself ============ -->
-  <section class="block on-white">
+  <section class="block on-white location">
     <div class="stack">
       <img class="shot arch" src="../assets/demos/wedding-sage-arch/pho-03.webp"
            width="960" height="1440" loading="lazy"
@@ -296,17 +441,39 @@ img.arch{border-radius:var(--radius-arch)}
     </div>
   </section>
 
-  <!-- ============ 07 · GUEST FORM · outlined link out, no solid button ============ -->
+  <!-- ============ 07 · GUEST FORM ============ -->
   <section class="block on-sage" style="padding-top:0">
     <div class="stack">
       <h2 class="display">Will you come</h2>
       <p>Two questions, one minute. Kindly reply by 1 July 2027.</p>
-      <a class="btn" href="#">RSVP</a>
+      <form class="rsvp-form" id="rsvp-form">
+        <div class="rsvp-field">
+          <label for="guest-name">Your name</label>
+          <input id="guest-name" name="name" autocomplete="name" required>
+        </div>
+        <div class="rsvp-field">
+          <label for="attendance">Will you attend?</label>
+          <select id="attendance" name="attendance" required>
+            <option value="" selected disabled>Select one</option>
+            <option value="yes">Joyfully accepts</option>
+            <option value="no">Regretfully declines</option>
+          </select>
+        </div>
+        <div class="rsvp-field">
+          <label for="guest-note">A note for the couple (optional)</label>
+          <textarea id="guest-note" name="note"></textarea>
+        </div>
+        <button class="btn" type="submit">Send RSVP</button>
+      </form>
+      <div class="rsvp-success" id="rsvp-success" hidden aria-live="polite">
+        <p class="label">Thank you</p>
+        <p>We've noted your reply. See you on the grass.</p>
+      </div>
     </div>
   </section>
 
   <!-- ============ 08 · DETAILS · arch #5 is the photograph itself ============ -->
-  <section class="block on-white">
+  <section class="block on-white details">
     <div class="stack">
       <img class="shot arch" src="../assets/demos/wedding-sage-arch/pho-04.webp"
            width="960" height="1440" loading="lazy"
@@ -331,7 +498,7 @@ img.arch{border-radius:var(--radius-arch)}
   </section>
 
   <!-- ============ 09 · CLOSING · full bleed, square corners, arch #6 above ============ -->
-  <div class="arched">
+  <div class="arched photo-band">
     <img class="shot" src="../assets/demos/wedding-sage-arch/pho-05.webp"
          width="960" height="1280" loading="lazy"
          alt="The bride and groom walking together across the lawn.">
@@ -352,5 +519,24 @@ img.arch{border-radius:var(--radius-arch)}
   </section>
 
 </main>
+<script>
+  const weddingDate = new Date('2027-08-08T16:00:00+08:00');
+  const countdownParts = ['days', 'hours', 'minutes', 'seconds'];
+  function updateCountdown() {
+    const remaining = Math.max(0, weddingDate - new Date());
+    const values = [Math.floor(remaining / 86400000), Math.floor(remaining / 3600000) % 24, Math.floor(remaining / 60000) % 60, Math.floor(remaining / 1000) % 60];
+    countdownParts.forEach((part, index) => {
+      document.getElementById(`countdown-${part}`).textContent = String(values[index]).padStart(part === 'days' ? 3 : 2, '0');
+    });
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  document.getElementById('rsvp-form').addEventListener('submit', event => {
+    event.preventDefault();
+    event.currentTarget.hidden = true;
+    document.getElementById('rsvp-success').hidden = false;
+  });
+</script>
 </body>
 </html>
