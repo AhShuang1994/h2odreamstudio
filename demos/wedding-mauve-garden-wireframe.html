@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wireframe — Hui Huang &amp; Mayyi</title>
+<style>
+  :root{
+    --ink:#2b2b2b; --mute:#8b8b8b; --faint:#ababab;
+    --line:#d6d6d6; --line2:#b4b4b4; --fill:#e9e9e9; --panel:#fff; --page:#f6f5f3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:28px 20px 48px;background:var(--page);color:var(--ink);
+       font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  .wrap{max-width:860px;margin:0 auto}
+
+  header{margin-bottom:22px}
+  h1{font-size:17px;font-weight:600;margin:0 0 4px}
+  .sub{font-size:12px;color:var(--mute);margin:0 0 14px}
+  .sub b{font-weight:600;color:var(--ink)}
+
+  .pal{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px}
+  .pal div{font-size:10px;color:var(--mute);text-align:center;line-height:1.5}
+  .pal i{display:block;width:42px;height:26px;border:1px solid var(--line2);border-radius:3px;margin-bottom:3px}
+
+  .key{display:flex;flex-wrap:wrap;gap:16px;font-size:11px;color:var(--mute);
+       border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0}
+  .key span{display:flex;align-items:center;gap:6px}
+  .key u{display:inline-block;width:16px;height:12px;border-radius:2px;text-decoration:none}
+  .k-pho{background:var(--fill);border:1px solid var(--line2)}
+  .k-ill{border:1px dashed var(--line2)}
+  .k-txt{height:5px!important;background:var(--line2)}
+  .k-div{height:0!important;border-top:2px solid var(--line2)}
+
+  .board{display:flex;gap:18px;align-items:flex-start;margin-top:20px}
+  .col{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);
+       border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:18px}
+  .colhead{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+           border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:-4px}
+
+  .blk-h{font-size:11px;color:var(--mute);margin-bottom:7px}
+  .blk-h b{font-weight:600;color:var(--ink)}
+  .stack{display:flex;flex-direction:column;align-items:center;gap:7px}
+
+  .photo{border:1px solid var(--line2);border-radius:4px;background:var(--fill);
+         display:flex;flex-direction:column;align-items:center;justify-content:center;
+         gap:3px;padding:10px;min-height:86px}
+  .photo b{font:600 11px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .photo span{font-size:10px;color:var(--mute)}
+  .photo.tall{min-height:150px}
+  .photo.arch{border-radius:60px 60px 4px 4px}
+  .photo.round{border-radius:50%;width:112px;height:112px;margin:0 auto;min-height:0}
+
+  .ill{border:1px dashed var(--line2);border-radius:4px;display:flex;flex-direction:column;
+       align-items:center;justify-content:center;gap:2px;padding:7px;min-height:42px}
+  .ill b{font:600 11px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .ill span{font-size:10px;color:var(--mute)}
+  .ill.sm{width:46px;min-height:40px}
+
+  .bar{height:6px;border-radius:3px;background:var(--line2)}
+  .bar.display{height:13px;background:#9c9c9c}
+  .w30{width:30%}.w40{width:40%}.w50{width:50%}.w60{width:60%}
+  .w70{width:70%}.w80{width:80%}.w90{width:90%}.wfull{width:100%}
+
+  svg.tear{display:block;width:100%;height:13px;color:var(--line2)}
+  .tear-l{font:600 10px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+          color:var(--mute);text-align:center;margin-top:2px}
+
+  .btn{border:1px solid var(--line2);border-radius:999px;height:24px;width:130px;
+       display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--mute)}
+  .btn.sq{border-radius:3px}
+  .btn.solid{background:var(--fill);border-color:var(--line2);color:var(--ink);font-weight:600}
+
+  .cells{display:flex;gap:7px;width:100%}
+  .cells div{flex:1;height:40px;border:1px solid var(--line);border-radius:3px;
+             display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--mute)}
+
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;width:100%}
+  .cal i{height:17px;border-radius:2px;background:var(--fill);font-style:normal}
+  .cal i.on{border:1px solid var(--ink);background:transparent}
+
+  .tl{display:flex;flex-direction:column;gap:9px;width:100%}
+  .tl>div{display:flex;align-items:center;gap:9px}
+  .tl .ill{flex:none;width:36px;min-height:32px}
+  .tl p{flex:1;margin:0;display:flex;flex-direction:column;gap:4px}
+
+  .dots{display:flex;gap:0;justify-content:center}
+  .dots i{width:34px;height:34px;border-radius:50%;background:var(--fill);
+          border:1px solid var(--line2);font-style:normal}
+  .dots.sq{gap:0}
+  .dots.sq i{border-radius:2px}
+
+  .field{width:100%;border-bottom:1px solid var(--line2);height:26px;
+         font-size:10px;color:var(--faint);display:flex;align-items:flex-end;padding-bottom:3px}
+  .radio{display:flex;align-items:center;gap:7px;width:100%;font-size:10px;color:var(--mute)}
+  .radio i{width:11px;height:11px;border:1px solid var(--line2);border-radius:50%;
+           flex:none;font-style:normal}
+
+  footer{font-size:11px;color:var(--mute);margin-top:18px;line-height:1.7}
+
+  .board.three .col{flex:1}
+  .spread{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .hrow{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+  .hrow .ill{min-height:34px}
+  @media (max-width:640px){ .board{flex-direction:column} .spread{grid-template-columns:1fr} }
+  @media print{ body{background:#fff;padding:0} .col{break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Hui Huang &amp; Mayyi — invitation wireframe</h1>
+  <p class="sub">Style <b>mauve-curve-garden</b> (client reference) · <b>7</b> blocks · <b>3</b> assets to generate · slot IDs match DESIGN.md section 3</p>
+
+  <div class="pal">
+    <div><i style="background:#F7F0EE"></i>#F7F0EE ground</div>
+    <div><i style="background:#FBF7F5"></i>#FBF7F5 panel</div>
+    <div><i style="background:#8E5E6E"></i>#8E5E6E mauve</div>
+    <div><i style="background:#4A3A40"></i>#4A3A40 ink</div>
+    <div><i style="background:#BFA06A"></i>#BFA06A gold hairline</div>
+  </div>
+
+  <div class="key">
+    <span><u class="k-pho"></u>photo — client supplies</span>
+    <span><u class="k-ill"></u>illustration — needs a prompt</span>
+    <span><u class="k-txt"></u>copy slot</span>
+    <span><u class="k-div"></u>divider motif — sweeping curve only</span>
+  </div>
+</header>
+
+<div class="board">
+
+<div class="col">
+<div class="colhead">phone · column 1 of 2 — continues right</div>
+
+  <div>
+    <div class="blk-h"><b>01</b> · hero</div>
+    <div class="stack"><div class="bar w30"></div></div>
+    <div class="photo tall" style="margin-top:8px"><b>PHO-01</b><span>4:5 · curved bottom edge + gold line</span></div>
+    <svg class="tear" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4 C90 14 200 -2 300 7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <div style="display:flex;justify-content:flex-end;margin-top:-18px"><div class="ill" style="width:84px"><b>ILL-01</b><span>bottom-right</span></div></div>
+    <div class="stack" style="margin-top:8px">
+      <div class="bar display w70"></div><div class="bar w40"></div><div class="bar w60"></div>
+      <div class="cells"><div>days</div><div>hrs</div><div>min</div><div>sec</div></div>
+    </div>
+    <div class="blk-h" style="margin:5px 0 0">TXT-01 label · TXT-02 names + script &amp; · TXT-03 date · TXT-04 line · TXT-05 countdown</div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>02</b> · invitation</div>
+    <div class="photo"><b>PHO-02</b><span>3:2 · curved bottom edge + gold line</span></div>
+    <div class="stack" style="margin-top:8px"><div class="bar display w40"></div><div class="bar w80"></div><div class="bar w60"></div></div>
+    <div class="ill" style="margin-top:8px"><b>ILL-02</b><span>long low spray along the bottom</span></div>
+    <div class="blk-h" style="margin:5px 0 0">TXT-06 "Dear friends" · TXT-07 paragraph</div>
+  </div>
+
+  <div>
+    <svg class="tear" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4 C90 14 200 -2 300 7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <div class="tear-l">section seam · same sweeping curve, no gold line</div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>03</b> · programme · 6 stops, filled circles, inline SVG icons</div>
+    <div class="stack" style="margin-bottom:8px"><div class="bar display w50"></div></div>
+    <div class="tl">
+      <div><div class="photo round" style="width:32px;height:32px"></div><p><span class="bar w30"></span><span class="bar w60"></span></p></div>
+      <div><div class="photo round" style="width:32px;height:32px"></div><p><span class="bar w30"></span><span class="bar w50"></span></p></div>
+      <div><div class="photo round" style="width:32px;height:32px"></div><p><span class="bar w30"></span><span class="bar w60"></span></p></div>
+      <div><div class="photo round" style="width:32px;height:32px"></div><p><span class="bar w30"></span><span class="bar w50"></span></p></div>
+      <div><div class="photo round" style="width:32px;height:32px"></div><p><span class="bar w30"></span><span class="bar w40"></span></p></div>
+      <div><div class="photo round" style="width:32px;height:32px"></div><p><span class="bar w30"></span><span class="bar w50"></span></p></div>
+    </div>
+    <div class="blk-h" style="margin:5px 0 0">TXT-08 title · TXT-09 time + event ×6 · icons are line art, not generated</div>
+  </div>
+
+</div>
+
+<div class="col">
+<div class="colhead">phone · column 2 of 2 — continued</div>
+
+  <div>
+    <div class="blk-h"><b>04</b> · venue</div>
+    <div class="stack"><div class="bar display w40"></div><div class="bar w70"></div><div class="btn">outlined · view on map</div></div>
+    <div class="photo" style="margin-top:8px"><b>PHO-03</b><span>3:2 · curved bottom edge + gold line</span></div>
+    <div class="blk-h" style="margin:5px 0 0">TXT-10 title · TXT-11 venue + address · TXT-12 button</div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>05</b> · dress code</div>
+    <div class="stack"><div class="bar display w40"></div><div class="bar w80"></div><div class="dots"><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="blk-h" style="margin:5px 0 0">TXT-13 title · TXT-14 line · five swatches</div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>06</b> · RSVP · form</div>
+    <div style="display:flex;justify-content:flex-end"><div class="ill" style="width:84px"><b>ILL-03</b><span>top-right</span></div></div>
+    <div class="stack">
+      <div class="bar display w40"></div>
+      <div class="radio"><i></i>joyfully accepts</div><div class="radio"><i></i>regretfully declines</div>
+      <div class="field">name</div>
+      <div class="radio"><i></i>wine</div><div class="radio"><i></i>champagne</div><div class="radio"><i></i>non-alcoholic</div>
+      <div class="field" style="height:44px">wishes</div>
+      <div class="btn solid">solid · the one accent</div>
+    </div>
+    <div class="blk-h" style="margin:5px 0 0">TXT-15 title · TXT-16 prompts · TXT-17 button · PHO-04 is desktop only</div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>07</b> · closing</div>
+    <div class="stack"><div class="bar display w70"></div><div class="bar w30"></div></div>
+    <div class="ill" style="margin-top:8px"><b>ILL-02</b><span>reused, mirrored</span></div>
+    <div class="blk-h" style="margin:5px 0 0">TXT-18 script thank-you + heart</div>
+  </div>
+
+</div>
+</div>
+
+<div class="board">
+<div class="col">
+<div class="colhead">desktop ≥ 1024 · landing-page spreads, same block order</div>
+
+  <div>
+    <div class="blk-h"><b>01</b> · hero · full viewport</div>
+    <div class="spread">
+      <div class="photo tall"><b>PHO-01</b><span>55% · curve runs down the right edge · ILL-01 on the curve</span></div>
+      <div class="stack" style="justify-content:center"><div class="bar display w70"></div><div class="bar w40"></div><div class="cells"><div>d</div><div>h</div><div>m</div><div>s</div></div></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>02</b> · invitation</div>
+    <div class="spread"><div class="photo"><b>PHO-02</b></div><div class="stack" style="justify-content:center"><div class="bar display w40"></div><div class="bar w80"></div><div class="bar w60"></div></div></div>
+    <div class="ill" style="margin-top:6px"><b>ILL-02</b><span>full-width spray</span></div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>03</b> · programme · horizontal</div>
+    <div class="hrow"><div class="ill">1</div><div class="ill">2</div><div class="ill">3</div><div class="ill">4</div><div class="ill">5</div><div class="ill">6</div></div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>04</b> · venue</div>
+    <div class="spread"><div class="stack" style="justify-content:center"><div class="bar display w40"></div><div class="bar w70"></div><div class="btn">outlined</div></div><div class="photo"><b>PHO-03</b></div></div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>05</b> · dress code · centred</div>
+    <div class="stack"><div class="dots"><i></i><i></i><i></i><i></i><i></i></div></div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>06</b> · RSVP</div>
+    <div class="spread"><div class="photo tall"><b>PHO-04</b><span>sticky · curved bottom</span></div><div class="stack"><div class="field">form, as phone</div><div class="btn solid">solid</div></div></div>
+  </div>
+
+  <div>
+    <div class="blk-h"><b>07</b> · closing · centred</div>
+  </div>
+</div>
+</div>
+
+<footer>
+  Phone: the two columns above are one continuous page. iPad portrait uses the same single column at 640px.<br>
+  Desktop (≥ 1024) keeps the block order and turns 01, 02, 04, 06 into two-column spreads.<br>
+  Grey throughout on purpose: this is a layout schematic, not a colour comp.
+</footer>
+
+</div>
+</body>
+</html>

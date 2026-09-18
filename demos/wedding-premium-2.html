@@ -6,406 +6,455 @@
 <meta name="robots" content="noindex,follow">
 <title>Hui Huang &amp; Mayyi | 20.06.2027</title>
 <meta name="description" content="Wedding invitation for Hui Huang and Mayyi, 20 June 2027, The RuMa Hotel and Residences, Kuala Lumpur.">
-<meta name="theme-color" content="#E8A9B4">
+<meta name="theme-color" content="#8E5E6E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&amp;family=Cormorant+Garamond:wght@300;400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;family=Great+Vibes&amp;display=swap" rel="stylesheet">
 
 <!--
-  Style: pink-peony-garden (arch crops removed at the couple's request)
-  Spec:  demos/wedding-peony-garden-DESIGN.md
-  Frame: demos/wedding-peony-garden-wireframe.html
+  Style: mauve-curve-garden (client-supplied reference)
+  Spec:  demos/wedding-mauve-garden-DESIGN.md
+  Frame: demos/wedding-mauve-garden-wireframe.html
 
-  One divider motif only: the watercolour bleed (ILL-DIV), reused and alternately
-  flipped, appearing once between every pair of blocks (7 times). Every photo is a
-  rounded rectangle -- no arches anywhere. Single column at every width, per the
-  library's law that this canvas never splits into two columns.
+  Phone: one 480px column. iPad portrait: one 640px column, larger type.
+  Desktop (>=1024): landing-page spreads -- hero, invitation, venue and RSVP go two-column,
+  the programme runs horizontally.
+  One divider motif: the sweeping curve (gold hairline on photos, plain on section seams).
+  One solid button: the RSVP submit.
 -->
 
 <style>
 :root{
-  --ground:#FAF6EC;
-  --dominant:#E8A9B4;
-  --blush:#F2CDD3;
-  --foliage:#8FA07A;
-  --ink:#4E5240;
-  --ink-invert:#FAF6EC;
-  --hairline:#D9D2BF;
-  --accent:#8FA07A;
+  --ground:#F7F0EE;
+  --panel:#FBF7F5;
+  --mauve:#8E5E6E;
+  --mauve-soft:#C9A3AE;
+  --ink:#4A3A40;
+  --ink-invert:#FBF7F5;
+  --gold:#BFA06A;
+  --accent:#8E5E6E;
 
-  --font-display:'Great Vibes','Allura',cursive;
-  --font-label:'Cormorant Garamond',Georgia,serif;
+  --font-display:'Cormorant Garamond',Georgia,serif;
+  --font-script:'Great Vibes',cursive;
   --font-body:'Cormorant Garamond',Georgia,serif;
 
-  --radius-photo-hero:14px;
-  --radius-photo:10px;
   --radius-button:999px;
-  --column-max:480px;
+  --column:480px;
 }
 
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{
-  margin:0;
-  background:#EFE9D8;
-  color:var(--ink);
-  font-family:var(--font-body);
-  font-weight:400;
-  font-size:14px;
-  line-height:1.75;
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--font-body);font-weight:500;font-size:16px;line-height:1.7;
   -webkit-font-smoothing:antialiased;
 }
-
-.sheet{
-  max-width:var(--column-max);
-  margin:0 auto;
-  background:var(--ground);
-  position:relative;
-  overflow:hidden;
-}
-
-/* ---------- type: script display + serif label/body ---------- */
-.label{
-  font-family:var(--font-label);
-  font-weight:300;
-  font-size:11px;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  margin:0;
-  color:var(--ink);
-  opacity:.75;
-}
-.display{
-  font-family:var(--font-display);
-  font-weight:400;
-  font-size:40px;
-  line-height:1.2;
-  margin:0;
-  color:var(--ink);
-}
-.display.names{font-size:52px}
+img{display:block;max-width:100%;height:auto}
 p{margin:0}
+h1,h2{margin:0;font-weight:inherit}
 
-/* ---------- blocks ---------- */
-.block{padding:48px 32px;text-align:center}
+/* ---------- sections ---------- */
+.sec{position:relative;padding:56px 24px 64px}
+.sec.on-ground{background:var(--ground)}
+.sec.on-panel{background:var(--panel)}
+.wrap{max-width:var(--column);margin:0 auto}
 .stack{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
-.stack>p{max-width:42ch;font-size:14px;line-height:1.75}
+.stack>p{max-width:40ch}
 
-/* ---------- photography: rounded rectangle only, never an arch ---------- */
-img.shot{display:block;width:100%;height:auto;border-radius:var(--radius-photo)}
-img.shot.hero-shot{border-radius:var(--radius-photo-hero)}
+/* ---------- type ---------- */
+.label{font-family:var(--font-body);font-weight:600;font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+.title{font-family:var(--font-display);font-weight:600;font-size:18px;letter-spacing:.16em;text-transform:uppercase}
+.names{font-family:var(--font-display);font-weight:500;font-size:40px;line-height:1.1;letter-spacing:.08em;text-transform:uppercase}
+.names .amp{display:block;font-family:var(--font-script);font-size:.9em;letter-spacing:0;text-transform:none;color:var(--mauve);line-height:1}
+.date{font-family:var(--font-display);font-size:24px;letter-spacing:.14em}
+.script{font-family:var(--font-script);font-size:34px;line-height:1.3;color:var(--mauve)}
 
-/* ---------- the one divider motif: the watercolour bleed ---------- */
-.divider{position:relative;height:44px;margin:0 -1px}
-.divider img.bleed{display:block;width:100%;height:100%;object-fit:cover}
-.divider.flip img.bleed{transform:scaleX(-1)}
-.divider .side{position:absolute;top:50%;width:96px;height:auto;pointer-events:none}
-.divider .side.left{left:-30px;transform:translateY(-50%)}
-.divider .side.right{right:-30px;transform:translateY(-50%)}
+/* ---------- ornaments (inline SVG line art) ---------- */
+.sprig{width:92px;height:16px;color:var(--gold)}
+.heart{width:22px;height:20px;color:var(--mauve)}
 
-/* ---------- 01 hero: framed, never full bleed, florals over two corners ---------- */
-.hero{padding:40px 32px 0}
-.hero-frame{position:relative}
-.hero-frame .corner{position:absolute;width:130px;height:auto;pointer-events:none}
-.hero-frame .corner.tl{top:-24px;left:-24px}
-.hero-frame .corner.br{bottom:-24px;right:-24px}
-.hero-copy{padding:24px 8px 48px}
+/* ---------- the one divider motif: sweeping curve ---------- */
+.curved{position:relative}
+main{overflow-x:clip}
+.label.desk{display:none}
+.curved>img{width:100%;height:auto}
+.curve{position:absolute;left:-1px;right:auto;bottom:-1px;width:calc(100% + 2px);height:56px;display:block;pointer-events:none}
+.curve .fill{fill:currentColor}
+.curve .line{fill:none;stroke:var(--gold);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.curve-v{display:none}
+.to-ground{color:var(--ground)}
+.to-panel{color:var(--panel)}
+.seam{position:absolute;left:0;right:0;top:-1px;width:100%;height:36px;display:block;pointer-events:none}
+.seam path{fill:currentColor}
 
-/* ---------- 03 calendar ---------- */
-.cal-wrap{position:relative;width:100%;max-width:300px;margin:0 auto}
-.cal{width:100%;border-collapse:collapse}
-.cal th{
-  font-family:var(--font-label);font-weight:300;font-size:10px;
-  letter-spacing:.16em;color:var(--ink);opacity:.5;padding-bottom:10px;
-}
-.cal td{
-  position:relative;
-  font-family:var(--font-body);font-weight:400;font-size:13px;
-  text-align:center;padding:6px 0;color:var(--ink);
-}
-.cal td.on{font-weight:500}
-.cal td.on img.ring{
-  position:absolute;top:50%;left:50%;
-  width:34px;height:34px;
-  transform:translate(-50%,-52%);
-  pointer-events:none;
-}
-.cal caption{
-  caption-side:bottom;padding-top:16px;color:var(--ink);
-  font-family:var(--font-label);font-weight:300;font-size:11px;
-  letter-spacing:.18em;text-transform:uppercase;opacity:.75;
-}
+/* ---------- 01 hero ---------- */
+.hero{padding:28px 0 56px;background:var(--ground)}
+.hero .label.top{text-align:center;margin-bottom:18px}
+.hero-photo{position:relative;max-width:var(--column);margin:0 auto}
+.hero-photo .floral{position:absolute;right:-24px;bottom:-44px;width:170px;pointer-events:none}
+.hero-copy{padding:40px 24px 0}
+.countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:320px}
+.countdown div{border:1px solid var(--mauve-soft);border-radius:6px;padding:10px 0 8px;background:var(--panel)}
+.countdown b{display:block;font-family:var(--font-display);font-weight:600;font-size:26px;line-height:1}
+.countdown span{display:block;margin-top:6px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
 
-/* ---------- 04 photo stack: three overlapped rounded cards ---------- */
-.photo-stack{position:relative;height:300px;max-width:340px;margin:0 auto;padding:0 32px}
-.photo-stack .card{position:absolute;border:4px solid var(--ground);border-radius:var(--radius-photo);
-  box-shadow:0 6px 18px rgba(78,82,64,.14);overflow:hidden}
-.photo-stack .card img{display:block;width:100%;height:100%;object-fit:cover}
-.photo-stack .card.back{left:4%;top:0;width:52%;height:220px;transform:rotate(-4deg);z-index:1}
-.photo-stack .card.mid{right:4%;top:10px;width:52%;height:220px;transform:rotate(3deg);z-index:2}
-.photo-stack .card.front{left:26%;top:170px;width:48%;height:118px;transform:rotate(-2deg);z-index:3}
+/* ---------- 02 invitation ---------- */
+.sec.invite{padding-bottom:0}
+.invite .photo{margin:0 -24px 36px}
+.spray{width:100%;max-width:560px;margin:24px auto 0;pointer-events:none}
 
-/* ---------- 05 timeline ---------- */
-.tl{display:flex;flex-direction:column;gap:0;width:100%;max-width:320px;margin:0 auto;text-align:left}
-.tl-row{display:flex;align-items:flex-start;gap:16px;position:relative;padding-bottom:26px}
-.tl-row:last-child{padding-bottom:0}
-.tl-row::before{
-  content:'';position:absolute;left:19px;top:40px;bottom:0;width:1px;background:var(--hairline);
-}
-.tl-row:last-child::before{display:none}
-.tl-icon{flex:none;width:40px;height:40px}
-.tl-text{padding-top:4px}
-.tl-time{font-family:var(--font-label);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--foliage)}
-.tl-event{font-size:14px;margin-top:2px}
+/* ---------- 03 programme ---------- */
+.tl{list-style:none;margin:8px 0 0;padding:0;width:100%;max-width:320px;text-align:left}
+.tl li{position:relative;display:flex;gap:18px;align-items:flex-start;padding-bottom:28px}
+.tl li:last-child{padding-bottom:0}
+.tl li::before{content:'';position:absolute;left:23px;top:48px;bottom:0;width:1px;background:var(--gold)}
+.tl li:last-child::before{display:none}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;background:var(--mauve);color:var(--ink-invert);display:flex;align-items:center;justify-content:center}
+.dot svg{width:24px;height:24px}
+.tl b{display:block;font-family:var(--font-display);font-weight:600;font-size:17px;letter-spacing:.06em;padding-top:4px}
+.tl li>div>span{display:block;font-size:15px;line-height:1.45}
 
-/* ---------- buttons: outlined default, one solid accent at RSVP ---------- */
+/* ---------- 04 venue ---------- */
+.venue-addr{display:flex;gap:10px;align-items:flex-start;text-align:left;max-width:300px}
+.venue-addr svg{flex:none;width:18px;height:18px;color:var(--mauve);margin-top:4px}
+.venue .photo{margin:12px -24px 0}
+
+/* ---------- 05 dress code ---------- */
+.swatches{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.swatches i{display:block;width:40px;height:40px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(74,58,64,.12)}
+
+/* ---------- buttons ---------- */
 .btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  min-width:150px;height:36px;padding:0 20px;
-  border:1px solid var(--foliage);border-radius:var(--radius-button);
-  font-family:var(--font-label);font-weight:500;font-size:11px;
-  letter-spacing:.16em;text-transform:uppercase;
-  text-decoration:none;color:var(--foliage);background:transparent;
-  transition:opacity .25s ease;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-width:190px;height:42px;padding:0 24px;border-radius:var(--radius-button);
+  border:1px solid var(--mauve);background:transparent;color:var(--mauve);
+  font-family:var(--font-body);font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  text-decoration:none;cursor:pointer;transition:background .2s,color .2s;
 }
-.btn:hover,.btn:focus-visible{opacity:.65}
-.btn.solid{background:var(--accent);border-color:var(--accent);color:var(--ink-invert)}
+.btn:hover,.btn:focus-visible{background:var(--mauve);color:var(--ink-invert)}
+.btn.solid{background:var(--accent);color:var(--ink-invert)}
+.btn.solid:hover,.btn.solid:focus-visible{background:#7A4E5D}
 
-/* ---------- 06 location ---------- */
-.addr{font-size:13px;line-height:1.85}
-.route-map{display:block;width:100%;height:auto;max-width:320px;margin:4px auto 0}
+/* ---------- 06 RSVP ---------- */
+.rsvp{overflow:clip}
+.rsvp .floral-tr{position:absolute;top:0;right:-40px;width:200px;pointer-events:none}
+.rsvp-photo{display:none}
+.form{display:grid;gap:26px;width:100%;max-width:380px;text-align:left}
+.form[hidden],.done[hidden]{display:none}
+.q{display:grid;gap:10px}
+.q>.label{text-align:center;display:block}
+.q .hint{text-align:center;font-size:15px;margin-top:-4px}
+.opt{display:flex;gap:10px;align-items:center;font-size:16px;cursor:pointer}
+.opt input{accent-color:var(--mauve);width:16px;height:16px;margin:0}
+.field{width:100%;min-height:46px;padding:10px 14px;border:1px solid var(--mauve-soft);border-radius:6px;background:var(--panel);color:var(--ink);font:500 16px/1.5 var(--font-body)}
+textarea.field{min-height:110px;resize:vertical}
+.field:focus{outline:2px solid var(--mauve-soft);outline-offset:1px}
+fieldset{border:0;margin:0;padding:0;display:grid;gap:10px}
+fieldset legend{padding:0;margin:0 auto 10px}
+.form .btn{justify-self:center}
+.done{text-align:center}
 
-/* ---------- 08 RSVP ---------- */
-.rsvp-form{display:grid;width:100%;max-width:340px;gap:16px;text-align:left}
-.rsvp-form[hidden],.rsvp-success[hidden]{display:none}
-.rsvp-field{display:flex;flex-direction:column;gap:6px}
-.rsvp-field label{font-family:var(--font-label);font-weight:500;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);opacity:.75}
-.rsvp-field input,.rsvp-field textarea{
-  width:100%;min-height:42px;padding:9px 12px;
-  border:1px solid var(--hairline);border-radius:6px;
-  background:#fff;color:var(--ink);font:400 14px/1.5 var(--font-body);
+/* ---------- 07 closing ---------- */
+.sec.closing{padding-bottom:0;text-align:center}
+.closing .spray{transform:scaleX(-1)}
+
+/* =================== iPad portrait: 768–1023 =================== */
+@media (min-width:768px){
+  :root{--column:640px}
+  body{font-size:17px}
+  .sec{padding:80px 48px 88px}
+  .title{font-size:20px}
+  .names{font-size:56px}
+  .date{font-size:28px}
+  .script{font-size:42px}
+  .hero-photo .floral{width:230px;right:-30px;bottom:-60px}
+  .countdown{max-width:420px;gap:12px}
+  .countdown b{font-size:34px}
+  .invite .photo,.venue .photo{margin-left:0;margin-right:0}
+  .curve{height:72px}
+  .seam{height:48px}
+  .tl{max-width:420px}
+  .form{max-width:460px}
+  .rsvp .floral-tr{width:260px}
 }
-.rsvp-field textarea{min-height:80px;resize:vertical}
-.radio-row{display:flex;flex-direction:column;gap:8px}
-.radio-opt{display:flex;align-items:center;gap:8px;font-size:13px}
-.radio-opt input{accent-color:var(--foliage)}
-.rsvp-form .btn{justify-self:center;cursor:pointer;border:none;margin-top:4px}
-.rsvp-success{text-align:center}
 
-@media (max-width:420px){
-  .block{padding:40px 24px}
-  .display{font-size:32px}
-  .display.names{font-size:42px}
-}
+/* =================== Desktop: >=1024, landing-page spreads =================== */
+@media (min-width:1024px){
+  body{font-size:18px}
+  .wrap{max-width:1200px}
+  .sec{padding:112px 64px 120px}
+  .title{font-size:22px}
+  .seam{height:64px}
 
-@media (min-width:640px){
-  body{padding:40px 16px}
-  .sheet{box-shadow:0 18px 56px rgba(78,82,64,.14),0 0 0 1px rgba(78,82,64,.06)}
+  /* hero: full viewport, photo left with the curve down its right edge */
+  .hero{display:grid;grid-template-columns:55% 45%;min-height:100vh;padding:0;align-items:center}
+  .hero .label.top{display:none}
+  .hero-photo{max-width:none;margin:0;align-self:stretch;min-height:100vh}
+  .hero-photo>img.shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%}
+  .hero-photo .curve-h{display:none}
+  .curve-v{display:block;position:absolute;top:0;right:-1px;height:100%;width:110px;pointer-events:none}
+  .curve-v .fill{fill:var(--ground)}
+  .curve-v .line{fill:none;stroke:var(--gold);stroke-width:1.2;vector-effect:non-scaling-stroke}
+  .hero-photo .floral{width:280px;right:-70px;bottom:-30px}
+  .hero-copy{padding:80px 64px}
+  .hero-copy .label.desk{display:block}
+  .names{font-size:72px}
+  .date{font-size:30px}
+  .countdown{max-width:440px}
+  .countdown b{font-size:38px}
+
+  /* invitation: photo left, copy right, spray along the bottom */
+
+  .invite .wrap{display:grid;grid-template-columns:1.1fr 1fr;column-gap:80px;row-gap:0;align-items:center}
+  .invite .photo{margin:0;border-radius:4px}
+  .invite .spray-wrap{grid-column:1 / -1}
+  .invite .spray{max-width:900px;margin-top:48px}
+  .invite .stack{align-items:flex-start;text-align:left}
+  .invite .stack>p{max-width:44ch}
+
+  /* programme: horizontal */
+  .tl{display:grid;grid-template-columns:repeat(6,1fr);max-width:1100px;margin-top:32px;text-align:center;position:relative}
+  .tl::before{content:'';position:absolute;left:8%;right:8%;top:32px;height:1px;background:var(--gold)}
+  .tl li{flex-direction:column;align-items:center;gap:14px;padding:0 8px}
+  .tl li::before{display:none}
+  .dot{width:64px;height:64px;position:relative;z-index:1;box-shadow:0 0 0 8px var(--ground)}
+  .dot svg{width:28px;height:28px}
+  .tl b{font-size:20px}
+  .tl li>div>span{font-size:16px}
+
+  /* venue: copy left, photo right */
+  .venue .wrap{display:grid;grid-template-columns:1fr 1.2fr;gap:80px;align-items:center}
+  .venue .stack{align-items:flex-start;text-align:left}
+  .venue .photo{margin:0;grid-column:2;grid-row:1}
+  .venue .stack{grid-column:1;grid-row:1}
+
+  /* RSVP: sticky photo left, form right */
+  .rsvp .wrap{display:grid;grid-template-columns:1fr 1fr;gap:88px;align-items:start}
+  .rsvp-photo{display:block;position:sticky;top:48px}
+  .rsvp-photo .curve{height:80px}
+  .rsvp .floral-tr{width:320px;right:-20px}
+  .form{max-width:480px}
+
+  .closing .spray{max-width:900px;margin-top:-60px}
 }
 </style>
 </head>
 
 <body>
-<main class="sheet">
+<!-- line-art symbols: drawn once, reused with <use> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-sprig" viewBox="0 0 92 16"><g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><path d="M4 8 C30 8 62 8 88 8"/><path d="M46 8 C42 3 36 2 32 4 C36 7 42 8 46 8Z"/><path d="M46 8 C50 3 56 2 60 4 C56 7 50 8 46 8Z"/><path d="M34 8 C31 12 26 13 22 12 C25 9 30 8 34 8Z"/><path d="M58 8 C61 12 66 13 70 12 C67 9 62 8 58 8Z"/><path d="M22 8 C20 5 16 4 13 5"/><path d="M70 8 C72 5 76 4 79 5"/></g></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 22"><path d="M12 20 C5 14 2 11 2 7 A4.8 4.8 0 0 1 12 5 A4.8 4.8 0 0 1 22 7 C22 11 19 14 12 20Z" fill="currentColor"/></symbol>
+  <symbol id="i-glasses" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h5.5l-.4 4.2a2.4 2.4 0 0 1-4.7 0Z"/><path d="M6.7 9.6V19M4.5 19h4.4"/><path d="M14.5 3H20l-.4 4.2a2.4 2.4 0 0 1-4.7 0Z"/><path d="M17.2 9.6V19M15 19h4.4"/></g></symbol>
+  <symbol id="i-rings" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="14.5" r="5.5"/><circle cx="15" cy="14.5" r="5.5"/><path d="M7 7l2-3h2l2 3"/></g></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8.5 7l1.5-2.5h4L15.5 7"/></g></symbol>
+  <symbol id="i-plate" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5.5"/><path d="M3.5 4v5a1.5 1.5 0 0 0 3 0V4M5 9.5V20"/><path d="M20.5 4c-1.8 1.5-2.2 5.5 0 7v9"/></g></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="6.8" cy="18" r="2.3"/><circle cx="16.8" cy="16" r="2.3"/></g></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 3v6M12 15v6M3 12h6M15 12h6M5.8 5.8l3 3M15.2 15.2l3 3M18.2 5.8l-3 3M8.8 15.2l-3 3"/></g></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 21s-6.5-6.1-6.5-11a6.5 6.5 0 0 1 13 0c0 4.9-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/></g></symbol>
+</svg>
 
-  <!-- ============ 01 · HERO · inset rounded rectangle, florals over two corners ============ -->
+<main>
+
+  <!-- ============ 01 · HERO ============ -->
   <section class="hero">
-    <div class="hero-frame">
-      <img class="shot hero-shot" src="../assets/demos/wedding-peony-garden/pho-01-hero.webp"
-           width="832" height="1248"
-           alt="The bride and groom laughing together on the lawn, the bride resting her head on his shoulder.">
-      <img class="corner tl" src="../assets/demos/wedding-peony-garden/peony-cluster-top-left.webp"
-           width="900" height="900" alt="">
-      <img class="corner br" src="../assets/demos/wedding-peony-garden/peony-cluster-bottom-right.webp"
-           width="900" height="900" alt="">
+    <p class="label top">Our wedding</p>
+    <div class="hero-photo curved">
+      <img class="shot" src="../assets/demos/wedding-mauve-garden/pho-01-hero.webp" width="1200" height="1500"
+           alt="The bride and groom nose to nose beneath a sheer veil, holding a pastel bouquet.">
+      <svg class="curve curve-h to-ground" viewBox="0 0 480 60" preserveAspectRatio="none" aria-hidden="true">
+        <path class="fill" d="M0 18 C150 72 320 -6 480 34 L480 60 L0 60 Z"/>
+        <path class="line" d="M0 18 C150 72 320 -6 480 34"/>
+      </svg>
+      <svg class="curve-v" viewBox="0 0 110 900" preserveAspectRatio="none" aria-hidden="true">
+        <path class="fill" d="M60 0 C118 240 8 560 78 900 L110 900 L110 0 Z"/>
+        <path class="line" d="M60 0 C118 240 8 560 78 900"/>
+      </svg>
+      <img class="floral" src="../assets/demos/wedding-mauve-garden/floral-corner-br.webp" width="1000" height="1000" alt="">
     </div>
-    <div class="hero-copy stack">
-      <p class="label">Together with their families</p>
-      <h1 class="display names">Hui Huang<br>&amp; Mayyi</h1>
-      <p class="label">20 . 06 . 2027 &nbsp;·&nbsp; Kuala Lumpur</p>
+
+    <div class="hero-copy">
+      <div class="stack">
+        <p class="label desk">Our wedding</p>
+        <h1 class="names">Hui Huang<span class="amp">&amp;</span>Mayyi</h1>
+        <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+        <p class="date">20 · 06 · 2027</p>
+        <p>We can't wait to celebrate with you.</p>
+        <p class="label" style="margin-top:12px">Until the wedding</p>
+        <div class="countdown" aria-label="Countdown to the wedding">
+          <div><b id="cd-days">000</b><span>Days</span></div>
+          <div><b id="cd-hours">00</b><span>Hours</span></div>
+          <div><b id="cd-minutes">00</b><span>Minutes</span></div>
+          <div><b id="cd-seconds">00</b><span>Seconds</span></div>
+        </div>
+      </div>
     </div>
   </section>
-
-  <div class="divider">
-    <img class="bleed" src="../assets/demos/wedding-peony-garden/divider-bleed.webp" width="960" height="80" alt="">
-  </div>
 
   <!-- ============ 02 · INVITATION ============ -->
-  <section class="block">
-    <div class="stack">
-      <h2 class="display">You are invited</h2>
-      <p>Under an open sky and a few very good flowers, we're finally making it official.</p>
-      <p>We'd love for the people who've walked with us this far to be there for the next part too.</p>
-      <p>That's you. Come dance with us.</p>
-    </div>
-  </section>
-
-  <div class="divider flip">
-    <img class="bleed" src="../assets/demos/wedding-peony-garden/divider-bleed.webp" width="960" height="80" alt="">
-  </div>
-
-  <!-- ============ 03 · CALENDAR · date ringed by ILL-03 ============ -->
-  <section class="block">
-    <div class="stack">
-      <h2 class="display">June 2027</h2>
-      <div class="cal-wrap">
-        <table class="cal">
-          <caption>Sunday &nbsp;·&nbsp; Ceremony 4:00 PM</caption>
-          <thead>
-            <tr><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th><th>S</th></tr>
-          </thead>
-          <tbody>
-            <tr><td></td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td></tr>
-            <tr><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td></tr>
-            <tr><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td>
-              <td class="on">20
-                <img class="ring" src="../assets/demos/wedding-peony-garden/date-ring.webp" width="240" height="240" alt="">
-              </td>
-            </tr>
-            <tr><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td></tr>
-            <tr><td>28</td><td>29</td><td>30</td><td></td><td></td><td></td><td></td></tr>
-          </tbody>
-        </table>
+  <section class="sec on-panel invite">
+    <svg class="seam to-ground" viewBox="0 0 480 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H480 V14 C330 40 160 -4 0 22 Z"/></svg>
+    <div class="wrap">
+      <div class="photo curved">
+        <img src="../assets/demos/wedding-mauve-garden/pho-02-home.webp" width="1400" height="933" loading="lazy"
+             alt="The couple laughing together at home in matching cream knit sweaters.">
+        <svg class="curve to-panel" viewBox="0 0 480 60" preserveAspectRatio="none" aria-hidden="true">
+          <path class="fill" d="M0 30 C170 -8 300 70 480 20 L480 60 L0 60 Z"/>
+          <path class="line" d="M0 30 C170 -8 300 70 480 20"/>
+        </svg>
+      </div>
+      <div class="stack">
+        <h2 class="title">Dear friends</h2>
+        <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+        <p>We would be so happy to share this day with the people who have walked with us this far.</p>
+        <p>Please join us on the lawn at The RuMa for our wedding.</p>
+        <svg class="heart" aria-hidden="true"><use href="#i-heart"/></svg>
+      </div>
+      <div class="spray-wrap">
+        <img class="spray" src="../assets/demos/wedding-mauve-garden/floral-spray-bottom.webp" width="1600" height="600" loading="lazy" alt="">
       </div>
     </div>
   </section>
 
-  <!-- ============ divider · ILL-09 side cluster enters from the left ============ -->
-  <div class="divider">
-    <img class="side left" src="../assets/demos/wedding-peony-garden/side-cluster-left.webp" width="600" height="900" alt="">
-    <img class="bleed" src="../assets/demos/wedding-peony-garden/divider-bleed.webp" width="960" height="80" alt="">
-  </div>
+  <!-- ============ 03 · PROGRAMME ============ -->
+  <section class="sec on-ground">
+    <svg class="seam to-panel" viewBox="0 0 480 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H480 V20 C300 -4 170 40 0 12 Z"/></svg>
+    <div class="wrap stack">
+      <h2 class="title">Programme of the day</h2>
+      <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+      <ol class="tl">
+        <li><span class="dot"><svg aria-hidden="true"><use href="#i-glasses"/></svg></span><div><b>3:30 PM</b><span>Guests arrive, welcome drinks</span></div></li>
+        <li><span class="dot"><svg aria-hidden="true"><use href="#i-rings"/></svg></span><div><b>4:00 PM</b><span>Ceremony on the lawn</span></div></li>
+        <li><span class="dot"><svg aria-hidden="true"><use href="#i-camera"/></svg></span><div><b>4:45 PM</b><span>Toasts and photos</span></div></li>
+        <li><span class="dot"><svg aria-hidden="true"><use href="#i-plate"/></svg></span><div><b>7:00 PM</b><span>Dinner in the ballroom</span></div></li>
+        <li><span class="dot"><svg aria-hidden="true"><use href="#i-music"/></svg></span><div><b>9:30 PM</b><span>First dance and party</span></div></li>
+        <li><span class="dot"><svg aria-hidden="true"><use href="#i-sparkle"/></svg></span><div><b>11:00 PM</b><span>Sparkler send-off</span></div></li>
+      </ol>
+    </div>
+  </section>
 
-  <!-- ============ 04 · PHOTO STACK · three rounded cards, overlapped ============ -->
-  <section class="block" style="padding-top:32px">
-    <div class="photo-stack">
-      <div class="card back">
-        <img src="../assets/demos/wedding-peony-garden/pho-02-veil.webp" width="480" height="720"
-             loading="lazy" alt="The bride and groom nose to nose beneath a sheer veil, holding a pastel bouquet.">
+  <!-- ============ 04 · VENUE ============ -->
+  <section class="sec on-panel venue">
+    <svg class="seam to-ground" viewBox="0 0 480 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H480 V14 C330 40 160 -4 0 22 Z"/></svg>
+    <div class="wrap">
+      <div class="stack">
+        <h2 class="title">The venue</h2>
+        <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+        <div class="venue-addr">
+          <svg aria-hidden="true"><use href="#i-pin"/></svg>
+          <p>The RuMa Hotel and Residences<br>7 Jalan Kia Peng, 50450 Kuala Lumpur</p>
+        </div>
+        <a class="btn" href="https://maps.google.com/?q=The+RuMa+Hotel+and+Residences+Kuala+Lumpur" target="_blank" rel="noopener">View on map</a>
       </div>
-      <div class="card mid">
-        <img src="../assets/demos/wedding-peony-garden/pho-03-bedroom.webp" width="480" height="720"
-             loading="lazy" alt="The couple laughing together at home in cream knit sweaters.">
-      </div>
-      <div class="card front">
-        <img src="../assets/demos/wedding-peony-garden/pho-04-street.webp" width="560" height="420"
-             loading="lazy" alt="The couple in black evening wear cheering outside a garden rooftop bar.">
+      <div class="photo curved">
+        <img src="../assets/demos/wedding-mauve-garden/pho-03-venue.webp" width="1400" height="933" loading="lazy"
+             alt="The bride and groom walking across the open lawn, forested hills behind them.">
+        <svg class="curve to-panel" viewBox="0 0 480 60" preserveAspectRatio="none" aria-hidden="true">
+          <path class="fill" d="M0 22 C140 64 330 0 480 40 L480 60 L0 60 Z"/>
+          <path class="line" d="M0 22 C140 64 330 0 480 40"/>
+        </svg>
       </div>
     </div>
   </section>
 
-  <div class="divider flip">
-    <img class="bleed" src="../assets/demos/wedding-peony-garden/divider-bleed.webp" width="960" height="80" alt="">
-  </div>
-
-  <!-- ============ 05 · TIMELINE ============ -->
-  <section class="block">
-    <div class="stack" style="margin-bottom:8px">
-      <h2 class="display" style="font-size:36px">Order of the day</h2>
+  <!-- ============ 05 · DRESS CODE ============ -->
+  <section class="sec on-ground">
+    <svg class="seam to-panel" viewBox="0 0 480 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H480 V20 C300 -4 170 40 0 12 Z"/></svg>
+    <div class="wrap stack">
+      <h2 class="title">Dress code</h2>
+      <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+      <p>Garden formal. We'd love it if you wore something from this palette. Flat shoes help on the grass.</p>
+      <div class="swatches" role="img" aria-label="Sand, blush, mauve, sage and charcoal">
+        <i style="background:#E6D2BA"></i><i style="background:#D8B4BC"></i><i style="background:#9C6B7B"></i><i style="background:#7F8C6B"></i><i style="background:#3A3538"></i>
+      </div>
     </div>
-    <div class="tl">
-      <div class="tl-row">
-        <img class="tl-icon" src="../assets/demos/wedding-peony-garden/icon-rings.webp" width="240" height="240" alt="">
-        <div class="tl-text">
-          <p class="tl-time">4:00 PM</p>
-          <p class="tl-event">Ceremony on the lawn</p>
-        </div>
+  </section>
+
+  <!-- ============ 06 · RSVP ============ -->
+  <section class="sec on-panel rsvp">
+    <svg class="seam to-ground" viewBox="0 0 480 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H480 V14 C330 40 160 -4 0 22 Z"/></svg>
+    <img class="floral-tr" src="../assets/demos/wedding-mauve-garden/floral-corner-tr.webp" width="900" height="900" loading="lazy" alt="">
+    <div class="wrap">
+      <div class="rsvp-photo curved">
+        <img src="../assets/demos/wedding-mauve-garden/pho-04-rsvp.webp" width="1000" height="1400" loading="lazy"
+             alt="The couple in black evening wear walking along a white colonial veranda.">
+        <svg class="curve to-panel" viewBox="0 0 480 60" preserveAspectRatio="none" aria-hidden="true">
+          <path class="fill" d="M0 30 C170 -8 300 70 480 20 L480 60 L0 60 Z"/>
+          <path class="line" d="M0 30 C170 -8 300 70 480 20"/>
+        </svg>
       </div>
-      <div class="tl-row">
-        <img class="tl-icon" src="../assets/demos/wedding-peony-garden/icon-champagne.webp" width="240" height="240" alt="">
-        <div class="tl-text">
-          <p class="tl-time">6:00 PM</p>
-          <p class="tl-event">Cocktail hour in the garden</p>
-        </div>
-      </div>
-      <div class="tl-row">
-        <img class="tl-icon" src="../assets/demos/wedding-peony-garden/icon-dinner.webp" width="240" height="240" alt="">
-        <div class="tl-text">
-          <p class="tl-time">7:00 PM</p>
-          <p class="tl-event">Dinner in the ballroom</p>
-        </div>
-      </div>
-      <div class="tl-row">
-        <img class="tl-icon" src="../assets/demos/wedding-peony-garden/icon-cake.webp" width="240" height="240" alt="">
-        <div class="tl-text">
-          <p class="tl-time">9:00 PM</p>
-          <p class="tl-event">Cutting the cake</p>
+
+      <div class="stack">
+        <h2 class="title">Guest reply</h2>
+        <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+
+        <form class="form" id="rsvp-form">
+          <fieldset>
+            <legend class="label">Please confirm your attendance</legend>
+            <label class="opt"><input type="radio" name="attendance" value="yes" required> Joyfully accepts</label>
+            <label class="opt"><input type="radio" name="attendance" value="no"> Regretfully declines</label>
+          </fieldset>
+
+          <div class="q">
+            <label class="label" for="guest-name">Your full name</label>
+            <input class="field" id="guest-name" name="name" autocomplete="name" placeholder="Type here" required>
+          </div>
+
+          <fieldset>
+            <legend class="label">Drinks</legend>
+            <p class="hint" style="text-align:center;margin:-4px 0 4px">What would you prefer?</p>
+            <label class="opt"><input type="radio" name="drinks" value="wine"> Wine (red or white)</label>
+            <label class="opt"><input type="radio" name="drinks" value="champagne"> Champagne</label>
+            <label class="opt"><input type="radio" name="drinks" value="none"> Non-alcoholic</label>
+          </fieldset>
+
+          <div class="q">
+            <label class="label" for="guest-note">Your wishes</label>
+            <p class="hint">A few warm words for the couple</p>
+            <textarea class="field" id="guest-note" name="note" placeholder="Type here"></textarea>
+          </div>
+
+          <button class="btn solid" type="submit">Send reply</button>
+        </form>
+
+        <div class="done" id="rsvp-done" hidden aria-live="polite">
+          <p class="title">Thank you</p>
+          <p style="margin-top:8px">We've noted your reply. See you on the lawn.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <div class="divider">
-    <img class="bleed" src="../assets/demos/wedding-peony-garden/divider-bleed.webp" width="960" height="80" alt="">
-  </div>
-
-  <!-- ============ 06 · LOCATION ============ -->
-  <section class="block">
-    <div class="stack">
-      <img class="shot" src="../assets/demos/wedding-peony-garden/pho-05-venue.webp" width="960" height="640"
-           loading="lazy" alt="The bride and groom walking hand in hand across the open lawn.">
-      <h2 class="display" style="margin-top:4px">Where</h2>
-      <img class="route-map" src="../assets/demos/wedding-peony-garden/route-map.webp" width="960" height="640" alt="">
-      <p class="label">The RuMa Hotel and Residences</p>
-      <p class="addr">7 Jalan Kia Peng<br>50450 Kuala Lumpur<br>Malaysia</p>
-      <a class="btn" href="https://maps.google.com/?q=The+RuMa+Hotel+and+Residences+Kuala+Lumpur"
-         target="_blank" rel="noopener">Directions</a>
-    </div>
-  </section>
-
-  <!-- ============ divider · ILL-10 side cluster enters from the right ============ -->
-  <div class="divider flip">
-    <img class="bleed" src="../assets/demos/wedding-peony-garden/divider-bleed.webp" width="960" height="80" alt="">
-    <img class="side right" src="../assets/demos/wedding-peony-garden/side-cluster-right.webp" width="600" height="900" alt="">
-  </div>
-
-  <!-- ============ 07 · WISHES ============ -->
-  <section class="block">
-    <div class="stack">
-      <h2 class="display">With all our love</h2>
-      <p>Your presence is truly the only gift we're asking for.</p>
-      <p>If you'd like to add something more, there's a card box waiting near the guestbook.</p>
-    </div>
-  </section>
-
-  <div class="divider">
-    <img class="bleed" src="../assets/demos/wedding-peony-garden/divider-bleed.webp" width="960" height="80" alt="">
-  </div>
-
-  <!-- ============ 08 · RSVP ============ -->
-  <section class="block">
-    <div class="stack">
-      <h2 class="display">Will you come</h2>
-      <p>Two questions, one minute. Kindly reply by 1 May 2027.</p>
-      <form class="rsvp-form" id="rsvp-form">
-        <div class="rsvp-field">
-          <label for="guest-name">Your name</label>
-          <input id="guest-name" name="name" autocomplete="name" required>
-        </div>
-        <div class="radio-row" role="radiogroup" aria-label="Will you attend?">
-          <label class="radio-opt"><input type="radio" name="attendance" value="yes" required> Joyfully accepts</label>
-          <label class="radio-opt"><input type="radio" name="attendance" value="no"> Regretfully declines</label>
-        </div>
-        <div class="rsvp-field">
-          <label for="guest-note">A note for the couple (optional)</label>
-          <textarea id="guest-note" name="note"></textarea>
-        </div>
-        <button class="btn solid" type="submit">Send RSVP</button>
-      </form>
-      <div class="rsvp-success" id="rsvp-success" hidden aria-live="polite">
-        <p class="label">Thank you</p>
-        <p>We've noted your reply. See you in the garden.</p>
-      </div>
+  <!-- ============ 07 · CLOSING ============ -->
+  <section class="sec on-ground closing">
+    <svg class="seam to-panel" viewBox="0 0 480 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H480 V20 C300 -4 170 40 0 12 Z"/></svg>
+    <div class="wrap stack">
+      <p class="script">Thank you for being with us<br>on this special day</p>
+      <svg class="heart" aria-hidden="true"><use href="#i-heart"/></svg>
+      <img class="spray" src="../assets/demos/wedding-mauve-garden/floral-spray-bottom.webp" width="1600" height="600" loading="lazy" alt="">
     </div>
   </section>
 
 </main>
+
 <script>
-  document.getElementById('rsvp-form').addEventListener('submit', event => {
-    event.preventDefault();
-    event.currentTarget.hidden = true;
-    document.getElementById('rsvp-success').hidden = false;
+  const weddingDate = new Date('2027-06-20T16:00:00+08:00');
+  const parts = ['days', 'hours', 'minutes', 'seconds'];
+  function tick() {
+    const ms = Math.max(0, weddingDate - new Date());
+    const v = [Math.floor(ms / 86400000), Math.floor(ms / 3600000) % 24, Math.floor(ms / 60000) % 60, Math.floor(ms / 1000) % 60];
+    parts.forEach((p, i) => {
+      document.getElementById('cd-' + p).textContent = String(v[i]).padStart(p === 'days' ? 3 : 2, '0');
+    });
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  document.getElementById('rsvp-form').addEventListener('submit', e => {
+    e.preventDefault();
+    e.currentTarget.hidden = true;
+    document.getElementById('rsvp-done').hidden = false;
   });
 </script>
 </body>
