@@ -6,8 +6,8 @@
 | Date | 2026-09-18 |
 | Wireframe | `demos/wedding-mauve-garden-wireframe.html` |
 | Replaces | the `pink-peony-garden` draft of `demos/wedding-premium-2.html` |
-| Assets to generate | 6 (`ILL-01m`, `ILL-01d`, `ILL-02`, `ILL-03m`, `ILL-03d`, `ILL-04`), each specified per breakpoint |
-| Client photo slots | 4 |
+| Assets to generate | 4 (`ILL-01m`, `ILL-02`, `ILL-03m`, `ILL-04`), phone only |
+| Client photo slots | 4 + 8 gallery cards |
 
 ---
 
@@ -80,13 +80,16 @@ Phone order. Every layout keeps the same order and changes only the arrangement 
 
 | # | Block | Copy slots | Photo | Asset (phone / iPad) | Asset (desktop) | Desktop layout |
 |---|---|---|---|---|---|---|
-| 01 | hero | `TXT-01` "Our wedding" label, `TXT-02` names with script "&", `TXT-03` date, `TXT-04` one line, `TXT-05` countdown label | `PHO-01` | `ILL-01m` | `ILL-01d` | photo left 55% with the curve on its right edge, copy + countdown right |
-| 02 | invitation | `TXT-06` "Dear friends", `TXT-07` paragraph | `PHO-02` | `ILL-03m` | `ILL-03d` | photo left, copy right, garland below both |
+| 01 | hero | `TXT-01` "Our wedding" label, `TXT-02` names with script "&", `TXT-03` date, `TXT-04` one line, `TXT-05` countdown label | `PHO-01` | `ILL-01m` (phone only) | — | photo left 55% with the curve on its right edge, copy + countdown right |
+| 02 | invitation | `TXT-06` "Dear friends", `TXT-07` paragraph | `PHO-02` | `ILL-03m` (phone only) | — | photo left, copy right, garland below both |
+| 02b | gallery | `TXT-19` "Our moments", `TXT-20` counter | `PHO-G1` … `PHO-G8` | — | — | the same 3D card deck, cards 360px wide |
 | 03 | programme | `TXT-08` title, `TXT-09` six rows of time + event | — | inline SVG icons | inline SVG icons | horizontal six-stop timeline |
 | 04 | venue | `TXT-10` title, `TXT-11` venue + address, `TXT-12` map button | `PHO-03` | — | — | copy left, photo right |
 | 05 | dress code | `TXT-13` title, `TXT-14` line | — | — | — | centred, five swatches |
-| 06 | RSVP | `TXT-15` title, `TXT-16` prompts, attend radios, name, drinks radios, wishes, `TXT-17` button | `PHO-04` (desktop only) | `ILL-04` | `ILL-04` | photo left (sticky), form right |
-| 07 | closing | `TXT-18` script thank-you, heart | — | `ILL-02` | `ILL-02` | centred |
+| 06 | RSVP | `TXT-15` title, `TXT-16` prompts, attend radios, name, drinks radios, wishes, `TXT-17` button | `PHO-04` (desktop only) | `ILL-04` (phone only) | — | photo left (sticky), form right |
+| 07 | closing | `TXT-18` script thank-you, heart | — | `ILL-02` (phone only) | — | centred |
+
+**The watercolour florals are phone-only.** At the couple's request, iPad and desktop show none. On the wider layouts the photos, the curve and the gold line carry the page.
 
 Dropped: contacts (see section 0).
 
@@ -99,21 +102,27 @@ Dropped: contacts (see section 0).
 | Slot | Breakpoints | Where it sits | CSS width | Output px | Ratio | Cut edges | Filename |
 |---|---|---|---|---|---|---|---|
 | `ILL-01m` | phone, iPad | hero photo's bottom-right corner, flush with the viewport's right edge, overlapping the curve and trailing ~20px below the photo (clear of the names) | 44vw, max 300px | 600×800 | 3:4 | **right only** | `assets/demos/wedding-mauve-garden/hero-cluster-m.webp` |
-| `ILL-01d` | desktop | a vertical garland standing on the curve between photo and copy, lower half of the hero, clear of the countdown | 150px | 400×1200 | 1:3 | **none**, floats | `assets/demos/wedding-mauve-garden/hero-garland-d.webp` |
 | `ILL-02` | all | closing block, sitting on the very bottom of the page | 100%, max 560px (phone/iPad) / 900px (desktop) | 1600×600 | 8:3 | **bottom only**, on the page bottom | `assets/demos/wedding-mauve-garden/floral-spray-bottom.webp` |
 | `ILL-03m` | phone, iPad | under the invitation copy, mid-page | 100%, max 560px | 1120×420 | 8:3 | **none**, floats | `assets/demos/wedding-mauve-garden/invite-garland-m.webp` |
-| `ILL-03d` | desktop | full width under the invitation spread, mid-page | 900px | 1800×450 | 4:1 | **none**, floats | `assets/demos/wedding-mauve-garden/invite-garland-d.webp` |
 | `ILL-04` | all | RSVP section top-right, flush with the viewport's right edge, in its own space above the title (the section's top padding grows to fit it) | 150 / 200 / min(18vw, 260px) | 640×800 | 4:5 | **right only** | `assets/demos/wedding-mauve-garden/rsvp-cluster.webp` |
 | `PHO-01` | all | hero — the veil kiss (ZEN-1852), lawn set | full-bleed below desktop; 55% column on desktop | 1200×1500 | 4:5 | — | `assets/demos/wedding-mauve-garden/pho-01-hero.webp` |
 | `PHO-02` | all | invitation — cream knitwear at home (ZEN-2298) | up to 640px | 1400×933 | 3:2 | — | `assets/demos/wedding-mauve-garden/pho-02-home.webp` |
 | `PHO-03` | all | venue — the wide lawn with hills (ZEN-1674) | up to 700px | 1400×933 | 3:2 | — | `assets/demos/wedding-mauve-garden/pho-03-venue.webp` |
 | `PHO-04` | desktop | RSVP side photo — black-tie set on the veranda (ZEN-2178), graded down | 500px | 1000×1400 | 5:7 | — | `assets/demos/wedding-mauve-garden/pho-04-rsvp.webp` |
+| `PHO-G1` | all | gallery card 1 of 8 — the laughing hug on the lawn (ZEN-1625) | 62vw max 260 / 300 / 360px | 720×1280 | 9:16 | — | `assets/demos/wedding-mauve-garden/gallery-01.webp` |
+| `PHO-G2` | all | gallery card 2 of 8 — plush toy at home (ZEN-2311) | 62vw max 260 / 300 / 360px | 720×1280 | 9:16 | — | `assets/demos/wedding-mauve-garden/gallery-02.webp` |
+| `PHO-G3` | all | gallery card 3 of 8 — black-tie, groom leaning back (ZEN-2029) | 62vw max 260 / 300 / 360px | 720×1280 | 9:16 | — | `assets/demos/wedding-mauve-garden/gallery-03.webp` |
+| `PHO-G4` | all | gallery card 4 of 8 — walking across the lawn (ZEN-1674) | 62vw max 260 / 300 / 360px | 720×1280 | 9:16 | — | `assets/demos/wedding-mauve-garden/gallery-04.webp` |
+| `PHO-G5` | all | gallery card 5 of 8 — bread and snacks on the bed (ZEN-2359) | 62vw max 260 / 300 / 360px | 720×1280 | 9:16 | — | `assets/demos/wedding-mauve-garden/gallery-05.webp` |
+| `PHO-G6` | all | gallery card 6 of 8 — black-tie on the veranda (ZEN-2178) | 62vw max 260 / 300 / 360px | 720×1280 | 9:16 | — | `assets/demos/wedding-mauve-garden/gallery-06.webp` |
+| `PHO-G7` | all | gallery card 7 of 8 — nose to nose on the lawn (ZEN-1582) | 62vw max 260 / 300 / 360px | 720×1280 | 9:16 | — | `assets/demos/wedding-mauve-garden/gallery-07.webp` |
+| `PHO-G8` | all | gallery card 8 of 8 — black-tie among the flowers (ZEN-2124) | 62vw max 260 / 300 / 360px | 720×1280 | 9:16 | — | `assets/demos/wedding-mauve-garden/gallery-08.webp` |
 
 ---
 
 ## 4. Asset prompts
 
-`ILL-02` was generated in the first pass and is kept. The five prompts below are new.
+`ILL-02` was generated in the first pass and is kept. The three prompts below are new. A desktop hero garland (`ILL-01d`) was generated and then dropped at the couple's request: on a wide screen the desktop hero reads cleaner with only the photo, the curve and the gold line.
 
 ### `ILL-01m` — Hero cluster, phone and iPad (right edge cut only)
 
@@ -121,22 +130,10 @@ Dropped: contacts (see section 0).
 A tall, lush watercolour cluster of garden roses that enters from the right edge of the frame and is cut off only by that right edge. The top, left and bottom edges must end naturally inside the frame with generous empty space around them — nothing cut off by the top, left or bottom of the frame. Composition: the cluster hugs the right edge, fullest in the middle third of the frame, with sprays of eucalyptus leaves and thin stems trailing upward and a few buds and leaves tapering off softly toward the bottom; the left half of the frame is mostly empty. Two large open garden roses in dusty mauve #9C6B7B and #C9A3AE, one cream-white rose #F3EBE3, small blush ranunculus and closed rose buds in #D8B4BC, silvery sage eucalyptus leaves in #8E9A7E and #A7B09A, a few fine dried stems in muted gold #BFA06A. Loose and asymmetrical, flowers facing different directions. Medium: hand-painted loose botanical watercolour on cold-press watercolour paper, soft wet-in-wet bleeds, petals built from overlapping translucent washes, some petal edges left unfinished, faint visible paper tooth, very little granulation. Isolated on a pure white background, no drop shadow. No text, no lettering, no watermark, no gradient background, no plastic highlights, no CG sheen, no perfectly symmetrical flowers, no saturated hot pink, no blue, no purple-violet.
 ```
 
-### `ILL-01d` — Hero vertical garland, desktop (no cut edges)
-
-```
-A tall, narrow, free-floating vertical watercolour garland of garden roses, standing upright in the centre of a tall narrow frame and filling it: the garland spans about 85% of the frame height and about 70% of the frame width, with every edge still ending naturally and a thin margin of empty space on all four sides — nothing touches or is cut off by any edge of the frame. From bottom to top: a full base of two large open garden roses in dusty mauve #9C6B7B and #C9A3AE with one cream-white rose #F3EBE3 and blush buds #D8B4BC, then a climbing stem of silvery sage eucalyptus leaves #8E9A7E and #A7B09A with smaller buds, thinning to a few delicate leaves and fine dried gold stems #BFA06A at the top. Slightly asymmetrical, leaning gently, stems curving naturally, not mirrored. Medium: hand-painted loose botanical watercolour on cold-press watercolour paper, soft wet-in-wet bleeds, overlapping translucent washes, some edges left unfinished, faint visible paper tooth, very little granulation. Isolated on a pure white background, no drop shadow. No text, no lettering, no watermark, no gradient background, no plastic highlights, no CG sheen, no perfectly symmetrical flowers, no saturated hot pink, no blue, no purple-violet.
-```
-
 ### `ILL-03m` — Invitation garland, phone and iPad (no cut edges)
 
 ```
 A free-floating horizontal watercolour floral garland centred in a wide frame, with every edge ending naturally and clear empty space on all four sides — nothing touches or is cut off by any edge of the frame. Composition: two loose clusters, one on the left third and one on the right third, joined across the middle by a thin trailing stem of eucalyptus leaves and small buds; the left and right clusters are different, not mirrored. Dusty mauve garden roses #9C6B7B, soft mauve-pink roses #C9A3AE, cream-white roses #F3EBE3, blush buds #D8B4BC, silvery sage eucalyptus and olive leaves #8E9A7E and #A7B09A, fine dried gold stems #BFA06A. Loose and asymmetrical. Medium: hand-painted loose botanical watercolour on cold-press watercolour paper, soft wet-in-wet bleeds, overlapping translucent washes, some edges left unfinished, faint visible paper tooth, very little granulation. Isolated on a pure white background, no drop shadow. No text, no lettering, no watermark, no gradient background, no plastic highlights, no CG sheen, no perfectly symmetrical flowers, no saturated hot pink, no blue, no purple-violet.
-```
-
-### `ILL-03d` — Invitation garland, desktop (no cut edges)
-
-```
-A long, slim, free-floating horizontal watercolour floral garland centred in a very wide frame, with every edge ending naturally and clear empty space on all four sides — nothing touches or is cut off by any edge of the frame. Composition: three loose clusters spaced along the length — a fuller one left of centre, a smaller one near the right end, a few buds near the left end — joined by a single trailing stem of eucalyptus leaves, small buds and fine dried stems; the garland spans about 90% of the frame width and about 75% of the frame height; the clusters differ from each other, nothing mirrored. Dusty mauve garden roses #9C6B7B, soft mauve-pink roses #C9A3AE, cream-white roses #F3EBE3, blush buds #D8B4BC, silvery sage eucalyptus and olive leaves #8E9A7E and #A7B09A, fine dried gold stems #BFA06A. Medium: hand-painted loose botanical watercolour on cold-press watercolour paper, soft wet-in-wet bleeds, overlapping translucent washes, some edges left unfinished, faint visible paper tooth, very little granulation. Isolated on a pure white background, no drop shadow. No text, no lettering, no watermark, no gradient background, no plastic highlights, no CG sheen, no perfectly symmetrical flowers, no saturated hot pink, no blue, no purple-violet.
 ```
 
 ### `ILL-04` — RSVP cluster (right edge cut only)
@@ -155,6 +152,27 @@ A watercolour cluster of garden roses that enters from the right edge of the fra
 - **Line art (inline SVG, not generated):** the gold heading sprig, six timeline icons (glasses, rings, champagne, plate, music note, sparkle), the heart, the map pin. All 1.5px strokes.
 - **Photography grading:** lawn set, lift shadows slightly and pull greens down about 10% so they sit beside mauve. Home set, warm the whites toward `#FBF7F5`. Black-tie set (`PHO-04`), lift the blacks and cut contrast about 20%.
 - **Never do:** no second solid button, no second divider motif, no saturated pink, no blue, no full-bleed photo without its curve.
+
+---
+
+## 6. Gallery and motion
+
+**Gallery (block 02b).** It continues the invitation's panel colour, so it has no seam. It holds eight 9:16 cards with a soft shadow (`0 24px 44px -12px` plus `0 6px 14px`, in plum at low opacity) and 14px corners.
+
+- The deck is a carousel at every width. The front card is full size, and the next two fan back to the right in 3D: 24% / 44% across, 90px / 180px back, rotated −10° / −16°.
+- **Next:** the front card swings out to the left, sinks, and slides in behind the deck.
+- **Previous:** the rearmost card comes out from behind and swings to the front.
+- **Controls:** autoplay every 3.6s while at least 35% of the deck is on screen, and it pauses on hover or focus. There are prev/next buttons, a swipe, arrow keys anywhere in the section, and tapping a back card. An input during a move completes that move first; it is never dropped.
+- The gallery photos were re-cropped to 9:16 from the originals. The earlier `-mobile` crops mixed 3:2, 2:3 and letterboxed 375px files. ZEN-1574, 2252 and 2315 were rejected because a 9:16 crop cuts a person or lands on a blurred foreground.
+
+**Motion.** Plain CSS plus a small script, no libraries.
+
+- **Hero on load:** the photo fades in, the copy rises in sequence, the phone cluster blooms from its right edge, and the gold hairline draws itself.
+- **On scroll:** copy rises with a stagger, photos fade up and draw their gold line, the programme connectors grow (the line runs horizontally on desktop), the dress-code swatches pop in, and form fields rise.
+- The countdown digits tick when they change.
+- **Degrades cleanly:** nothing starts hidden unless the script has run. `prefers-reduced-motion` gets a fully static page, and the carousel then moves without animation and never autoplays.
+- **No infinite motion.** Idle sway was tried and removed along with the iPad/desktop florals. Edge-cut clusters are never rotated or scaled away from their cut edge.
+- Anything in the last strip of the page is revealed once the reader reaches the end, because it can never clear the observer's margin.
 
 ---
 

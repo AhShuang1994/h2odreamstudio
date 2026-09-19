@@ -95,7 +95,6 @@ main{overflow-x:clip}
    so that edge sits on the viewport edge. */
 .hero-photo{position:relative}
 .floral-m{position:absolute;right:0;bottom:-20px;width:44vw;max-width:300px;height:auto;pointer-events:none}
-.floral-d{display:none}
 .hero-copy{padding:52px 24px 0}
 .countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:320px}
 .countdown div{border:1px solid var(--mauve-soft);border-radius:6px;padding:10px 0 8px;background:var(--panel)}
@@ -103,10 +102,35 @@ main{overflow-x:clip}
 .countdown span{display:block;margin-top:6px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
 
 /* ---------- 02 invitation ---------- */
-.sec.invite{padding-bottom:0}
+.sec.invite{padding-bottom:40px}
 .invite .photo{margin:0 -24px 36px}
 .spray{width:100%;max-width:560px;height:auto;margin:24px auto 0;pointer-events:none}
-.invite .spray{margin:32px auto 40px}
+.invite .spray{margin:32px auto 0}
+
+/* ---------- 02b gallery: a 3D card deck ---------- */
+/* Continues the invitation's panel, so it has no seam of its own. Cards are 9:16 with a soft
+   drop shadow; the front card is full size, the next two fan back to the right in 3D. */
+.sec.gallery{padding-top:24px}
+.deck{--w:min(62vw,260px);--h:calc(var(--w) * 16 / 9);position:relative;height:calc(var(--h) + 48px);
+  max-width:var(--column);margin:24px auto 0;perspective:1100px;touch-action:pan-y;outline:none;user-select:none;-webkit-user-select:none}
+.deck:focus-visible{outline:2px solid var(--mauve-soft);outline-offset:6px;border-radius:14px}
+.card{position:absolute;top:20px;left:calc(50% - var(--w) * .62);width:var(--w);height:var(--h);margin:0;
+  border-radius:14px;overflow:hidden;background:var(--ground);cursor:pointer;
+  box-shadow:0 24px 44px -12px rgba(74,58,64,.38),0 6px 14px rgba(74,58,64,.14);
+  transition:transform .75s cubic-bezier(.2,.7,.2,1),opacity .75s ease,filter .75s ease}
+.card img{width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.card[data-pos="0"]{transform:translate3d(0,0,0) rotateY(0deg);z-index:5}
+.card[data-pos="1"]{transform:translate3d(24%,0,-90px) rotateY(-10deg);z-index:4;filter:brightness(.94)}
+.card[data-pos="2"]{transform:translate3d(44%,0,-180px) rotateY(-16deg);z-index:3;filter:brightness(.88)}
+.card[data-pos="back"]{transform:translate3d(60%,0,-300px) rotateY(-20deg);z-index:1;opacity:0;pointer-events:none}
+.deck-nav{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:22px}
+.deck-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--mauve);background:transparent;color:var(--mauve);
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,color .2s}
+.deck-btn:hover,.deck-btn:focus-visible{background:var(--mauve);color:var(--ink-invert)}
+.deck-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.deck-count{font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:.16em;min-width:72px;text-align:center}
+@media (min-width:768px){ .deck{--w:300px} }
+@media (min-width:1024px) and (orientation:landscape){ .deck{--w:360px;max-width:1200px} .sec.gallery{padding-bottom:120px} }
 
 /* ---------- 03 programme ---------- */
 .tl{list-style:none;margin:8px 0 0;padding:0;width:100%;max-width:320px;text-align:left}
@@ -182,8 +206,11 @@ fieldset legend{padding:0;margin:0 auto 10px}
   .seam{height:48px}
   .tl{max-width:420px}
   .form{max-width:460px}
-  .rsvp .floral-tr{width:200px;top:20px}
-  .sec.rsvp{padding-top:290px}
+  /* the watercolour florals are a phone-only layer */
+  .floral-m,.spray,.rsvp .floral-tr{display:none}
+  .sec.rsvp{padding-top:80px}
+  .sec.invite{padding-bottom:64px}
+  .sec.closing{padding-bottom:88px}
 }
 
 /* =================== Desktop: >=1024, landing-page spreads =================== */
@@ -203,9 +230,7 @@ fieldset legend{padding:0;margin:0 auto 10px}
   .curve-v{display:block;position:absolute;top:0;right:-1px;height:100%;width:110px;pointer-events:none}
   .curve-v .fill{fill:var(--ground)}
   .curve-v .line{fill:none;stroke:var(--gold);stroke-width:1.2;vector-effect:non-scaling-stroke}
-  /* ILL-01d floats (no cut edges): a garland standing on the curve between photo and copy */
-  .floral-m{display:none}
-  .floral-d{display:block;position:absolute;left:calc(55% - 118px);bottom:40px;width:150px;height:auto;pointer-events:none}
+  /* desktop hero carries no floral: photo, curve and gold line only */
   .hero-copy{padding:80px 64px}
   .hero-copy .label.desk{display:block}
   .names{font-size:clamp(48px,4.6vw,72px)}
@@ -217,8 +242,6 @@ fieldset legend{padding:0;margin:0 auto 10px}
 
   .invite .wrap{display:grid;grid-template-columns:1.1fr 1fr;column-gap:80px;row-gap:0;align-items:center}
   .invite .photo{margin:0;border-radius:4px}
-  .invite .spray-wrap{grid-column:1 / -1}
-  .invite .spray{max-width:900px;margin:56px auto 48px}
   .invite .stack{align-items:flex-start;text-align:left}
   .invite .stack>p{max-width:44ch}
 
@@ -243,12 +266,52 @@ fieldset legend{padding:0;margin:0 auto 10px}
   .rsvp-photo{display:block;position:sticky;top:48px}
   .rsvp-photo .curve{height:80px}
   /* the form column reaches the right edge at every desktop width, so the cluster sits above the title */
-  .rsvp .floral-tr{width:min(18vw,260px);top:24px}
-  .sec.rsvp{padding-top:calc(min(22.5vw,325px) + 40px)}
+  .sec.rsvp{padding-top:112px}
+  .sec.invite{padding-bottom:112px}
+  .sec.closing{padding-bottom:120px}
   .form{max-width:480px}
 
-  .closing .spray{max-width:900px;margin-top:-60px}
 }
+/* =================== Motion =================== */
+/* Enhancement only: nothing starts hidden unless the script has put .anim on <html>,
+   and nothing moves for prefers-reduced-motion. Individual translate/scale/rotate
+   properties are used so they compose with the transforms already on the page. */
+@media (prefers-reduced-motion:no-preference){
+  /* hero, on load */
+  .anim .hero .shot{animation:fade-in 1.4s ease both}
+  .anim .hero .label.top,
+  .anim .hero-copy .stack>*{animation:rise .9s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(.3s + var(--i,0) * .09s)}
+  /* the cluster's right edge is a cut edge on the viewport, so it grows from that edge and never slides off it */
+  .anim .floral-m{transform-origin:100% 55%;animation:bloom 1.5s cubic-bezier(.2,.7,.2,1) .8s both}
+
+  /* scroll reveals */
+  .anim .rv{opacity:0;translate:0 22px;transition:opacity .9s ease,translate .9s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
+  .anim .rv.in{opacity:1;translate:0 0}
+  .anim .rv-pop{opacity:0;scale:.6;transition:opacity .5s ease,scale .7s cubic-bezier(.3,1.5,.5,1);transition-delay:var(--d,0s)}
+  .anim .rv-pop.in{opacity:1;scale:1}
+
+  /* programme: the gold connector grows between stops */
+  .anim .tl li::before{transform-origin:top;scale:1 0;transition:scale .7s ease;transition-delay:calc(var(--d,0s) + .3s)}
+  .anim .tl li.in::before{scale:1 1}
+
+  /* the gold hairline on each curve draws itself; the script sets the dash length */
+  .curve .line.draw{transition:stroke-dashoffset 1.6s cubic-bezier(.45,0,.2,1)}
+
+  .countdown b.tick{animation:tick .45s ease}
+  .done:not([hidden]){animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
+}
+
+/* the desktop programme line grows left to right */
+@media (prefers-reduced-motion:no-preference) and (min-width:1024px) and (orientation:landscape){
+  .anim .tl::before{transform-origin:left;scale:0 1;transition:scale 1.6s cubic-bezier(.45,0,.2,1) .2s}
+  .anim .tl.in::before{scale:1 1}
+}
+
+
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
+@keyframes bloom{from{opacity:0;translate:0 12px;scale:.94}to{opacity:1;translate:0 0;scale:1}}
+@keyframes tick{from{opacity:.35;translate:0 -3px}to{opacity:1;translate:0 0}}
 </style>
 </head>
 
@@ -301,7 +364,6 @@ fieldset legend{padding:0;margin:0 auto 10px}
         </div>
       </div>
     </div>
-    <img class="floral-d" src="../assets/demos/wedding-mauve-garden/hero-garland-d.webp" width="400" height="1200" alt="">
   </section>
 
   <!-- ============ 02 · INVITATION ============ -->
@@ -324,11 +386,31 @@ fieldset legend{padding:0;margin:0 auto 10px}
         <svg class="heart" aria-hidden="true"><use href="#i-heart"/></svg>
       </div>
       <div class="spray-wrap">
-        <picture>
-          <source media="(min-width:1024px) and (orientation:landscape)" srcset="../assets/demos/wedding-mauve-garden/invite-garland-d.webp" width="1800" height="450">
-          <img class="spray" src="../assets/demos/wedding-mauve-garden/invite-garland-m.webp" width="1120" height="420" loading="lazy" alt="">
-        </picture>
+        <img class="spray" src="../assets/demos/wedding-mauve-garden/invite-garland-m.webp" width="1120" height="420" loading="lazy" alt="">
       </div>
+    </div>
+  </section>
+
+  <!-- ============ 02b · GALLERY · 3D card deck, a carousel at every width ============ -->
+  <section class="sec on-panel gallery" aria-roledescription="carousel" aria-label="Our moments">
+    <div class="wrap stack">
+      <h2 class="title">Our moments</h2>
+      <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+    </div>
+    <div class="deck" id="deck" tabindex="0" aria-label="Photo carousel, use the arrow keys">
+      <figure class="card" aria-roledescription="slide" aria-label="1 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-01.webp" width="720" height="1280" loading="lazy" alt="The bride laughing, leaning on the groom's shoulder on the lawn."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="2 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-02.webp" width="720" height="1280" loading="lazy" alt="The bride holding a plush toy at home, the groom reading behind her."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="3 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-03.webp" width="720" height="1280" loading="lazy" alt="The couple in black evening wear, the groom leaning back into the bride's arms."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="4 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-04.webp" width="720" height="1280" loading="lazy" alt="The bride and groom walking together across the lawn."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="5 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-05.webp" width="720" height="1280" loading="lazy" alt="The couple on the bed with bread and snacks, laughing at the camera."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="6 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-06.webp" width="720" height="1280" loading="lazy" alt="The couple in black evening wear walking along a white veranda."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="7 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-07.webp" width="720" height="1280" loading="lazy" alt="The bride and groom nose to nose on the lawn, holding a pastel bouquet."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="8 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-08.webp" width="720" height="1280" loading="lazy" alt="The couple in black evening wear seated among flowers."></figure>
+    </div>
+    <div class="deck-nav">
+      <button class="deck-btn" type="button" data-dir="-1" aria-label="Previous photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <p class="deck-count" aria-live="polite"><span id="deck-i">01</span> / 08</p>
+      <button class="deck-btn" type="button" data-dir="1" aria-label="Next photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>
   </section>
 
@@ -454,13 +536,19 @@ fieldset legend{padding:0;margin:0 auto 10px}
 </main>
 
 <script>
+  const animate = !matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window;
+
   const weddingDate = new Date('2027-06-20T16:00:00+08:00');
   const parts = ['days', 'hours', 'minutes', 'seconds'];
   function tick() {
     const ms = Math.max(0, weddingDate - new Date());
     const v = [Math.floor(ms / 86400000), Math.floor(ms / 3600000) % 24, Math.floor(ms / 60000) % 60, Math.floor(ms / 1000) % 60];
     parts.forEach((p, i) => {
-      document.getElementById('cd-' + p).textContent = String(v[i]).padStart(p === 'days' ? 3 : 2, '0');
+      const el = document.getElementById('cd-' + p);
+      const text = String(v[i]).padStart(p === 'days' ? 3 : 2, '0');
+      if (el.textContent === text) return;
+      el.textContent = text;
+      if (animate) { el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick'); }
     });
   }
   tick();
@@ -471,6 +559,140 @@ fieldset legend{padding:0;margin:0 auto 10px}
     e.currentTarget.hidden = true;
     document.getElementById('rsvp-done').hidden = false;
   });
+
+  // ---------- gallery: 3D card deck ----------
+  (function () {
+    const deck = document.getElementById('deck');
+    const cards = [...deck.querySelectorAll('.card')];
+    const n = cards.length;
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const counter = document.getElementById('deck-i');
+    let current = 0, running = null, timer = null, inView = false, held = false;
+
+    const posOf = i => { const d = (i - current + n) % n; return d < 3 ? String(d) : 'back'; };
+    function layout() {
+      cards.forEach((c, i) => {
+        c.dataset.pos = posOf(i);
+        c.setAttribute('aria-hidden', c.dataset.pos === '0' ? 'false' : 'true');
+      });
+      counter.textContent = String(current + 1).padStart(2, '0');
+    }
+
+    // Going forward, the front card swings out to the left, sinks, and slides in behind the deck.
+    // Going back, the reverse: the rearmost card comes out from behind and swings to the front.
+    const away = [
+      { transform: 'translate3d(0,0,0) rotateY(0deg)', opacity: 1, zIndex: 6, offset: 0 },
+      { transform: 'translate3d(-78%,0,-110px) rotateY(24deg)', opacity: 1, zIndex: 6, offset: .42 },
+      { transform: 'translate3d(-36%,0,-280px) rotateY(12deg)', opacity: .55, zIndex: 0, offset: .7 },
+      { transform: 'translate3d(60%,0,-300px) rotateY(-20deg)', opacity: 0, zIndex: 0, offset: 1 },
+    ];
+    function go(dir) {
+      if (running) running.finish();  // a new input completes the move in progress instead of being dropped
+      const mover = dir > 0 ? cards[current] : cards[(current - 1 + n) % n];
+      current = (current + dir + n) % n;
+      if (still || !mover.animate) { layout(); return; }
+      mover.style.transition = 'none';
+      const a = running = mover.animate(dir > 0 ? away : [...away].reverse().map(k => ({ ...k, offset: 1 - k.offset })),
+        { duration: 900, easing: 'cubic-bezier(.4,0,.2,1)' });
+      layout();
+      a.onfinish = a.oncancel = () => { mover.style.transition = ''; if (running === a) running = null; };
+    }
+
+    function stop() { clearInterval(timer); timer = null; }
+    function start() {
+      stop();
+      if (!still && inView && !held && !document.hidden) timer = setInterval(() => go(1), 3600);
+    }
+    const nudge = dir => { go(dir); start(); };
+
+    document.querySelectorAll('.deck-btn').forEach(b => b.addEventListener('click', () => nudge(+b.dataset.dir)));
+    deck.closest('.gallery').addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); nudge(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); nudge(-1); }
+    });
+    let x0 = null;
+    deck.addEventListener('pointerdown', e => { x0 = e.clientX; });
+    deck.addEventListener('pointerup', e => {
+      if (x0 === null) return;
+      const dx = e.clientX - x0; x0 = null;
+      if (Math.abs(dx) > 40) nudge(dx < 0 ? 1 : -1);
+      else if (e.target.closest('.card') && e.target.closest('.card').dataset.pos !== '0') nudge(1);
+    });
+    deck.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { held = true; stop(); } });
+    deck.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') { held = false; start(); } });
+    deck.addEventListener('focusin', () => { held = true; stop(); });
+    deck.addEventListener('focusout', () => { held = false; start(); });
+    document.addEventListener('visibilitychange', start);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => { inView = e.isIntersecting; start(); }, { threshold: .35 }).observe(deck);
+    }
+
+    layout();
+  })();
+
+  if (animate) {
+    document.documentElement.classList.add('anim');
+
+    // Draw a gold hairline. With vector-effect:non-scaling-stroke the dashes are laid out
+    // in screen space, so measure the path on screen. The dash styles are removed once the
+    // line is drawn, so the final state is always the plain, full stroke.
+    function draw(path, delay) {
+      const svg = path.ownerSVGElement;
+      if (!svg.getBoundingClientRect().width) return;
+      const m = svg.getScreenCTM(), total = path.getTotalLength();
+      let len = 0, prev = null;
+      for (let k = 0; k <= 40; k++) {
+        const pt = path.getPointAtLength(total * k / 40).matrixTransform(m);
+        if (prev) len += Math.hypot(pt.x - prev.x, pt.y - prev.y);
+        prev = pt;
+      }
+      len = Math.ceil(len) + 2;
+      path.style.strokeDasharray = len;
+      path.style.strokeDashoffset = len;
+      path.getBoundingClientRect();
+      path.style.transitionDelay = (delay || 0) + 's';
+      path.classList.add('draw');
+      path.style.strokeDashoffset = 0;
+      path.addEventListener('transitionend', () => {
+        path.classList.remove('draw');
+        path.style.strokeDasharray = path.style.strokeDashoffset = path.style.transitionDelay = '';
+      }, { once: true });
+    }
+
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+      e.target.querySelectorAll('.curve .line').forEach(l => draw(l, .35));
+    }), { rootMargin: '0px 0px -8% 0px', threshold: .12 });
+
+    const reveal = (els, cls, step) => els.forEach((el, i) => {
+      if (cls) el.classList.add(cls);
+      el.style.setProperty('--d', Math.min(i * step, .6) + 's');
+      io.observe(el);
+    });
+
+    // hero, on load
+    document.querySelectorAll('.hero-copy .stack > *').forEach((el, i) => el.style.setProperty('--i', i));
+    document.querySelectorAll('.hero .curve-h .line, .hero .curve-v .line').forEach(l => draw(l, .6));
+
+    // every section: its stacked copy, then lists and form fields item by item
+    document.querySelectorAll('.sec .stack').forEach(stack =>
+      reveal([...stack.children].filter(c => !c.matches('.tl, .form, .swatches, .done')), 'rv', .08));
+    reveal([...document.querySelectorAll('.tl > li')], 'rv', .12);
+    reveal([...document.querySelectorAll('.swatches > i')], 'rv-pop', .08);
+    reveal([...document.querySelectorAll('.form > *')], 'rv', .06);
+    reveal([...document.querySelectorAll('.sec .photo, .rsvp-photo, .spray, .rsvp .floral-tr')], 'rv', 0);
+    document.querySelectorAll('.tl').forEach(tl => io.observe(tl));
+
+    // Anything sitting in the last strip of the page can never clear the observer's bottom margin,
+    // so once the reader reaches the end, show whatever is still waiting.
+    addEventListener('scroll', function atEnd() {
+      if (innerHeight + scrollY < document.documentElement.scrollHeight - 4) return;
+      document.querySelectorAll('.rv:not(.in), .rv-pop:not(.in)').forEach(el => { el.classList.add('in'); io.unobserve(el); });
+      removeEventListener('scroll', atEnd);
+    }, { passive: true });
+  }
 </script>
 </body>
 </html>
