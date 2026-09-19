@@ -1,2012 +1,698 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<title>Hui Huang & Mayyi · 20.06.2027</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta name="robots" content="noindex,follow" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,follow">
+<title>Hui Huang &amp; Mayyi | 20.06.2027</title>
+<meta name="description" content="Wedding invitation for Hui Huang and Mayyi, 20 June 2027, The RuMa Hotel and Residences, Kuala Lumpur.">
+<meta name="theme-color" content="#8E5E6E">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Pinyon+Script&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;family=Great+Vibes&amp;display=swap" rel="stylesheet">
+
+<!--
+  Style: mauve-curve-garden (client-supplied reference)
+  Spec:  demos/wedding-mauve-garden-DESIGN.md
+  Frame: demos/wedding-mauve-garden-wireframe.html
+
+  Phone: one 480px column. iPad portrait: one 640px column, larger type.
+  Desktop (>=1024): landing-page spreads -- hero, invitation, venue and RSVP go two-column,
+  the programme runs horizontally.
+  One divider motif: the sweeping curve (gold hairline on photos, plain on section seams).
+  One solid button: the RSVP submit.
+-->
+
 <style>
-  :root {
-    --cream:   #FDF8F0;
-    --cream-2: #F4ECD9;
-    --paper:   #FAF3E4;
-    --ink:     #2A2418;
-    --ink-soft:#5B5142;
-    --muted:   #8E8473;
-    --rule:    #C9BE9F;
-    --rose:    #C4878E;
-    --rose-d:  #A66B73;
-    --forest:  #3D5A3E;
-    --forest-d:#2A4030;
-    --display: 'Cormorant Garamond', 'Times New Roman', serif;
-    --script:  'Pinyon Script', cursive;
-    --mono:    'DM Mono', ui-monospace, monospace;
-  }
-  * { box-sizing: border-box; }
-  html { overflow-x: hidden; }
-  html, body {
-    margin: 0; padding: 0;
-    background: var(--cream);
-    color: var(--ink);
-    font-family: var(--display);
-    font-weight: 400;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: geometricPrecision;
-  }
-  /* Subtle paper grain */
-  body::before {
-    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 999;
-    background-image:
-      radial-gradient(circle at 1px 1px, rgba(42, 36, 24, 0.04) 1px, transparent 0);
-    background-size: 3px 3px;
-    mix-blend-mode: multiply;
-    opacity: 0.6;
-  }
-  a { color: inherit; }
-  ::selection { background: var(--rose); color: var(--cream); }
+:root{
+  --ground:#F7F0EE;
+  --panel:#FBF7F5;
+  --mauve:#8E5E6E;
+  --mauve-soft:#C9A3AE;
+  --ink:#4A3A40;
+  --ink-invert:#FBF7F5;
+  --gold:#BFA06A;
+  --accent:#8E5E6E;
 
-  /* ───────────────────────────────────────── */
-  /* Re-usable tokens                            */
-  .kicker {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    font-weight: 400;
-  }
-  .kicker .dot { color: var(--rose); }
-  .rule {
-    height: 1px;
-    background: var(--rule);
-    width: 100%;
-  }
-  .ornament {
-    display: flex; align-items: center; justify-content: center; gap: 14px;
-    color: var(--rule);
-  }
-  .ornament::before, .ornament::after {
-    content: ''; flex: 1; height: 1px; background: currentColor;
-  }
-  .ornament .mark { font-family: var(--script); color: var(--rose); font-size: 22px; transform: translateY(-2px); }
+  --font-display:'Cormorant Garamond',Georgia,serif;
+  --font-script:'Great Vibes',cursive;
+  --font-body:'Cormorant Garamond',Georgia,serif;
 
-  /* ───────────────────────────────────────── */
-  /* HEADER                                      */
-  header.top {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    padding: 22px 56px;
-    border-bottom: 1px solid var(--rule);
-    position: sticky; top: 0; z-index: 50;
-    background: rgba(253, 248, 240, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
-  header.top .mark {
-    font-family: var(--script);
-    font-size: 26px;
-    color: var(--forest);
-    letter-spacing: 0.5px;
-  }
-  header.top .center {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.4em;
-    color: var(--ink-soft);
-    text-transform: uppercase;
-  }
-  header.top nav {
-    justify-self: end;
-    display: flex; gap: 26px;
-  }
-  header.top nav a {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    color: var(--ink-soft);
-    text-transform: uppercase;
-    text-decoration: none;
-    padding: 4px 0;
-    position: relative;
-    transition: color 0.3s ease;
-  }
-  header.top nav a:hover { color: var(--rose-d); }
-  header.top nav a::after {
-    content: ''; position: absolute; left: 0; right: 0; bottom: 0;
-    height: 1px; background: var(--rose-d);
-    transform: scaleX(0); transform-origin: left;
-    transition: transform 0.4s cubic-bezier(.4,0,.2,1);
-  }
-  header.top nav a:hover::after { transform: scaleX(1); }
+  --radius-button:999px;
+  --column:480px;
+}
 
-  /* ───────────────────────────────────────── */
-  /* HERO                                        */
-  .hero {
-    display: grid;
-    grid-template-columns: 1.05fr 1fr;
-    min-height: calc(100vh - 70px);
-    position: relative;
-  }
-  .hero .left {
-    padding: 80px 80px 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    border-right: 1px solid var(--rule);
-  }
-  .hero .invite-line {
-    margin-bottom: 28px;
-    display: flex; align-items: center; gap: 14px;
-  }
-  .hero .invite-line .bar { width: 36px; height: 1px; background: var(--ink); }
-  .hero .small-label {
-    font-family: var(--display);
-    font-style: italic;
-    font-weight: 400;
-    font-size: 22px;
-    color: var(--ink-soft);
-    margin-bottom: 8px;
-  }
-  .hero h1 {
-    font-family: var(--script);
-    font-weight: 400;
-    font-size: clamp(80px, 9vw, 168px);
-    line-height: 0.78;
-    letter-spacing: -0.01em;
-    margin: 0;
-    color: var(--ink);
-    text-wrap: balance;
-  }
-  .hero h1 .amp {
-    display: block;
-    font-family: var(--display);
-    font-style: italic;
-    font-weight: 300;
-    font-size: 0.32em;
-    color: var(--rose);
-    margin: 8px 0 4px;
-    letter-spacing: 0.02em;
-  }
-  .hero h1 .ln2 {
-    display: block;
-    margin-top: -6px;
-  }
-  .hero .date-strip {
-    display: grid;
-    grid-template-columns: auto 1px auto 1px auto;
-    gap: 26px;
-    align-items: center;
-    margin-top: 44px;
-    padding: 18px 0;
-    border-top: 1px solid var(--ink);
-    border-bottom: 1px solid var(--ink);
-    width: fit-content;
-  }
-  .hero .date-strip .col .lbl {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-  .hero .date-strip .col .val {
-    font-family: var(--display);
-    font-weight: 500;
-    font-size: 18px;
-    letter-spacing: 0.04em;
-  }
-  .hero .date-strip .sep { height: 36px; width: 1px; background: var(--rule); }
-  .hero .lede {
-    margin-top: 28px;
-    font-family: var(--display);
-    font-style: italic;
-    font-weight: 400;
-    font-size: 19px;
-    color: var(--ink-soft);
-    max-width: 460px;
-    line-height: 1.5;
-  }
-  .hero .scroll-cue {
-    position: absolute;
-    bottom: 36px; left: 80px;
-    display: flex; flex-direction: column; gap: 10px;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-  }
-  .hero .scroll-cue .stem {
-    width: 1px; height: 40px;
-    background: linear-gradient(to bottom, var(--ink) 0%, transparent 100%);
-    margin-left: 5px;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero .scroll-cue .stem::after {
-    content: '';
-    position: absolute;
-    top: -40px; left: 0; right: 0; height: 40px;
-    background: linear-gradient(to bottom, transparent, var(--rose));
-    animation: scrolldrip 2.2s ease-in-out infinite;
-  }
-  @keyframes scrolldrip {
-    0%   { transform: translateY(0); opacity: 1; }
-    80%  { opacity: 1; }
-    100% { transform: translateY(80px); opacity: 0; }
-  }
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--font-body);font-weight:500;font-size:16px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+img{display:block;max-width:100%;height:auto}
+p{margin:0}
+h1,h2{margin:0;font-weight:inherit}
 
-  .hero .right {
-    position: relative;
-    background: var(--cream-2);
-    overflow: hidden;
-  }
-  .hero .right .pic-wrap {
-    position: absolute;
-    inset: 60px 60px 100px;
-  }
-  .hero .right picture {
-    width: 100%; height: 100%;
-    display: block;
-  }
-  .hero .right img {
-    width: 100%; height: 100%;
-    display: block;
-    object-fit: cover;
-    object-position: center top;
-  }
-  .hero .right .frame-num {
-    position: absolute;
-    top: 60px; right: 60px;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.32em;
-    color: var(--ink-soft);
-    z-index: 2;
-  }
-  .hero .right .caption {
-    position: absolute;
-    bottom: 36px; left: 60px; right: 60px;
-    display: flex; justify-content: space-between; align-items: flex-end;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-  }
-  .hero .right .caption .roman { font-family: var(--display); font-style: italic; font-size: 14px; color: var(--ink); letter-spacing: 0.04em; text-transform: none; }
+/* ---------- sections ---------- */
+.sec{position:relative;padding:56px 24px 64px}
+.sec.on-ground{background:var(--ground)}
+.sec.on-panel{background:var(--panel)}
+.wrap{max-width:var(--column);margin:0 auto}
+.stack{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
+.stack>p{max-width:40ch}
 
-  /* Botanical floating elements */
-  .branch {
-    position: absolute;
-    pointer-events: none;
-    z-index: 1;
-  }
-  .branch path, .branch line, .branch ellipse {
-    fill: none;
-    stroke: var(--forest);
-    stroke-width: 1.2;
-    stroke-linecap: round;
-  }
-  .branch .leaf-fill { fill: var(--forest); opacity: 0.85; stroke: none; }
-  .branch .leaf-rose { fill: var(--rose); opacity: 0.85; stroke: none; }
-  .branch .stem { stroke-width: 1.4; }
+/* ---------- type ---------- */
+.label{font-family:var(--font-body);font-weight:600;font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+.title{font-family:var(--font-display);font-weight:600;font-size:18px;letter-spacing:.16em;text-transform:uppercase}
+.names{font-family:var(--font-display);font-weight:500;font-size:40px;line-height:1.1;letter-spacing:.08em;text-transform:uppercase}
+.names .amp{display:block;font-family:var(--font-script);font-size:.9em;letter-spacing:0;text-transform:none;color:var(--mauve);line-height:1}
+.date{font-family:var(--font-display);font-size:24px;letter-spacing:.14em}
+.script{font-family:var(--font-script);font-size:34px;line-height:1.3;color:var(--mauve)}
 
-  .hero .branch.tl { top: -20px; left: -30px; width: 280px; transform: rotate(0deg) translateY(var(--drift, 0px)); opacity: 0.55; }
-  .hero .branch.br { bottom: -10px; right: -20px; width: 260px; transform: rotate(180deg) translateY(var(--drift, 0px)); opacity: 0.45; }
+/* ---------- ornaments (inline SVG line art) ---------- */
+.sprig{width:92px;height:16px;color:var(--gold)}
+.heart{width:22px;height:20px;color:var(--mauve)}
 
-  /* ───────────────────────────────────────── */
-  /* SECTION SHELL                               */
-  section.s {
-    padding: 130px 80px;
-    position: relative;
-    border-top: 1px solid var(--rule);
-  }
-  section.s.dark {
-    background: var(--paper);
-  }
-  .section-head {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 14px;
-    margin-bottom: 64px;
-    text-align: center;
-    max-width: 720px;
-    margin-left: auto; margin-right: auto;
-  }
-  .section-head .num {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.4em;
-    color: var(--rose);
-    text-transform: uppercase;
-  }
-  .section-head h2 {
-    font-family: var(--display);
-    font-weight: 300;
-    font-style: italic;
-    font-size: clamp(40px, 5vw, 64px);
-    line-height: 1.05;
-    margin: 0;
-    color: var(--ink);
-    letter-spacing: -0.005em;
-  }
-  .section-head h2 em {
-    font-family: var(--script);
-    font-style: normal;
-    color: var(--rose-d);
-    font-size: 1.15em;
-    padding: 0 0.04em;
-    line-height: 0.7;
-    display: inline-block;
-    transform: translateY(0.08em);
-  }
-  .section-head .sub {
-    font-family: var(--display);
-    font-style: italic;
-    font-weight: 400;
-    font-size: 17px;
-    color: var(--ink-soft);
-    max-width: 540px;
-    margin: 4px auto 0;
-    line-height: 1.5;
-  }
+/* ---------- the one divider motif: sweeping curve ---------- */
+.curved{position:relative}
+main{overflow-x:clip}
+.label.desk{display:none}
+.curved>img{width:100%;height:auto}
+.curve{position:absolute;left:-1px;right:auto;bottom:-1px;width:calc(100% + 2px);height:56px;display:block;pointer-events:none}
+.curve .fill{fill:currentColor}
+.curve .line{fill:none;stroke:var(--gold);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.curve-v{display:none}
+.to-ground{color:var(--ground)}
+.to-panel{color:var(--panel)}
+.seam{position:absolute;left:0;right:0;top:-1px;width:100%;height:36px;display:block;pointer-events:none}
+.seam path{fill:currentColor}
 
-  /* ───────────────────────────────────────── */
-  /* COUNTDOWN                                   */
-  .countdown-section .live {
-    display: flex; align-items: center; justify-content: center;
-    gap: 10px;
-    font-family: var(--mono); font-size: 10px;
-    letter-spacing: 0.32em; text-transform: uppercase;
-    color: var(--forest);
-    margin-bottom: 10px;
-  }
-  .countdown-section .live .pulse {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--rose);
-    animation: pulse 1.6s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(0.6); opacity: 0.4; }
-  }
-  .countdown {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    max-width: 980px;
-    margin: 0 auto;
-    border-top: 1px solid var(--ink);
-    border-bottom: 1px solid var(--ink);
-  }
-  .countdown .cell {
-    padding: 44px 24px 36px;
-    text-align: center;
-    position: relative;
-    border-right: 1px solid var(--rule);
-    overflow: hidden;
-  }
-  .countdown .cell:last-child { border-right: none; }
-  .countdown .cell::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 50%; transform: translateX(-50%);
-    width: 30px; height: 1px;
-    background: var(--rose);
-  }
-  .countdown .cell .num {
-    font-family: var(--display);
-    font-weight: 300;
-    font-size: clamp(64px, 8vw, 112px);
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-    font-variant-numeric: tabular-nums;
-    display: inline-block;
-  }
-  .countdown .cell .lbl {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.4em;
-    color: var(--ink-soft);
-    text-transform: uppercase;
-    margin-top: 14px;
-  }
-  .countdown .cell .ordinal {
-    font-family: var(--display);
-    font-style: italic;
-    font-size: 12px;
-    color: var(--rose);
-    margin-top: 4px;
-  }
-  /* Number flip animation */
-  .num-flip {
-    display: inline-block;
-    animation: numfade 0.35s ease;
-  }
-  @keyframes numfade {
-    0%   { transform: translateY(-8px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
-  }
+/* ---------- 01 hero ---------- */
+.hero{position:relative;padding:28px 0 56px;background:var(--ground)}
+.hero .label.top{text-align:center;margin-bottom:18px}
+/* ILL-01m is cut on its right edge only; below the desktop layout the hero photo is full-bleed,
+   so that edge sits on the viewport edge. */
+.hero-photo{position:relative}
+.floral-m{position:absolute;right:0;bottom:-20px;width:44vw;max-width:300px;height:auto;pointer-events:none}
+.hero-copy{padding:52px 24px 0}
+.countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:320px}
+.countdown div{border:1px solid var(--mauve-soft);border-radius:6px;padding:10px 0 8px;background:var(--panel)}
+.countdown b{display:block;font-family:var(--font-display);font-weight:600;font-size:26px;line-height:1}
+.countdown span{display:block;margin-top:6px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
 
-  /* ───────────────────────────────────────── */
-  /* DETAILS                                     */
-  .details-grid {
-    display: grid;
-    grid-template-columns: 1fr 1px 1fr;
-    gap: 0;
-    max-width: 1100px;
-    margin: 0 auto;
-    position: relative;
-  }
-  .details-grid .vrule { background: var(--rule); position: relative; }
-  .details-grid .vrule::before {
-    content: '✦';
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: var(--cream);
-    color: var(--rose);
-    padding: 8px 0;
-    font-size: 18px;
-    line-height: 1;
-  }
-  section.s.dark .details-grid .vrule::before { background: var(--paper); }
-  .detail {
-    padding: 0 56px;
-    text-align: center;
-  }
-  .detail .roman {
-    font-family: var(--display);
-    font-style: italic;
-    font-size: 14px;
-    color: var(--rose);
-    margin-bottom: 12px;
-    letter-spacing: 0.04em;
-  }
-  .detail .ico {
-    width: 64px; height: 64px;
-    margin: 0 auto 18px;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--forest);
-    position: relative;
-  }
-  .detail .ico::after {
-    content: '';
-    position: absolute;
-    inset: -8px;
-    border: 1px solid var(--rule);
-    border-radius: 50%;
-  }
-  .detail h3 {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.4em;
-    color: var(--ink-soft);
-    text-transform: uppercase;
-    margin: 0 0 14px;
-    font-weight: 500;
-  }
-  .detail .when {
-    font-family: var(--display);
-    font-weight: 300;
-    font-size: 52px;
-    line-height: 1;
-    margin: 0 0 6px;
-    letter-spacing: -0.01em;
-  }
-  .detail .when .ampm {
-    font-family: var(--display);
-    font-style: italic;
-    font-size: 26px;
-    color: var(--rose);
-    margin-left: 2px;
-  }
-  .detail .where {
-    font-family: var(--display);
-    font-style: italic;
-    font-size: 19px;
-    color: var(--ink);
-    margin: 0 0 4px;
-  }
-  .detail .address {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin: 0 0 22px;
-  }
-  .detail .desc {
-    font-family: var(--display);
-    font-style: italic;
-    font-size: 16px;
-    color: var(--ink-soft);
-    line-height: 1.55;
-    max-width: 320px;
-    margin: 0 auto 22px;
-  }
-  .detail .chips {
-    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
-  }
-  .detail .chip {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: var(--ink);
-    padding: 6px 12px;
-    border: 1px solid var(--ink);
-    border-radius: 999px;
-  }
-  .detail .chip.solid { background: var(--ink); color: var(--cream); }
+/* ---------- 02 invitation ---------- */
+.sec.invite{padding-bottom:40px}
+.invite .photo{margin:0 -24px 36px}
+.spray{width:100%;max-width:560px;height:auto;margin:24px auto 0;pointer-events:none}
+.invite .spray{margin:32px auto 0}
 
-  /* ───────────────────────────────────────── */
-  /* RSVP                                        */
-  .rsvp-grid {
-    display: grid;
-    grid-template-columns: 0.85fr 1.15fr;
-    gap: 80px;
-    max-width: 1100px;
-    margin: 0 auto;
-    align-items: start;
-  }
-  .rsvp-intro h3 {
-    font-family: var(--display);
-    font-style: italic;
-    font-weight: 300;
-    font-size: 56px;
-    line-height: 1;
-    margin: 0 0 18px;
-  }
-  .rsvp-intro h3 em {
-    font-family: var(--script);
-    font-style: normal;
-    color: var(--rose-d);
-    font-size: 1.1em;
-    display: block;
-    line-height: 0.8;
-    margin-bottom: 4px;
-  }
-  .rsvp-intro p {
-    font-family: var(--display);
-    font-style: italic;
-    font-size: 17px;
-    color: var(--ink-soft);
-    line-height: 1.55;
-    margin: 0 0 24px;
-  }
-  .rsvp-intro .deadline {
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-    padding: 14px 0;
-    margin-top: 28px;
-  }
-  .rsvp-intro .deadline .label {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.32em;
-    color: var(--muted); text-transform: uppercase; margin-bottom: 4px;
-  }
-  .rsvp-intro .deadline .value {
-    font-family: var(--display); font-weight: 500; font-size: 22px;
-  }
-  form.rsvp {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px 22px;
-  }
-  form.rsvp .field {
-    display: flex; flex-direction: column;
-    gap: 6px;
-    position: relative;
-  }
-  form.rsvp .field.full { grid-column: 1 / -1; }
-  form.rsvp .field label {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.32em;
-    color: var(--ink-soft); text-transform: uppercase;
-  }
-  form.rsvp .field input,
-  form.rsvp .field textarea,
-  form.rsvp .field select {
-    font-family: var(--display);
-    font-size: 18px;
-    color: var(--ink);
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--ink);
-    padding: 8px 0 10px;
-    outline: none;
-    border-radius: 0;
-    transition: border-color 0.3s;
-  }
-  form.rsvp .field textarea {
-    border: 1px solid var(--ink);
-    padding: 14px;
-    min-height: 120px;
-    resize: vertical;
-    font-style: italic;
-    font-size: 16px;
-    line-height: 1.5;
-    background: rgba(255,255,255,0.4);
-  }
-  form.rsvp .field input::placeholder,
-  form.rsvp .field textarea::placeholder {
-    color: var(--muted);
-    font-style: italic;
-  }
-  form.rsvp .field input:focus,
-  form.rsvp .field textarea:focus,
-  form.rsvp .field select:focus {
-    border-color: var(--rose-d);
-  }
-  form.rsvp .meal-group {
-    grid-column: 1 / -1;
-  }
-  form.rsvp .meal-group .label {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.32em;
-    color: var(--ink-soft); text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  form.rsvp .meal-pick {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-  }
-  form.rsvp .meal-pick label {
-    cursor: pointer;
-    border: 1px solid var(--ink);
-    padding: 16px 18px;
-    border-radius: 4px;
-    background: rgba(255,255,255,0.3);
-    transition: all 0.3s;
-    display: flex; flex-direction: column; gap: 4px;
-    text-align: left;
-  }
-  form.rsvp .meal-pick label:hover {
-    background: rgba(196, 135, 142, 0.08);
-  }
-  form.rsvp .meal-pick input { position: absolute; opacity: 0; }
-  form.rsvp .meal-pick label .title {
-    font-family: var(--display); font-style: italic;
-    font-size: 19px; color: var(--ink);
-  }
-  form.rsvp .meal-pick label .desc {
-    font-family: var(--mono); font-size: 9px;
-    letter-spacing: 0.24em; color: var(--muted);
-    text-transform: uppercase;
-  }
-  form.rsvp .meal-pick input:checked + label,
-  form.rsvp .meal-pick label.checked {
-    background: var(--ink);
-    color: var(--cream);
-    border-color: var(--ink);
-  }
-  form.rsvp .meal-pick label.checked .title { color: var(--cream); }
-  form.rsvp .meal-pick label.checked .desc { color: var(--rose); }
+/* ---------- 02b gallery: a 3D card deck ---------- */
+/* Continues the invitation's panel, so it has no seam of its own. Cards are 9:16 with a soft
+   drop shadow; the front card is full size, the next two fan back to the right in 3D. */
+.sec.gallery{padding-top:24px}
+.deck{--w:min(62vw,260px);--h:calc(var(--w) * 16 / 9);position:relative;height:calc(var(--h) + 48px);
+  max-width:var(--column);margin:24px auto 0;perspective:1100px;touch-action:pan-y;outline:none;user-select:none;-webkit-user-select:none}
+.deck:focus-visible{outline:2px solid var(--mauve-soft);outline-offset:6px;border-radius:14px}
+.card{position:absolute;top:20px;left:calc(50% - var(--w) * .62);width:var(--w);height:var(--h);margin:0;
+  border-radius:14px;overflow:hidden;background:var(--ground);cursor:pointer;
+  box-shadow:0 24px 44px -12px rgba(74,58,64,.38),0 6px 14px rgba(74,58,64,.14);
+  transition:transform .75s cubic-bezier(.2,.7,.2,1),opacity .75s ease,filter .75s ease}
+.card img{width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.card[data-pos="0"]{transform:translate3d(0,0,0) rotateY(0deg);z-index:5}
+.card[data-pos="1"]{transform:translate3d(24%,0,-90px) rotateY(-10deg);z-index:4;filter:brightness(.94)}
+.card[data-pos="2"]{transform:translate3d(44%,0,-180px) rotateY(-16deg);z-index:3;filter:brightness(.88)}
+.card[data-pos="back"]{transform:translate3d(60%,0,-300px) rotateY(-20deg);z-index:1;opacity:0;pointer-events:none}
+.deck-nav{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:22px}
+.deck-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--mauve);background:transparent;color:var(--mauve);
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,color .2s}
+.deck-btn:hover,.deck-btn:focus-visible{background:var(--mauve);color:var(--ink-invert)}
+.deck-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.deck-count{font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:.16em;min-width:72px;text-align:center}
+@media (min-width:768px){ .deck{--w:300px} }
+@media (min-width:1024px) and (orientation:landscape){ .deck{--w:360px;max-width:1200px} .sec.gallery{padding-bottom:120px} }
 
-  form.rsvp .submit-row {
-    grid-column: 1 / -1;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 24px;
-    margin-top: 10px;
-  }
-  form.rsvp button {
-    background: var(--rose);
-    color: var(--cream);
-    border: none;
-    padding: 18px 36px;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.4em;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 999px;
-    transition: all 0.3s cubic-bezier(.4,0,.2,1);
-    position: relative;
-    overflow: hidden;
-  }
-  form.rsvp button:hover {
-    background: var(--rose-d);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(196, 135, 142, 0.35);
-  }
-  form.rsvp button:active { transform: translateY(0); }
-  form.rsvp .helper {
-    font-family: var(--display); font-style: italic;
-    font-size: 14px; color: var(--muted);
-  }
+/* ---------- 03 programme ---------- */
+.tl{list-style:none;margin:8px 0 0;padding:0;width:100%;max-width:320px;text-align:left}
+.tl li{position:relative;display:flex;gap:18px;align-items:flex-start;padding-bottom:28px}
+.tl li:last-child{padding-bottom:0}
+.tl li::before{content:'';position:absolute;left:23px;top:48px;bottom:0;width:1px;background:var(--gold)}
+.tl li:last-child::before{display:none}
+.dot{flex:none;width:48px;height:48px;border-radius:50%;background:var(--mauve);color:var(--ink-invert);display:flex;align-items:center;justify-content:center}
+.dot svg{width:24px;height:24px}
+.tl b{display:block;font-family:var(--font-display);font-weight:600;font-size:17px;letter-spacing:.06em;padding-top:4px}
+.tl li>div>span{display:block;font-size:15px;line-height:1.45}
 
-  .rsvp-success {
-    display: none;
-    text-align: center;
-    padding: 60px 40px;
-    background: var(--ink);
-    color: var(--cream);
-    border-radius: 8px;
-  }
-  .rsvp-success.shown { display: block; animation: rise 0.6s ease; }
-  @keyframes rise {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .rsvp-success .heart {
-    font-family: var(--script);
-    color: var(--rose);
-    font-size: 80px;
-    line-height: 1;
-    margin-bottom: 10px;
-  }
-  .rsvp-success h4 {
-    font-family: var(--display); font-style: italic; font-weight: 300;
-    font-size: 36px; margin: 0 0 8px;
-  }
-  .rsvp-success p {
-    font-family: var(--display); font-style: italic;
-    color: rgba(253, 248, 240, 0.7);
-    margin: 0;
-  }
+/* ---------- 04 venue ---------- */
+.venue-addr{display:flex;gap:10px;align-items:flex-start;text-align:left;max-width:300px}
+.venue-addr svg{flex:none;width:18px;height:18px;color:var(--mauve);margin-top:4px}
+.venue .photo{margin:12px -24px 0}
 
-  /* ───────────────────────────────────────── */
-  /* PHOTOS                                      */
-  .photo-grid {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr 1fr;
-    grid-template-rows: 320px 320px;
-    gap: 14px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .photo-grid .slot {
-    background: var(--cream-2);
-    overflow: hidden;
-    position: relative;
-  }
-  .photo-grid picture {
-    width: 100%; height: 100%; display: block;
-  }
-  .photo-grid img {
-    width: 100%; height: 100%; display: block;
-    object-fit: cover;
-  }
-  .photo-grid .slot::after {
-    content: attr(data-caption);
-    position: absolute;
-    bottom: 12px; left: 14px;
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.28em;
-    color: var(--cream);
-    text-transform: uppercase;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    z-index: 2;
-    pointer-events: none;
-  }
-  .photo-grid .a { grid-column: 1; grid-row: 1 / 3; }
-  .photo-grid .a img { object-position: center 15%; }
-  .photo-grid .b { grid-column: 2; grid-row: 1; }
-  .photo-grid .c { grid-column: 3; grid-row: 1 / 3; }
-  .photo-grid .d { grid-column: 2; grid-row: 2; }
+/* ---------- 05 dress code ---------- */
+.swatches{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.swatches i{display:block;width:40px;height:40px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(74,58,64,.12)}
 
-  /* ───────────────────────────────────────── */
-  /* FOOTER                                      */
-  footer.bottom {
-    background: var(--forest);
-    color: var(--cream);
-    padding: 100px 80px 60px;
-    position: relative;
-    overflow: hidden;
-  }
-  footer.bottom .quote {
-    text-align: center;
-    font-family: var(--script);
-    font-size: clamp(56px, 8vw, 110px);
-    line-height: 0.9;
-    color: var(--cream);
-    margin: 0;
-    position: relative;
-    z-index: 1;
-  }
-  footer.bottom .quote .em {
-    font-family: var(--display); font-style: italic; font-size: 0.5em;
-    color: var(--rose); display: block; letter-spacing: 0.04em;
-    margin-bottom: 14px;
-  }
-  footer.bottom .mtn-wrap {
-    display: flex; justify-content: center; margin: 40px auto 0;
-    position: relative; z-index: 1;
-  }
-  footer.bottom .sig {
-    margin-top: 60px;
-    border-top: 1px solid rgba(253, 248, 240, 0.18);
-    padding-top: 30px;
-    display: flex; justify-content: space-between; align-items: center;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.4em;
-    text-transform: uppercase;
-    color: rgba(253, 248, 240, 0.55);
-    position: relative; z-index: 1;
-  }
-  footer.bottom .sig .center {
-    font-family: var(--script);
-    font-size: 26px;
-    text-transform: none;
-    letter-spacing: 0;
-    color: var(--rose);
-  }
-  footer.bottom .branch-f {
-    position: absolute;
-    opacity: 0.25;
-  }
-  footer.bottom .branch-f path,
-  footer.bottom .branch-f line,
-  footer.bottom .branch-f ellipse {
-    fill: none; stroke: var(--cream); stroke-width: 1.2; stroke-linecap: round;
-  }
-  footer.bottom .branch-f .leaf-fill { fill: var(--cream); opacity: 0.4; stroke: none; }
-  footer.bottom .branch-f .leaf-rose { fill: var(--rose); opacity: 0.7; stroke: none; }
-  footer.bottom .branch-f.tl { top: -20px; left: -30px; width: 240px; transform: translateY(var(--drift, 0px)); }
-  footer.bottom .branch-f.br { bottom: -20px; right: -30px; width: 240px; transform: rotate(180deg) translateY(var(--drift, 0px)); }
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-width:190px;height:42px;padding:0 24px;border-radius:var(--radius-button);
+  border:1px solid var(--mauve);background:transparent;color:var(--mauve);
+  font-family:var(--font-body);font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  text-decoration:none;cursor:pointer;transition:background .2s,color .2s;
+}
+.btn:hover,.btn:focus-visible{background:var(--mauve);color:var(--ink-invert)}
+.btn.solid{background:var(--accent);color:var(--ink-invert)}
+.btn.solid:hover,.btn.solid:focus-visible{background:#7A4E5D}
 
-  /* ───────────────────────────────────────── */
-  /* PARTICLES                                    */
-  .particles {
-    position: fixed; inset: 0; pointer-events: none; z-index: 998;
-  }
-  .particles .dot {
-    position: absolute;
-    width: 3px; height: 3px;
-    border-radius: 50%;
-    background: var(--rose);
-    opacity: 0;
-    animation: sparkle linear infinite;
-  }
-  .particles .dot.gold { background: #C9BE9F; }
-  .particles .dot.white { background: rgba(253, 248, 240, 0.9); }
-  @keyframes sparkle {
-    0%   { opacity: 0; transform: translateY(0) scale(0.5); }
-    15%  { opacity: 0.8; transform: translateY(-30px) scale(1); }
-    50%  { opacity: 0.4; transform: translateY(-80px) scale(0.8); }
-    100% { opacity: 0; transform: translateY(-160px) scale(0.3); }
-  }
+/* ---------- 06 RSVP ---------- */
+.rsvp{overflow:clip}
+/* ILL-04 is cut on its right edge only, which sits on the viewport edge */
+.rsvp .floral-tr{position:absolute;top:16px;right:0;width:150px;height:auto;pointer-events:none}
+/* phone: the cluster sits in its own space above the title instead of over it */
+.sec.rsvp{padding-top:176px}
+.rsvp-photo{display:none}
+.form{display:grid;gap:26px;width:100%;max-width:380px;text-align:left}
+.form[hidden],.done[hidden]{display:none}
+.q{display:grid;gap:10px}
+.q>.label{text-align:center;display:block}
+.q .hint{text-align:center;font-size:15px;margin-top:-4px}
+.opt{display:flex;gap:10px;align-items:center;font-size:16px;cursor:pointer}
+.opt input{accent-color:var(--mauve);width:16px;height:16px;margin:0}
+.field{width:100%;min-height:46px;padding:10px 14px;border:1px solid var(--mauve-soft);border-radius:6px;background:var(--panel);color:var(--ink);font:500 16px/1.5 var(--font-body)}
+textarea.field{min-height:110px;resize:vertical}
+.field:focus{outline:2px solid var(--mauve-soft);outline-offset:1px}
+fieldset{border:0;margin:0;padding:0;display:grid;gap:10px}
+fieldset legend{padding:0;margin:0 auto 10px}
+.form .btn{justify-self:center}
+.done{text-align:center}
 
-  /* ───────────────────────────────────────── */
-  /* PARALLAX data-attributes                    */
-  [data-parallax] {
-    will-change: transform;
-    transition: transform 0.1s linear;
-  }
+/* ---------- 07 closing ---------- */
+.sec.closing{padding-bottom:0;text-align:center}
+.closing .spray{transform:scaleX(-1)}
 
-  /* ───────────────────────────────────────── */
-  /* PHOTO HOVER                                 */
-  .photo-grid .slot {
-    cursor: pointer;
-  }
-  .photo-grid .slot img {
-    transition: transform 0.6s cubic-bezier(.2,0,.1,1), filter 0.6s ease;
-    filter: grayscale(30%);
-  }
-  .photo-grid .slot:hover img {
-    transform: scale(1.04);
-    filter: grayscale(0%);
-  }
+/* =================== iPad portrait: 768–1023 =================== */
+@media (min-width:768px){
+  :root{--column:640px}
+  body{font-size:17px}
+  .sec{padding:80px 48px 88px}
+  .title{font-size:20px}
+  .names{font-size:56px}
+  .date{font-size:28px}
+  .script{font-size:42px}
+  .countdown{max-width:420px;gap:12px}
+  .countdown b{font-size:34px}
+  .invite .photo,.venue .photo{margin-left:0;margin-right:0}
+  .curve{height:72px}
+  .seam{height:48px}
+  .tl{max-width:420px}
+  .form{max-width:460px}
+  /* the watercolour florals are a phone-only layer */
+  .floral-m,.spray,.rsvp .floral-tr{display:none}
+  .sec.rsvp{padding-top:80px}
+  .sec.invite{padding-bottom:64px}
+  .sec.closing{padding-bottom:88px}
+}
 
-  /* ───────────────────────────────────────── */
-  /* LIGHTBOX                                    */
-  .lightbox {
-    position: fixed; inset: 0; z-index: 1000;
-    background: rgba(42, 36, 24, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.4s ease;
-    cursor: zoom-out;
-  }
-  .lightbox.open { opacity: 1; pointer-events: auto; }
-  .lightbox img {
-    max-width: 90vw; max-height: 85vh;
-    object-fit: contain;
-    border-radius: 4px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    transform: scale(0.92);
-    transition: transform 0.4s cubic-bezier(.2,0,.1,1);
-  }
-  .lightbox.open img { transform: scale(1); }
-  .lightbox .lb-close {
-    position: absolute; top: 28px; right: 32px;
-    font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.32em; text-transform: uppercase;
-    color: rgba(253,248,240,0.7);
-    background: none; border: 1px solid rgba(253,248,240,0.25);
-    padding: 10px 18px; border-radius: 999px;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  .lightbox .lb-close:hover { color: var(--cream); border-color: var(--cream); }
-  .lightbox .lb-caption {
-    position: absolute; bottom: 32px; left: 50%;
-    transform: translateX(-50%);
-    font-family: var(--mono); font-size: 10px;
-    letter-spacing: 0.28em; text-transform: uppercase;
-    color: rgba(253,248,240,0.55);
-  }
+/* =================== Desktop: >=1024, landing-page spreads =================== */
+@media (min-width:1024px) and (orientation:landscape){
+  body{font-size:18px}
+  .wrap{max-width:1200px}
+  .sec{padding:112px 64px 120px}
+  .title{font-size:22px}
+  .seam{height:64px}
 
-  /* ───────────────────────────────────────── */
-  /* MUSIC TOGGLE                                */
-  .music-btn {
-    position: fixed; bottom: 28px; right: 28px; z-index: 100;
-    width: 44px; height: 44px; border-radius: 50%;
-    background: var(--ink);
-    border: 1px solid var(--rule);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 2px;
-    transition: all 0.3s;
-  }
-  .music-btn:hover { background: var(--rose-d); border-color: var(--rose-d); }
-  .music-btn .bar {
-    width: 2px; height: 12px;
-    background: var(--cream);
-    border-radius: 1px;
-    animation: eqBar 0.8s ease-in-out infinite alternate;
-  }
-  .music-btn .bar:nth-child(2) { animation-delay: 0.15s; height: 16px; }
-  .music-btn .bar:nth-child(3) { animation-delay: 0.30s; height: 10px; }
-  .music-btn .bar:nth-child(4) { animation-delay: 0.45s; height: 14px; }
-  .music-btn.paused .bar { animation-play-state: paused; height: 2px !important; }
-  @keyframes eqBar {
-    0%   { height: 4px; }
-    100% { height: 18px; }
-  }
+  /* hero: full viewport, photo left with the curve down its right edge */
+  .hero{display:grid;grid-template-columns:55% 45%;min-height:min(100vh,960px);padding:0;align-items:center;overflow:clip}
+  .hero .label.top{display:none}
+  .hero-photo{align-self:stretch;min-height:min(100vh,960px)}
+  .hero-photo>img.shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%}
+  .hero-photo .curve-h{display:none}
+  .curve-v{display:block;position:absolute;top:0;right:-1px;height:100%;width:110px;pointer-events:none}
+  .curve-v .fill{fill:var(--ground)}
+  .curve-v .line{fill:none;stroke:var(--gold);stroke-width:1.2;vector-effect:non-scaling-stroke}
+  /* desktop hero carries no floral: photo, curve and gold line only */
+  .hero-copy{padding:80px 64px}
+  .hero-copy .label.desk{display:block}
+  .names{font-size:clamp(48px,4.6vw,72px)}
+  .date{font-size:30px}
+  .countdown{max-width:440px}
+  .countdown b{font-size:38px}
 
-  /* ───────────────────────────────────────── */
-  /* Reveal-on-scroll                            */
-  .reveal {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 1.1s cubic-bezier(.2,0,.1,1), transform 1.1s cubic-bezier(.2,0,.1,1);
-  }
-  .reveal.in { opacity: 1; transform: translateY(0); }
-  .reveal.d1 { transition-delay: 0.08s; }
-  .reveal.d2 { transition-delay: 0.16s; }
-  .reveal.d3 { transition-delay: 0.24s; }
-  .reveal.d4 { transition-delay: 0.32s; }
-  .reveal.d5 { transition-delay: 0.40s; }
-  .reveal.d6 { transition-delay: 0.48s; }
+  /* invitation: photo left, copy right, spray along the bottom */
 
-  /* On-load hero animation */
-  .hero-anim {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: heroFade 1.4s cubic-bezier(.2,0,.1,1) forwards;
-  }
-  .hero-anim.h1 { animation-delay: 0.20s; }
-  .hero-anim.h2 { animation-delay: 0.45s; }
-  .hero-anim.h3 { animation-delay: 0.70s; }
-  .hero-anim.h4 { animation-delay: 0.90s; }
-  .hero-anim.h5 { animation-delay: 1.10s; }
-  .hero-anim.h6 { animation-delay: 1.35s; }
-  @keyframes heroFade {
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .hero-pic-anim {
-    opacity: 0;
-    clip-path: inset(100% 0 0 0);
-    animation: heroPic 1.6s cubic-bezier(.2,0,.1,1) forwards;
-    animation-delay: 0.35s;
-  }
-  @keyframes heroPic {
-    to { opacity: 1; clip-path: inset(0 0 0 0); }
-  }
+  .invite .wrap{display:grid;grid-template-columns:1.1fr 1fr;column-gap:80px;row-gap:0;align-items:center}
+  .invite .photo{margin:0;border-radius:4px}
+  .invite .stack{align-items:flex-start;text-align:left}
+  .invite .stack>p{max-width:44ch}
 
-  /* ───────────────────────────────────────── */
-  /* RESPONSIVE                                  */
-  @media (max-width: 960px) {
-    header.top { padding: 18px 24px; grid-template-columns: 1fr 1fr; }
-    header.top .center { display: none; }
-    header.top nav { gap: 14px; }
-    .hero { grid-template-columns: 1fr; min-height: auto; overflow: hidden; }
-    .hero .left { display: contents; }
-    .hero .hero-top { order: 1; padding: 60px 28px 30px; border-bottom: 1px solid var(--rule); }
-    .hero .right { order: 2; }
-    .hero .hero-bottom { order: 3; padding: 10px 28px 40px; }
-    .hero .branch.tl, .hero .branch.br { display: none; }
-    .hero h1 { font-size: clamp(52px, 12vw, 80px); word-break: break-word; }
-    .hero .date-strip { gap: 14px; width: 100%; }
-    .hero .date-strip .col .val { font-size: 15px; }
-    .hero .scroll-cue { position: static; margin-top: 30px; flex-direction: row; align-items: center; }
-    .hero .scroll-cue .stem { display: none; }
-    .hero .right { min-height: 480px; }
-    .hero .right .pic-wrap { inset: 30px; }
-    .hero .right .frame-num { top: 24px; right: 24px; }
-    .hero .right .caption { left: 30px; right: 30px; bottom: 18px; }
-    section.s { padding: 80px 24px; overflow: hidden; }
-    .countdown { grid-template-columns: repeat(2, 1fr); }
-    .countdown .cell:nth-child(2) { border-right: none; }
-    .countdown .cell:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
-    .details-grid { grid-template-columns: 1fr; gap: 60px; }
-    .details-grid .vrule { display: none; }
-    .detail { padding: 0; }
-    .rsvp-grid { grid-template-columns: 1fr; gap: 40px; }
-    form.rsvp { grid-template-columns: 1fr; }
-    form.rsvp .meal-pick { grid-template-columns: 1fr; }
-    .photo-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 260px 340px 260px; }
-    .photo-grid .a { grid-column: 1 / 3; grid-row: 1; }
-    .photo-grid .b { grid-column: 1; grid-row: 2; }
-    .photo-grid .c { grid-column: 2; grid-row: 2; }
-    .photo-grid .d { grid-column: 1 / 3; grid-row: 3; }
-    footer.bottom { padding: 70px 24px 40px; overflow: hidden; }
-    footer.bottom .sig { flex-direction: column; gap: 14px; text-align: center; }
-  }
+  /* programme: horizontal */
+  .tl{display:grid;grid-template-columns:repeat(6,1fr);max-width:1100px;margin-top:32px;text-align:center;position:relative}
+  .tl::before{content:'';position:absolute;left:8%;right:8%;top:32px;height:1px;background:var(--gold)}
+  .tl li{flex-direction:column;align-items:center;gap:14px;padding:0 8px}
+  .tl li::before{display:none}
+  .dot{width:64px;height:64px;position:relative;z-index:1;box-shadow:0 0 0 8px var(--ground)}
+  .dot svg{width:28px;height:28px}
+  .tl b{font-size:20px}
+  .tl li>div>span{font-size:16px}
+
+  /* venue: copy left, photo right */
+  .venue .wrap{display:grid;grid-template-columns:1fr 1.2fr;gap:80px;align-items:center}
+  .venue .stack{align-items:flex-start;text-align:left}
+  .venue .photo{margin:0;grid-column:2;grid-row:1}
+  .venue .stack{grid-column:1;grid-row:1}
+
+  /* RSVP: sticky photo left, form right */
+  .rsvp .wrap{display:grid;grid-template-columns:1fr 1fr;gap:88px;align-items:start}
+  .rsvp-photo{display:block;position:sticky;top:48px}
+  .rsvp-photo .curve{height:80px}
+  /* the form column reaches the right edge at every desktop width, so the cluster sits above the title */
+  .sec.rsvp{padding-top:112px}
+  .sec.invite{padding-bottom:112px}
+  .sec.closing{padding-bottom:120px}
+  .form{max-width:480px}
+
+}
+/* =================== Motion =================== */
+/* Enhancement only: nothing starts hidden unless the script has put .anim on <html>,
+   and nothing moves for prefers-reduced-motion. Individual translate/scale/rotate
+   properties are used so they compose with the transforms already on the page. */
+@media (prefers-reduced-motion:no-preference){
+  /* hero, on load */
+  .anim .hero .shot{animation:fade-in 1.4s ease both}
+  .anim .hero .label.top,
+  .anim .hero-copy .stack>*{animation:rise .9s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(.3s + var(--i,0) * .09s)}
+  /* the cluster's right edge is a cut edge on the viewport, so it grows from that edge and never slides off it */
+  .anim .floral-m{transform-origin:100% 55%;animation:bloom 1.5s cubic-bezier(.2,.7,.2,1) .8s both}
+
+  /* scroll reveals */
+  .anim .rv{opacity:0;translate:0 22px;transition:opacity .9s ease,translate .9s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
+  .anim .rv.in{opacity:1;translate:0 0}
+  .anim .rv-pop{opacity:0;scale:.6;transition:opacity .5s ease,scale .7s cubic-bezier(.3,1.5,.5,1);transition-delay:var(--d,0s)}
+  .anim .rv-pop.in{opacity:1;scale:1}
+
+  /* programme: the gold connector grows between stops */
+  .anim .tl li::before{transform-origin:top;scale:1 0;transition:scale .7s ease;transition-delay:calc(var(--d,0s) + .3s)}
+  .anim .tl li.in::before{scale:1 1}
+
+  /* the gold hairline on each curve draws itself; the script sets the dash length */
+  .curve .line.draw{transition:stroke-dashoffset 1.6s cubic-bezier(.45,0,.2,1)}
+
+  .countdown b.tick{animation:tick .45s ease}
+  .done:not([hidden]){animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
+}
+
+/* the desktop programme line grows left to right */
+@media (prefers-reduced-motion:no-preference) and (min-width:1024px) and (orientation:landscape){
+  .anim .tl::before{transform-origin:left;scale:0 1;transition:scale 1.6s cubic-bezier(.45,0,.2,1) .2s}
+  .anim .tl.in::before{scale:1 1}
+}
+
+
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
+@keyframes bloom{from{opacity:0;translate:0 12px;scale:.94}to{opacity:1;translate:0 0;scale:1}}
+@keyframes tick{from{opacity:.35;translate:0 -3px}to{opacity:1;translate:0 0}}
 </style>
 </head>
-<body style="font-family: &quot;Cormorant Garamond&quot;">
 
-<!-- ────────────────────────────────────── -->
-<!-- Reusable SVG symbols                    -->
-<!-- ────────────────────────────────────── -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <!-- Botanical branch -->
-    <symbol id="branch" viewBox="0 0 280 220">
-      <g>
-        <path class="stem" d="M 10 200 C 60 170, 90 130, 130 100 C 170 70, 210 50, 260 30" />
-        <!-- side stems -->
-        <path d="M 70 162 C 75 140, 70 120, 60 105" />
-        <path d="M 110 130 C 130 115, 145 100, 150 80" />
-        <path d="M 170 88 C 195 75, 210 55, 215 35" />
-        <path d="M 210 60 C 235 60, 250 50, 255 35" />
-        <!-- leaves (eucalyptus shape via ellipses) -->
-        <ellipse class="leaf-fill" cx="58" cy="100" rx="11" ry="5" transform="rotate(-65 58 100)" />
-        <ellipse class="leaf-fill" cx="148" cy="76" rx="11" ry="5" transform="rotate(-50 148 76)" />
-        <ellipse class="leaf-fill" cx="167" cy="92" rx="11" ry="5" transform="rotate(-20 167 92)" />
-        <ellipse class="leaf-fill" cx="125" cy="115" rx="12" ry="5.5" transform="rotate(-35 125 115)" />
-        <ellipse class="leaf-fill" cx="85" cy="145" rx="10" ry="4.5" transform="rotate(-70 85 145)" />
-        <ellipse class="leaf-fill" cx="195" cy="50" rx="12" ry="5.5" transform="rotate(-25 195 50)" />
-        <ellipse class="leaf-fill" cx="225" cy="42" rx="10" ry="4.5" transform="rotate(-10 225 42)" />
-        <ellipse class="leaf-fill" cx="248" cy="32" rx="9" ry="4" transform="rotate(-5 248 32)" />
-        <!-- flowers -->
-        <circle class="leaf-rose" cx="38" cy="115" r="5" />
-        <circle class="leaf-rose" cx="265" cy="28" r="5" />
-        <circle class="leaf-rose" cx="138" cy="92" r="4" />
-      </g>
-    </symbol>
-
-    <!-- Wedding ring icon -->
-    <symbol id="ico-ring" viewBox="0 0 64 64">
-      <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="32" cy="38" r="14" />
-        <circle cx="32" cy="38" r="11" stroke-dasharray="1 3" opacity="0.6" />
-        <path d="M 26 22 L 28 14 L 36 14 L 38 22 Z" />
-        <circle cx="32" cy="14" r="1.5" fill="currentColor" />
-      </g>
-    </symbol>
-
-    <!-- Champagne glass icon -->
-    <symbol id="ico-glass" viewBox="0 0 64 64">
-      <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M 18 10 L 46 10 L 41 28 C 41 36, 36 40, 32 40 C 28 40, 23 36, 23 28 Z" />
-        <line x1="32" y1="40" x2="32" y2="52" />
-        <line x1="23" y1="52" x2="41" y2="52" />
-        <circle cx="29" cy="20" r="1" fill="currentColor" />
-        <circle cx="34" cy="24" r="0.8" fill="currentColor" />
-        <circle cx="32" cy="17" r="0.7" fill="currentColor" />
-      </g>
-    </symbol>
-
-    <!-- Mountain illustration -->
-    <symbol id="mountains" viewBox="0 0 480 160">
-      <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round">
-        <!-- back range, lighter -->
-        <path d="M 10 130 L 90 80 L 130 100 L 180 50 L 240 90 L 290 60 L 360 95 L 420 70 L 470 100 L 470 130 Z" opacity="0.4" />
-        <!-- front range -->
-        <path d="M 10 140 L 80 90 L 110 110 L 160 60 L 200 85 L 240 35 L 290 75 L 340 55 L 400 100 L 470 70 L 470 140 Z" />
-        <!-- snow lines -->
-        <path d="M 200 85 L 215 70 L 230 80 L 240 35" />
-        <path d="M 160 60 L 170 50 L 180 60 L 200 85" />
-        <path d="M 340 55 L 350 65 L 360 60 L 380 85" />
-        <!-- ground line -->
-        <line x1="0" y1="140" x2="480" y2="140" />
-      </g>
-      <!-- sun/moon -->
-      <circle cx="380" cy="40" r="9" fill="none" stroke="#C4878E" stroke-width="1.4" />
-      <!-- birds -->
-      <path d="M 100 35 q 5 -5 10 0 q 5 -5 10 0" fill="none" stroke="currentColor" stroke-width="1.2" />
-      <path d="M 130 50 q 4 -4 8 0 q 4 -4 8 0" fill="none" stroke="currentColor" stroke-width="1.2" />
-    </symbol>
-  </defs>
+<body>
+<!-- line-art symbols: drawn once, reused with <use> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-sprig" viewBox="0 0 92 16"><g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><path d="M4 8 C30 8 62 8 88 8"/><path d="M46 8 C42 3 36 2 32 4 C36 7 42 8 46 8Z"/><path d="M46 8 C50 3 56 2 60 4 C56 7 50 8 46 8Z"/><path d="M34 8 C31 12 26 13 22 12 C25 9 30 8 34 8Z"/><path d="M58 8 C61 12 66 13 70 12 C67 9 62 8 58 8Z"/><path d="M22 8 C20 5 16 4 13 5"/><path d="M70 8 C72 5 76 4 79 5"/></g></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 22"><path d="M12 20 C5 14 2 11 2 7 A4.8 4.8 0 0 1 12 5 A4.8 4.8 0 0 1 22 7 C22 11 19 14 12 20Z" fill="currentColor"/></symbol>
+  <symbol id="i-glasses" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h5.5l-.4 4.2a2.4 2.4 0 0 1-4.7 0Z"/><path d="M6.7 9.6V19M4.5 19h4.4"/><path d="M14.5 3H20l-.4 4.2a2.4 2.4 0 0 1-4.7 0Z"/><path d="M17.2 9.6V19M15 19h4.4"/></g></symbol>
+  <symbol id="i-rings" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="14.5" r="5.5"/><circle cx="15" cy="14.5" r="5.5"/><path d="M7 7l2-3h2l2 3"/></g></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8.5 7l1.5-2.5h4L15.5 7"/></g></symbol>
+  <symbol id="i-plate" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5.5"/><path d="M3.5 4v5a1.5 1.5 0 0 0 3 0V4M5 9.5V20"/><path d="M20.5 4c-1.8 1.5-2.2 5.5 0 7v9"/></g></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="6.8" cy="18" r="2.3"/><circle cx="16.8" cy="16" r="2.3"/></g></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 3v6M12 15v6M3 12h6M15 12h6M5.8 5.8l3 3M15.2 15.2l3 3M18.2 5.8l-3 3M8.8 15.2l-3 3"/></g></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 21s-6.5-6.1-6.5-11a6.5 6.5 0 0 1 13 0c0 4.9-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/></g></symbol>
 </svg>
 
-<!-- Sparkle particles -->
-<div class="particles" id="particles" aria-hidden="true"></div>
+<main>
 
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox">
-  <button class="lb-close">Close</button>
-  <img src="" alt="" />
-  <div class="lb-caption"></div>
-</div>
-
-<!-- Music toggle -->
-<button class="music-btn paused" id="music-btn" aria-label="Toggle music">
-  <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
-</button>
-
-<!-- ────────────────────────────────────── -->
-<!-- HEADER                                  -->
-<!-- ────────────────────────────────────── -->
-<header class="top">
-  <div class="mark">H<span style="color:var(--rose)">&amp;</span>M</div>
-  <div class="center">Volume I · An Invitation</div>
-  <nav>
-    <a href="#countdown">Countdown</a>
-    <a href="#details">Details</a>
-    <a href="#rsvp">RSVP</a>
-    <a href="#photos">Moments</a>
-  </nav>
-</header>
-
-<!-- ────────────────────────────────────── -->
-<!-- HERO                                    -->
-<!-- ────────────────────────────────────── -->
-<section class="hero">
-  <svg class="branch tl" viewBox="0 0 280 220" aria-hidden="true"><use href="#branch" /></svg>
-  <svg class="branch br" viewBox="0 0 280 220" aria-hidden="true"><use href="#branch" /></svg>
-
-  <div class="left">
-    <div class="hero-top">
-      <div class="invite-line hero-anim h1">
-        <span class="bar"></span>
-        <span class="kicker">— Together with their families —</span>
-      </div>
-      <div class="small-label hero-anim h2">are pleased to invite you</div>
-      <h1>
-        <span class="hero-anim h3">Hui Huang</span>
-        <span class="amp hero-anim h4">— &amp; —</span>
-        <span class="ln2 hero-anim h5">Mayyi</span>
-      </h1>
-    </div>
-
-    <div class="hero-bottom">
-      <div class="date-strip hero-anim h6">
-        <div class="col">
-          <div class="lbl">Date</div>
-          <div class="val">20.06.2027</div>
-        </div>
-        <div class="sep"></div>
-        <div class="col">
-          <div class="lbl">Time</div>
-          <div class="val">11:00 / 19:00</div>
-        </div>
-        <div class="sep"></div>
-        <div class="col">
-          <div class="lbl">Place</div>
-          <div class="val">Genting Highlands</div>
-        </div>
-      </div>
-
-      <p class="lede hero-anim h6">A small ceremony in the clouds, followed by dinner with the people we love most. We'd be honoured if you'd join us.</p>
-
-      <div class="scroll-cue hero-anim h6">
-        <span>Scroll</span>
-        <div class="stem"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="right hero-pic-anim">
-    <div class="frame-num">I — 01 / 06</div>
-    <div class="pic-wrap">
-      <picture>
-        <source media="(max-width: 600px)"  srcset="../assets/wedding/crops/ZEN-1852-mobile.webp" />
-        <source media="(max-width: 960px)"  srcset="../assets/wedding/crops/ZEN-1852-tablet.webp" />
-        <img src="../assets/wedding/ZEN-1852.webp" alt="Hui Huang & Mayyi engagement portrait" />
-      </picture>
-    </div>
-    <div class="caption">
-      <span>Hui Huang &amp; Mayyi</span>
-      <span class="roman">— at home, last spring</span>
-    </div>
-  </div>
-</section>
-
-<!-- ────────────────────────────────────── -->
-<!-- COUNTDOWN                               -->
-<!-- ────────────────────────────────────── -->
-<section class="s countdown-section" id="countdown">
-  <div class="section-head reveal">
-    <div class="num">— II · The Countdown —</div>
-    <h2 data-parallax="0.03">Counting down to <em>our</em> big day</h2>
-    <div class="sub">A day, an evening, a lifetime — every second a little closer.</div>
-  </div>
-
-  <div class="live reveal d1">
-    <span class="pulse"></span>
-    <span>Updating live · 20.06.2027 11:00 MYT</span>
-  </div>
-
-  <div class="countdown reveal d2">
-    <div class="cell">
-      <div class="num" id="cd-days">412</div>
-      <div class="lbl">Days</div>
-    </div>
-    <div class="cell">
-      <div class="num" id="cd-hours">07</div>
-      <div class="lbl">Hours</div>
-    </div>
-    <div class="cell">
-      <div class="num" id="cd-mins">23</div>
-      <div class="lbl">Minutes</div>
-    </div>
-    <div class="cell">
-      <div class="num" id="cd-secs">45</div>
-      <div class="lbl">Seconds</div>
-    </div>
-  </div>
-</section>
-
-<!-- ────────────────────────────────────── -->
-<!-- DETAILS                                 -->
-<!-- ────────────────────────────────────── -->
-<section class="s dark" id="details">
-  <div class="section-head reveal">
-    <div class="num">— III · Order of the Day —</div>
-    <h2 data-parallax="0.03">Two halves of <em>one</em> day</h2>
-    <div class="sub">Begin in the garden at late morning, gather again in the grand ballroom by evening.</div>
-  </div>
-
-  <div class="details-grid reveal d1">
-    <div class="detail">
-      <div class="roman">i.</div>
-      <div class="ico">
-        <svg width="34" height="34"><use href="#ico-ring" /></svg>
-      </div>
-      <h3>The Ceremony</h3>
-      <div class="when">11:00<span class="ampm">am</span></div>
-      <div class="where">Outdoor Garden Pavilion</div>
-      <div class="address">Awana Skyway · Genting</div>
-      <p class="desc">An open-air ceremony beneath the highland pines, followed by light refreshments on the lawn.</p>
-      <div class="chips">
-        <span class="chip">Garden attire</span>
-        <span class="chip">Pastels welcome</span>
-      </div>
-    </div>
-    <div class="vrule"></div>
-    <div class="detail">
-      <div class="roman">ii.</div>
-      <div class="ico">
-        <svg width="34" height="34"><use href="#ico-glass" /></svg>
-      </div>
-      <h3>The Reception</h3>
-      <div class="when">7:00<span class="ampm">pm</span></div>
-      <div class="where">Grand Ballroom · Highland Hotel</div>
-      <div class="address">Genting Highlands · Pahang</div>
-      <p class="desc">Cocktails at six-thirty. A long dinner, longer speeches, dancing until late.</p>
-      <div class="chips">
-        <span class="chip solid">Cocktail</span>
-        <span class="chip">Dinner</span>
-        <span class="chip">Dancing</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ────────────────────────────────────── -->
-<!-- RSVP                                    -->
-<!-- ────────────────────────────────────── -->
-<section class="s" id="rsvp">
-  <div class="rsvp-grid">
-    <div class="rsvp-intro reveal">
-      <div class="kicker"><span class="dot">●</span>&nbsp;&nbsp;IV · R S V P</div>
-      <h3>
-        <em>Will you</em>
-        join us?
-      </h3>
-      <p>Kindly let us know if you can make it. We'd love to plan for the right meal, the right seat, and a good toast.</p>
-      <div class="deadline">
-        <div class="label">Please reply by</div>
-        <div class="value">20 May 2027</div>
-      </div>
-      <div class="deadline" style="margin-top:0; border-top:none;">
-        <div class="label">Questions</div>
-        <div class="value" style="font-size:18px; font-style:italic;">hello@huiandmayyi.wed</div>
-      </div>
-    </div>
-
-    <form class="rsvp reveal d1" id="rsvp-form" autocomplete="off">
-      <div class="field">
-        <label for="r-name">Your name</label>
-        <input id="r-name" type="text" placeholder="As you'd like it on your seat" required />
-      </div>
-      <div class="field">
-        <label for="r-email">Email</label>
-        <input id="r-email" type="email" placeholder="you@email.com" required />
-      </div>
-      <div class="field">
-        <label for="r-guests">Number of guests</label>
-        <input id="r-guests" type="number" min="1" max="6" value="1" />
-      </div>
-      <div class="field">
-        <label for="r-side">Side</label>
-        <select id="r-side">
-          <option>Hui Huang's side</option>
-          <option>Mayyi's side</option>
-          <option>Both, actually</option>
-        </select>
-      </div>
-
-      <div class="meal-group">
-        <div class="label">Meal preference</div>
-        <div class="meal-pick">
-          <label data-meal="western" tabindex="0">
-            <input type="radio" name="meal" value="western" />
-            <span class="title">Western</span>
-            <span class="desc">Roast · seasonal</span>
-          </label>
-          <label data-meal="asian" tabindex="0" class="checked">
-            <input type="radio" name="meal" value="asian" checked />
-            <span class="title">Asian</span>
-            <span class="desc">Eight-course</span>
-          </label>
-          <label data-meal="veg" tabindex="0">
-            <input type="radio" name="meal" value="veg" />
-            <span class="title">Vegetarian</span>
-            <span class="desc">Garden plates</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="field full">
-        <label for="r-msg">A message to the couple</label>
-        <textarea id="r-msg" placeholder="Anything — well wishes, a song request, a memory…"></textarea>
-      </div>
-
-      <div class="submit-row">
-        <div class="helper">We'll send confirmation by email.</div>
-        <button type="submit">Send our reply →</button>
-      </div>
-    </form>
-
-    <div class="rsvp-success" id="rsvp-success" style="grid-column: 1 / -1;">
-      <div class="heart">&amp;</div>
-      <h4>Thank you, kindly.</h4>
-      <p>We've noted your reply. See you on the mountaintop.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ────────────────────────────────────── -->
-<!-- PHOTOS                                  -->
-<!-- ────────────────────────────────────── -->
-<section class="s dark" id="photos">
-  <div class="section-head reveal">
-    <div class="num">— V · Moments —</div>
-    <h2 data-parallax="0.03">A few from <em>our</em> chapter so far</h2>
-    <div class="sub">Drag a photo onto any frame to fill it in. The shapes are kept on purpose — a little composition for the eye.</div>
-  </div>
-
-  <div class="photo-grid">
-    <div class="slot a reveal d1" data-caption="i · Penang, 2024">
-      <picture>
-        <source media="(max-width: 600px)"  srcset="../assets/wedding/crops/ZEN-1625-mobile.webp" />
-        <source media="(max-width: 960px)"  srcset="../assets/wedding/crops/ZEN-1625-wide.webp" />
-        <img src="../assets/wedding/ZEN-1625.webp" alt="Couple portrait" />
-      </picture>
-    </div>
-    <div class="slot b reveal d2" data-caption="ii · Tokyo">
-      <picture>
-        <source media="(max-width: 600px)"  srcset="../assets/wedding/crops/ZEN-2311-mobile.webp" />
-        <source media="(max-width: 960px)"  srcset="../assets/wedding/crops/ZEN-2311-tablet.webp" />
-        <img src="../assets/wedding/ZEN-2311.webp" alt="At home candid" />
-      </picture>
-    </div>
-    <div class="slot c reveal d3" data-caption="iii · The proposal">
-      <picture>
-        <source media="(max-width: 600px)"  srcset="../assets/wedding/crops/ZEN-2178-mobile.webp" />
-        <source media="(max-width: 960px)"  srcset="../assets/wedding/crops/ZEN-2178-tablet.webp" />
-        <img src="../assets/wedding/ZEN-2178.webp" alt="Walking together" />
-      </picture>
-    </div>
-    <div class="slot d reveal d4" data-caption="iv · Family">
-      <picture>
-        <source media="(max-width: 600px)"  srcset="../assets/wedding/crops/ZEN-2252-mobile.webp" />
-        <source media="(max-width: 960px)"  srcset="../assets/wedding/crops/ZEN-2252-wide.webp" />
-        <img src="../assets/wedding/ZEN-2252.webp" alt="Fun outdoor moment" />
-      </picture>
-    </div>
-  </div>
-</section>
-
-<!-- ────────────────────────────────────── -->
-<!-- FOOTER                                  -->
-<!-- ────────────────────────────────────── -->
-<footer class="bottom">
-  <svg class="branch-f tl" viewBox="0 0 280 220" aria-hidden="true"><use href="#branch" /></svg>
-  <svg class="branch-f br" viewBox="0 0 280 220" aria-hidden="true"><use href="#branch" /></svg>
-
-  <div class="reveal">
-    <div class="quote">
-      <span class="em">— And so —</span>
-      see you at the<br/>mountaintop
-    </div>
-    <div class="mtn-wrap">
-      <svg viewBox="0 0 480 160" width="420" height="140" style="max-width: 100%;">
-        <use href="#mountains" />
+  <!-- ============ 01 · HERO ============ -->
+  <section class="hero">
+    <p class="label top">Our wedding</p>
+    <div class="hero-photo curved">
+      <img class="shot" src="../assets/demos/wedding-mauve-garden/pho-01-hero.webp" width="1200" height="1500"
+           alt="The bride and groom nose to nose beneath a sheer veil, holding a pastel bouquet.">
+      <svg class="curve curve-h to-ground" viewBox="0 0 480 60" preserveAspectRatio="none" aria-hidden="true">
+        <path class="fill" d="M0 18 C150 72 320 -6 480 34 L480 60 L0 60 Z"/>
+        <path class="line" d="M0 18 C150 72 320 -6 480 34"/>
       </svg>
+      <svg class="curve-v" viewBox="0 0 110 900" preserveAspectRatio="none" aria-hidden="true">
+        <path class="fill" d="M60 0 C118 240 8 560 78 900 L110 900 L110 0 Z"/>
+        <path class="line" d="M60 0 C118 240 8 560 78 900"/>
+      </svg>
+      <img class="floral-m" src="../assets/demos/wedding-mauve-garden/hero-cluster-m.webp" width="600" height="800" alt="">
     </div>
-    <div class="sig">
-      <span>Hui Huang × Mayyi</span>
-      <span class="center">&amp;</span>
-      <span>Genting · 2027</span>
-    </div>
-  </div>
-</footer>
 
-<!-- ────────────────────────────────────── -->
-<!-- SCRIPTS                                 -->
-<!-- ────────────────────────────────────── -->
+    <div class="hero-copy">
+      <div class="stack">
+        <p class="label desk">Our wedding</p>
+        <h1 class="names">Hui Huang<span class="amp">&amp;</span>Mayyi</h1>
+        <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+        <p class="date">20 · 06 · 2027</p>
+        <p>We can't wait to celebrate with you.</p>
+        <p class="label" style="margin-top:12px">Until the wedding</p>
+        <div class="countdown" aria-label="Countdown to the wedding">
+          <div><b id="cd-days">000</b><span>Days</span></div>
+          <div><b id="cd-hours">00</b><span>Hours</span></div>
+          <div><b id="cd-minutes">00</b><span>Minutes</span></div>
+          <div><b id="cd-seconds">00</b><span>Seconds</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 · INVITATION ============ -->
+  <section class="sec on-panel invite">
+    <svg class="seam to-ground" viewBox="0 0 480 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H480 V14 C330 40 160 -4 0 22 Z"/></svg>
+    <div class="wrap">
+      <div class="photo curved">
+        <img src="../assets/demos/wedding-mauve-garden/pho-02-home.webp" width="1400" height="933" loading="lazy"
+             alt="The couple laughing together at home in matching cream knit sweaters.">
+        <svg class="curve to-panel" viewBox="0 0 480 60" preserveAspectRatio="none" aria-hidden="true">
+          <path class="fill" d="M0 30 C170 -8 300 70 480 20 L480 60 L0 60 Z"/>
+          <path class="line" d="M0 30 C170 -8 300 70 480 20"/>
+        </svg>
+      </div>
+      <div class="stack">
+        <h2 class="title">Dear friends</h2>
+        <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+        <p>We would be so happy to share this day with the people who have walked with us this far.</p>
+        <p>Please join us on the lawn at The RuMa for our wedding.</p>
+        <svg class="heart" aria-hidden="true"><use href="#i-heart"/></svg>
+      </div>
+      <div class="spray-wrap">
+        <img class="spray" src="../assets/demos/wedding-mauve-garden/invite-garland-m.webp" width="1120" height="420" loading="lazy" alt="">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02b · GALLERY · 3D card deck, a carousel at every width ============ -->
+  <section class="sec on-panel gallery" aria-roledescription="carousel" aria-label="Our moments">
+    <div class="wrap stack">
+      <h2 class="title">Our moments</h2>
+      <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+    </div>
+    <div class="deck" id="deck" tabindex="0" aria-label="Photo carousel, use the arrow keys">
+      <figure class="card" aria-roledescription="slide" aria-label="1 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-01.webp" width="720" height="1280" loading="lazy" alt="The bride laughing, leaning on the groom's shoulder on the lawn."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="2 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-02.webp" width="720" height="1280" loading="lazy" alt="The bride holding a plush toy at home, the groom reading behind her."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="3 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-03.webp" width="720" height="1280" loading="lazy" alt="The couple in black evening wear, the groom leaning back into the bride's arms."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="4 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-04.webp" width="720" height="1280" loading="lazy" alt="The bride and groom walking together across the lawn."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="5 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-05.webp" width="720" height="1280" loading="lazy" alt="The couple on the bed with bread and snacks, laughing at the camera."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="6 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-06.webp" width="720" height="1280" loading="lazy" alt="The couple in black evening wear walking along a white veranda."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="7 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-07.webp" width="720" height="1280" loading="lazy" alt="The bride and groom nose to nose on the lawn, holding a pastel bouquet."></figure>
+      <figure class="card" aria-roledescription="slide" aria-label="8 of 8"><img src="../assets/demos/wedding-mauve-garden/gallery-08.webp" width="720" height="1280" loading="lazy" alt="The couple in black evening wear seated among flowers."></figure>
+    </div>
+    <div class="deck-nav">
+      <button class="deck-btn" type="button" data-dir="-1" aria-label="Previous photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <p class="deck-count" aria-live="polite"><span id="deck-i">01</span> / 08</p>
+      <button class="deck-btn" type="button" data-dir="1" aria-label="Next photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+  </section>
+
+  <!-- ============ 03 · PROGRAMME ============ -->
+  <section class="sec on-ground">
+    <svg class="seam to-panel" viewBox="0 0 480 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H480 V20 C300 -4 170 40 0 12 Z"/></svg>
+    <div class="wrap stack">
+      <h2 class="title">Programme of the day</h2>
+      <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+      <ol class="tl">
+        <li><span class="dot"><svg aria-hidden="true"><use href="#i-glasses"/></svg></span><div><b>3:30 PM</b><span>Guests arrive, welcome drinks</span></div></li>
+        <li><span class="dot"><svg aria-hidden="true"><use href="#i-rings"/></svg></span><div><b>4:00 PM</b><span>Ceremony on the lawn</span></div></li>
+        <li><span class="dot"><svg aria-hidden="true"><use href="#i-camera"/></svg></span><div><b>4:45 PM</b><span>Toasts and photos</span></div></li>
+        <li><span class="dot"><svg aria-hidden="true"><use href="#i-plate"/></svg></span><div><b>7:00 PM</b><span>Dinner in the ballroom</span></div></li>
+        <li><span class="dot"><svg aria-hidden="true"><use href="#i-music"/></svg></span><div><b>9:30 PM</b><span>First dance and party</span></div></li>
+        <li><span class="dot"><svg aria-hidden="true"><use href="#i-sparkle"/></svg></span><div><b>11:00 PM</b><span>Sparkler send-off</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ 04 · VENUE ============ -->
+  <section class="sec on-panel venue">
+    <svg class="seam to-ground" viewBox="0 0 480 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H480 V14 C330 40 160 -4 0 22 Z"/></svg>
+    <div class="wrap">
+      <div class="stack">
+        <h2 class="title">The venue</h2>
+        <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+        <div class="venue-addr">
+          <svg aria-hidden="true"><use href="#i-pin"/></svg>
+          <p>The RuMa Hotel and Residences<br>7 Jalan Kia Peng, 50450 Kuala Lumpur</p>
+        </div>
+        <a class="btn" href="https://maps.google.com/?q=The+RuMa+Hotel+and+Residences+Kuala+Lumpur" target="_blank" rel="noopener">View on map</a>
+      </div>
+      <div class="photo curved">
+        <img src="../assets/demos/wedding-mauve-garden/pho-03-venue.webp" width="1400" height="933" loading="lazy"
+             alt="The bride and groom walking across the open lawn, forested hills behind them.">
+        <svg class="curve to-panel" viewBox="0 0 480 60" preserveAspectRatio="none" aria-hidden="true">
+          <path class="fill" d="M0 22 C140 64 330 0 480 40 L480 60 L0 60 Z"/>
+          <path class="line" d="M0 22 C140 64 330 0 480 40"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 · DRESS CODE ============ -->
+  <section class="sec on-ground">
+    <svg class="seam to-panel" viewBox="0 0 480 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H480 V20 C300 -4 170 40 0 12 Z"/></svg>
+    <div class="wrap stack">
+      <h2 class="title">Dress code</h2>
+      <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+      <p>Garden formal. We'd love it if you wore something from this palette. Flat shoes help on the grass.</p>
+      <div class="swatches" role="img" aria-label="Sand, blush, mauve, sage and charcoal">
+        <i style="background:#E6D2BA"></i><i style="background:#D8B4BC"></i><i style="background:#9C6B7B"></i><i style="background:#7F8C6B"></i><i style="background:#3A3538"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 · RSVP ============ -->
+  <section class="sec on-panel rsvp">
+    <svg class="seam to-ground" viewBox="0 0 480 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H480 V14 C330 40 160 -4 0 22 Z"/></svg>
+    <img class="floral-tr" src="../assets/demos/wedding-mauve-garden/rsvp-cluster.webp" width="640" height="800" loading="lazy" alt="">
+    <div class="wrap">
+      <div class="rsvp-photo curved">
+        <img src="../assets/demos/wedding-mauve-garden/pho-04-rsvp.webp" width="1000" height="1400" loading="lazy"
+             alt="The couple in black evening wear walking along a white colonial veranda.">
+        <svg class="curve to-panel" viewBox="0 0 480 60" preserveAspectRatio="none" aria-hidden="true">
+          <path class="fill" d="M0 30 C170 -8 300 70 480 20 L480 60 L0 60 Z"/>
+          <path class="line" d="M0 30 C170 -8 300 70 480 20"/>
+        </svg>
+      </div>
+
+      <div class="stack">
+        <h2 class="title">Guest reply</h2>
+        <svg class="sprig" aria-hidden="true"><use href="#i-sprig"/></svg>
+
+        <form class="form" id="rsvp-form">
+          <fieldset>
+            <legend class="label">Please confirm your attendance</legend>
+            <label class="opt"><input type="radio" name="attendance" value="yes" required> Joyfully accepts</label>
+            <label class="opt"><input type="radio" name="attendance" value="no"> Regretfully declines</label>
+          </fieldset>
+
+          <div class="q">
+            <label class="label" for="guest-name">Your full name</label>
+            <input class="field" id="guest-name" name="name" autocomplete="name" placeholder="Type here" required>
+          </div>
+
+          <fieldset>
+            <legend class="label">Drinks</legend>
+            <p class="hint" style="text-align:center;margin:-4px 0 4px">What would you prefer?</p>
+            <label class="opt"><input type="radio" name="drinks" value="wine"> Wine (red or white)</label>
+            <label class="opt"><input type="radio" name="drinks" value="champagne"> Champagne</label>
+            <label class="opt"><input type="radio" name="drinks" value="none"> Non-alcoholic</label>
+          </fieldset>
+
+          <div class="q">
+            <label class="label" for="guest-note">Your wishes</label>
+            <p class="hint">A few warm words for the couple</p>
+            <textarea class="field" id="guest-note" name="note" placeholder="Type here"></textarea>
+          </div>
+
+          <button class="btn solid" type="submit">Send reply</button>
+        </form>
+
+        <div class="done" id="rsvp-done" hidden aria-live="polite">
+          <p class="title">Thank you</p>
+          <p style="margin-top:8px">We've noted your reply. See you on the lawn.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 07 · CLOSING ============ -->
+  <section class="sec on-ground closing">
+    <svg class="seam to-panel" viewBox="0 0 480 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H480 V20 C300 -4 170 40 0 12 Z"/></svg>
+    <div class="wrap stack">
+      <p class="script">Thank you for being with us<br>on this special day</p>
+      <svg class="heart" aria-hidden="true"><use href="#i-heart"/></svg>
+      <img class="spray" src="../assets/demos/wedding-mauve-garden/floral-spray-bottom.webp" width="1600" height="600" loading="lazy" alt="">
+    </div>
+  </section>
+
+</main>
+
 <script>
-// ── Live countdown ──────────────────────────────────────────────
-(function(){
-  const target = new Date(Date.UTC(2027, 5, 20, 3, 0, 0));
-  const el = {
-    d: document.getElementById('cd-days'),
-    h: document.getElementById('cd-hours'),
-    m: document.getElementById('cd-mins'),
-    s: document.getElementById('cd-secs'),
-  };
-  let prev = {};
-  function setNum(node, val) {
-    const text = String(val).padStart(2, '0');
-    if (prev[node.id] === text) return;
-    prev[node.id] = text;
-    node.classList.remove('num-flip');
-    void node.offsetWidth;
-    node.textContent = text;
-    node.classList.add('num-flip');
-  }
+  const animate = !matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window;
+
+  const weddingDate = new Date('2027-06-20T16:00:00+08:00');
+  const parts = ['days', 'hours', 'minutes', 'seconds'];
   function tick() {
-    const now = new Date();
-    let diff = Math.max(0, (target - now) / 1000);
-    const d = Math.floor(diff / 86400); diff -= d * 86400;
-    const h = Math.floor(diff / 3600);  diff -= h * 3600;
-    const m = Math.floor(diff / 60);    diff -= m * 60;
-    const s = Math.floor(diff);
-    el.d.textContent = String(d);
-    setNum(el.h, h);
-    setNum(el.m, m);
-    setNum(el.s, s);
+    const ms = Math.max(0, weddingDate - new Date());
+    const v = [Math.floor(ms / 86400000), Math.floor(ms / 3600000) % 24, Math.floor(ms / 60000) % 60, Math.floor(ms / 1000) % 60];
+    parts.forEach((p, i) => {
+      const el = document.getElementById('cd-' + p);
+      const text = String(v[i]).padStart(p === 'days' ? 3 : 2, '0');
+      if (el.textContent === text) return;
+      el.textContent = text;
+      if (animate) { el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick'); }
+    });
   }
   tick();
   setInterval(tick, 1000);
-})();
 
-// ── Meal radio chip toggle ──────────────────────────────────────
-document.querySelectorAll('.meal-pick label').forEach(lbl => {
-  lbl.addEventListener('click', () => {
-    document.querySelectorAll('.meal-pick label').forEach(l => l.classList.remove('checked'));
-    lbl.classList.add('checked');
-    const r = lbl.querySelector('input'); if (r) r.checked = true;
+  document.getElementById('rsvp-form').addEventListener('submit', e => {
+    e.preventDefault();
+    e.currentTarget.hidden = true;
+    document.getElementById('rsvp-done').hidden = false;
   });
-});
 
-// ── RSVP submit ─────────────────────────────────────────────────
-const rsvpForm = document.getElementById('rsvp-form');
-rsvpForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  rsvpForm.style.display = 'none';
-  document.querySelector('.rsvp-intro').style.display = 'none';
-  document.getElementById('rsvp-success').classList.add('shown');
-});
+  // ---------- gallery: 3D card deck ----------
+  (function () {
+    const deck = document.getElementById('deck');
+    const cards = [...deck.querySelectorAll('.card')];
+    const n = cards.length;
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const counter = document.getElementById('deck-i');
+    let current = 0, running = null, timer = null, inView = false, held = false;
 
-// ── Reveal on scroll ────────────────────────────────────────────
-const io = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-}, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
-document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-// ── Parallax scrolling (multi-layer) ────────────────────────────
-const heroPic = document.querySelector('.hero .right .pic-wrap');
-const parallaxEls = document.querySelectorAll('[data-parallax]');
-const branches = document.querySelectorAll('.branch, .branch-f');
-let ticking = false;
-
-window.addEventListener('scroll', () => {
-  if (ticking) return;
-  ticking = true;
-  requestAnimationFrame(() => {
-    const scrollY = window.scrollY;
-    const vh = window.innerHeight;
-
-    // Hero image parallax
-    if (heroPic) {
-      const y = Math.min(scrollY, 600);
-      heroPic.style.transform = `translateY(${y * 0.08}px)`;
+    const posOf = i => { const d = (i - current + n) % n; return d < 3 ? String(d) : 'back'; };
+    function layout() {
+      cards.forEach((c, i) => {
+        c.dataset.pos = posOf(i);
+        c.setAttribute('aria-hidden', c.dataset.pos === '0' ? 'false' : 'true');
+      });
+      counter.textContent = String(current + 1).padStart(2, '0');
     }
 
-    // Section heading parallax
-    parallaxEls.forEach(el => {
-      const rect = el.getBoundingClientRect();
-      const center = rect.top + rect.height / 2;
-      const offset = (center - vh / 2) * parseFloat(el.dataset.parallax);
-      el.style.transform = `translateY(${offset}px)`;
+    // Going forward, the front card swings out to the left, sinks, and slides in behind the deck.
+    // Going back, the reverse: the rearmost card comes out from behind and swings to the front.
+    const away = [
+      { transform: 'translate3d(0,0,0) rotateY(0deg)', opacity: 1, zIndex: 6, offset: 0 },
+      { transform: 'translate3d(-78%,0,-110px) rotateY(24deg)', opacity: 1, zIndex: 6, offset: .42 },
+      { transform: 'translate3d(-36%,0,-280px) rotateY(12deg)', opacity: .55, zIndex: 0, offset: .7 },
+      { transform: 'translate3d(60%,0,-300px) rotateY(-20deg)', opacity: 0, zIndex: 0, offset: 1 },
+    ];
+    function go(dir) {
+      if (running) running.finish();  // a new input completes the move in progress instead of being dropped
+      const mover = dir > 0 ? cards[current] : cards[(current - 1 + n) % n];
+      current = (current + dir + n) % n;
+      if (still || !mover.animate) { layout(); return; }
+      mover.style.transition = 'none';
+      const a = running = mover.animate(dir > 0 ? away : [...away].reverse().map(k => ({ ...k, offset: 1 - k.offset })),
+        { duration: 900, easing: 'cubic-bezier(.4,0,.2,1)' });
+      layout();
+      a.onfinish = a.oncancel = () => { mover.style.transition = ''; if (running === a) running = null; };
+    }
+
+    function stop() { clearInterval(timer); timer = null; }
+    function start() {
+      stop();
+      if (!still && inView && !held && !document.hidden) timer = setInterval(() => go(1), 3600);
+    }
+    const nudge = dir => { go(dir); start(); };
+
+    document.querySelectorAll('.deck-btn').forEach(b => b.addEventListener('click', () => nudge(+b.dataset.dir)));
+    deck.closest('.gallery').addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); nudge(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); nudge(-1); }
+    });
+    let x0 = null;
+    deck.addEventListener('pointerdown', e => { x0 = e.clientX; });
+    deck.addEventListener('pointerup', e => {
+      if (x0 === null) return;
+      const dx = e.clientX - x0; x0 = null;
+      if (Math.abs(dx) > 40) nudge(dx < 0 ? 1 : -1);
+      else if (e.target.closest('.card') && e.target.closest('.card').dataset.pos !== '0') nudge(1);
+    });
+    deck.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { held = true; stop(); } });
+    deck.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') { held = false; start(); } });
+    deck.addEventListener('focusin', () => { held = true; stop(); });
+    deck.addEventListener('focusout', () => { held = false; start(); });
+    document.addEventListener('visibilitychange', start);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => { inView = e.isIntersecting; start(); }, { threshold: .35 }).observe(deck);
+    }
+
+    layout();
+  })();
+
+  if (animate) {
+    document.documentElement.classList.add('anim');
+
+    // Draw a gold hairline. With vector-effect:non-scaling-stroke the dashes are laid out
+    // in screen space, so measure the path on screen. The dash styles are removed once the
+    // line is drawn, so the final state is always the plain, full stroke.
+    function draw(path, delay) {
+      const svg = path.ownerSVGElement;
+      if (!svg.getBoundingClientRect().width) return;
+      const m = svg.getScreenCTM(), total = path.getTotalLength();
+      let len = 0, prev = null;
+      for (let k = 0; k <= 40; k++) {
+        const pt = path.getPointAtLength(total * k / 40).matrixTransform(m);
+        if (prev) len += Math.hypot(pt.x - prev.x, pt.y - prev.y);
+        prev = pt;
+      }
+      len = Math.ceil(len) + 2;
+      path.style.strokeDasharray = len;
+      path.style.strokeDashoffset = len;
+      path.getBoundingClientRect();
+      path.style.transitionDelay = (delay || 0) + 's';
+      path.classList.add('draw');
+      path.style.strokeDashoffset = 0;
+      path.addEventListener('transitionend', () => {
+        path.classList.remove('draw');
+        path.style.strokeDasharray = path.style.strokeDashoffset = path.style.transitionDelay = '';
+      }, { once: true });
+    }
+
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+      e.target.querySelectorAll('.curve .line').forEach(l => draw(l, .35));
+    }), { rootMargin: '0px 0px -8% 0px', threshold: .12 });
+
+    const reveal = (els, cls, step) => els.forEach((el, i) => {
+      if (cls) el.classList.add(cls);
+      el.style.setProperty('--d', Math.min(i * step, .6) + 's');
+      io.observe(el);
     });
 
-    // Botanical branches float gently
-    branches.forEach((br, i) => {
-      const drift = Math.sin(scrollY * 0.003 + i) * 8;
-      br.style.setProperty('--drift', drift + 'px');
-    });
+    // hero, on load
+    document.querySelectorAll('.hero-copy .stack > *').forEach((el, i) => el.style.setProperty('--i', i));
+    document.querySelectorAll('.hero .curve-h .line, .hero .curve-v .line').forEach(l => draw(l, .6));
 
-    ticking = false;
-  });
-});
+    // every section: its stacked copy, then lists and form fields item by item
+    document.querySelectorAll('.sec .stack').forEach(stack =>
+      reveal([...stack.children].filter(c => !c.matches('.tl, .form, .swatches, .done')), 'rv', .08));
+    reveal([...document.querySelectorAll('.tl > li')], 'rv', .12);
+    reveal([...document.querySelectorAll('.swatches > i')], 'rv-pop', .08);
+    reveal([...document.querySelectorAll('.form > *')], 'rv', .06);
+    reveal([...document.querySelectorAll('.sec .photo, .rsvp-photo, .spray, .rsvp .floral-tr')], 'rv', 0);
+    document.querySelectorAll('.tl').forEach(tl => io.observe(tl));
 
-// ── Sparkle particles ───────────────────────────────────────────
-(function() {
-  const container = document.getElementById('particles');
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReduced) return;
-
-  const COUNT = 25;
-  const types = ['', 'gold', 'white'];
-  for (let i = 0; i < COUNT; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'dot ' + types[i % 3];
-    dot.style.left = Math.random() * 100 + '%';
-    dot.style.top = Math.random() * 100 + '%';
-    dot.style.animationDuration = (4 + Math.random() * 6) + 's';
-    dot.style.animationDelay = (Math.random() * 8) + 's';
-    dot.style.width = dot.style.height = (2 + Math.random() * 3) + 'px';
-    container.appendChild(dot);
+    // Anything sitting in the last strip of the page can never clear the observer's bottom margin,
+    // so once the reader reaches the end, show whatever is still waiting.
+    addEventListener('scroll', function atEnd() {
+      if (innerHeight + scrollY < document.documentElement.scrollHeight - 4) return;
+      document.querySelectorAll('.rv:not(.in), .rv-pop:not(.in)').forEach(el => { el.classList.add('in'); io.unobserve(el); });
+      removeEventListener('scroll', atEnd);
+    }, { passive: true });
   }
-})();
-
-// ── Lightbox ────────────────────────────────────────────────────
-(function() {
-  const lb = document.getElementById('lightbox');
-  const lbImg = lb.querySelector('img');
-  const lbCap = lb.querySelector('.lb-caption');
-
-  document.querySelectorAll('.photo-grid .slot').forEach(slot => {
-    slot.addEventListener('click', () => {
-      const img = slot.querySelector('img');
-      if (!img) return;
-      lbImg.src = img.src;
-      lbImg.alt = img.alt;
-      lbCap.textContent = slot.dataset.caption || '';
-      lb.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    });
-  });
-
-  function closeLb() {
-    lb.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  lb.addEventListener('click', closeLb);
-  lb.querySelector('.lb-close').addEventListener('click', (e) => { e.stopPropagation(); closeLb(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
-})();
-
-// ── Background music (auto-play on scroll + toggle) ─────────────
-(function() {
-  const btn = document.getElementById('music-btn');
-  let audio = null;
-  let playing = false;
-  let started = false;
-  let manualPause = false;
-
-  function initAudio() {
-    if (!audio) {
-      audio = new Audio();
-      audio.loop = true;
-      audio.src = 'https://assets.mixkit.co/music/657/657.mp3';
-    }
-  }
-
-  // On first touch/click: start audio at volume 0 (browser allows play() inside gesture).
-  // Then scroll listener fades volume up once user scrolls past 100px.
-  function onGesture() {
-    if (started || manualPause) return;
-    initAudio();
-    audio.volume = 0;
-    audio.play().then(() => { started = true; }).catch(() => {});
-  }
-
-  function onScroll() {
-    if (!started || manualPause || !audio) return;
-    if (window.scrollY > 100) {
-      audio.volume = 0.5;
-      btn.classList.remove('paused');
-      playing = true;
-      window.removeEventListener('scroll', onScroll);
-    }
-  }
-
-  ['touchstart', 'pointerdown', 'keydown'].forEach(evt =>
-    document.addEventListener(evt, onGesture, { passive: true })
-  );
-  window.addEventListener('scroll', onScroll, { passive: true });
-
-  btn.addEventListener('click', () => {
-    initAudio();
-    if (playing) {
-      audio.pause();
-      btn.classList.add('paused');
-      playing = false;
-      manualPause = true;
-    } else {
-      audio.volume = 0.5;
-      audio.play().catch(() => {});
-      btn.classList.remove('paused');
-      playing = true;
-      manualPause = false;
-      started = true;
-    }
-  });
-})();
 </script>
-<script>document.addEventListener('contextmenu',function(e){if(e.target.tagName==='IMG'||getComputedStyle(e.target).backgroundImage!=='none')e.preventDefault()});document.addEventListener('dragstart',function(e){if(e.target.tagName==='IMG')e.preventDefault()});</script>
-
-<!-- GSAP + ScrollTrigger (free, GPU-accelerated) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/ScrollTrigger.min.js"></script>
-
-<!-- ────────────────────────────────────── -->
-<!-- DESIGN ANNOTATIONS v3 — Hand-drawn     -->
-<!-- ────────────────────────────────────── -->
-<style>
-.anno-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 60;
-  pointer-events: none;
-  overflow: visible;
-}
-.anno-path, .anno-path-glow {
-  fill: none;
-  stroke: var(--rose);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.anno-path {
-  stroke-width: 0.35;
-  filter: drop-shadow(0 0 6px rgba(196,135,142,0.4));
-}
-.anno-path-glow {
-  stroke-width: 1;
-  opacity: 0.15;
-  filter: blur(4px);
-}
-.anno-dot {
-  fill: var(--rose);
-  opacity: 0;
-  filter: drop-shadow(0 0 3px var(--rose)) drop-shadow(0 0 8px rgba(196,135,142,0.6));
-}
-.anno-dot-trail {
-  fill: none;
-  stroke: var(--rose);
-  opacity: 0;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.anno-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 59;
-  background: rgba(0,0,0,0.55);
-  opacity: 0;
-  pointer-events: none;
-  cursor: pointer;
-}
-.anno-overlay.active { pointer-events: auto; touch-action: manipulation; }
-
-.anno-num {
-  position: absolute;
-  top: 12px;
-  left: 24px;
-  z-index: 62;
-  opacity: 0;
-  transform: translateY(8px);
-}
-.anno-num span {
-  display: inline-block;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  color: var(--cream);
-  background: var(--rose);
-  padding: 5px 16px;
-  border-radius: 999px;
-  box-shadow: 0 2px 12px rgba(196,135,142,0.3);
-}
-
-.anno-detail {
-  position: absolute;
-  z-index: 63;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.88);
-  width: 380px;
-  max-width: 90%;
-  opacity: 0;
-  pointer-events: none;
-}
-.anno-detail.active { pointer-events: auto; }
-.anno-detail-card {
-  background: rgba(42,36,24,0.96);
-  border: 1.5px solid var(--rose);
-  border-radius: 16px;
-  padding: 32px 28px 28px;
-  color: var(--cream);
-  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(16px);
-}
-.anno-detail-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--rose), var(--rose-d), var(--forest));
-}
-.anno-detail-close {
-  position: absolute;
-  top: 12px; right: 14px;
-  width: 36px; height: 36px;
-  touch-action: manipulation;
-  border: 1px solid rgba(196,135,142,0.3);
-  border-radius: 50%;
-  background: none;
-  color: var(--muted);
-  font-size: 16px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: color 0.2s, border-color 0.2s;
-  line-height: 1;
-}
-.anno-detail-close:hover {
-  color: var(--cream);
-  border-color: var(--rose);
-}
-.anno-detail-num {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.4em;
-  color: var(--rose);
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-.anno-detail-title {
-  font-family: var(--display);
-  font-style: italic;
-  font-size: 24px;
-  margin: 0 0 12px;
-  color: var(--cream);
-  line-height: 1.2;
-}
-.anno-detail-text {
-  font-family: var(--display);
-  font-size: 15px;
-  color: rgba(253,248,240,0.75);
-  line-height: 1.65;
-  margin: 0 0 16px;
-}
-.anno-detail-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-.anno-detail-tag {
-  font-family: var(--mono);
-  font-size: 8px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--rose);
-  border: 1px solid rgba(196,135,142,0.35);
-  padding: 4px 10px;
-  border-radius: 999px;
-}
-
-@media (max-width: 600px) {
-  .anno-detail { width: 300px; }
-  .anno-detail-card { padding: 24px 20px 20px; }
-  .anno-detail-title { font-size: 20px; }
-  .anno-detail-text { font-size: 13px; }
-  .anno-num { top: 8px; left: 12px; }
-}
-</style>
-
-<script>
-gsap.registerPlugin(ScrollTrigger);
-
-(function() {
-  var annoData = [
-    {
-      id: 'hero',
-      section: '.hero',
-      num: '01 · Design',
-      title: 'Magazine-Style First Impression',
-      text: 'Your guests see an elegant full-screen photo with beautifully paired fonts — like opening a luxury wedding magazine. The photo gently reveals itself as the page loads.',
-      tags: ['First Impression', 'Elegant', 'Animated'],
-      delay: 1.5,
-      path: 'M 8,5 C 22,2 40,6 55,3 C 70,0 85,4 95,5 C 98,18 97,35 98,52 C 99,69 97,85 95,95 C 82,98 65,96 50,97 C 35,99 18,96 5,95 C 2,80 3,65 2,50 C 1,35 3,18 8,5 Z',
-    },
-    {
-      id: 'countdown',
-      section: '.countdown-section',
-      num: '02 · Design',
-      title: 'Live Countdown Timer',
-      text: 'A real-time countdown to your big day that updates every second with a smooth flipping animation. Builds excitement every time your guests visit the page!',
-      tags: ['Interactive', 'Real-time', 'Excitement'],
-      delay: 0,
-      path: 'M 6,7 C 20,3 42,5 58,2 C 74,0 88,4 94,6 C 97,22 96,40 97,55 C 98,70 96,88 94,94 C 78,97 60,95 45,97 C 30,99 15,96 6,93 C 3,78 4,60 3,45 C 2,30 4,15 6,7 Z',
-    },
-    {
-      id: 'rsvp',
-      section: '#rsvp',
-      num: '03 · Design',
-      title: 'One-Tap RSVP',
-      text: 'Guests simply tap their meal choice, enter their details, and hit send — no login, no app download. You get all responses collected in one place instantly.',
-      tags: ['Easy', 'No App Needed', 'Instant'],
-      delay: 0,
-      path: 'M 5,4 C 18,1 38,5 52,2 C 68,0 82,3 96,5 C 99,20 97,42 98,58 C 99,74 97,88 95,96 C 80,99 62,96 48,98 C 32,100 16,97 4,95 C 1,80 3,62 2,48 C 1,32 2,16 5,4 Z',
-    },
-    {
-      id: 'photos',
-      section: '#photos',
-      num: '04 · Design',
-      title: 'Photo Gallery with Lightbox',
-      text: 'Showcase your favourite photos in a beautiful layout. Guests can tap any photo to view it full-screen — perfect for sharing your best moments together.',
-      tags: ['Photos', 'Full-screen', 'Beautiful'],
-      delay: 0,
-      path: 'M 7,3 C 25,1 45,5 60,2 C 75,0 90,3 94,6 C 97,20 95,45 97,58 C 99,72 96,90 94,95 C 78,98 58,95 42,97 C 28,99 12,97 5,94 C 2,78 4,58 3,42 C 1,28 3,12 7,3 Z',
-    },
-  ];
-
-  annoData.forEach(function(cfg) {
-    var section = document.querySelector(cfg.section);
-    if (!section) return;
-    section.style.position = 'relative';
-
-    var overlay = document.createElement('div');
-    overlay.className = 'anno-overlay';
-    overlay.dataset.anno = cfg.id;
-    section.appendChild(overlay);
-
-    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'anno-svg');
-    svg.setAttribute('viewBox', '0 0 100 100');
-    svg.setAttribute('preserveAspectRatio', 'none');
-
-    var glowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    glowPath.setAttribute('class', 'anno-path-glow');
-    glowPath.setAttribute('d', cfg.path);
-
-    var mainPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    mainPath.setAttribute('class', 'anno-path');
-    mainPath.setAttribute('d', cfg.path);
-
-    var trailPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    trailPath.setAttribute('class', 'anno-dot-trail');
-    trailPath.setAttribute('d', cfg.path);
-    trailPath.setAttribute('stroke-width', '2.5');
-
-    var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    dot.setAttribute('class', 'anno-dot');
-    dot.setAttribute('r', '2');
-
-    svg.appendChild(glowPath);
-    svg.appendChild(trailPath);
-    svg.appendChild(mainPath);
-    svg.appendChild(dot);
-    section.appendChild(svg);
-
-    var realLen = mainPath.getTotalLength();
-    var glowLen = glowPath.getTotalLength();
-    var trailLen = trailPath.getTotalLength();
-    var trailVisible = realLen * 0.06;
-
-    gsap.set(mainPath, { strokeDasharray: realLen, strokeDashoffset: realLen });
-    gsap.set(glowPath, { strokeDasharray: glowLen, strokeDashoffset: glowLen });
-    gsap.set(trailPath, { strokeDasharray: trailVisible + ' ' + trailLen, strokeDashoffset: trailVisible });
-
-    var num = document.createElement('div');
-    num.className = 'anno-num';
-    num.innerHTML = '<span>' + cfg.num + '</span>';
-    section.appendChild(num);
-
-    var detail = document.createElement('div');
-    detail.className = 'anno-detail';
-    detail.dataset.anno = cfg.id;
-    detail.innerHTML =
-      '<div class="anno-detail-card">' +
-        '<button class="anno-detail-close" aria-label="Close">&times;</button>' +
-        '<div class="anno-detail-num">' + cfg.num + '</div>' +
-        '<div class="anno-detail-title">' + cfg.title + '</div>' +
-        '<p class="anno-detail-text">' + cfg.text + '</p>' +
-        '<div class="anno-detail-tags">' + cfg.tags.map(function(t) { return '<span class="anno-detail-tag">' + t + '</span>'; }).join('') + '</div>' +
-      '</div>';
-    section.appendChild(detail);
-
-    var startPt = mainPath.getPointAtLength(0);
-    gsap.set(dot, { attr: { cx: startPt.x, cy: startPt.y } });
-
-    var tl = gsap.timeline({
-      paused: true,
-      onReverseComplete: function() {
-        overlay.classList.remove('active');
-        detail.classList.remove('active');
-      },
-    });
-
-    var drawDur = 3;
-
-    tl
-      .to(mainPath, {
-        strokeDashoffset: 0,
-        duration: drawDur,
-        ease: 'power1.inOut',
-        onUpdate: function() {
-          var p = this.progress();
-          var pt = mainPath.getPointAtLength(realLen * p);
-          gsap.set(dot, { attr: { cx: pt.x, cy: pt.y } });
-          gsap.set(trailPath, { strokeDashoffset: trailVisible - (trailLen + trailVisible) * p });
-        },
-      }, 0)
-      .to(glowPath, {
-        strokeDashoffset: 0,
-        duration: drawDur,
-        ease: 'power1.inOut',
-      }, 0)
-      .fromTo(dot, { opacity: 0, attr: { r: 0.5 } }, { opacity: 1, attr: { r: 2 }, duration: 0.3, ease: 'back.out(2)' }, 0)
-      .fromTo(trailPath, { opacity: 0 }, { opacity: 0.5, duration: 0.2 }, 0)
-      .to(dot, { attr: { r: 1.5 }, duration: drawDur - 0.5, ease: 'sine.inOut', yoyo: true, repeat: 3 }, 0.3)
-      .to([dot, trailPath], { opacity: 0, duration: 0.4 }, drawDur - 0.2)
-      .to(overlay, { opacity: 1, duration: 1, ease: 'power2.out', onStart: function() { overlay.classList.add('active'); } }, drawDur * 0.25)
-      .to(num, { opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.7)' }, drawDur * 0.4)
-      .to(detail, { opacity: 1, scale: 1, duration: 0.7, ease: 'back.out(1.5)', onStart: function() { detail.classList.add('active'); } }, drawDur * 0.55);
-
-    function dismissAnno() {
-      overlay.classList.remove('active');
-      detail.classList.remove('active');
-      tl.pause();
-      gsap.to([overlay, num, detail, mainPath, glowPath], { opacity: 0, duration: 0.35, ease: 'power2.in', onComplete: function() { tl.progress(0).pause(); } });
-    }
-
-    overlay.addEventListener('click', dismissAnno);
-
-    detail.querySelector('.anno-detail-close').addEventListener('click', function(e) {
-      e.stopPropagation();
-      dismissAnno();
-    });
-
-    detail.addEventListener('click', function(e) { e.stopPropagation(); });
-
-    ScrollTrigger.create({
-      trigger: section,
-      start: 'top 75%',
-      once: true,
-      onEnter: function() {
-        gsap.delayedCall(cfg.delay, function() { tl.timeScale(1).play(); });
-      },
-    });
-  });
-})();
-</script>
-
-<!-- ── Concept-demo label · so this demo is never mistaken for a real client or a live business ── -->
-<a id="h2o-concept-badge" href="https://www.h2o-dreamer-studio.com/" target="_blank" rel="noopener"
-   title="This is a concept demo by H2ODreamer Studio — not a real client or a live business."
-   aria-label="Concept demo by H2ODreamer Studio — not a real client project"
-   style="position:fixed;left:16px;bottom:16px;z-index:2147483000;display:inline-flex;align-items:center;gap:7px;max-width:calc(100vw - 32px);box-sizing:border-box;padding:8px 14px;border-radius:999px;background:rgba(15,15,18,.82);color:#fff;font:600 12px/1.25 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;letter-spacing:.01em;text-decoration:none;border:1px solid rgba(255,255,255,.22);box-shadow:0 8px 26px -10px rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);">
-  <span aria-hidden="true" style="font-size:13px;line-height:1;">✦</span>
-  <span>概念示范作品 · Concept Demo</span>
-</a>
-<script>if(window.top!==window.self){var _b=document.getElementById('h2o-concept-badge');if(_b)_b.remove();}</script>
 </body>
 </html>
