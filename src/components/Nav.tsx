@@ -33,24 +33,26 @@ export function Nav({ lang }: { lang: Lang }) {
     <>
       {/* 哨兵。absolute 不占位，不参与布局。 */}
       <div ref={sentinel} aria-hidden className="absolute top-4 h-px w-full" />
+      {/*
+        `pt-[env(safe-area-inset-top)]` 跟 layout 里的 `viewportFit: "cover"`
+        是一套的，缺一不可：
+
+        cover 让 layout viewport 铺满整屏，`fixed top-0` 才贴得到真正的顶边
+        （不加的话 iOS Safari 把 fixed 关在状态栏下面，正文却满屏绘制，
+        上面那条就一直漏字）；padding 再把导航自己的内容推回状态栏下面，
+        于是这块 `bg-bg` 正好盖住状态栏那一条。
+
+        WhatsAppFab 那边补的是 bottom —— 三处一起看。
+      */}
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-colors duration-200 ${
+        className={`fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] transition-colors duration-200 ${
           scrolled ? "border-b border-hairline bg-bg" : "border-b border-transparent"
         }`}
       >
         {/*
-          往导航**上方**再垫一块实底。
-
-          手机浏览器（Edge 把网址列放底下那种最明显）顶栏一收起，layout viewport
-          就比可视区高，`fixed top-0` 会被摆在真正的屏幕顶端**下面** —— 上面那
-          一条就露出正在滚动的正文，像导航半透明一样。安卓上滚动时顶栏收合的
-          那一下，`fixed` 跟不上合成器，也会闪同样的缝。
-
-          导航贴着屏幕顶的正常情况下，这块整个在视口外，看不见也不影响任何东西；
-          只有真的露缝时它才顶上。h-24 够盖住状态栏加收合动画那点位移。
-
-          `bottom-full` = 紧贴在 header 上缘之上；`fixed` 自己就是包含块，
-          所以 header 不用再加 relative。
+          再往上垫一块实底，兜住安卓那条路：浏览器顶栏收合的那一下，`fixed`
+          跟不上合成器，会闪出同样的缝。导航贴着屏幕顶的正常情况下这块整个在
+          视口外，看不见也不占位。
         */}
         <div
           aria-hidden
