@@ -38,6 +38,26 @@ export function Nav({ lang }: { lang: Lang }) {
           scrolled ? "border-b border-hairline bg-bg" : "border-b border-transparent"
         }`}
       >
+        {/*
+          往导航**上方**再垫一块实底。
+
+          手机浏览器（Edge 把网址列放底下那种最明显）顶栏一收起，layout viewport
+          就比可视区高，`fixed top-0` 会被摆在真正的屏幕顶端**下面** —— 上面那
+          一条就露出正在滚动的正文，像导航半透明一样。安卓上滚动时顶栏收合的
+          那一下，`fixed` 跟不上合成器，也会闪同样的缝。
+
+          导航贴着屏幕顶的正常情况下，这块整个在视口外，看不见也不影响任何东西；
+          只有真的露缝时它才顶上。h-24 够盖住状态栏加收合动画那点位移。
+
+          `bottom-full` = 紧贴在 header 上缘之上；`fixed` 自己就是包含块，
+          所以 header 不用再加 relative。
+        */}
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute inset-x-0 bottom-full h-24 ${
+            scrolled ? "bg-bg" : ""
+          }`}
+        />
         <nav className="mx-auto flex h-14 max-w-[1200px] items-center justify-between gap-6 px-5 sm:px-8">
           <Link
             href={localize("/", lang)}
