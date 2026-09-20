@@ -169,6 +169,19 @@ h2 {
   }
 }
 
+/* 服务档位切换时，左边整块详情淡入一次。位移很小（6px）—— 大了会读成
+   「页面在跳」，而不是「内容换了」。减弱动态偏好由下面那条全局规则接管。 */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

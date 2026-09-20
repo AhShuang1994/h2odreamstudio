@@ -1,5 +1,6 @@
 import { localize, t, type Lang } from "@/lib/i18n";
 import { Button, Container, Eyebrow, OrbSlot } from "@/components/ui";
+import { ServicesPicker } from "@/components/home/ServicesPicker";
 import { site } from "@/content/site";
 import {
   quickAnswer,
@@ -106,7 +107,9 @@ export function QuickAnswer({ lang }: { lang: Lang }) {
 
 export function Services({ lang }: { lang: Lang }) {
   return (
-    <Section id="services" className="relative overflow-hidden">
+    // ⚠️ `overflow-x-clip` 不是 `overflow-hidden`：后者会造出滚动容器，
+    // 让 ServicesPicker 的 sticky 钉不住视口。改之前先看那个组件的注释。
+    <Section id="services" className="relative overflow-x-clip">
       {/* 靛紫球体两处，素材归 #67。位置与合成方式已定死，版面不依赖它。 */}
       <OrbSlot id="services-left" className="-left-[12%] top-[8%] h-[26rem] w-[26rem]" />
       <OrbSlot
@@ -116,34 +119,7 @@ export function Services({ lang }: { lang: Lang }) {
       <Container className="relative">
         <Eyebrow>{t(services.eyebrow, lang)}</Eyebrow>
         <SectionHeading>{t(services.heading, lang)}</SectionHeading>
-        <div className="mt-14 grid gap-px overflow-hidden rounded-xl border border-hairline bg-hairline sm:grid-cols-2">
-          {services.items.map((s, i) => (
-            <a
-              key={i}
-              href={localize(s.href, lang)}
-              className="group flex flex-col bg-surface-1 p-7 transition-colors duration-150 hover:bg-surface-2"
-            >
-              <div className="flex items-center justify-between gap-4">
-                <Ordinal n={i + 1} />
-                <span className="text-sm tabular-nums text-accent">
-                  {t(s.price, lang)}
-                </span>
-              </div>
-              <h3 className="mt-5 text-lg font-medium tracking-[-0.01em] text-ink">
-                {t(s.title, lang)}
-              </h3>
-              <p className="mt-3 text-sm leading-relaxed text-ink-muted">
-                {t(s.desc, lang)}
-              </p>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-sm text-ink-subtle transition-colors group-hover:text-ink">
-                {t({ cn: "了解更多", en: "Learn more" }, lang)}
-                <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
-                  →
-                </span>
-              </span>
-            </a>
-          ))}
-        </div>
+        <ServicesPicker items={services.items} lang={lang} />
       </Container>
     </Section>
   );

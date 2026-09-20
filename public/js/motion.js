@@ -45,6 +45,10 @@
       lenis.destroy();
       lenis = null;
     }
+    // 挂出去给别人用。Lenis 跑起来之后，`window.scrollTo` 会被它下一帧写回去
+    // —— 想把页面挪到某个位置，必须走它的 `scrollTo`，否则只会闪一下就弹回。
+    // 目前的用户是 ServicesPicker（点方块跳到对应的滚动段）。
+    window.__h2odLenis = lenis;
   }
 
   syncSmooth();

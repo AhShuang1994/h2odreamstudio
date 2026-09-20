@@ -67,56 +67,225 @@ export const quickAnswer = {
   ],
 };
 
+/** 轮播里的一张服务卡。`badge` 可选 —— 只有「热门」那两档有。 */
+export type ServiceCard = {
+  id: string;
+  pill: Bilingual;
+  group: Bilingual;
+  badge?: Bilingual;
+  title: Bilingual;
+  /** 方块里放的短名。方块只有一百来 px 宽，`title` 塞不下。 */
+  short: Bilingual;
+  tagline: Bilingual;
+  desc: Bilingual;
+  features: Bilingual[];
+  delivery: Bilingual;
+  revisions: Bilingual;
+  price: Bilingual;
+  href: string;
+  cta: Bilingual;
+  waMessage: Bilingual;
+};
+
+/**
+ * 六个档位，与报价页同一套口径 —— 价格一律取 `prices.json`，这里不硬编码数字。
+ * `pill` 是轮播上方那排跳转标签，短到能一行排完；`title` 才是卡面上的大标题。
+ */
+const serviceItems: ServiceCard[] = [
+    {
+      id: "starter",
+      pill: { cn: "入门版", en: "Starter" } as Bilingual,
+      group: { cn: "网站设计", en: "Website Design" } as Bilingual,
+      title: { cn: "一页式落地页", en: "1-Page Landing" } as Bilingual,
+      short: { cn: "落地页", en: "Landing Page" } as Bilingual,
+      tagline: {
+        cn: "把生意搬上网 —— 最简单的那个开头。",
+        en: "Get your business online — the simplest way to start.",
+      } as Bilingual,
+      desc: {
+        cn: "用可定制模板做一页干净、手机能看的落地页 —— 小生意要在网上看起来像回事，这些就够了。",
+        en: "A clean, mobile-ready landing page built from a customizable template — everything a small business needs to look real online.",
+      } as Bilingual,
+      features: [
+        { cn: "单页设计（最多 4 个区块）", en: "1-page design (up to 4 sections)" } as Bilingual,
+        { cn: "手机响应式", en: "Mobile responsive" } as Bilingual,
+        { cn: "可定制模板", en: "Customizable template" } as Bilingual,
+        { cn: "1 个简单联络表单", en: "1 simple contact form" } as Bilingual,
+      ],
+      delivery: { cn: "3–5 天", en: "3–5 days" } as Bilingual,
+      revisions: { cn: "1 次修改", en: "1 revision round" } as Bilingual,
+      price: { cn: `${prices.starter} 起`, en: `From ${prices.starter}` } as Bilingual,
+      href: "/landing-page",
+      cta: { cn: "用入门版开始", en: "Start with Starter" } as Bilingual,
+      waMessage: {
+        cn: "Hi H2ODreamer！我想问入门版落地页。",
+        en: "Hi H2ODreamer! I'd like to ask about the Starter landing page.",
+      } as Bilingual,
+    },
+    {
+      id: "basic",
+      pill: { cn: "进阶版", en: "Basic" } as Bilingual,
+      group: { cn: "网站设计", en: "Website Design" } as Bilingual,
+      badge: { cn: "热门", en: "Popular" } as Bilingual,
+      title: { cn: "一页式落地页", en: "1-Page Landing" } as Bilingual,
+      short: { cn: "落地页", en: "Landing Page" } as Bilingual,
+      tagline: {
+        cn: "真正能给你带来询盘的那一页。",
+        en: "The page that actually brings you enquiries.",
+      } as Bilingual,
+      desc: {
+        cn: "完全定制设计的落地页，内建 WhatsApp 在线聊天、基础 SEO 与数据分析 —— 让 Google 找得到你，客户联系得上你。",
+        en: "A custom-designed landing page with WhatsApp chat, SEO basics and analytics built in — so Google can find you and customers can reach you.",
+      } as Bilingual,
+      features: [
+        { cn: "单页设计（最多 5 个区块）", en: "1-page design (up to 5 sections)" } as Bilingual,
+        { cn: "完全定制设计", en: "Fully customizable design" } as Bilingual,
+        { cn: "基础 SEO", en: "Basic SEO" } as Bilingual,
+        { cn: "WhatsApp 在线聊天", en: "WhatsApp live chat" } as Bilingual,
+        { cn: "Facebook Pixel 与 Google Analytics", en: "Facebook Pixel & Google Analytics" } as Bilingual,
+      ],
+      delivery: { cn: "5–7 天", en: "5–7 days" } as Bilingual,
+      revisions: { cn: "2 次修改", en: "2 revision rounds" } as Bilingual,
+      price: { cn: `${prices.basic} 起`, en: `From ${prices.basic}` } as Bilingual,
+      href: "/landing-page",
+      cta: { cn: "做我的落地页", en: "Build my landing page" } as Bilingual,
+      waMessage: {
+        cn: "Hi H2ODreamer！我想做进阶版落地页。",
+        en: "Hi H2ODreamer! I'd like the Basic landing page.",
+      } as Bilingual,
+    },
+    {
+      id: "standard",
+      pill: { cn: "企业版", en: "Standard" } as Bilingual,
+      group: { cn: "网站设计", en: "Website Design" } as Bilingual,
+      title: { cn: "多页企业官网", en: "Corporate Website" } as Bilingual,
+      short: { cn: "企业官网", en: "Corporate Site" } as Bilingual,
+      tagline: {
+        cn: "一个跟得上生意长大的完整网站。",
+        en: "A full website that grows with your business.",
+      } as Bilingual,
+      desc: {
+        cn: "5 页网站，含进阶版的全部配置，再加自动 Google 收录 —— 让生意看起来成熟，也真的被找得到。",
+        en: "A 5-page website with everything in Basic — plus auto Google indexing — so your business looks established and gets found.",
+      } as Bilingual,
+      features: [
+        { cn: "5 页设计", en: "5-page design" } as Bilingual,
+        { cn: "完全定制设计", en: "Fully customizable design" } as Bilingual,
+        { cn: "基础 SEO 与 WhatsApp 在线聊天", en: "Basic SEO & WhatsApp live chat" } as Bilingual,
+        { cn: "Facebook Pixel 与 Google Analytics", en: "Facebook Pixel & Google Analytics" } as Bilingual,
+        { cn: "自动 Google 收录", en: "Auto Google indexing" } as Bilingual,
+      ],
+      delivery: { cn: "1–2 周", en: "1–2 weeks" } as Bilingual,
+      revisions: { cn: "2 次修改", en: "2 revision rounds" } as Bilingual,
+      price: { cn: `${prices.standard} 起`, en: `From ${prices.standard}` } as Bilingual,
+      href: "/landing-page",
+      cta: { cn: "做我的官网", en: "Build my website" } as Bilingual,
+      waMessage: {
+        cn: "Hi H2ODreamer！我想做一个多页企业官网。",
+        en: "Hi H2ODreamer! I'd like a corporate website.",
+      } as Bilingual,
+    },
+    {
+      id: "wedding-standard",
+      pill: { cn: "标准版", en: "Standard" } as Bilingual,
+      group: { cn: "婚礼与电商", en: "Wedding & E-Commerce" } as Bilingual,
+      title: { cn: "婚礼电子请柬", en: "Wedding E-Invitation" } as Bilingual,
+      short: { cn: "电子喜帖", en: "Wedding Invite" } as Bilingual,
+      tagline: {
+        cn: "一张像迷你婚礼网站的杂志感请柬。",
+        en: "An editorial invitation that feels like a mini wedding website.",
+      } as Bilingual,
+      desc: {
+        cn: "多区块滚动设计，带滚动动效、杂志式相册与场地详情 —— 全部装进一个可转发的链接。",
+        en: "Multi-section scrolling design with scroll animations, editorial photo gallery, and venue details — all in one shareable link.",
+      } as Bilingual,
+      features: [
+        { cn: "多区块滚动版面", en: "Multi-section scrolling layout" } as Bilingual,
+        { cn: "滚动动效与杂志式相册", en: "Scroll animations & editorial gallery" } as Bilingual,
+        { cn: "场地详情与 Google Maps 导航", en: "Venue details & Google Maps navigation" } as Bilingual,
+        { cn: "专属配色，最多 6 张照片", en: "Custom colors, up to 6 photos" } as Bilingual,
+      ],
+      delivery: { cn: "4–6 天", en: "4–6 days" } as Bilingual,
+      revisions: { cn: "1 次修改", en: "1 revision round" } as Bilingual,
+      price: { cn: `${prices.weddingStandard} 起`, en: `From ${prices.weddingStandard}` } as Bilingual,
+      href: "/wedding-basic",
+      cta: { cn: "做我的请柬", en: "Design my invite" } as Bilingual,
+      waMessage: {
+        cn: "Hi H2ODreamer！我想做标准版电子喜帖。",
+        en: "Hi H2ODreamer! I'd like the Standard wedding e-invitation.",
+      } as Bilingual,
+    },
+    {
+      id: "wedding-premium",
+      pill: { cn: "定制版", en: "Premium" } as Bilingual,
+      group: { cn: "婚礼与电商", en: "Wedding & E-Commerce" } as Bilingual,
+      badge: { cn: "热门", en: "Popular" } as Bilingual,
+      title: { cn: "婚礼电子请柬", en: "Wedding E-Invitation" } as Bilingual,
+      short: { cn: "电子喜帖", en: "Wedding Invite" } as Bilingual,
+      tagline: {
+        cn: "宾客会忍不住转发的那种请柬。",
+        en: "An invitation your guests won't stop sharing.",
+      } as Bilingual,
+      desc: {
+        cn: "多区块设计，带 RSVP、倒数计时、动画与背景音乐 —— 一个会惊艳人的迷你婚礼网站。",
+        en: "Multi-section design with RSVP, countdown, animations & background music — a mini wedding website that wows.",
+      } as Bilingual,
+      features: [
+        { cn: "多区块版面，丝滑滚动", en: "Multi-section layout with smooth scroll" } as Bilingual,
+        { cn: "内建 RSVP —— 回复一目了然", en: "Built-in RSVP — track responses easily" } as Bilingual,
+        { cn: "实时倒数计时", en: "Live countdown timer to your big day" } as Bilingual,
+        { cn: "精致动画与背景音乐", en: "Elegant animations & background music" } as Bilingual,
+        { cn: "你的照片与专属配色", en: "Your photos & custom color palette" } as Bilingual,
+      ],
+      delivery: { cn: "5–7 天", en: "5–7 days" } as Bilingual,
+      revisions: { cn: "2 次修改", en: "2 revision rounds" } as Bilingual,
+      price: { cn: `${prices.weddingPremium} 起`, en: `From ${prices.weddingPremium}` } as Bilingual,
+      href: "/wedding-premium",
+      cta: { cn: "做我的定制请柬", en: "Design my premium invite" } as Bilingual,
+      waMessage: {
+        cn: "Hi H2ODreamer！我想做定制版电子喜帖。",
+        en: "Hi H2ODreamer! I'd like the Premium wedding e-invitation.",
+      } as Bilingual,
+    },
+    {
+      id: "shopify",
+      pill: { cn: "Shopify 迁移", en: "Shopify" } as Bilingual,
+      group: { cn: "婚礼与电商", en: "Wedding & E-Commerce" } as Bilingual,
+      title: { cn: "Shopify 迁移", en: "Shopify Migration" } as Bilingual,
+      short: { cn: "店铺迁移", en: "Migration" } as Bilingual,
+      tagline: {
+        cn: "搬到 Shopify，一个客户也不会丢。",
+        en: "Move to Shopify without losing a single customer.",
+      } as Bilingual,
+      desc: {
+        cn: "完整迁移 —— 产品、页面、SEO 排名与追踪一起搬，附后台培训，上线第一天你就会用。",
+        en: "Full migration — products, pages, SEO rankings & tracking — with admin training so you're confident from day one.",
+      } as Bilingual,
+      features: [
+        { cn: "产品与页面完整迁移", en: "Complete product & page migration" } as Bilingual,
+        { cn: "301 重定向 —— 保住 Google 排名", en: "301 redirects — protect your Google rankings" } as Bilingual,
+        { cn: "GA4 电商追踪配置", en: "GA4 ecommerce tracking setup" } as Bilingual,
+        { cn: "后台培训与交接", en: "Admin training & handover session" } as Bilingual,
+      ],
+      delivery: { cn: "2–4 周", en: "2–4 weeks" } as Bilingual,
+      revisions: { cn: "2 次修改", en: "2 revision rounds" } as Bilingual,
+      price: { cn: `${prices.shopify} 起`, en: `From ${prices.shopify}` } as Bilingual,
+      href: "/shopify-migration",
+      cta: { cn: "迁移我的店", en: "Migrate my store" } as Bilingual,
+      waMessage: {
+        cn: "Hi H2ODreamer！我想把店迁移到 Shopify。",
+        en: "Hi H2ODreamer! I'd like to migrate my store to Shopify.",
+      } as Bilingual,
+    },
+];
+
 export const services = {
   eyebrow: { cn: "服务", en: "Services" } as Bilingual,
   heading: {
     cn: "帮你把生意，搬到客户找得到的地方",
     en: "Getting your business where customers can find it",
   } as Bilingual,
-  items: [
-    {
-      title: { cn: "一页式落地页", en: "Landing Page" } as Bilingual,
-      price: {
-        cn: `${prices.starter} / ${prices.basic}`,
-        en: `${prices.starter} / ${prices.basic}`,
-      } as Bilingual,
-      desc: {
-        cn: `一页说清卖点，引导访客直接 WhatsApp 下单或预约。适合单一产品、服务或活动。入门版 ${prices.starter}，进阶版 ${prices.basic} 多了 SEO 与数据分析。`,
-        en: `One page that makes your offer clear and sends visitors straight to WhatsApp to order or book. Great for a single product, service or campaign. ${prices.starter} Starter, or ${prices.basic} Basic with SEO and analytics.`,
-      } as Bilingual,
-      href: "/landing-page",
-    },
-    {
-      title: { cn: "多页企业官网", en: "Company Website" } as Bilingual,
-      price: { cn: `${prices.standard} 起`, en: `From ${prices.standard}` } as Bilingual,
-      desc: {
-        cn: "品牌、服务、作品、联系，一个完整的线上门面。5 页起，可按需扩展。",
-        en: "Brand, services, work, contact — a complete online front. From 5 pages, expandable.",
-      } as Bilingual,
-      href: "/landing-page",
-    },
-    {
-      title: { cn: "Shopify 迁移", en: "Shopify Migration" } as Bilingual,
-      price: { cn: `${prices.shopify} 起`, en: `From ${prices.shopify}` } as Bilingual,
-      desc: {
-        cn: "从旧平台或零基础搬到 Shopify，把「逛」变成「加购结账」，开始真正卖货。",
-        en: "Move from an old platform or from scratch to Shopify — turn browsing into checkout and actually start selling.",
-      } as Bilingual,
-      href: "/shopify-migration",
-    },
-    {
-      title: { cn: "婚礼电子请柬", en: "Wedding E-Invite" } as Bilingual,
-      price: {
-        cn: `${prices.weddingStandard} / ${prices.weddingPremium}`,
-        en: `${prices.weddingStandard} / ${prices.weddingPremium}`,
-      } as Bilingual,
-      desc: {
-        cn: "一个链接 WhatsApp 转发就搞定，宾客一键 RSVP，含导航、行程与祝福留言。",
-        en: "One link to forward on WhatsApp, one tap for guests to RSVP — with directions, schedule and a guestbook.",
-      } as Bilingual,
-      href: "/wedding-basic",
-    },
-  ],
+  items: serviceItems,
 };
 
 export const selectedWork = {
