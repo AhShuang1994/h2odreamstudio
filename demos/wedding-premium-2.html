@@ -222,10 +222,12 @@ fieldset legend{padding:0;margin:0 auto 10px}
   .seam{height:64px}
 
   /* hero: full viewport, photo left with the curve down its right edge */
-  .hero{display:grid;grid-template-columns:55% 45%;min-height:min(100vh,960px);padding:0;align-items:center;overflow:clip}
+  /* The hero fills the viewport at every height: a capped height left a band of ground under the
+     photo on tall screens, and it starved the photo column of height so `cover` cropped the faces. */
+  .hero{display:grid;grid-template-columns:55% 45%;min-height:100svh;padding:0;align-items:center;overflow:clip}
   .hero .label.top{display:none}
-  .hero-photo{align-self:stretch;min-height:min(100vh,960px)}
-  .hero-photo>img.shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%}
+  .hero-photo{align-self:stretch;min-height:100svh}
+  .hero-photo>img.shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%}
   .hero-photo .curve-h{display:none}
   .curve-v{display:block;position:absolute;top:0;right:-1px;height:100%;width:110px;pointer-events:none}
   .curve-v .fill{fill:var(--ground)}
