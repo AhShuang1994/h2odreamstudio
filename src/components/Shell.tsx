@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { WhatsAppFab } from "@/components/WhatsAppFab";
+import { MobileMenu } from "@/components/MobileMenu";
 import { Reveal } from "@/components/Reveal";
 import { Parallax } from "@/components/Parallax";
 import { Overture } from "@/components/Overture";
@@ -57,6 +58,7 @@ export function Shell({ lang, children }: { lang: Lang; children: ReactNode }) {
         <Nav lang={lang} />
         {children}
         <Footer lang={lang} />
+        <MobileMenu lang={lang} />
         <WhatsAppFab lang={lang} />
         {/* 平滑滚动与幕布走这一份原生脚本，核心页与静态内容页共用。
             defer 保序，Lenis 必须排在前面。见 public/js/motion.js。 */}
