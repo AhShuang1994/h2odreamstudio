@@ -43,10 +43,16 @@ export function Nav({ lang }: { lang: Lang }) {
         于是这块 `bg-bg` 正好盖住状态栏那一条。
 
         WhatsAppFab 那边补的是 bottom —— 三处一起看。
+
+        手机上**一直是实底**，不等滚动：iOS 26 Safari 的状态栏那条不画网页，
+        是 Safari 自己画的 —— 它在屏幕顶端往里 8px 打一个点，找到 fixed 元素，
+        读它的 background-color 来上色。页面刚载入时导航是透明的，Safari 读不到
+        颜色，就把状态栏画成「模糊的正文」，而且冻住不再更新。所以透明态只留给
+        md 以上（桌面没有这一条）。
       */}
       <header
-        className={`fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)] transition-colors duration-200 ${
-          scrolled ? "border-b border-hairline bg-bg" : "border-b border-transparent"
+        className={`fixed inset-x-0 top-0 z-50 bg-bg pt-[env(safe-area-inset-top)] transition-colors duration-200 ${
+          scrolled ? "border-b border-hairline" : "border-b border-transparent md:bg-transparent"
         }`}
       >
         {/*
