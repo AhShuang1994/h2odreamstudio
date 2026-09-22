@@ -37,6 +37,10 @@ import { loadExport, mb } from "../helpers/export";
  *
  * ⚠️ 上面那条「先问是不是原图回流」的顺序仍然有效，而且 assets/wedding/
  * 那 25.4MB 还在那里。别再抬这个数了 —— 下次撞上限该动的是那批图。
+ *
+ * 2026-09-21 撞上了（从 main 同步新 demo 与作品区星河图 +4.7MB → 49.3MB），
+ * 照上面说的动了那批图：35 张原图长边 5472 → 2560、WebP q80，23.1 → 6.8MB。
+ * 上限没抬。
  */
 const MAX_EXPORT_BYTES = 48 * 1024 * 1024;
 

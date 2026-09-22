@@ -10,7 +10,8 @@ import type { ServiceCard } from "@/content/home";
 /**
  * 服务档位选择器。同一堆卡片，两种壳：
  *
- * **桌面** —— 右边一列圆角方块排成向右鼓出的弧，左边出当前那一档。整段
+ * **桌面** —— 右边一条 S 形的线，六档是线上的小圆点，旁边写名字。滚到哪一档，
+ * 那颗点就亮，线也从头亮到那里。左边出当前那一档。整段
  * **滚动钉住**：外层是一块 `100vh + (n-1)×STEP_VH` 的高舞台，里面那屏
  * `position: sticky` 咬住视口；多出来的行程切成 n 段，人往下滚，档位从最上面
  * 那个依次点亮，滚完最后一档才放行。
@@ -38,8 +39,88 @@ import type { ServiceCard } from "@/content/home";
  * 压到卡底，短卡才不会吊在半空。
  */
 
-/** 弧的鼓出幅度（px）。首尾缩进这么多，中间不缩。 */
-const ARC = 56;
+/**
+ * S 线：照用户手画的那条走 —— **不规则**，左右摆幅大小不一，点与点的间距也不一。
+ *
+ * 坐标写死在一个 360×640 的框里，线和点用同一套坐标，所以线一定穿过点的圆心。
+ * （上一版是量 DOM 再画线，排版还没稳的时候量到就歪了。）
+ *
+ * 规则只有一条：**每颗点都是线往右摆到最远的地方**，前后的路径点都在它左边。
+ * 标题写在点的右边，线就永远不会从字后面穿过去。改坐标时守住这条。
+ */
+const LINE_BOX = { w: 360, h: 640 };
+
+/** 路径经过的所有点。`dot` 为 true 的六个依序对应六档，其余只是让线摆出去的弯。 */
+const LINE_PTS: { x: number; y: number; dot?: true }[] = [
+  { x: 60, y: 0 },
+  { x: 150, y: 20 },
+  { x: 160, y: 70, dot: true },
+  { x: 40, y: 130 },
+  { x: 120, y: 190, dot: true },
+  { x: 95, y: 225 },
+  { x: 175, y: 265, dot: true },
+  { x: 20, y: 345 },
+  { x: 60, y: 395 },
+  { x: 140, y: 420, dot: true },
+  { x: 80, y: 470 },
+  { x: 110, y: 500, dot: true },
+  { x: 10, y: 560 },
+  { x: 150, y: 600, dot: true },
+  { x: 90, y: 640 },
+];
+
+/** Catmull-Rom 穿点，转成三次贝塞尔段。 */
+function toSegments(pts: { x: number; y: number }[]) {
+  const segs: [number, number][][] = [];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] ?? pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] ?? p2;
+    segs.push([
+      [p1.x, p1.y],
+      [p1.x + (p2.x - p0.x) / 6, p1.y + (p2.y - p0.y) / 6],
+      [p2.x - (p3.x - p1.x) / 6, p2.y - (p3.y - p1.y) / 6],
+      [p2.x, p2.y],
+    ]);
+  }
+  return segs;
+}
+
+/**
+ * 线的 `d`，以及每颗点在线上走到了全长的几成（给「亮到这里」用）。
+ * 长度靠采样贝塞尔自己算 —— 不碰 DOM，服务端渲染出来就是对的。
+ */
+const LINE = (() => {
+  const segs = toSegments(LINE_PTS);
+  const d =
+    `M${segs[0][0][0]},${segs[0][0][1]}` +
+    segs.map(([, c1, c2, e]) => ` C${c1[0]},${c1[1]} ${c2[0]},${c2[1]} ${e[0]},${e[1]}`).join("");
+  const lens = segs.map(([a, b, c, e]) => {
+    let len = 0;
+    let px = a[0];
+    let py = a[1];
+    for (let k = 1; k <= 40; k++) {
+      const t = k / 40;
+      const u = 1 - t;
+      const x = u * u * u * a[0] + 3 * u * u * t * b[0] + 3 * u * t * t * c[0] + t * t * t * e[0];
+      const y = u * u * u * a[1] + 3 * u * u * t * b[1] + 3 * u * t * t * c[1] + t * t * t * e[1];
+      len += Math.hypot(x - px, y - py);
+      px = x;
+      py = y;
+    }
+    return len;
+  });
+  const total = lens.reduce((a, b) => a + b, 0);
+  const at: number[] = [];
+  let run = 0;
+  LINE_PTS.forEach((p, i) => {
+    if (i > 0) run += lens[i - 1];
+    if (p.dot) at.push(run / total);
+  });
+  const dots = LINE_PTS.filter((p) => p.dot);
+  return { d, at, dots };
+})();
 
 /** 每一档占多少视口高度的滚动行程。小了扫过去没人看清，大了滚得烦。 */
 const STEP_VH = 55;
@@ -73,9 +154,13 @@ declare global {
 export function ServicesPicker({
   items,
   lang,
+  header,
 }: {
   items: ServiceCard[];
   lang: Lang;
+  /** 区块标题。放进钉住的那一屏里，跟说明框、S 线一起停住 —— 放在外面的话，
+   *  还没钉住前标题与内容之间会隔出一大段空。 */
+  header: React.ReactNode;
 }) {
   const [active, setActive] = useState(0);
   const baseId = useId();
@@ -83,6 +168,8 @@ export function ServicesPicker({
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   /** 钉住是否真的生效。决定点方块是「改状态」还是「跳滚动位置」。 */
   const pinned = useRef(false);
+  /** 亮起来的那条 accent 线。钉住时每帧直接写它的 dashoffset，不走 React。 */
+  const litRef = useRef<SVGPathElement>(null);
 
   // ── 滚动进度 → 当前档位（只在桌面钉住时）──────────────────────────
   /**
@@ -101,6 +188,9 @@ export function ServicesPicker({
    * 滚动位置，屏幕凭空往下掉一截。
    */
   const [canPin, setCanPin] = useState(false);
+  /** 线画到第一颗点了没。钉住前第一档虽然已是 active（左边卡要有内容），
+   *  点要等线碰到才亮。 */
+  const [reached, setReached] = useState(false);
   useEffect(() => {
     const wide = window.matchMedia(PIN_QUERY);
     const still = window.matchMedia(REDUCED_MOTION);
@@ -123,12 +213,24 @@ export function ServicesPicker({
     const tick = () => {
       const span = stage.offsetHeight - window.innerHeight;
       if (span > 0) {
-        const p = Math.min(
-          1,
-          Math.max(0, -stage.getBoundingClientRect().top / span),
-        );
+        const top = stage.getBoundingClientRect().top;
+        const p = Math.min(1, Math.max(0, -top / span));
         // floor 而不是 round：n 段等分，p=0 落在第一档，p=1 落在最后一档
         setActive(Math.min(items.length - 1, Math.floor(p * items.length)));
+        // 线跟着滚动连续走，不等换档才跳：第 i 段里从第 i 颗点匀速亮到第 i+1 颗，
+        // 最后一段亮到线尾。点在 p = i/n 亮，线也正好在那一刻碰到它。
+        const f = p * items.length;
+        const k = Math.min(items.length - 1, Math.floor(f));
+        const from = LINE.at[k];
+        const to = LINE.at[k + 1] ?? 1;
+        // 还没钉住（区块正往上滚进来）时，线头到第一颗点这一小段也跟着画出来 ——
+        // 不然一进场这段就是满的。钉住前最后半屏走完它。
+        setReached(top <= 0);
+        const lit =
+          top > 0
+            ? LINE.at[0] * Math.max(0, 1 - top / (window.innerHeight * 0.5))
+            : from + (to - from) * (f - k);
+        litRef.current?.style.setProperty("stroke-dashoffset", String(1 - lit));
       }
       raf = requestAnimationFrame(tick);
     };
@@ -147,6 +249,7 @@ export function ServicesPicker({
 
     return () => {
       pinned.current = false;
+      litRef.current?.style.removeProperty("stroke-dashoffset");
       io.disconnect();
       if (raf) cancelAnimationFrame(raf);
     };
@@ -223,7 +326,7 @@ export function ServicesPicker({
   return (
     <div
       ref={stageRef}
-      className="mt-14 lg:mt-20 lg:motion-safe:h-[var(--stage-h)]"
+      className="lg:motion-safe:h-[var(--stage-h)]"
       style={
         {
           "--stage-h": `calc(100vh + ${(items.length - 1) * STEP_VH}vh)`,
@@ -233,10 +336,17 @@ export function ServicesPicker({
       <div
         className={
           "grid gap-10 " +
-          "lg:sticky lg:top-0 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center " +
-          "lg:gap-16 lg:motion-safe:min-h-screen lg:motion-safe:py-16"
+          // 标题、说明框、S 线同一屏钉住。靠上不置中，pt 让开固定导航（h-14）。
+          // content-center 不能省：min-h-screen 多出来的高度，grid 默认会平分给
+          // 每一行 —— 标题那一行被撑高，标题底下空一大段。content-start 又会让
+          // 空白全掉到底下。置中 = 标题与内容黏在一起，多的高度上下平分。
+          "lg:sticky lg:top-0 lg:grid-cols-[minmax(0,1fr)_auto] lg:content-center lg:items-start " +
+          "lg:gap-x-16 lg:gap-y-8 lg:motion-safe:min-h-screen lg:motion-safe:pb-8 lg:motion-safe:pt-20 " +
+          "lg:short:gap-y-5 lg:motion-safe:short:pt-16 lg:motion-safe:short:pb-4"
         }
       >
+        {/* 钉住时标题拉成一行（取消 SectionHeading 的 22ch 折行），省下一行高度 */}
+        <div className="order-first lg:col-span-2 lg:[&_h2]:max-w-none">{header}</div>
         {/* ── 卡堆：手机扇开，桌面只留当前那张 ── */}
         <div className="order-2 lg:order-1">
           <div
@@ -261,44 +371,73 @@ export function ServicesPicker({
             ))}
           </div>
 
-          {/* 手机翻页控件。桌面靠右边那排方块，不需要这个。 */}
-          <div className="mt-7 flex items-center justify-center gap-5 lg:hidden">
-            <RoundButton
-              dir="prev"
-              label={t({ cn: "上一个服务", en: "Previous service" }, lang)}
-              onClick={() => step(-1)}
-            />
-            <p className="min-w-[4.5rem] text-center text-sm tabular-nums tracking-[0.12em] text-ink-subtle">
-              {String(active + 1).padStart(2, "0")} /{" "}
-              {String(items.length).padStart(2, "0")}
-            </p>
-            <RoundButton
-              dir="next"
-              label={t({ cn: "下一个服务", en: "Next service" }, lang)}
-              onClick={() => step(1)}
-            />
+          {/* 手机：小圆点，只标位置；翻页靠左右滑。桌面靠右边那排方块，不需要这个。 */}
+          <div aria-hidden className="mt-7 flex justify-center gap-1.5 lg:hidden">
+            {items.map((s, i) => (
+              <span
+                key={s.id}
+                className={
+                  "h-1.5 rounded-sm transition-all duration-300 " +
+                  (i === active ? "w-5 bg-accent" : "w-1.5 bg-hairline-strong")
+                }
+              />
+            ))}
           </div>
 
-          {/* 前后钮本身没有文字，不播报的话换了档读屏毫无动静 */}
+          {/* 圆点不播报，换了档读屏要有动静 */}
           <p aria-live="polite" className="sr-only">
             {t(current.pill, lang)} · {t(current.title, lang)}
           </p>
         </div>
 
-        {/* ── 桌面：弧形排开的六个方块 ── */}
+        {/* ── 桌面：S 线上的六颗点 ── */}
         <div
           role="tablist"
           aria-orientation="vertical"
           aria-label={t({ cn: "服务档位", en: "Service tiers" }, lang)}
           onKeyDown={onTabsKeyDown}
-          className="order-1 hidden lg:order-2 lg:flex lg:flex-col lg:items-end lg:gap-[clamp(0.5rem,1.4vh,0.875rem)]"
+          className="relative order-1 hidden lg:order-2 lg:block lg:h-[min(72vh,38rem)] lg:w-[22.5rem] lg:short:h-[62vh]"
         >
+          {/* S 线本体：底下一条发丝线，上面一条 accent 线从头亮到当前那一档。
+              圆点是实底，盖在线上。 */}
+          <svg
+            aria-hidden
+            viewBox={`0 0 ${LINE_BOX.w} ${LINE_BOX.h}`}
+            preserveAspectRatio="none"
+            className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+          >
+            <path
+              d={LINE.d}
+              fill="none"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              className="stroke-hairline-strong"
+            />
+            <path
+              ref={litRef}
+              d={LINE.d}
+              fill="none"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              pathLength={1}
+              strokeDasharray="1 1"
+              strokeDashoffset={1 - LINE.at[active]}
+              // 钉住时由滚动逐帧驱动，再叠一层 transition 反而拖着走、显得卡
+              className={
+                "stroke-accent " +
+                (canPin
+                  ? ""
+                  : "transition-[stroke-dashoffset] duration-500 ease-out motion-reduce:transition-none")
+              }
+            />
+          </svg>
           {items.map((s, i) => {
             const on = i === active;
-            // 首尾往左缩 ARC，中间不缩 —— sin 曲线给出中间的那道鼓
-            const inset = Math.round(
-              ARC * (1 - Math.sin((Math.PI * i) / (items.length - 1))),
-            );
+            // 点亮与否跟选中分开：选中（焦点、读屏）照 active；亮要等线碰到。
+            // 没钉住（窄屏、减弱动态）时线不跟滚动走，当前那档直接亮。
+            const lit = on && (reached || !canPin);
+            const p = LINE.dots[i];
             return (
               <button
                 key={s.id}
@@ -311,44 +450,51 @@ export function ServicesPicker({
                 aria-controls={`${baseId}-card-${s.id}`}
                 tabIndex={on ? 0 : -1}
                 onClick={() => select(i)}
-                style={{ "--inset": `-${inset}px` } as React.CSSProperties}
+                // 按钮左缘 = 点的圆心往左半个点宽（6px），点就正好落在线上的那个坐标
+                style={{
+                  left: `calc(${(p.x / LINE_BOX.w) * 100}% - 6px)`,
+                  top: `${(p.y / LINE_BOX.h) * 100}%`,
+                }}
                 className={
-                  "group relative flex aspect-square w-full flex-col justify-end overflow-hidden " +
-                  "rounded-xl border p-3 text-left transition-[background-color,border-color,opacity,transform] " +
-                  "duration-300 ease-out motion-reduce:transition-none " +
-                  // 方块跟着视口高度缩：六个加间距要塞进一屏，钉住才成立
-                  "lg:w-[clamp(6rem,11.5vh,8rem)] lg:translate-x-[var(--inset)] " +
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent " +
-                  (on
-                    ? "border-accent bg-surface-2"
-                    : "border-hairline bg-surface-1 opacity-75 hover:bg-surface-2 hover:opacity-100")
+                  "group absolute z-10 flex -translate-y-1/2 items-center gap-3.5 rounded-md py-1 pr-2 text-left " +
+                  "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
                 }
               >
-                {s.badge && (
+                {/* 点。亮 = accent 实心 + 一圈淡光环，并放大一点；
+                    没亮的是描边空心、底色压住线。 */}
+                <span
+                  data-dot
+                  aria-hidden
+                  className={
+                    "h-3 w-3 shrink-0 rounded-full border transition-[background-color,border-color,transform,box-shadow] " +
+                    "duration-300 ease-out motion-reduce:transition-none " +
+                    (lit
+                      ? "scale-125 border-accent bg-accent [box-shadow:0_0_0_5px_rgb(124_130_240/0.2)]"
+                      : "border-ink-faint bg-bg group-hover:border-ink-subtle")
+                  }
+                />
+                <span className="flex flex-col">
                   <span
                     className={
-                      "absolute right-2 top-2 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none " +
-                      (on ? "bg-accent text-white" : "bg-accent/15 text-accent")
+                      "text-[11px] font-medium tracking-[0.03em] transition-colors duration-300 " +
+                      (lit ? "text-accent" : "text-ink-subtle")
                     }
                   >
-                    {t(s.badge, lang)}
+                    {t(s.pill, lang)}
+                    {s.badge && (
+                      <span className="ml-1.5 rounded-sm bg-accent/15 px-1 py-px text-[10px] text-accent">
+                        {t(s.badge, lang)}
+                      </span>
+                    )}
                   </span>
-                )}
-                <span
-                  className={
-                    "text-[11px] font-medium tracking-[0.03em] " +
-                    (on ? "text-accent" : "text-ink-subtle")
-                  }
-                >
-                  {t(s.pill, lang)}
-                </span>
-                <span
-                  className={
-                    "mt-1 text-[13px] font-medium leading-snug tracking-[-0.01em] " +
-                    (on ? "text-ink" : "text-ink-muted")
-                  }
-                >
-                  {t(s.short, lang)}
+                  <span
+                    className={
+                      "text-sm font-medium leading-snug tracking-[-0.01em] transition-colors duration-300 " +
+                      (lit ? "text-ink" : "text-ink-muted group-hover:text-ink")
+                    }
+                  >
+                    {t(s.short, lang)}
+                  </span>
                 </span>
               </button>
             );
@@ -363,8 +509,8 @@ export function ServicesPicker({
  * 牌堆里的一张。
  *
  * 手机：当前那张平放在左，后面的按 `FAN` 往右扇；已经翻过去的（offset < 0）
- * 整张滑出左边。桌面：只有当前那张在，其余透明且 `inert`，卡片外壳（描边、
- * 圆角、内边距、投影）全部卸掉 —— 桌面那一侧不用投影。
+ * 整张滑出左边。桌面：只有当前那张在，其余透明且 `inert`，卡片外壳的投影
+ * 卸掉、换成毛玻璃框 —— 桌面那一侧不用投影。
  */
 function DeckCard({
   s,
@@ -438,7 +584,13 @@ function DeckCard({
           // 写成 `[box-shadow:…]` 而不是 `shadow-[…]`：v4 的 shadow-* 走
           // `--tw-shadow` 变量组合，逗号分隔的两层阴影会被吃掉，实测整条失效。
           "[box-shadow:0_24px_44px_-12px_rgb(0_0_0/0.85),0_6px_14px_rgb(0_0_0/0.5)] " +
-          "lg:rounded-none lg:border-0 lg:bg-transparent lg:[box-shadow:none]"
+          // 桌面：毛玻璃框，跟作品区（WorkShowcase）那个同一套 —— 半透明白 +
+          // 背景模糊 + 顶边内高光（inset，不是投影）。用户点名要的，是反 AI 清单
+          // 禁 glassmorphism 那条的明确破例。模糊只给当前那张：六张叠在同一格，
+          // 看不见的五张没必要各背一层 backdrop-filter。
+          "lg:rounded-[1.75rem] lg:border-white/10 lg:bg-white/[0.04] " +
+          "lg:[box-shadow:inset_0_1px_0_rgb(255_255_255/0.08)] " +
+          (current ? "lg:backdrop-blur-md" : "")
         }
       >
         {/*
@@ -449,7 +601,7 @@ function DeckCard({
         <div
           className={
             "flex h-full flex-col p-5 transition-opacity duration-300 sm:p-7 " +
-            "lg:p-0 lg:opacity-100 " +
+            "lg:p-10 lg:short:p-7 lg:opacity-100 " +
             (behind ? "opacity-0" : "opacity-100")
           }
         >
@@ -464,7 +616,7 @@ function DeckCard({
             )}
           </div>
 
-          <h3 className="mt-2 text-xl font-medium tracking-[-0.02em] text-ink sm:text-2xl lg:text-3xl xl:text-4xl">
+          <h3 className="mt-2 text-xl font-medium tracking-[-0.02em] text-ink sm:text-2xl lg:text-3xl xl:text-4xl lg:short:text-3xl">
             {t(s.title, lang)}
           </h3>
           <p className="mt-3 text-[15px] leading-relaxed text-ink lg:mt-4 lg:text-lg">
@@ -474,7 +626,7 @@ function DeckCard({
             {t(s.desc, lang)}
           </p>
 
-          <ul className="mt-5 grid gap-2.5 border-t border-hairline pt-5 lg:mt-7 lg:pt-7">
+          <ul className="mt-5 grid gap-2.5 border-t border-hairline pt-5 lg:mt-7 lg:pt-7 lg:short:mt-4 lg:short:gap-2 lg:short:pt-4">
             {s.features.map((f, k) => (
               <li key={k} className="flex gap-2.5 text-[13px] text-ink-muted lg:text-sm">
                 <span aria-hidden className="mt-[3px] shrink-0 text-accent">
@@ -485,14 +637,14 @@ function DeckCard({
             ))}
           </ul>
 
-          <p className="mt-4 text-[13px] text-ink-subtle lg:mt-6">
+          <p className="mt-4 text-[13px] text-ink-subtle lg:mt-6 lg:short:mt-3">
             {t(s.delivery, lang)} · {t(s.revisions, lang)}
           </p>
 
           {/* mt-auto：卡等高，短的那几张底部这行才不会吊在半空 */}
           {/* 窄屏排成两行（价格一行、按钮一行）—— 挤在一行会把 CTA 的字断掉。
               到 lg 回到一行，跟桌面原来的样子一致。 */}
-          <div className="mt-auto flex flex-col items-start gap-3 border-t border-hairline pt-5 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-6 lg:gap-y-4 lg:pt-7">
+          <div className="mt-auto flex flex-col items-start gap-3 border-t border-hairline pt-5 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-6 lg:gap-y-4 lg:pt-7 lg:short:pt-4">
             <p className="text-xl tabular-nums text-ink lg:text-2xl">
               {t(s.price, lang)}
             </p>
@@ -519,42 +671,5 @@ function DeckCard({
         </div>
       </div>
     </div>
-  );
-}
-
-function RoundButton({
-  dir,
-  label,
-  onClick,
-}: {
-  dir: "prev" | "next";
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      className={
-        "flex h-11 w-11 items-center justify-center rounded-full border border-hairline-strong " +
-        "bg-surface-1 text-ink-muted transition-colors duration-150 hover:bg-surface-2 hover:text-ink " +
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-      }
-    >
-      <svg
-        aria-hidden
-        width="16"
-        height="16"
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {dir === "prev" ? <path d="M10 3 5 8l5 5" /> : <path d="M6 3l5 5-5 5" />}
-      </svg>
-    </button>
   );
 }

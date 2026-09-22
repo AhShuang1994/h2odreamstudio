@@ -1,6 +1,7 @@
 import { localize, t, type Lang } from "@/lib/i18n";
 import { Button, Container, Eyebrow, OrbSlot } from "@/components/ui";
 import { ServicesPicker } from "@/components/home/ServicesPicker";
+import { WorkShowcase } from "@/components/home/WorkShowcase";
 import { site } from "@/content/site";
 import {
   quickAnswer,
@@ -117,77 +118,47 @@ export function Services({ lang }: { lang: Lang }) {
         className="-right-[10%] bottom-[4%] h-[22rem] w-[22rem]"
       />
       <Container className="relative">
-        <Eyebrow>{t(services.eyebrow, lang)}</Eyebrow>
-        <SectionHeading>{t(services.heading, lang)}</SectionHeading>
-        <ServicesPicker items={services.items} lang={lang} />
+        <ServicesPicker
+          items={services.items}
+          lang={lang}
+          header={
+            <>
+              <Eyebrow>{t(services.eyebrow, lang)}</Eyebrow>
+              <SectionHeading>{t(services.heading, lang)}</SectionHeading>
+            </>
+          }
+        />
       </Container>
     </Section>
   );
 }
 
 export function SelectedWork({ lang }: { lang: Lang }) {
+  // 外壳（钉住、星河、轮播）在 WorkShowcase 里 —— 它要自己管上下留白，
+  // 钉住时那屏得贴满视口，套 Section 的 py 就钉不齐。
   return (
-    <Section id="work">
-      <Container>
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <Eyebrow>{t(selectedWork.eyebrow, lang)}</Eyebrow>
-            <SectionHeading>{t(selectedWork.heading, lang)}</SectionHeading>
-          </div>
-          <a
-            href={localize("/case-studies/", lang)}
-            className="group hidden shrink-0 items-center gap-1.5 border-b border-hairline-strong pb-1 text-sm text-ink-muted transition-colors hover:border-ink-muted hover:text-ink sm:inline-flex"
-          >
-            {t(selectedWork.cta, lang)}
-            <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
-              →
-            </span>
-          </a>
-        </div>
-        <div className="mt-14 grid gap-5 sm:grid-cols-2">
-          {selectedWork.items.map((w, i) => (
+    <section id="work">
+      <WorkShowcase
+        lang={lang}
+        header={
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <Eyebrow>{t(selectedWork.eyebrow, lang)}</Eyebrow>
+              <SectionHeading>{t(selectedWork.heading, lang)}</SectionHeading>
+            </div>
             <a
-              key={i}
-              href={localize(w.href, lang)}
-              className="group overflow-hidden rounded-xl border border-hairline bg-surface-1 transition-colors duration-150 hover:border-hairline-strong"
+              href={localize("/case-studies/", lang)}
+              className="group hidden shrink-0 items-center gap-1.5 border-b border-hairline-strong pb-1 text-sm text-ink-muted transition-colors hover:border-ink-muted hover:text-ink sm:inline-flex"
             >
-              {/* 遮罩视差的裁切框：图比框大 20%，滚动时在框内反向位移。
-                  只在桌面 + 非减弱动态偏好时跑，其余情况就是一张静态图。 */}
-              <div
-                data-mask-parallax
-                className="aspect-[16/10] overflow-hidden border-b border-hairline"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={w.img}
-                  alt={t(w.title, lang)}
-                  width={800}
-                  height={500}
-                  loading="lazy"
-                  className="h-full w-full object-cover object-top"
-                />
-              </div>
-              <div className="flex items-center justify-between gap-3 p-6">
-                <div>
-                  <span className="text-xs tracking-[0.03em] text-accent">
-                    {t(w.tag, lang)}
-                  </span>
-                  <h3 className="mt-2 text-[15px] font-medium text-ink">
-                    {t(w.title, lang)}
-                  </h3>
-                </div>
-                <span
-                  className="text-ink-faint transition-all group-hover:translate-x-0.5 group-hover:text-ink"
-                  aria-hidden
-                >
-                  →
-                </span>
-              </div>
+              {t(selectedWork.cta, lang)}
+              <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
+                →
+              </span>
             </a>
-          ))}
-        </div>
-      </Container>
-    </Section>
+          </div>
+        }
+      />
+    </section>
   );
 }
 

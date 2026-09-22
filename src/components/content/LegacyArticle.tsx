@@ -1,4 +1,5 @@
 import { JsonLd } from "@/components/JsonLd";
+import { ArticleToc } from "@/components/content/ArticleToc";
 import { visibleFaq } from "@/lib/content/html.mjs";
 import { localize, type Lang } from "@/lib/i18n";
 import type { ContentDoc } from "@/lib/content/doc.d.mts";
@@ -57,6 +58,11 @@ export function LegacyArticle({ doc, lang }: { doc: ContentDoc; lang: Lang }) {
         className="legacy-content"
         dangerouslySetInnerHTML={{ __html: body }}
       />
+
+      {/* 只有博客与案例文章带目录；服务页与索引页不是按章节读的。 */}
+      {!doc.isIndex && (doc.section === "blog" || doc.section === "case-studies") && (
+        <ArticleToc lang={lang} />
+      )}
 
       {/* 正文今天就带着这支脚本（揭示、锚点滚动、FAQ 展开）。它里面的导航与
           语言切换 IIFE 会因为找不到对应元素而自己让开。要不要拆掉是迁移收尾的

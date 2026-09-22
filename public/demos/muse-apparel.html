@@ -4,985 +4,133 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,follow">
-  <title>MUSE Apparel — SS27 Collection</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#e9ede7">
+  <title>MUSE Apparel | The Soft Tailoring Edit</title>
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg: #F8F6F3;
-      --text: #111111;
-      --gold: #B8965A;
-      --gold-light: #D4B97C;
-      --gold-dark: #9A7A45;
-      --white: #FFFFFF;
-      --gray-100: #F0EDEA;
-      --gray-200: #E5E0DA;
-      --gray-400: #A09890;
-      --gray-600: #6B6460;
-      --pastel-pink: #F5EDE8;
-      --font-heading: 'Playfair Display', Georgia, serif;
-      --font-body: 'Inter', -apple-system, sans-serif;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: var(--font-body);
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    a { color: inherit; text-decoration: none; }
-    img { display: block; max-width: 100%; }
-    button { cursor: pointer; font-family: inherit; }
-
-    /* ── Announcement Bar ── */
-    .announcement-bar {
-      background: var(--text);
-      color: var(--white);
-      text-align: center;
-      padding: 10px 16px;
-      font-size: 12px;
-      font-weight: 400;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-
-    /* ── Header / Nav ── */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 48px;
-      background: var(--bg);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 1px solid var(--gray-200);
-    }
-
-    .header-nav {
-      display: flex;
-      gap: 32px;
-      list-style: none;
-    }
-
-    .header-nav a {
-      font-size: 13px;
-      font-weight: 400;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transition: color 0.2s;
-    }
-
-    .header-nav a:hover { color: var(--gold); }
-
-    .logo {
-      font-family: var(--font-heading);
-      font-size: 28px;
-      font-weight: 500;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-
-    .header-icons {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-
-    .header-icons button {
-      background: none;
-      border: none;
-      color: var(--text);
-      padding: 4px;
-    }
-
-    .header-icons svg { width: 20px; height: 20px; }
-
-    /* ── Hero ── */
-    .hero {
-      position: relative;
-      height: 90vh;
-      min-height: 600px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      overflow: hidden;
-      background: #D5CEC6;
-    }
-
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .hero-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(17,17,17,0.35);
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      color: var(--white);
-      max-width: 700px;
-      padding: 0 24px;
-    }
-
-    .hero-subtitle {
-      font-size: 13px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      font-weight: 400;
-      margin-bottom: 20px;
-      opacity: 0.85;
-    }
-
-    .hero-title {
-      font-family: var(--font-heading);
-      font-size: clamp(36px, 5vw, 60px);
-      font-weight: 400;
-      line-height: 1.15;
-      margin-bottom: 12px;
-    }
-
-    .hero-title em {
-      font-style: italic;
-      font-weight: 400;
-    }
-
-    .hero-desc {
-      font-size: 15px;
-      font-weight: 300;
-      opacity: 0.8;
-      margin-bottom: 36px;
-    }
-
-    .btn-primary {
-      display: inline-block;
-      background: var(--white);
-      color: var(--text);
-      padding: 16px 48px;
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      border: none;
-      transition: background 0.3s, color 0.3s;
-    }
-
-    .btn-primary:hover {
-      background: var(--gold);
-      color: var(--white);
-    }
-
-    .btn-gold {
-      background: var(--gold);
-      color: var(--white);
-      border: none;
-    }
-
-    .btn-gold:hover {
-      background: var(--gold-dark);
-      color: var(--white);
-    }
-
-    .btn-outline {
-      display: inline-block;
-      background: transparent;
-      color: var(--text);
-      padding: 14px 40px;
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      border: 1px solid var(--text);
-      transition: background 0.3s, color 0.3s;
-    }
-
-    .btn-outline:hover {
-      background: var(--text);
-      color: var(--white);
-    }
-
-    /* ── Section Commons ── */
-    .section {
-      padding: 80px 48px;
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    .section-label {
-      font-size: 12px;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--gold);
-      font-weight: 500;
-      margin-bottom: 12px;
-    }
-
-    .section-title {
-      font-family: var(--font-heading);
-      font-size: clamp(28px, 3vw, 40px);
-      font-weight: 400;
-      line-height: 1.2;
-    }
-
-    .section-divider {
-      width: 40px;
-      height: 1px;
-      background: var(--gold);
-      margin: 16px auto 0;
-    }
-
-    /* ── Featured Collections ── */
-    .collections-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .collection-card {
-      position: relative;
-      overflow: hidden;
-      aspect-ratio: 3/4;
-      background: var(--gray-200);
-    }
-
-    .collection-card-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.6s ease;
-    }
-
-    .collection-card:hover .collection-card-img {
-      transform: scale(1.05);
-    }
-
-    .collection-card-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, transparent 50%, rgba(17,17,17,0.6) 100%);
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 32px;
-    }
-
-    .collection-card-title {
-      font-family: var(--font-heading);
-      font-size: 24px;
-      font-weight: 400;
-      color: var(--white);
-      margin-bottom: 8px;
-    }
-
-    .collection-card-link {
-      font-size: 12px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--white);
-      opacity: 0.8;
-      transition: opacity 0.2s;
-    }
-
-    .collection-card-link:hover { opacity: 1; }
-
-    /* ── Product Grid ── */
-    .products-section { background: var(--white); }
-
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .product-card { text-align: center; }
-
-    .product-image {
-      aspect-ratio: 3/4;
-      background: var(--gray-100);
-      margin-bottom: 16px;
+    :root { --paper:#e9ede7; --paper-deep:#dde3da; --ink:#243029; --ink-soft:#556158; --line:#c8d0c7; --sage:#a9b8a2; --sage-deep:#566b58; --berry:#6e2931; --white:#f8faf6; --serif:Iowan Old Style,Baskerville,Georgia,serif; --sans:"Helvetica Neue",Arial,sans-serif; }
+    * { box-sizing:border-box; } html { scroll-behavior:smooth; } body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); line-height:1.45; } a { color:inherit; text-decoration:none; } button,input { font:inherit; } button { cursor:pointer; } img { display:block; max-width:100%; }
+    .skip-link { left:1rem; position:absolute; top:-4rem; z-index:20; background:var(--berry); color:var(--white); padding:.75rem 1rem; } .skip-link:focus { top:1rem; }
+    .announcement { background:var(--ink); color:var(--white); padding:.65rem 1.5rem; text-align:center; font-size:.69rem; letter-spacing:.12em; text-transform:uppercase; }
+    .site-header { align-items:center; background:rgb(233 237 231 / .94); border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr auto 1fr; min-height:4.7rem; padding:0 clamp(1rem,4vw,4.5rem); position:sticky; top:0; z-index:10; backdrop-filter:blur(12px); }
+    .site-nav,.header-actions { display:flex; align-items:center; gap:clamp(.8rem,2.3vw,2rem); } .site-nav a,.header-actions a { font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; } .site-nav a { padding:.45rem 0; } .header-actions { justify-content:flex-end; } .site-nav a:hover,.header-actions a:hover { color:var(--berry); } .wordmark { font-family:var(--serif); font-size:1.85rem; letter-spacing:.18em; padding-left:.18em; }
+    .hero { display:grid; grid-template-columns:minmax(19rem,.87fr) minmax(28rem,1.3fr); min-height:min(43rem,calc(100dvh - 6.1rem)); } .hero-copy { align-items:flex-start; display:flex; flex-direction:column; justify-content:center; padding:clamp(3rem,9vw,8rem) clamp(1.5rem,7vw,7rem); } .kicker { color:var(--sage-deep); font-size:.69rem; font-weight:600; letter-spacing:.15em; margin:0 0 1.15rem; text-transform:uppercase; } h1,h2,h3,p { margin-top:0; } h1,h2,h3 { font-family:var(--serif); font-weight:400; } h1 { font-size:clamp(3rem,6.2vw,6.3rem); letter-spacing:-.06em; line-height:.94; margin-bottom:1.55rem; max-width:7ch; } .hero-copy > p:not(.kicker) { color:var(--ink-soft); font-size:1rem; margin-bottom:2rem; max-width:22rem; }
+    .button { align-items:center; background:var(--berry); border:1px solid var(--berry); color:var(--white); display:inline-flex; font-size:.7rem; font-weight:600; justify-content:center; letter-spacing:.1em; min-height:3.1rem; padding:0 1.35rem; text-transform:uppercase; transition:background .2s ease,color .2s ease,transform .2s ease; } .button:hover { background:transparent; color:var(--berry); } .button:active { transform:translateY(1px); } .hero-media { min-height:28rem; overflow:hidden; } .hero-media img { height:100%; object-fit:cover; object-position:center; width:100%; }
+    main { overflow:hidden; } .page-width { margin:0 auto; max-width:88rem; padding-left:clamp(1.25rem,4vw,4.5rem); padding-right:clamp(1.25rem,4vw,4.5rem); } .intro { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(16rem,.55fr); gap:clamp(2rem,9vw,9rem); padding-bottom:clamp(4.5rem,9vw,8rem); padding-top:clamp(4.5rem,9vw,8rem); } .intro h2 { font-size:clamp(2.15rem,4vw,4.5rem); letter-spacing:-.045em; line-height:1; margin:0; max-width:11ch; } .intro p { align-self:end; color:var(--ink-soft); font-size:1rem; margin:0; max-width:24rem; }
+    .material-story { background:var(--paper-deep); display:grid; grid-template-columns:minmax(17rem,.75fr) minmax(18rem,.55fr); gap:clamp(2rem,8vw,8rem); padding:clamp(2rem,5vw,5rem); } .material-story img { height:100%; min-height:31rem; object-fit:cover; width:100%; } .material-copy { align-self:center; max-width:25rem; } .material-copy h2 { font-size:clamp(2.5rem,5vw,5.5rem); letter-spacing:-.06em; line-height:.9; margin-bottom:1.3rem; } .material-copy p { color:var(--ink-soft); margin-bottom:1.75rem; } .text-link { border-bottom:1px solid currentColor; font-size:.72rem; font-weight:600; letter-spacing:.1em; padding-bottom:.35rem; text-transform:uppercase; } .text-link:hover { color:var(--berry); }
+    .collection-section { padding-bottom:clamp(4.5rem,9vw,8rem); padding-top:clamp(4.5rem,9vw,8rem); } .section-title { font-size:clamp(2.35rem,4.5vw,5rem); letter-spacing:-.055em; line-height:.95; margin-bottom:clamp(2rem,5vw,4rem); max-width:9ch; } .collection-grid { display:grid; grid-template-columns:1fr .84fr .6fr; gap:clamp(1rem,2.5vw,2.5rem); } .collection-card { display:block; } .collection-card img { aspect-ratio:3 / 4; height:auto; object-fit:cover; transition:transform .45s ease; width:100%; } .collection-card:hover img { transform:scale(1.02); } .collection-card h3 { font-size:1.65rem; letter-spacing:-.035em; margin:1rem 0 .4rem; } .collection-card p { color:var(--ink-soft); font-size:.9rem; margin:0; } .collection-note { align-self:end; border-top:1px solid var(--sage-deep); padding:1rem 0 0; } .collection-note p { color:var(--sage-deep); font-size:clamp(1.4rem,2.4vw,2.25rem); line-height:1.13; margin:0; }
+    .shop-section { border-top:1px solid var(--line); padding-bottom:clamp(4.5rem,8vw,7rem); padding-top:clamp(3rem,7vw,6rem); } .shop-heading { align-items:end; display:flex; justify-content:space-between; margin-bottom:2.5rem; } .shop-heading h2 { font-size:clamp(2.35rem,4.5vw,4.8rem); letter-spacing:-.055em; line-height:.95; margin:0; } .shop-heading a { color:var(--ink-soft); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; } .shop-heading a:hover { color:var(--berry); } .product-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(1rem,2.4vw,2.25rem); } .product { min-width:0; } .product-image { appearance:none; aspect-ratio:2 / 3; background:#d5d9d1; border:0; color:inherit; cursor:pointer; display:block; overflow:hidden; padding:0; position:relative; text-align:left; width:100%; } .product-image img { height:100%; inset:0; object-fit:cover; object-position:center; position:absolute; transition:opacity .35s ease,transform .5s ease; width:100%; } .product-image .product-detail { opacity:0; transform:scale(1.025); } .product-image.is-detail .product-model { opacity:0; transform:scale(1.018); } .product-image.is-detail .product-detail { opacity:1; transform:scale(1); } .product-image:focus-visible { outline:2px solid var(--berry); outline-offset:3px; } .touch-image-label { background:rgb(36 48 41 / .88); bottom:.75rem; color:var(--white); display:none; font-size:.62rem; font-weight:600; left:.75rem; letter-spacing:.08em; padding:.55rem .7rem; position:absolute; text-transform:uppercase; z-index:1; } @media (hover:hover) { .product-image:hover .product-model { opacity:0; transform:scale(1.018); } .product-image:hover .product-detail { opacity:1; transform:scale(1); } } @media (hover:none),(pointer:coarse) { .touch-image-label { display:block; } } .product-details { display:grid; gap:.35rem; grid-template-columns:1fr auto; padding-top:.9rem; } .product h3 { font-family:var(--sans); font-size:.87rem; font-weight:500; letter-spacing:.01em; margin:0; } .product p { color:var(--ink-soft); font-size:.86rem; grid-column:1 / 2; margin:0; } .product-details button { background:none; border:0; color:var(--berry); font-size:.68rem; font-weight:600; grid-column:2; grid-row:1 / 3; letter-spacing:.08em; padding:0; text-align:right; text-transform:uppercase; } .product-details button:hover { text-decoration:underline; }
+    .wear-story { display:grid; grid-template-columns:.9fr 1.1fr; min-height:37rem; } .wear-copy { align-items:flex-start; background:var(--sage); display:flex; flex-direction:column; justify-content:center; padding:clamp(2rem,7vw,7rem); } .wear-copy h2 { font-size:clamp(2.6rem,5vw,5.6rem); letter-spacing:-.06em; line-height:.9; margin-bottom:1.3rem; max-width:7ch; } .wear-copy p { color:#3b4b3c; margin-bottom:1.9rem; max-width:21rem; } .wear-copy .button { background:var(--ink); border-color:var(--ink); } .wear-copy .button:hover { background:transparent; color:var(--ink); } .wear-story img { height:100%; min-height:32rem; object-fit:cover; width:100%; }
+    .shipping { display:grid; grid-template-columns:.55fr 1fr auto; align-items:center; border-bottom:1px solid var(--line); gap:1.5rem; padding-bottom:2.25rem; padding-top:2.25rem; } .shipping span { color:var(--berry); font-family:var(--serif); font-size:2.8rem; line-height:1; } .shipping h2 { font-family:var(--sans); font-size:1rem; font-weight:600; margin:0 0 .25rem; } .shipping p { color:var(--ink-soft); font-size:.9rem; margin:0; } .shipping a { font-size:.7rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; }
+    .quotes { display:grid; grid-template-columns:1fr 1fr; gap:clamp(2rem,9vw,9rem); padding-bottom:clamp(4rem,8vw,7rem); padding-top:clamp(4rem,8vw,7rem); } .quotes h2 { font-size:clamp(2.2rem,4vw,4.2rem); letter-spacing:-.05em; line-height:1; margin:0; max-width:8ch; } .quote-list { display:grid; gap:2rem; } blockquote { border-left:1px solid var(--sage-deep); margin:0; padding-left:1.25rem; } blockquote p { font-family:var(--serif); font-size:clamp(1.22rem,2vw,1.7rem); line-height:1.22; margin-bottom:.7rem; } blockquote footer { color:var(--ink-soft); font-size:.78rem; }
+    .newsletter { background:var(--paper-deep); padding-bottom:clamp(4rem,8vw,7rem); padding-top:clamp(4rem,8vw,7rem); text-align:center; } .newsletter h2 { font-size:clamp(2.25rem,4.5vw,5rem); letter-spacing:-.06em; line-height:.95; margin:0 auto 1rem; max-width:10ch; } .newsletter p { color:var(--ink-soft); margin:0 auto 1.75rem; max-width:28rem; } .newsletter form { display:flex; justify-content:center; margin:auto; max-width:33rem; } .newsletter label { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); } .newsletter input { background:var(--white); border:1px solid var(--line); border-right:0; color:var(--ink); min-width:0; padding:0 1rem; width:100%; } .newsletter input:focus { outline:2px solid var(--berry); outline-offset:2px; }
+    .footer { border-top:1px solid var(--line); padding-bottom:2rem; padding-top:3rem; } .footer-top { display:grid; grid-template-columns:1.5fr repeat(3,.7fr); gap:2rem; } .footer-brand { font-family:var(--serif); font-size:1.75rem; letter-spacing:.15em; } .footer p,.footer a { color:var(--ink-soft); font-size:.82rem; } .footer h3 { font-family:var(--sans); font-size:.7rem; letter-spacing:.09em; margin-bottom:.9rem; text-transform:uppercase; } .footer ul { list-style:none; margin:0; padding:0; } .footer li + li { margin-top:.55rem; } .footer a:hover { color:var(--berry); } .footer-bottom { border-top:1px solid var(--line); color:var(--ink-soft); display:flex; font-size:.72rem; justify-content:space-between; margin-top:2.5rem; padding-top:1.2rem; }
+    .reveal { opacity:0; transform:translateY(1.5rem); transition:opacity .65s ease,transform .65s ease; } .reveal.is-visible { opacity:1; transform:none; }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { transition-duration:.01ms !important; } .reveal { opacity:1; transform:none; } }
+    @media (max-width:760px) { .announcement { font-size:.59rem; letter-spacing:.07em; } .site-header { grid-template-columns:1fr auto; min-height:4.15rem; } .site-nav { display:none; } .wordmark { grid-column:1; grid-row:1; } .header-actions { grid-column:2; grid-row:1; gap:.85rem; } .header-actions a:first-child { display:none; } .hero,.material-story,.wear-story,.intro,.quotes { grid-template-columns:1fr; } .hero-copy { min-height:27rem; padding-bottom:3rem; padding-top:4rem; } .hero-media { min-height:30rem; } .intro { gap:1.5rem; } .material-story { padding:1.25rem; } .material-story img { min-height:28rem; } .collection-grid { grid-template-columns:1fr 1fr; } .collection-note { grid-column:1 / -1; margin-top:1.5rem; max-width:24rem; } .product-grid { grid-template-columns:1fr 1fr; } .wear-copy { min-height:28rem; } .shipping { grid-template-columns:auto 1fr; } .shipping a { grid-column:2; } .newsletter form { flex-direction:column; gap:.65rem; } .newsletter input { border-right:1px solid var(--line); min-height:3.1rem; } .footer-top { grid-template-columns:1fr 1fr; } .footer-brand { grid-column:1 / -1; } }
+    @media (max-width:450px) { .collection-grid,.footer-top { grid-template-columns:1fr; } .collection-note,.footer-brand { grid-column:auto; } .shop-heading { align-items:flex-start; flex-direction:column; gap:1rem; } .product-grid { grid-auto-columns:82%; grid-auto-flow:column; grid-template-columns:none; gap:1rem; overflow-x:auto; overscroll-behavior-inline:contain; padding-bottom:1rem; scroll-snap-type:x mandatory; scrollbar-width:none; } .product-grid::-webkit-scrollbar { display:none; } .product { scroll-snap-align:start; scroll-snap-stop:always; } .footer-bottom { flex-direction:column; gap:.5rem; } }
+  </style>
+  <style>
+    .hero-depth {
+      background: #eaeae5;
+      display: block;
+      isolation: isolate;
+      min-height: 42rem;
+      height: min(52vw, 48rem);
       overflow: hidden;
       position: relative;
     }
-
-    .product-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease;
-    }
-
-    .product-card:hover .product-image img {
-      transform: scale(1.03);
-    }
-
-    .product-badge {
+    .hero-depth::after {
+      background: #d8dfd4;
+      content: "";
+      inset: 35% 2% 0;
+      border-radius: 8px 8px 0 0;
+      pointer-events: none;
       position: absolute;
-      top: 12px;
-      left: 12px;
-      background: var(--gold);
-      color: var(--white);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      z-index: 2;
+      z-index: 0;
     }
-
-    .product-name {
-      font-size: 15px;
+    .hero-depth-type {
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: clamp(6rem, 12vw, 12rem);
       font-weight: 400;
-      margin-bottom: 6px;
-      letter-spacing: 0.3px;
+      left: 20%;
+      letter-spacing: -.075em;
+      line-height: .85;
+      margin: 0;
+      pointer-events: none;
+      position: absolute;
+      top: 2rem;
+      z-index: 1;
     }
-
-    .product-price {
-      font-size: 14px;
-      color: var(--gray-600);
-      margin-bottom: 14px;
+    .hero-depth-type span { display: block; }
+    .hero-depth-type span:last-child { margin-left: 12vw; }
+    .hero-foreground {
+      bottom: -1px;
+      height: 87%;
+      left: 63%;
+      max-width: none;
+      object-fit: contain;
+      object-position: bottom center;
+      position: absolute;
+      transform: translateX(-50%);
+      width: auto;
+      z-index: 3;
     }
-
-    .product-price .original {
-      text-decoration: line-through;
-      margin-right: 8px;
-      color: var(--gray-400);
+    .hero-depth-copy {
+      bottom: clamp(2.5rem, 7vw, 6rem);
+      left: clamp(1.25rem, 7vw, 7rem);
+      max-width: 21rem;
+      position: absolute;
+      z-index: 4;
     }
-
-    .btn-add-cart {
-      display: inline-block;
-      background: transparent;
-      color: var(--text);
-      padding: 10px 28px;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      border: 1px solid var(--text);
-      transition: all 0.3s;
+    .hero-depth-copy h1 {
+      font-size: clamp(2.4rem, 4vw, 4.7rem);
+      letter-spacing: -.06em;
+      line-height: .93;
+      margin-bottom: 1rem;
+      max-width: 12ch;
     }
-
-    .btn-add-cart:hover {
-      background: var(--text);
-      color: var(--white);
+    .hero-depth-copy > p:not(.kicker) { color: var(--ink-soft); font-size: .96rem; margin-bottom: 1.45rem; }
+    @media (min-width: 1024px) {
+      .hero-foreground { height: 100%; left: 65%; }
     }
-
-    /* ── Free Shipping Banner ── */
-    .banner {
-      background: var(--pastel-pink);
-      text-align: center;
-      padding: 48px 24px;
-    }
-
-    .banner-icon {
-      margin-bottom: 12px;
-    }
-
-    .banner-icon svg {
-      width: 32px;
-      height: 32px;
-      color: var(--gold);
-    }
-
-    .banner-title {
-      font-family: var(--font-heading);
-      font-size: 24px;
-      font-weight: 400;
-      margin-bottom: 8px;
-    }
-
-    .banner-text {
-      font-size: 14px;
-      color: var(--gray-600);
-      font-weight: 300;
-    }
-
-    /* ── Testimonials ── */
-    .testimonials-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 40px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .testimonial-card {
-      text-align: center;
-      padding: 0 16px;
-    }
-
-    .testimonial-stars {
-      color: var(--gold);
-      font-size: 14px;
-      letter-spacing: 2px;
-      margin-bottom: 16px;
-    }
-
-    .testimonial-text {
-      font-size: 15px;
-      font-weight: 300;
-      line-height: 1.7;
-      color: var(--gray-600);
-      margin-bottom: 20px;
-      font-style: italic;
-    }
-
-    .testimonial-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: var(--gray-200);
-      margin: 0 auto 10px;
-      object-fit: cover;
-    }
-
-    .testimonial-name {
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-    }
-
-    .testimonial-location {
-      font-size: 12px;
-      color: var(--gray-400);
-    }
-
-    /* ── Newsletter ── */
-    .newsletter {
-      background: var(--text);
-      color: var(--white);
-      text-align: center;
-      padding: 80px 24px;
-    }
-
-    .newsletter .section-label { color: var(--gold-light); }
-
-    .newsletter .section-title {
-      color: var(--white);
-      margin-bottom: 12px;
-    }
-
-    .newsletter-desc {
-      font-size: 14px;
-      font-weight: 300;
-      opacity: 0.7;
-      margin-bottom: 32px;
-    }
-
-    .newsletter-form {
-      display: flex;
-      gap: 0;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    .newsletter-input {
-      flex: 1;
-      padding: 14px 20px;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: transparent;
-      color: var(--white);
-      font-family: var(--font-body);
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.3s;
-    }
-
-    .newsletter-input::placeholder { color: rgba(255,255,255,0.4); }
-    .newsletter-input:focus { border-color: var(--gold); }
-
-    .newsletter-btn {
-      padding: 14px 32px;
-      background: var(--gold);
-      color: var(--white);
-      border: 1px solid var(--gold);
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .newsletter-btn:hover { background: var(--gold-dark); }
-
-    .newsletter-note {
-      font-size: 11px;
-      opacity: 0.4;
-      margin-top: 12px;
-    }
-
-    /* ── Footer ── */
-    .footer {
-      background: var(--text);
-      color: rgba(255,255,255,0.6);
-      padding: 48px 48px 32px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 48px;
-      max-width: 1200px;
-      margin: 0 auto 40px;
-    }
-
-    .footer-brand-name {
-      font-family: var(--font-heading);
-      font-size: 20px;
-      color: var(--white);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .footer-brand-desc {
-      font-size: 13px;
-      line-height: 1.7;
-      max-width: 280px;
-    }
-
-    .footer-col-title {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--white);
-      margin-bottom: 16px;
-    }
-
-    .footer-links {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .footer-links a {
-      font-size: 13px;
-      transition: color 0.2s;
-    }
-
-    .footer-links a:hover { color: var(--gold-light); }
-
-    .footer-social {
-      display: flex;
-      gap: 16px;
-      margin-top: 8px;
-    }
-
-    .footer-social a {
-      width: 36px;
-      height: 36px;
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: border-color 0.3s, color 0.3s;
-    }
-
-    .footer-social a:hover {
-      border-color: var(--gold);
-      color: var(--gold-light);
-    }
-
-    .footer-social svg { width: 16px; height: 16px; }
-
-    .footer-bottom {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding-top: 24px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-    }
-
-    .payment-icons {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .payment-icon {
-      background: rgba(255,255,255,0.1);
-      padding: 4px 10px;
-      border-radius: 3px;
-      font-size: 11px;
-      font-weight: 500;
-      color: rgba(255,255,255,0.5);
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 1024px) {
-      .section { padding: 64px 32px; }
-      .header { padding: 16px 24px; }
-    }
-
-    @media (max-width: 768px) {
-      .header-nav { display: none; }
-      .section { padding: 48px 20px; }
-      .hero { height: 70vh; min-height: 480px; }
-
-      .collections-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .collection-card { aspect-ratio: 4/3; }
-
-      .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-      }
-
-      .testimonials-grid {
-        grid-template-columns: 1fr;
-        gap: 32px;
-      }
-
-      .newsletter-form {
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .newsletter-btn { width: 100%; }
-
-      .footer-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 32px;
-      }
-
-      .footer-bottom {
-        flex-direction: column;
-        gap: 16px;
-        text-align: center;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .products-grid {
-        grid-template-columns: 1fr;
-        max-width: 320px;
-        margin: 0 auto;
-      }
-      .footer-grid { grid-template-columns: 1fr; }
-    }
-
-    /* ── Animations ── */
-    @media (prefers-reduced-motion: no-preference) {
-      .fade-in {
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.6s ease, transform 0.6s ease;
-      }
-      .fade-in.visible {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    @media (max-width: 760px) {
+      .hero-depth { min-height: 0; height: auto; padding-top: 112vw; }
+      .hero-depth::after { inset: 30vw .75rem auto; height: 82vw; }
+      .hero-depth-type { font-size: 18vw; left: 6%; top: 1.5rem; }
+      .hero-depth-type span:last-child { margin-left: 12vw; }
+      .hero-foreground { top: 19vw; bottom: auto; height: 93vw; left: 56%; }
+      .hero-depth-copy { position: relative; bottom: auto; left: auto; max-width: none; padding: 1.5rem 1.25rem 2rem; }
+      .hero-depth-copy h1 { font-size: 2.25rem; max-width: 14ch; }
+      .hero-depth-copy .kicker { margin-bottom: .75rem; }
+      .hero-depth-copy > p:not(.kicker) { max-width: 26rem; }
     }
   </style>
 </head>
 <body>
-
-  <!-- Announcement Bar -->
-  <div class="announcement-bar">
-    Free Shipping on Orders Above RM200 &nbsp;&bull;&nbsp; Use Code: <strong>MUSE10</strong> for 10% Off
-  </div>
-
-  <!-- Header -->
-  <header class="header">
-    <nav>
-      <ul class="header-nav">
-        <li><a href="#collections">New In</a></li>
-        <li><a href="#products">Shop</a></li>
-        <li><a href="#collections">Collections</a></li>
-      </ul>
-    </nav>
-    <a href="#" class="logo">Muse</a>
-    <div class="header-icons">
-      <button aria-label="Search">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-      </button>
-      <button aria-label="Account">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
-      </button>
-      <button aria-label="Cart">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
-      </button>
-    </div>
-  </header>
-
-  <!-- Hero -->
-  <section class="hero">
-    <img class="hero-bg" src="https://images.unsplash.com/photo-1587003484867-ba695bd4e4ac?w=1600&h=900&fit=crop&q=80" alt="Fashion editorial - woman in elegant white outfit">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <p class="hero-subtitle">SS27 Collection</p>
-      <h1 class="hero-title">New Season, <em>New You</em></h1>
-      <p class="hero-desc">Discover modest-friendly fashion that moves with you.</p>
-      <a href="#products" class="btn-primary">Shop Now</a>
-    </div>
-  </section>
-
-  <!-- Featured Collections -->
-  <section class="section" id="collections">
-    <div class="section-header fade-in">
-      <p class="section-label">Curated For You</p>
-      <h2 class="section-title">Shop by Collection</h2>
-      <div class="section-divider"></div>
-    </div>
-    <div class="collections-grid">
-      <div class="collection-card fade-in">
-        <img class="collection-card-img" src="https://images.unsplash.com/photo-1759229874914-c1ffdb3ebd0c?w=800&h=1066&fit=crop&q=80" alt="Everyday Essentials collection">
-        <div class="collection-card-overlay">
-          <h3 class="collection-card-title">Everyday Essentials</h3>
-          <a href="#" class="collection-card-link">Shop Collection &rarr;</a>
-        </div>
-      </div>
-      <div class="collection-card fade-in">
-        <img class="collection-card-img" src="https://images.unsplash.com/photo-1606776627650-454d6d7bd7bf?w=800&h=1066&fit=crop&q=80" alt="Workwear Edit collection">
-        <div class="collection-card-overlay">
-          <h3 class="collection-card-title">Workwear Edit</h3>
-          <a href="#" class="collection-card-link">Shop Collection &rarr;</a>
-        </div>
-      </div>
-      <div class="collection-card fade-in">
-        <img class="collection-card-img" src="https://images.unsplash.com/photo-1617088532175-0b26866c1d5f?w=800&h=1066&fit=crop&q=80" alt="Weekend Looks collection">
-        <div class="collection-card-overlay">
-          <h3 class="collection-card-title">Weekend Looks</h3>
-          <a href="#" class="collection-card-link">Shop Collection &rarr;</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Products -->
-  <section class="section products-section" id="products">
-    <div class="section-header fade-in">
-      <p class="section-label">New Arrivals</p>
-      <h2 class="section-title">Trending This Season</h2>
-      <div class="section-divider"></div>
-    </div>
-    <div class="products-grid">
-
-      <div class="product-card fade-in">
-        <div class="product-image">
-          <span class="product-badge">New</span>
-          <img src="https://images.unsplash.com/photo-1590399830217-8db7489f911e?w=600&h=800&fit=crop&q=80" alt="Aira Wide-Leg Pants" loading="lazy">
-        </div>
-        <h3 class="product-name">Aira Wide-Leg Pants</h3>
-        <p class="product-price">RM 129</p>
-        <button class="btn-add-cart">Add to Cart</button>
-      </div>
-
-      <div class="product-card fade-in">
-        <div class="product-image">
-          <img src="https://images.unsplash.com/photo-1575915002992-ae1d3e0892f7?w=600&h=800&fit=crop&q=80" alt="Nadia Satin Blouse" loading="lazy">
-        </div>
-        <h3 class="product-name">Nadia Satin Blouse</h3>
-        <p class="product-price">RM 99</p>
-        <button class="btn-add-cart">Add to Cart</button>
-      </div>
-
-      <div class="product-card fade-in">
-        <div class="product-image">
-          <span class="product-badge">Bestseller</span>
-          <img src="https://images.unsplash.com/photo-1685703204758-c37561dff8d0?w=600&h=800&fit=crop&q=80" alt="Lina Pleated Skirt" loading="lazy">
-        </div>
-        <h3 class="product-name">Lina Pleated Skirt</h3>
-        <p class="product-price">RM 109</p>
-        <button class="btn-add-cart">Add to Cart</button>
-      </div>
-
-      <div class="product-card fade-in">
-        <div class="product-image">
-          <img src="https://images.unsplash.com/photo-1610288311735-39b7facbd095?w=600&h=800&fit=crop&q=80" alt="Zara Knit Cardigan" loading="lazy">
-        </div>
-        <h3 class="product-name">Zara Knit Cardigan</h3>
-        <p class="product-price">RM 149</p>
-        <button class="btn-add-cart">Add to Cart</button>
-      </div>
-
-      <div class="product-card fade-in">
-        <div class="product-image">
-          <img src="https://images.unsplash.com/photo-1589572597185-498c5ea0a731?w=600&h=800&fit=crop&q=80" alt="Hana Cotton Tee" loading="lazy">
-        </div>
-        <h3 class="product-name">Hana Cotton Tee</h3>
-        <p class="product-price">RM 79</p>
-        <button class="btn-add-cart">Add to Cart</button>
-      </div>
-
-      <div class="product-card fade-in">
-        <div class="product-image">
-          <span class="product-badge">Limited</span>
-          <img src="https://images.unsplash.com/photo-1592960362714-0e753879ace5?w=600&h=800&fit=crop&q=80" alt="Raya Blazer Dress" loading="lazy">
-        </div>
-        <h3 class="product-name">Raya Blazer Dress</h3>
-        <p class="product-price"><span class="original">RM 219</span>RM 189</p>
-        <button class="btn-add-cart">Add to Cart</button>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Free Shipping Banner -->
-  <section class="banner fade-in">
-    <div class="banner-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
-    </div>
-    <h2 class="banner-title">Enjoy Free Shipping</h2>
-    <p class="banner-text">On all orders above RM200 &mdash; delivered to your doorstep across Malaysia.</p>
-  </section>
-
-  <!-- Testimonials -->
-  <section class="section">
-    <div class="section-header fade-in">
-      <p class="section-label">What Our Customers Say</p>
-      <h2 class="section-title">Loved by Women Across Malaysia</h2>
-      <div class="section-divider"></div>
-    </div>
-    <div class="testimonials-grid">
-      <div class="testimonial-card fade-in">
-        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-        <p class="testimonial-text">"The quality is amazing for the price. I love how the fabrics are breathable and modest-friendly. Perfect for our Malaysian weather!"</p>
-        <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1622031174422-4a7bcfad82c3?w=96&h=96&fit=crop&crop=face&q=80" alt="Sarah A.">
-        <p class="testimonial-name">Sarah A.</p>
-        <p class="testimonial-location">Kuala Lumpur</p>
-      </div>
-      <div class="testimonial-card fade-in">
-        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-        <p class="testimonial-text">"Finally found a brand that understands modern modest fashion. The Workwear Edit collection is now my go-to for office outfits."</p>
-        <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1574201635302-388dd92a4c3f?w=96&h=96&fit=crop&crop=face&q=80" alt="Nurul H.">
-        <p class="testimonial-name">Nurul H.</p>
-        <p class="testimonial-location">Penang</p>
-      </div>
-      <div class="testimonial-card fade-in">
-        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-        <p class="testimonial-text">"Fast delivery and beautiful packaging. The wide-leg pants fit perfectly. Already ordered two more colours!"</p>
-        <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1754315052701-0b98f6ba786b?w=96&h=96&fit=crop&crop=face&q=80" alt="Aisyah R.">
-        <p class="testimonial-name">Aisyah R.</p>
-        <p class="testimonial-location">Johor Bahru</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Newsletter -->
-  <section class="newsletter">
-    <div class="section-label">Join the MUSE Family</div>
-    <h2 class="section-title" style="font-size: clamp(24px, 3vw, 36px);">Get 10% Off Your First Order</h2>
-    <p class="newsletter-desc">Subscribe for exclusive drops, styling tips, and member-only offers.</p>
-    <form class="newsletter-form" onsubmit="return false;">
-      <label for="newsletter-email" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Email address</label>
-      <input type="email" id="newsletter-email" class="newsletter-input" placeholder="Enter your email address" required>
-      <button type="submit" class="newsletter-btn">Subscribe</button>
-    </form>
-    <p class="newsletter-note">No spam, unsubscribe anytime.</p>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-grid">
-      <div>
-        <div class="footer-brand-name">Muse</div>
-        <p class="footer-brand-desc">Modern modest fashion for the everyday woman. Designed in Malaysia, made with love.</p>
-        <div class="footer-social" style="margin-top: 20px;">
-          <a href="#" aria-label="Instagram">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
-          </a>
-          <a href="#" aria-label="Facebook">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-          </a>
-          <a href="#" aria-label="TikTok">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1 0-5.78 2.92 2.92 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.57 6.33 6.33 0 0 0 9.37 22a6.33 6.33 0 0 0 6.38-6.22V9.4a8.16 8.16 0 0 0 4.84 1.58v-3.4a4.85 4.85 0 0 1-1-.89z"/></svg>
-          </a>
-        </div>
-      </div>
-      <div>
-        <h4 class="footer-col-title">Shop</h4>
-        <ul class="footer-links">
-          <li><a href="#">New Arrivals</a></li>
-          <li><a href="#">Bestsellers</a></li>
-          <li><a href="#">Collections</a></li>
-          <li><a href="#">Sale</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="footer-col-title">Help</h4>
-        <ul class="footer-links">
-          <li><a href="#">Shipping Policy</a></li>
-          <li><a href="#">Returns & Exchange</a></li>
-          <li><a href="#">Size Guide</a></li>
-          <li><a href="#">Contact Us</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="footer-col-title">About</h4>
-        <ul class="footer-links">
-          <li><a href="#">Our Story</a></li>
-          <li><a href="#">Sustainability</a></li>
-          <li><a href="#">Careers</a></li>
-          <li><a href="#">Privacy Policy</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2027 MUSE Apparel. All rights reserved.</p>
-      <div class="payment-icons">
-        <span class="payment-icon">VISA</span>
-        <span class="payment-icon">MC</span>
-        <span class="payment-icon">FPX</span>
-        <span class="payment-icon">GrabPay</span>
-        <span class="payment-icon">TNG</span>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    // Scroll fade-in animation
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-  </script>
-
-<!-- ── Concept-demo label · so this demo is never mistaken for a real client or a live business ── -->
-<a id="h2o-concept-badge" href="https://www.h2o-dreamer-studio.com/" target="_blank" rel="noopener"
-   title="This is a concept demo by H2ODreamer Studio — not a real client or a live business."
-   aria-label="Concept demo by H2ODreamer Studio — not a real client project"
-   style="position:fixed;left:16px;bottom:16px;z-index:2147483000;display:inline-flex;align-items:center;gap:7px;max-width:calc(100vw - 32px);box-sizing:border-box;padding:8px 14px;border-radius:999px;background:rgba(15,15,18,.82);color:#fff;font:600 12px/1.25 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;letter-spacing:.01em;text-decoration:none;border:1px solid rgba(255,255,255,.22);box-shadow:0 8px 26px -10px rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);">
-  <span aria-hidden="true" style="font-size:13px;line-height:1;">✦</span>
-  <span>概念示范作品 · Concept Demo</span>
-</a>
-<script>if(window.top!==window.self){var _b=document.getElementById('h2o-concept-badge');if(_b)_b.remove();}</script>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="announcement">Free shipping on orders above RM200. Use MUSE10 for 10% off.</div>
+  <header class="site-header"><nav class="site-nav" aria-label="Primary navigation"><a href="#shop">Shop</a><a href="#collections">Collections</a><a href="#story">Our story</a></nav><a class="wordmark" href="#top" aria-label="MUSE home">MUSE</a><div class="header-actions"><a href="#shop">Search</a><a href="#shop">Bag (0)</a></div></header>
+  <main id="main-content">
+<section class="hero hero-depth" id="top"><p class="hero-depth-type" aria-hidden="true"><span>MUSE</span><span>APPAREL</span></p><img class="hero-foreground" src="../assets/demos/muse/muse-hero-v3-cutout.webp" alt="Woman wearing a sage overshirt and ivory trousers" width="1024" height="1536" fetchpriority="high"><div class="hero-depth-copy"><p class="kicker">The soft tailoring edit</p><h1>Ease, in your own time.</h1><p>Considered layers for everyday movement, made for Malaysian days.</p><a class="button" href="#shop">Shop the edit</a></div></section>
+    <section class="page-width intro reveal" aria-labelledby="intro-title"><h2 id="intro-title">A wardrobe that leaves room to breathe.</h2><p>Clean silhouettes, honest fabrics and small details that make getting dressed feel simple again.</p></section>
+    <section class="page-width material-story reveal" aria-labelledby="material-title"><img src="../assets/demos/muse/muse-material-colour-story.webp" alt="Colourful fabric swatches and garment details arranged on a tailoring table" width="1086" height="1448" loading="lazy"><div class="material-copy"><p class="kicker">Made to mix</p><h2 id="material-title">The pieces behind the look.</h2><p>A quiet palette of washed linen, satin and soft knit lets every layer work together.</p><a class="text-link" href="#shop">Explore the essentials</a></div></section>
+    <section class="page-width collection-section" id="collections" aria-labelledby="collections-title"><p class="kicker">Curated for everyday</p><h2 class="section-title" id="collections-title">Dress for the day you have.</h2><div class="collection-grid"><a class="collection-card reveal" href="#shop"><img src="../assets/demos/muse/muse-collection-everyday.webp" alt="Woman walking in a cobalt linen overshirt and ecru trousers" width="1086" height="1448" loading="lazy"><h3>Everyday ease</h3><p>Light layers for workdays and weekends.</p></a><a class="collection-card reveal" href="#shop"><img src="../assets/demos/muse/muse-collection-work.webp" alt="Woman in a chocolate blazer and dark trousers in a modern office" width="1086" height="1448" loading="lazy"><h3>The work edit</h3><p>Soft structure for busy schedules.</p></a><div class="collection-note reveal"><p>One palette. Many ways to wear it.</p></div></div></section>
+    <section class="page-width shop-section" id="shop" aria-labelledby="shop-title"><div class="shop-heading reveal"><div><p class="kicker">New arrivals</p><h2 id="shop-title">The current edit.</h2></div><a href="#newsletter">Get 10% off your first order</a></div><div class="product-grid">
+      <article class="product reveal"><button class="product-image" type="button" aria-label="Show garment detail for Odelia Overshirt" aria-pressed="false" data-product="Odelia Overshirt"><img class="product-model" src="../assets/demos/muse/muse-product-odelia-model.webp" alt="Model wearing a cobalt blue Odelia linen overshirt" width="1024" height="1536" loading="lazy"><img class="product-detail" src="../assets/demos/muse/muse-product-odelia-detail.webp" alt="" width="1024" height="1536" loading="lazy"><span class="touch-image-label" aria-hidden="true">Tap for detail</span></button><div class="product-details"><h3>Odelia Overshirt</h3><p>RM 149</p><button type="button">Add to bag</button></div></article>
+      <article class="product reveal"><button class="product-image" type="button" aria-label="Show garment detail for Aira Wide Leg Pants" aria-pressed="false" data-product="Aira Wide Leg Pants"><img class="product-model" src="../assets/demos/muse/muse-product-aira-model.webp" alt="Model wearing terracotta Aira wide leg trousers" width="1024" height="1536" loading="lazy"><img class="product-detail" src="../assets/demos/muse/muse-product-aira-detail.webp" alt="" width="1024" height="1536" loading="lazy"><span class="touch-image-label" aria-hidden="true">Tap for detail</span></button><div class="product-details"><h3>Aira Wide Leg Pants</h3><p>RM 129</p><button type="button">Add to bag</button></div></article>
+      <article class="product reveal"><button class="product-image" type="button" aria-label="Show garment detail for Nadia Satin Blouse" aria-pressed="false" data-product="Nadia Satin Blouse"><img class="product-model" src="../assets/demos/muse/muse-product-nadia-model.webp" alt="Model wearing a pale lilac Nadia satin blouse" width="1024" height="1536" loading="lazy"><img class="product-detail" src="../assets/demos/muse/muse-product-nadia-detail.webp" alt="" width="1024" height="1536" loading="lazy"><span class="touch-image-label" aria-hidden="true">Tap for detail</span></button><div class="product-details"><h3>Nadia Satin Blouse</h3><p>RM 99</p><button type="button">Add to bag</button></div></article>
+      <article class="product reveal"><button class="product-image" type="button" aria-label="Show garment detail for Lina Linen Shirt" aria-pressed="false" data-product="Lina Linen Shirt"><img class="product-model" src="../assets/demos/muse/muse-product-lina-model.webp" alt="Model wearing a butter yellow Lina linen shirt" width="1024" height="1536" loading="lazy"><img class="product-detail" src="../assets/demos/muse/muse-product-lina-detail.webp" alt="" width="1024" height="1536" loading="lazy"><span class="touch-image-label" aria-hidden="true">Tap for detail</span></button><div class="product-details"><h3>Lina Linen Shirt</h3><p>RM 119</p><button type="button">Add to bag</button></div></article>
+      <article class="product reveal"><button class="product-image" type="button" aria-label="Show garment detail for Noor Knit Dress" aria-pressed="false" data-product="Noor Knit Dress"><img class="product-model" src="../assets/demos/muse/muse-product-noor-model.webp" alt="Model wearing a charcoal Noor ribbed knit dress" width="1024" height="1536" loading="lazy"><img class="product-detail" src="../assets/demos/muse/muse-product-noor-detail.webp" alt="" width="1024" height="1536" loading="lazy"><span class="touch-image-label" aria-hidden="true">Tap for detail</span></button><div class="product-details"><h3>Noor Knit Dress</h3><p>RM 179</p><button type="button">Add to bag</button></div></article>
+      <article class="product reveal"><button class="product-image" type="button" aria-label="Show garment detail for Liyana Day Set" aria-pressed="false" data-product="Liyana Day Set"><img class="product-model" src="../assets/demos/muse/muse-product-liyana-model.webp" alt="Model wearing a deep teal Liyana shirt and trouser set" width="1024" height="1536" loading="lazy"><img class="product-detail" src="../assets/demos/muse/muse-product-liyana-detail.webp" alt="" width="1024" height="1536" loading="lazy"><span class="touch-image-label" aria-hidden="true">Tap for detail</span></button><div class="product-details"><h3>Liyana Day Set</h3><p>RM 189</p><button type="button">Add to bag</button></div></article>
+    </div></section>
+    <section class="wear-story" id="story" aria-labelledby="story-title"><div class="wear-copy reveal"><p class="kicker">Designed in Malaysia</p><h2 id="story-title">For the way life really moves.</h2><p>Breathable layers and modest proportions for commutes, coffee runs and everything between.</p><a class="button" href="#collections">Browse collections</a></div><img src="../assets/demos/muse/muse-story-city-movement.webp" alt="Two women in teal and terracotta modest outfits walking through a city arcade" width="1448" height="1086" loading="lazy"></section>
+    <section class="page-width shipping reveal" aria-label="Shipping offer"><span aria-hidden="true">M</span><div><h2>Free shipping, across Malaysia.</h2><p>Enjoy complimentary delivery on orders above RM200.</p></div><a class="text-link" href="#newsletter">Join MUSE</a></section>
+    <section class="page-width quotes reveal" aria-labelledby="quotes-title"><h2 id="quotes-title">Loved for the ease of it.</h2><div class="quote-list"><blockquote><p>“The fabrics feel light, but the cut still looks put together.”</p><footer>Sarah A. - Kuala Lumpur</footer></blockquote><blockquote><p>“The work edit is now the first place I look before a busy week.”</p><footer>Nurul H. - Penang</footer></blockquote></div></section>
+    <section class="newsletter" id="newsletter" aria-labelledby="newsletter-title"><div class="page-width"><p class="kicker">Join the MUSE family</p><h2 id="newsletter-title">A little something for your first order.</h2><p>Receive 10% off and occasional notes on new pieces and styling ideas.</p><form onsubmit="return false;"><label for="newsletter-email">Email address</label><input id="newsletter-email" type="email" placeholder="Email address" autocomplete="email" required><button class="button" type="submit">Subscribe</button></form></div></section>
+  </main>
+  <footer class="footer page-width"><div class="footer-top"><div><div class="footer-brand">MUSE</div><p>Modern modest fashion for the everyday woman.</p></div><div><h3>Shop</h3><ul><li><a href="#shop">New arrivals</a></li><li><a href="#shop">Bestsellers</a></li><li><a href="#collections">Collections</a></li></ul></div><div><h3>Help</h3><ul><li><a href="#newsletter">Shipping</a></li><li><a href="#newsletter">Returns</a></li><li><a href="#newsletter">Size guide</a></li></ul></div><div><h3>Follow</h3><ul><li><a href="#top">Instagram</a></li><li><a href="#top">TikTok</a></li><li><a href="#top">Facebook</a></li></ul></div></div><div class="footer-bottom"><span>© 2026 MUSE Apparel</span><span>Visa, Mastercard, FPX, GrabPay and TNG</span></div></footer>
+  <a id="h2o-concept-badge" href="https://www.h2o-dreamer-studio.com/" target="_blank" rel="noopener" title="Concept demo by H2ODreamer Studio, not a live business." aria-label="Concept demo by H2ODreamer Studio" style="position:fixed;left:16px;bottom:16px;z-index:20;padding:8px 12px;background:rgb(36 48 41 / .9);border:1px solid rgb(255 255 255 / .25);border-radius:999px;color:#fff;font:600 11px/1.25 Arial,sans-serif;text-decoration:none;">Concept demo</a>
+  <script>const observer=new IntersectionObserver((entries)=>{entries.forEach((entry)=>{if(entry.isIntersecting)entry.target.classList.add('is-visible');});},{threshold:.12});document.querySelectorAll('.reveal').forEach((element)=>observer.observe(element));const productImages=[...document.querySelectorAll('.product-image')];const resetProductImage=(button)=>{button.classList.remove('is-detail');button.setAttribute('aria-pressed','false');button.setAttribute('aria-label',`Show garment detail for ${button.dataset.product}`);button.querySelector('.touch-image-label').textContent='Tap for detail';};productImages.forEach((button)=>{button.addEventListener('click',()=>{const showDetail=!button.classList.contains('is-detail');productImages.filter((item)=>item!==button).forEach(resetProductImage);button.classList.toggle('is-detail',showDetail);button.setAttribute('aria-pressed',String(showDetail));button.setAttribute('aria-label',`${showDetail?'Show model look for':'Show garment detail for'} ${button.dataset.product}`);button.querySelector('.touch-image-label').textContent=showDetail?'Tap for look':'Tap for detail';});});</script>
 </body>
 </html>
