@@ -185,6 +185,55 @@ h2 {
   }
 }
 
+/* 背景偶尔划过的流星，给内容稀的页面一点活气。
+   每颗一个长周期，只有开头约 1 秒在飞，其余时间透明：几颗错开周期，
+   看起来就是「时不时」一颗，而不是一直在下雨。纯 CSS，交给合成器。
+   ⚠️ 手机不渲染（GEO 清单 §6 / 无限动画一律桌面才开）；减弱动态偏好由
+   下面那条全局规则接管：动画一轮就停在末帧，末帧是透明的。 */
+.meteors {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .meteors {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .meteors span {
+    position: absolute;
+    width: 160px;
+    height: 1px;
+    opacity: 0;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.7));
+    transform-origin: left center;
+    animation: meteor var(--d) linear var(--delay) infinite;
+  }
+}
+
+/* rotate(145deg) 让 +x 朝左下（CSS 旋转是顺时针）；亮的一头在右端，所以是头在前、尾在后。 */
+@keyframes meteor {
+  0% {
+    opacity: 0;
+    transform: rotate(145deg) translateX(0);
+  }
+  1% {
+    opacity: 1;
+  }
+  7% {
+    opacity: 0;
+    transform: rotate(145deg) translateX(700px);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(145deg) translateX(700px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

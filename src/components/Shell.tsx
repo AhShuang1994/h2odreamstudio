@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Inter } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -52,6 +52,12 @@ export function Shell({ lang, children }: { lang: Lang; children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: headInline }} />
       </head>
       <body className="font-sans antialiased">
+        {/* 背景流星，样式与节奏见 globals.css 的 .meteors。 */}
+        <div className="meteors" aria-hidden="true">
+          <span style={{ top: "8%", left: "85%", "--d": "14s", "--delay": "2s" } as CSSProperties} />
+          <span style={{ top: "30%", left: "60%", "--d": "19s", "--delay": "9s" } as CSSProperties} />
+          <span style={{ top: "5%", left: "45%", "--d": "23s", "--delay": "15s" } as CSSProperties} />
+        </div>
         <Reveal />
         <Parallax />
         <Overture />
