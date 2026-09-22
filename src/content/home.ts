@@ -334,6 +334,21 @@ export const selectedWork = {
       palette: { cn: "柔粉 + 薄荷 + 玫瑰 #E8919A", en: "Soft blush + mint + rose #E8919A" } as Bilingual,
     },
     {
+      title: { cn: "Serai Skin Studio · 新山美容院官网", en: "Serai Skin Studio · Beauty salon website" } as Bilingual,
+      name: "Serai Skin Studio",
+      tag: { cn: "企业官网", en: "Corporate site" } as Bilingual,
+      industry: { cn: "美容院 / 实体店", en: "Beauty salon / walk-in shop" } as Bilingual,
+      img: "/assets/portfolio/landing-serai-pop-desktop.webp",
+      href: "/case-studies/serai-beauty-salon",
+      job: {
+        cn: "一个任务，让一个在新山搜「附近 facial」的人，还没开口就知道价钱和营业时间，然后 WhatsApp 约一个时段。",
+        en: "One job. Take someone in JB searching \"facial near me\", answer the price and the hours before she has to ask, and get her to WhatsApp for a slot.",
+      } as Bilingual,
+      goal: { cn: "附近在找的人 → WhatsApp 预约", en: "Nearby searcher → WhatsApp booking" } as Bilingual,
+      action: { cn: "WhatsApp 预约（预填讯息）", en: "Book on WhatsApp (pre-filled)" } as Bilingual,
+      palette: { cn: "奶油 #FBF3E1 + 橘红 #F4561E + 桃粉", en: "Cream #FBF3E1 + orange #F4561E + peach pink" } as Bilingual,
+    },
+    {
       title: { cn: "MUSE Apparel · Shopify 服装网店", en: "MUSE Apparel · Shopify store" } as Bilingual,
       name: "MUSE Apparel",
       tag: { cn: "Shopify", en: "Shopify" } as Bilingual,

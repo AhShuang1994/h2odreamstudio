@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://www.h2o-dreamer-studio.com/case-studies/serai-beauty-salon.html">
+  <title>美容院网站设计拆解：Serai Skin Studio 怎么把新山附近的人变成 WhatsApp 预约 · H2ODreamer Studio</title>
+  <meta name="description" content="一个新山（Johor Bahru）美容院首页的设计拆解：为什么价目表紧跟在第一屏后面、营业时间要实时显示「现在开没开」、新加坡客人要看到 SGD 与 CIQ 车程、首次体验价写明「不签配套」、手机轮播为什么一定要有暂停键，以及奶油底配橘红的鲜艳配色怎么算对比度。马来西亚美容院、沙龙、美睫美甲店可对照套用。">
+  <meta name="keywords" content="美容院网站设计, 美容院网站, 新山美容院, beauty salon website Malaysia, facial Johor Bahru, 沙龙网站, 美睫网站, 实体店网站, WhatsApp 预约, 5 页企业站">
+
+  <meta property="og:title" content="美容院网站设计拆解：Serai Skin Studio 怎么把新山附近的人变成 WhatsApp 预约">
+  <meta property="og:description" content="价目表前置、实时营业时间、给新加坡客人的 SGD 与车程、不签配套的首次体验价 —— 一个 JB 美容院首页每个设计决定背后的「为什么」。">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://www.h2o-dreamer-studio.com/case-studies/serai-beauty-salon.html">
+  <meta property="og:image" content="https://www.h2o-dreamer-studio.com/og/og-image.jpg">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="article:published_time" content="2026-09-22">
+  <meta property="article:author" content="H2ODreamer Studio">
+  <meta property="article:section" content="Case Study">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="美容院网站设计拆解 — Serai Skin Studio">
+  <meta name="twitter:description" content="新山美容院首页怎么用透明价格、实时营业时间和一键 WhatsApp，把「附近有没有好的美容院」变成预约。">
+
+  <meta name="theme-color" content="#020818">
+
+  <!-- Structured Data — Article (design case study) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "美容院网站设计拆解：Serai Skin Studio 怎么把新山附近的人变成 WhatsApp 预约",
+    "description": "一个新山美容院首页的设计拆解：价目表前置、实时营业时间、给新加坡客人的 SGD 与 CIQ 车程、不签配套的首次体验价、带暂停键的手机轮播，以及奶油底配橘红的鲜艳配色怎么过对比度。",
+    "image": "https://www.h2o-dreamer-studio.com/og/og-image.jpg",
+    "author": {
+      "@type": "Person",
+      "name": "Hui Huang Ong",
+      "jobTitle": "Founder",
+      "url": "https://www.h2o-dreamer-studio.com/",
+      "image": "https://www.h2o-dreamer-studio.com/og/founder-avatar.webp",
+      "description": "Founder of H2ODreamer Studio, helping Malaysian small business owners and creators build websites that actually win customers.",
+      "worksFor": { "@type": "Organization", "name": "H2ODreamer Studio", "url": "https://www.h2o-dreamer-studio.com/" },
+      "sameAs": [ "https://xhslink.com/m/1U2Ou01jY2E" ]
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "H2ODreamer Studio",
+      "logo": { "@type": "ImageObject", "url": "https://www.h2o-dreamer-studio.com/og/logo.svg" }
+    },
+    "datePublished": "2026-09-22",
+    "dateModified": "2026-09-22",
+    "mainEntityOfPage": { "@type": "WebPage", "@id": "https://www.h2o-dreamer-studio.com/case-studies/serai-beauty-salon.html" },
+    "about": { "@type": "CreativeWork", "name": "Serai Skin Studio — beauty salon homepage concept demo, Johor Bahru", "creator": { "@type": "Organization", "name": "H2ODreamer Studio" } },
+    "keywords": "美容院网站设计, 新山美容院, beauty salon website Malaysia, WhatsApp 预约, 5 页企业站"
+  }
+  </script>
+
+
+  <!-- 拉丁 Inter + 中文思源黑体子集，全部自托管。这张表由构建后的
+       scripts/gen-content-fonts.mjs 生成，路径固定、内容跟着 next/font 走（#94）。 -->
+  <link rel="stylesheet" href="/css/fonts.css">
+
+  <link rel="stylesheet" href="../css/style.min.css">
+  <link rel="stylesheet" href="../css/case-study.css">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-45NTTZBZC4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-45NTTZBZC4');
+  </script>
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="../index.html#work" class="nav-back" aria-label="Back to Work">←</a>
+      <a href="../index.html" class="nav-logo">H2O<span>Dreamer</span> Studio</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="navLinks">
+        <li class="has-dropdown">
+          <span class="nav-parent" tabindex="0" role="button" aria-expanded="false"><span data-lang-en="Services" data-lang-cn="服务">服务</span><span class="caret" aria-hidden="true">▾</span></span>
+          <ul class="dropdown-menu">
+            <li><a href="../landing-page" data-lang-en="Website Design" data-lang-cn="网站设计">网站设计</a></li>
+            <li><a href="../wedding-basic" data-lang-en="Wedding E-Invitation" data-lang-cn="婚礼喜帖">婚礼喜帖</a></li>
+            <li><a href="../shopify-migration" data-lang-en="Shopify Migration" data-lang-cn="Shopify 迁移">Shopify 迁移</a></li>
+            <li><a href="../pricing" data-lang-en="Pricing" data-lang-cn="价格方案">价格方案</a></li>
+          </ul>
+        </li>
+        <li><a href="../about" data-lang-en="About" data-lang-cn="关于">关于</a></li>
+        <li><a href="../index.html#work" data-lang-en="Work" data-lang-cn="作品">作品</a></li>
+        <li><a href="../blog/index.html" data-lang-en="Blog" data-lang-cn="博客">博客</a></li>
+        <li><a href="../contact" data-lang-en="Contact" data-lang-cn="联系">联系</a></li>
+      </ul>
+      <button class="lang-toggle" id="langToggle" aria-label="Toggle language"><span class="lang-cn">中文</span> / <span class="lang-en">EN</span></button>
+    </div>
+  </nav>
+
+  <main>
+    <article>
+    <!-- ============ HERO ============ -->
+    <section class="detail-hero article-hero" id="hero">
+      <div class="floating-blobs" aria-hidden="true"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+      <a href="../index.html#work" class="back-link" data-lang-en="← Back to Portfolio" data-lang-cn="← 返回作品集">← 返回作品集</a>
+      <div class="hero-inner">
+        <div class="hero-badge" data-lang-en="Corporate Site · Case Study" data-lang-cn="企业官网 · 设计拆解">企业官网 · 设计拆解</div>
+        <h1 data-lang-en="Serai Skin Studio: how a JB beauty salon turns <em>&quot;anywhere good nearby?&quot;</em> into a booking"
+            data-lang-cn="Serai 美容院:<em>把「附近有没有好的美容院」变成 WhatsApp 预约</em>">
+          Serai 美容院:<em>把「附近有没有好的美容院」变成 WhatsApp 预约</em>
+        </h1>
+        <p class="hero-sub"
+           data-lang-en="A breakdown of the homepage for a small beauty salon in Johor Bahru. It's a concept demo: Serai Skin Studio is a made-up brand, and the prices, reviews and address are placeholders. What's real is the thinking — why each block sits where it does for a salon that lives on walk-by trust and WhatsApp."
+           data-lang-cn="这是一家新山（Johor Bahru）小美容院首页的拆解。它是概念 demo:Serai Skin Studio 是虚构品牌,价钱、评价、地址都是示意。真的是背后的判断——一家靠街坊信任和 WhatsApp 吃饭的美容院,每一块为什么放在那里。">
+          这是一家新山（Johor Bahru）小美容院首页的拆解。它是概念 demo:Serai Skin Studio 是虚构品牌,价钱、评价、地址都是示意。真的是背后的判断——一家靠街坊信任和 WhatsApp 吃饭的美容院,每一块为什么放在那里。
+        </p>
+        <div class="article-meta">
+          <span data-lang-en="📅 September 22, 2026" data-lang-cn="📅 2026 年 9 月 22 日">📅 2026 年 9 月 22 日</span>
+          <span class="dot">·</span>
+          <span data-lang-en="⏱ 6 min read" data-lang-cn="⏱ 阅读约 6 分钟">⏱ 阅读约 6 分钟</span>
+          <span class="dot">·</span>
+          <span data-lang-en="✍ Hui Huang Ong" data-lang-cn="✍ Hui Huang Ong">✍ Hui Huang Ong</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BODY ============ -->
+    <section class="article-body-section">
+      <div class="article-content">
+
+        <!-- Quick Answer — answer-first TL;DR for readers and AI answer engines -->
+        <div class="summary-box" style="margin-top: 0;">
+          <h2 data-lang-en="⚡ Quick answer" data-lang-cn="⚡ 30 秒快速答案">⚡ 30 秒快速答案</h2>
+          <p data-lang-en="A beauty salon's homepage has to answer three questions before anything else: how much, are you open, and how do I get there. Everything else is there to make booking feel safe."
+             data-lang-cn="美容院首页要先回答三个问题:多少钱、现在开没开、怎么去。其他每一块,都是为了让「预约」这件事感觉安全。">美容院首页要先回答三个问题:多少钱、现在开没开、怎么去。其他每一块,都是为了让「预约」这件事感觉安全。</p>
+          <ul>
+            <li data-lang-en="Put the full price list right after the first screen, and say plainly that the price on the page is the price at the counter."
+                data-lang-cn="完整价目表紧跟第一屏,并且白纸黑字写明:页面上的价钱就是柜台的价钱。">完整价目表紧跟第一屏,并且白纸黑字写明:页面上的价钱就是柜台的价钱。</li>
+            <li data-lang-en="Show opening hours live (&quot;open now, until 8pm&quot;), with Google Maps and Waze side by side — and for JB, the price in SGD and the drive from CIQ."
+                data-lang-cn="营业时间实时显示「现在营业中,开到 8 点」,Google Maps 和 Waze 并排;在新山,再加上新币价钱和离关卡的车程。">营业时间实时显示「现在营业中,开到 8 点」,Google Maps 和 Waze 并排;在新山,再加上新币价钱和离关卡的车程。</li>
+            <li data-lang-en="Everything funnels into one action: a one-tap WhatsApp booking with the treatment already typed in."
+                data-lang-cn="全页只导向一个动作:一键 WhatsApp 预约,讯息里已经帮客人打好疗程名。">全页只导向一个动作:一键 WhatsApp 预约,讯息里已经帮客人打好疗程名。</li>
+          </ul>
+        </div>
+
+        <div class="summary-box">
+          <h2 data-lang-en="⚡ At a glance" data-lang-cn="⚡ 一眼看懂">⚡ 一眼看懂</h2>
+          <p data-lang-en="One job: take someone in JB searching &quot;facial near me&quot;, answer the price and the hours before she has to ask, and get her to WhatsApp for a slot. Here's the shape of it:"
+             data-lang-cn="一个任务:让一个在新山搜「附近 facial」的人,还没开口就知道价钱和营业时间,然后 WhatsApp 约一个时段。它长这样:">一个任务:让一个在新山搜「附近 facial」的人,还没开口就知道价钱和营业时间,然后 WhatsApp 约一个时段。它长这样:</p>
+          <div class="price-table">
+            <div class="price-row"><span class="price-label" data-lang-en="Industry" data-lang-cn="行业">行业</span><span class="price-amount" data-lang-en="Beauty salon / walk-in shop, Johor Bahru" data-lang-cn="美容院 / 实体店,新山">美容院 / 实体店,新山</span></div>
+            <div class="price-row is-mine"><span class="price-label" data-lang-en="Tier" data-lang-cn="适合档位">适合档位</span><span class="price-amount" data-lang-en="5-page corporate site · from RM 2,500 (this is its homepage)" data-lang-cn="5 页企业站 · RM 2,500 起(这是它的首页)">5 页企业站 · RM 2,500 起(这是它的首页)</span></div>
+            <div class="price-row"><span class="price-label" data-lang-en="The one goal" data-lang-cn="核心任务">核心任务</span><span class="price-amount" data-lang-en="Nearby searcher → WhatsApp booking" data-lang-cn="附近在找的人 → WhatsApp 预约">附近在找的人 → WhatsApp 预约</span></div>
+            <div class="price-row"><span class="price-label" data-lang-en="Primary CTA" data-lang-cn="主 CTA">主 CTA</span><span class="price-amount" data-lang-en="Book on WhatsApp (pre-filled)" data-lang-cn="WhatsApp 预约(预填讯息)">WhatsApp 预约(预填讯息)</span></div>
+            <div class="price-row"><span class="price-label" data-lang-en="Palette" data-lang-cn="配色">配色</span><span class="price-amount" data-lang-en="Cream #FBF3E1 + orange #F4561E + peach pink #EC6E8C" data-lang-cn="奶油 #FBF3E1 + 橘红 #F4561E + 桃粉 #EC6E8C">奶油 #FBF3E1 + 橘红 #F4561E + 桃粉 #EC6E8C</span></div>
+          </div>
+          <div class="cs-actions">
+            <a href="../demos/serai-beauty-jb-pop.html" class="cs-btn cs-btn-primary" target="_blank" rel="noopener" onclick="gtag('event','click',{event_category:'Case Study',event_label:'Serai View Live Demo (top)'})" data-lang-en="🔗 View live demo →" data-lang-cn="🔗 看 live demo →">🔗 看 live demo →</a>
+            <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20%E6%88%91%E5%BC%80%E7%BE%8E%E5%AE%B9%E9%99%A2%EF%BC%8C%E6%83%B3%E5%81%9A%E4%B8%80%E4%B8%AA%E5%83%8F%20Serai%20%E8%BF%99%E6%A0%B7%E7%9A%84%E7%BD%91%E7%AB%99%E3%80%82" class="cs-btn cs-btn-ghost" target="_blank" rel="noopener" onclick="gtag('event','click',{event_category:'WhatsApp',event_label:'Case Study Serai CTA (top)'})" data-lang-en="💬 I want one like this" data-lang-cn="💬 想要同款">💬 想要同款</a>
+          </div>
+        </div>
+
+        <div class="cs-shot">
+          <div class="cs-bar"><span class="cs-dot" style="background:#ff5f57"></span><span class="cs-dot" style="background:#febc2e"></span><span class="cs-dot" style="background:#28c840"></span><span class="cs-url">seraiskin.my</span></div>
+          <img src="../assets/portfolio/landing-serai-pop-desktop.webp" width="1440" height="900" loading="lazy"
+               alt="Serai Skin Studio 美容院首页桌面端截图:奶油色底,左侧粗黑全大写标题「SKIN THAT FEELS LIKE yours AGAIN」,中间一行橘红、yours 是粉色手写体,下方深橘「Book on WhatsApp」按钮与疗程标签;右侧拱形圆角框里是一间橘粉色调的护理房">
+        </div>
+        <p class="cs-figcaption"
+           data-lang-en="The Serai concept demo: a cream page, loud orange type, and one hand-written word. Under the fold, the very next thing is the full price list — because that's the question every salon visitor is actually carrying."
+           data-lang-cn="Serai 概念 demo:奶油底、大声的橘红字、一个手写字。往下一滑,紧接着就是完整价目表——因为每个来看美容院网站的人,心里真正揣着的就是那个问题。">
+          Serai 概念 demo:奶油底、大声的橘红字、一个手写字。往下一滑,紧接着就是完整价目表——因为每个来看美容院网站的人,心里真正揣着的就是那个问题。
+        </p>
+
+        <p data-lang-en="Picture the visitor: she's in Taman Molek or Bukit Indah, she's typed &quot;facial JB&quot; into Google, and she has four tabs open. Every salon promises glowing skin. What she's really afraid of is the thing no one writes on their site — lying on the bed with a mask on while someone talks her into a RM 3,000 package. The homepage wins by answering that fear before she has to raise it."
+           data-lang-cn="想象这个访客:她住 Taman Molek 或 Bukit Indah,在 Google 打了「facial JB」,开着四个分页。每一家美容院都承诺让你发光。她真正怕的,是所有网站都不会写的那件事——敷着面膜躺在床上,被人一路推销一个 RM 3,000 的配套。这个首页赢的方式,是在她开口之前,先把这个恐惧回答掉。">
+          想象这个访客:她住 Taman Molek 或 Bukit Indah,在 Google 打了「facial JB」,开着四个分页。每一家美容院都承诺让你发光。她真正怕的,是所有网站都不会写的那件事——敷着面膜躺在床上,被人一路推销一个 RM 3,000 的配套。这个首页赢的方式,是在她开口之前,先把这个恐惧回答掉。
+        </p>
+
+        <h2 data-lang-en="<span class='h2-num'>01</span>Why is the price list the second thing on the page?"
+            data-lang-cn="<span class='h2-num'>01</span>为什么价目表是整页第二块?">
+          <span class="h2-num">01</span>为什么价目表是整页第二块?
+        </h2>
+        <p data-lang-en="Because <strong>price is the first question and the hardest one to ask</strong>. Most salon sites hide it behind &quot;WhatsApp us for pricing&quot;, which to a first-time visitor reads as &quot;it depends on how much you look like you can pay&quot;. Serai puts fifteen treatments with duration and price in three groups — facials, brows and lashes, waxing and body — directly under the hero, and heads it <strong>&quot;Full price list, no surprises&quot;</strong>. The line under it does the real work: <em>every price includes the consultation and the aftercare talk; what you read here is what you pay at the counter.</em>"
+           data-lang-cn="因为<strong>价钱是第一个问题,也是最难开口问的问题</strong>。大部分美容院网站把它藏在「价格请 WhatsApp 询问」后面,在第一次来的人眼里,这句话读起来就是「看你像付得起多少」。Serai 把十五个疗程连时长带价钱,分成三组——面部、眉毛与睫毛、脱毛与身体——直接放在 hero 下面,标题叫<strong>「Full price list, no surprises」</strong>。真正干活的是下面那一句:<em>每个价钱都包含咨询和术后讲解;你在这里看到的,就是你在柜台付的。</em>">
+          因为<strong>价钱是第一个问题,也是最难开口问的问题</strong>。大部分美容院网站把它藏在「价格请 WhatsApp 询问」后面,在第一次来的人眼里,这句话读起来就是「看你像付得起多少」。Serai 把十五个疗程连时长带价钱,分成三组——面部、眉毛与睫毛、脱毛与身体——直接放在 hero 下面,标题叫<strong>「Full price list, no surprises」</strong>。真正干活的是下面那一句:<em>每个价钱都包含咨询和术后讲解;你在这里看到的,就是你在柜台付的。</em>
+        </p>
+        <p data-lang-en="The order was a deliberate change. The first draft had the price list halfway down, after the trust strip and the signature treatments. Moving it up meant the navigation had to change too — Prices now comes before Treatments in the menu — so the menu order matches the scroll order. A menu that jumps you backwards and forwards feels like a site that doesn't know what it wants you to read."
+           data-lang-cn="这个顺序是刻意改过的。第一版的价目表在半页之后,排在信任条和招牌疗程后面。把它往上提,导航也得跟着改——菜单里 Prices 现在排在 Treatments 前面——让菜单顺序跟页面滚动顺序一致。一个会让你前后乱跳的菜单,感觉就像一个不知道要你先看什么的网站。">
+          这个顺序是刻意改过的。第一版的价目表在半页之后,排在信任条和招牌疗程后面。把它往上提,导航也得跟着改——菜单里 Prices 现在排在 Treatments 前面——让菜单顺序跟页面滚动顺序一致。一个会让你前后乱跳的菜单,感觉就像一个不知道要你先看什么的网站。
+        </p>
+        <div class="pullquote">
+          <p data-lang-en="&quot;Price on request&quot; doesn't make a salon look premium. It makes the visitor do the awkward part — and most of them just close the tab."
+             data-lang-cn="「价格请询问」不会让美容院显得高级。它只是把最尴尬的那一步丢给客人——而大部分人的选择是直接关掉分页。">
+            「价格请询问」不会让美容院显得高级。它只是把最尴尬的那一步丢给客人——而大部分人的选择是直接关掉分页。
+          </p>
+        </div>
+
+        <h2 data-lang-en="<span class='h2-num'>02</span>Are you open right now? The page answers that live"
+            data-lang-cn="<span class='h2-num'>02</span>「现在开没开?」页面自己实时回答">
+          <span class="h2-num">02</span>「现在开没开?」页面自己实时回答
+        </h2>
+        <p data-lang-en="A weekly timetable makes the visitor do maths: what day is it, what time is it, is today the odd one. Serai's hours block does the maths for her. It reads the visitor's clock and shows one line — <strong>&quot;Open now, until 20:00&quot;</strong>, <strong>&quot;Opens today at 10:00&quot;</strong>, or <strong>&quot;Closed now, opens tomorrow&quot;</strong> — above the full week, with today's row highlighted. Tuesday is the closed day, and it says so in words, plus a line that public holidays are announced on Instagram. The logic was checked against nine edge-case times, because a live status that is wrong once is worse than no status at all."
+           data-lang-cn="一张一周营业时间表,是在叫访客自己算:今天星期几、现在几点、今天是不是例外那天。Serai 的营业时间区块帮她算好了。它读访客自己的时间,在整周表上方只显示一行——<strong>「Open now, until 20:00」</strong>、<strong>「Opens today at 10:00」</strong>,或<strong>「Closed now, opens tomorrow」</strong>——同时把今天那一行标亮。星期二休息,直接用字写出来,另加一句「公共假期在 Instagram 公布」。这段逻辑用九组边界时间验过,因为一个错过一次的实时状态,比没有状态还糟。">
+          一张一周营业时间表,是在叫访客自己算:今天星期几、现在几点、今天是不是例外那天。Serai 的营业时间区块帮她算好了。它读访客自己的时间,在整周表上方只显示一行——<strong>「Open now, until 20:00」</strong>、<strong>「Opens today at 10:00」</strong>,或<strong>「Closed now, opens tomorrow」</strong>——同时把今天那一行标亮。星期二休息,直接用字写出来,另加一句「公共假期在 Instagram 公布」。这段逻辑用九组边界时间验过,因为一个错过一次的实时状态,比没有状态还糟。
+        </p>
+
+        <h2 data-lang-en="<span class='h2-num'>03</span>What does a JB salon need that a KL one doesn't?"
+            data-lang-cn="<span class='h2-num'>03</span>新山的美容院,需要什么吉隆坡的不需要?">
+          <span class="h2-num">03</span>新山的美容院,需要什么吉隆坡的不需要?
+        </h2>
+        <p data-lang-en="<strong>Singapore customers.</strong> A real share of JB beauty bookings cross the causeway, and they think in SGD. So under the price list sits one plain sentence: <em>RM 188 is roughly SGD 56; we are 15 minutes from JB CIQ and parking is free.</em> Three facts, and each one answers a question a Singaporean would otherwise have to go and look up. One of the three reviews is from a Singapore regular who crosses every six weeks for lashes — the right review to show the right visitor."
+           data-lang-cn="<strong>新加坡客人。</strong>新山美容院有相当一部分预约是过长堤来的,而他们脑子里想的是新币。所以价目表下面放了平平的一句话:<em>RM 188 大约是 SGD 56;离新山关卡 15 分钟车程,门口免费停车。</em>三个事实,每一个都回答了一个新加坡人原本要自己去查的问题。三条评价里有一条来自一位每六周过关来接睫毛的新加坡熟客——对的评价,给对的访客看。">
+          <strong>新加坡客人。</strong>新山美容院有相当一部分预约是过长堤来的,而他们脑子里想的是新币。所以价目表下面放了平平的一句话:<em>RM 188 大约是 SGD 56;离新山关卡 15 分钟车程,门口免费停车。</em>三个事实,每一个都回答了一个新加坡人原本要自己去查的问题。三条评价里有一条来自一位每六周过关来接睫毛的新加坡熟客——对的评价,给对的访客看。
+        </p>
+        <p data-lang-en="The rest is Malaysian basics that overseas templates always miss. <strong>Waze sits next to Google Maps</strong>, because more drivers here open Waze. The address line says &quot;look for the orange door&quot;, because a shoplot row all looks the same from the road. The footer lists DuitNow QR, Touch 'n Go, GrabPay and FPX before the card logos. Every treatment name carries its Chinese name on a second line — Hydra Glow Facial, Misty Brow Embroidery and the rest — because that's how a lot of JB customers search and ask."
+           data-lang-cn="剩下的是国外模板永远会漏掉的马来西亚基本功。<strong>Waze 跟 Google Maps 并排</strong>,因为这里开车的人更多用 Waze。地址那一行写着「找橘色那扇门」,因为一整排店屋从马路上看都长一样。页脚先列 DuitNow QR、Touch 'n Go、GrabPay、FPX,再列信用卡。疗程名在英文下面带一行中文——水光补水护理、韩式雾眉——因为很多新山客人就是这样搜、这样问的。">
+          剩下的是国外模板永远会漏掉的马来西亚基本功。<strong>Waze 跟 Google Maps 并排</strong>,因为这里开车的人更多用 Waze。地址那一行写着「找橘色那扇门」,因为一整排店屋从马路上看都长一样。页脚先列 DuitNow QR、Touch 'n Go、GrabPay、FPX,再列信用卡。疗程名在英文下面带一行中文——水光补水护理、韩式雾眉——因为很多新山客人就是这样搜、这样问的。
+        </p>
+
+        <h2 data-lang-en="<span class='h2-num'>04</span>A first-visit price that promises less, not more"
+            data-lang-cn="<span class='h2-num'>04</span>首次体验价,承诺的是「少」,不是「多」">
+          <span class="h2-num">04</span>首次体验价,承诺的是「少」,不是「多」
+        </h2>
+        <p data-lang-en="The offer block is <strong>RM 88 for the Hydra Glow Facial, usually RM 188</strong>. Every salon has a trial price; what makes this one work is the sentence after it: <em>seventy-five minutes, full consultation, and no package signing at the end.</em> The discount gets her curious. The &quot;no package&quot; line is what gets her to actually book, because it names the exact thing she was worried about and takes it off the table."
+           data-lang-cn="配套区块的主角是<strong>水光补水护理首次 RM 88,原价 RM 188</strong>。每一家美容院都有体验价;这一个有效,靠的是后面那一句:<em>七十五分钟、完整咨询,结束时不签任何配套。</em>折扣让她好奇。「不签配套」这一句才是让她真的按下预约的原因,因为它点名了她最怕的那件事,然后直接把它拿掉。">
+          配套区块的主角是<strong>水光补水护理首次 RM 88,原价 RM 188</strong>。每一家美容院都有体验价;这一个有效,靠的是后面那一句:<em>七十五分钟、完整咨询,结束时不签任何配套。</em>折扣让她好奇。「不签配套」这一句才是让她真的按下预约的原因,因为它点名了她最怕的那件事,然后直接把它拿掉。
+        </p>
+        <p data-lang-en="Packages still exist — six facials for RM 998, a member card, lash refills — but they sit in a quieter card headed <strong>&quot;If you come back&quot;</strong>. The order is the message: try us first, then decide. The brand story says the same thing in its own words (&quot;nobody will push a package on you while you are lying down&quot;), and the trust strip repeats it once more as <em>Price on the wall</em>. One promise, said in three places, is what makes a small salon believable."
+           data-lang-cn="配套还是有——六次面部 RM 998、会员卡、补睫毛——但它们放在一张比较安静的卡里,标题是<strong>「If you come back」</strong>。顺序本身就是讯息:先来试,再决定。品牌故事用自己的话把同一件事又讲一次(「你躺着的时候,没有人会向你推配套」),信任条再讲一次,叫 <em>Price on the wall</em>。同一个承诺在三个地方说出来,一家小美容院才让人信。">
+          配套还是有——六次面部 RM 998、会员卡、补睫毛——但它们放在一张比较安静的卡里,标题是<strong>「If you come back」</strong>。顺序本身就是讯息:先来试,再决定。品牌故事用自己的话把同一件事又讲一次(「你躺着的时候,没有人会向你推配套」),信任条再讲一次,叫 <em>Price on the wall</em>。同一个承诺在三个地方说出来,一家小美容院才让人信。
+        </p>
+
+        <h2 data-lang-en="<span class='h2-num'>05</span>Why the phone carousels have a pause button"
+            data-lang-cn="<span class='h2-num'>05</span>手机上的轮播,为什么一定有暂停键">
+          <span class="h2-num">05</span>手机上的轮播,为什么一定有暂停键
+        </h2>
+        <p data-lang-en="On a phone, fifteen prices and four signature cards would be a very long scroll. So below 768px both become swipeable carousels that advance every three seconds, with each card bleeding off the edge so the next one peeks in. That auto-advance is also a problem: <strong>a customer reading the lash prices gets the card pulled away mid-sentence.</strong> That's why a pause button sits next to the dots — not as decoration, but because moving content that starts by itself needs a way to stop it (WCAG 2.2.2)."
+           data-lang-cn="在手机上,十五个价钱加四张招牌卡,会是一段非常长的滑动。所以在 768px 以下,两块都变成可以横滑的轮播,每三秒自己换一张,卡片出血到屏幕边缘,让下一张露出一角。但自动轮播本身也是问题:<strong>客人正在看睫毛的价钱,卡片在她读到一半时被抽走了。</strong>所以圆点旁边有一个暂停键——不是装饰,而是因为会自己动的内容,必须给人一个让它停下来的方法(WCAG 2.2.2)。">
+          在手机上,十五个价钱加四张招牌卡,会是一段非常长的滑动。所以在 768px 以下,两块都变成可以横滑的轮播,每三秒自己换一张,卡片出血到屏幕边缘,让下一张露出一角。但自动轮播本身也是问题:<strong>客人正在看睫毛的价钱,卡片在她读到一半时被抽走了。</strong>所以圆点旁边有一个暂停键——不是装饰,而是因为会自己动的内容,必须给人一个让它停下来的方法(WCAG 2.2.2)。
+        </p>
+        <p data-lang-en="It also stops on its own when it should: when a finger touches it (and resumes six seconds later), when the section scrolls off screen, when the tab goes to the background, and entirely if the phone has reduced motion turned on. The WhatsApp button changes shape on the phone too — from a small round icon that disappeared into the hero photo, to a full-width bar with the words &quot;Book on WhatsApp&quot; on it, with room left at the bottom of the page so it never covers the last line."
+           data-lang-cn="该停的时候它也会自己停:手指一碰(六秒后恢复)、区块滑出屏幕、分页切到背景,以及手机开了「减少动态效果」时整个不动。WhatsApp 按钮在手机上也换了形状——原本是一颗会糊进 hero 照片里的小圆图标,改成横贯全宽、写着「Book on WhatsApp」的一条,页面底部同时留了空位,它永远不会盖住最后一行字。">
+          该停的时候它也会自己停:手指一碰(六秒后恢复)、区块滑出屏幕、分页切到背景,以及手机开了「减少动态效果」时整个不动。WhatsApp 按钮在手机上也换了形状——原本是一颗会糊进 hero 照片里的小圆图标,改成横贯全宽、写着「Book on WhatsApp」的一条,页面底部同时留了空位,它永远不会盖住最后一行字。
+        </p>
+
+        <h2 data-lang-en="<span class='h2-num'>06</span>Why a loud orange instead of beige and gold"
+            data-lang-cn="<span class='h2-num'>06</span>为什么是大声的橘红,而不是米色配金">
+          <span class="h2-num">06</span>为什么是大声的橘红,而不是米色配金
+        </h2>
+        <p data-lang-en="Beige, brass and espresso is the most common beauty-salon palette there is. It looks calm, and it also looks like every other salon in the four tabs she has open. The owner's reference was a bright, playful studio, so Serai goes the other way: a warm cream background <strong>#FBF3E1</strong>, one orange <strong>#F4561E</strong>, a peach pink <strong>#EC6E8C</strong>, and no cool colours anywhere — even the neutrals are warm. Headlines are <strong>Archivo Black</strong> in capitals; one hand-written font, <strong>Caveat</strong>, is used just five times on the whole page, so it stays a signature rather than a theme."
+           data-lang-cn="米色、黄铜、深咖啡,是美容院最泛滥的一套配色。它看起来很平静,也看起来跟她开着的另外三个分页一模一样。店主给的参考是一间明亮、俏皮的工作室,所以 Serai 走反方向:暖奶油底 <strong>#FBF3E1</strong>、一个橘红 <strong>#F4561E</strong>、一个桃粉 <strong>#EC6E8C</strong>,全页没有任何冷色——连中性色都是暖的。标题用全大写的 <strong>Archivo Black</strong>;手写体 <strong>Caveat</strong> 全页只用五次,让它一直是「签名」,而不是变成主题。">
+          米色、黄铜、深咖啡,是美容院最泛滥的一套配色。它看起来很平静,也看起来跟她开着的另外三个分页一模一样。店主给的参考是一间明亮、俏皮的工作室,所以 Serai 走反方向:暖奶油底 <strong>#FBF3E1</strong>、一个橘红 <strong>#F4561E</strong>、一个桃粉 <strong>#EC6E8C</strong>,全页没有任何冷色——连中性色都是暖的。标题用全大写的 <strong>Archivo Black</strong>;手写体 <strong>Caveat</strong> 全页只用五次,让它一直是「签名」,而不是变成主题。
+        </p>
+        <p data-lang-en="Bright orange is where accessibility bites. On the cream it measures about 3.1:1, and white text on it about 3.4:1 — both fine for big headlines, both failing for a button label. So the bright orange only ever fills shapes and sets large type; <strong>every button and chip uses a deeper orange #A63009</strong>, where white text clears 6.9:1. The panels that are orange carry dark ink body text (4.9:1) instead of white. The pink got the same treatment: the brand pink is only 2.7:1 on cream, so the hand-written words use a darker <strong>#D94A6E</strong> that passes for large text."
+           data-lang-cn="亮橘色正是无障碍标准会咬人的地方。它压在奶油底上大约 3.1:1,白字压在它上面大约 3.4:1——做大标题都可以,做按钮字都不及格。所以亮橘只拿来填色块和写大字;<strong>每一个按钮和标签都用更深的橘 #A63009</strong>,白字在上面过 6.9:1。橘色的面板上,正文用深墨色(4.9:1)而不是白色。粉色也照样处理:品牌粉在奶油底上只有 2.7:1,所以手写字改用更深的 <strong>#D94A6E</strong>,过大字标准。">
+          亮橘色正是无障碍标准会咬人的地方。它压在奶油底上大约 3.1:1,白字压在它上面大约 3.4:1——做大标题都可以,做按钮字都不及格。所以亮橘只拿来填色块和写大字;<strong>每一个按钮和标签都用更深的橘 #A63009</strong>,白字在上面过 6.9:1。橘色的面板上,正文用深墨色(4.9:1)而不是白色。粉色也照样处理:品牌粉在奶油底上只有 2.7:1,所以手写字改用更深的 <strong>#D94A6E</strong>,过大字标准。
+        </p>
+        <p data-lang-en="The blobs, sparkles, flowers and wavy lines are all inline SVG, not images: six shapes defined once and reused everywhere, coloured by the theme. They stay sharp at any zoom and add nothing to the download. The photos are a different story, and it's worth being plain about it: <strong>every photo and every customer face on the demo is AI-generated, and the reviews, the 4.8 rating and the address are placeholders.</strong> Each image slot is marked for replacement, and customer photos only go live with written permission from real clients."
+           data-lang-cn="那些不规则色块、星芒、小花、波浪线全部是内联 SVG,不是图片:六个形状只定义一次、到处复用,颜色跟着主题走。放大多少倍都清楚,下载量一点也不增加。照片就是另一回事了,这里值得说白:<strong>demo 上的每一张照片、每一张顾客的脸都是 AI 生成的;评价、4.8 的评分和地址都是示意。</strong>每个图片槽位都标了「待替换」,顾客照片只有在真实客人书面同意之后才会上线。">
+          那些不规则色块、星芒、小花、波浪线全部是内联 SVG,不是图片:六个形状只定义一次、到处复用,颜色跟着主题走。放大多少倍都清楚,下载量一点也不增加。照片就是另一回事了,这里值得说白:<strong>demo 上的每一张照片、每一张顾客的脸都是 AI 生成的;评价、4.8 的评分和地址都是示意。</strong>每个图片槽位都标了「待替换」,顾客照片只有在真实客人书面同意之后才会上线。
+        </p>
+
+        <div class="inline-cta">
+          <p data-lang-en="Run a salon, a lash bar, a nail studio or a spa? This homepage is built for exactly that kind of shop. Open the live demo on your phone, then WhatsApp me your price list — I'll tell you what your homepage should answer first."
+             data-lang-cn="你开的是美容院、美睫店、美甲店或 spa?这个首页就是为这种店做的。先用手机打开 live demo,再把你的价目表 WhatsApp 给我,我告诉你你的首页最该先回答哪个问题。">
+            你开的是美容院、美睫店、美甲店或 spa?这个首页就是为这种店做的。先用手机打开 live demo,再把你的价目表 WhatsApp 给我,我告诉你你的首页最该先回答哪个问题。
+          </p>
+          <div class="cs-actions">
+            <a href="../demos/serai-beauty-jb-pop.html" class="cs-btn cs-btn-primary" target="_blank" rel="noopener" onclick="gtag('event','click',{event_category:'Case Study',event_label:'Serai View Live Demo (inline)'})" data-lang-en="🔗 View live demo →" data-lang-cn="🔗 看 live demo →">🔗 看 live demo →</a>
+            <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20%E6%88%91%E5%BC%80%E7%BE%8E%E5%AE%B9%E9%99%A2%2F%E6%B2%99%E9%BE%99%EF%BC%8C%E6%83%B3%E8%81%8A%E8%81%8A%E7%BD%91%E7%AB%99%E3%80%82" class="cs-btn cs-btn-ghost" target="_blank" rel="noopener" onclick="gtag('event','click',{event_category:'WhatsApp',event_label:'Case Study Serai CTA (inline)'})" data-lang-en="💬 WhatsApp me →" data-lang-cn="💬 WhatsApp 聊聊 →">💬 WhatsApp 聊聊 →</a>
+          </div>
+        </div>
+
+        <div class="summary-box">
+          <h2 data-lang-en="The whole thing, in one line" data-lang-cn="把整件事变成一句话">把整件事变成一句话</h2>
+          <div class="equation"
+               data-lang-en="<b>Salon homepage</b> = the full price list up front × live &quot;open now&quot; hours × directions that fit how people here actually travel (Waze, SGD, CIQ) × a first-visit offer that promises no package × one pre-filled WhatsApp button. A salon doesn't lose customers to a better salon — it loses them to the awkward question they didn't want to ask."
+               data-lang-cn="<b>美容院首页</b> = 价目表前置 × 实时「现在营业中」 × 符合这里人怎么出门的路线信息(Waze、新币、关卡) × 承诺不签配套的首次体验价 × 一个预填好的 WhatsApp 按钮。美容院不是输给更好的美容院——是输给那个客人不想开口问的尴尬问题。">
+            <b>美容院首页</b> = 价目表前置 × 实时「现在营业中」 × 符合这里人怎么出门的路线信息(Waze、新币、关卡) × 承诺不签配套的首次体验价 × 一个预填好的 WhatsApp 按钮。美容院不是输给更好的美容院——是输给那个客人不想开口问的尴尬问题。
+          </div>
+          <p style="margin-top: 20px;"
+             data-lang-en="Selling one skincare product instead of treatments? That's a different page — compare it with the <a href=&quot;glow-seoul-skincare.html&quot; style=&quot;color:var(--color-primary);text-decoration:none;font-weight:600;&quot;>Glow Seoul single-product breakdown</a>. Which business needs which tier is in <a href=&quot;../blog/which-website-for-your-business.html&quot; style=&quot;color:var(--color-primary);text-decoration:none;font-weight:600;&quot;>this guide</a>."
+             data-lang-cn="如果你卖的是一瓶护肤品而不是疗程,那是另一种页面——可以对照 <a href=&quot;glow-seoul-skincare.html&quot; style=&quot;color:var(--color-primary);text-decoration:none;font-weight:600;&quot;>Glow Seoul 单品拆解</a>。哪种生意该做哪一档,我在<a href=&quot;../blog/which-website-for-your-business.html&quot; style=&quot;color:var(--color-primary);text-decoration:none;font-weight:600;&quot;>这篇</a>里讲了。">
+            如果你卖的是一瓶护肤品而不是疗程,那是另一种页面——可以对照 <a href="glow-seoul-skincare.html" style="color:var(--color-primary);text-decoration:none;font-weight:600;">Glow Seoul 单品拆解</a>。哪种生意该做哪一档,我在<a href="../blog/which-website-for-your-business.html" style="color:var(--color-primary);text-decoration:none;font-weight:600;">这篇</a>里讲了。
+          </p>
+        </div>
+
+        <figure class="author-card">
+          <img class="author-avatar" src="../assets/founder-avatar.webp" width="72" height="72" loading="lazy" alt="Hui Huang Ong, Founder of H2ODreamer Studio">
+          <figcaption class="author-info">
+            <div class="author-name">Hui Huang Ong</div>
+            <span class="author-role" data-lang-en="Founder" data-lang-cn="创始人">创始人</span>
+            <p class="author-bio" data-lang-en="Founder of H2ODreamer Studio, helping Malaysian small business owners and creators build websites that actually win customers." data-lang-cn="H2ODreamer Studio 创始人,专帮马来西亚的小生意主和创业者,从零打造真正能接住客户的网站。">H2ODreamer Studio 创始人,专帮马来西亚的小生意主和创业者,从零打造真正能接住客户的网站。</p>
+            <a class="author-link" href="https://xhslink.com/m/1U2Ou01jY2E" target="_blank" rel="noopener" aria-label="Follow Hui Huang Ong on Xiaohongshu">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6"/><path d="M8 9v6M8 9h2.2a1.8 1.8 0 0 1 0 3.6H8m4 2.4V9m4 0v6m0-6h-1.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span data-lang-en="Follow on Xiaohongshu →" data-lang-cn="小红书关注我 →">小红书关注我 →</span>
+            </a>
+          </figcaption>
+        </figure>
+
+      </div>
+    </section>
+    </article>
+
+    <!-- ============ FAQ ============ -->
+    <section class="detail-faq" id="faq">
+      <div class="section-inner">
+        <div class="section-label"
+             data-lang-en="FAQ"
+             data-lang-cn="常见问题">常见问题</div>
+        <h2 class="section-title"
+            data-lang-en="Questions I get asked a lot"
+            data-lang-cn="大家最常问我的问题">大家最常问我的问题</h2>
+        <div class="faq-list">
+
+          <details class="faq-item" open>
+            <summary>
+              <span data-lang-en="What should a beauty salon's homepage show first?"
+                    data-lang-cn="美容院网站的首页,最先应该放什么?">美容院网站的首页,最先应该放什么?</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="Answer the three questions every visitor carries: how much, are you open, and how do I get there. A clear first screen with a WhatsApp booking button, then the full price list, then live opening hours, then the trust signals (licensed therapists, reviews), signature treatments, the story, and a map with Google Maps and Waze. One action throughout: a pre-filled WhatsApp booking."
+                 data-lang-cn="先回答每个访客都揣着的三个问题:多少钱、现在开没开、怎么去。第一屏清楚写你是谁、在哪里,放一个 WhatsApp 预约按钮;接着是完整价目表、实时营业时间,然后才是信任信号(持证美容师、评价)、招牌疗程、品牌故事,以及带 Google Maps 和 Waze 的地图。全页只有一个动作:预填好的 WhatsApp 预约。">
+              先回答每个访客都揣着的三个问题:多少钱、现在开没开、怎么去。第一屏清楚写你是谁、在哪里,放一个 WhatsApp 预约按钮;接着是完整价目表、实时营业时间,然后才是信任信号(持证美容师、评价)、招牌疗程、品牌故事,以及带 Google Maps 和 Waze 的地图。全页只有一个动作:预填好的 WhatsApp 预约。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="Should a beauty salon put its prices on the website?"
+                    data-lang-cn="美容院应该把价钱放上网站吗?">美容院应该把价钱放上网站吗?</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="Yes, in most cases. Price is the first question a new customer has and the most awkward one to ask. &quot;WhatsApp us for pricing&quot; reads as &quot;it depends on you&quot;, and many visitors simply close the tab. Listing prices with durations, and saying the price on the page is the price at the counter, builds more trust than it costs — and it filters out enquiries that were never going to book."
+                 data-lang-cn="大部分情况下,应该。价钱是新客人的第一个问题,也是最尴尬、最难开口的问题。「价格请 WhatsApp 询问」读起来像「看人开价」,很多访客会直接关掉分页。把价钱连同时长列出来,再写明「页面上的价钱就是柜台的价钱」,换来的信任远大于它的代价——还能顺便筛掉本来就不会预约的询问。">
+              大部分情况下,应该。价钱是新客人的第一个问题,也是最尴尬、最难开口的问题。「价格请 WhatsApp 询问」读起来像「看人开价」,很多访客会直接关掉分页。把价钱连同时长列出来,再写明「页面上的价钱就是柜台的价钱」,换来的信任远大于它的代价——还能顺便筛掉本来就不会预约的询问。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="How should a Johor Bahru salon website serve Singapore customers?"
+                    data-lang-cn="新山的美容院网站,怎么照顾新加坡客人?">新山的美容院网站,怎么照顾新加坡客人?</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="Give them the three facts they would otherwise look up: the price in SGD next to the ringgit price, how far you are from JB CIQ, and whether parking is free. Add Waze beside Google Maps, and if you have a regular who crosses the causeway, show that review. WhatsApp works for Singapore numbers too, so the same booking button serves both sides."
+                 data-lang-cn="把他们原本要自己去查的三件事直接给他们:令吉价钱旁边附上大约多少新币、离新山关卡多远、停车是不是免费。Google Maps 旁边加上 Waze;如果有过长堤来的熟客,就把那条评价放出来。WhatsApp 对新加坡号码一样能用,同一个预约按钮两边的客人都接得住。">
+              把他们原本要自己去查的三件事直接给他们:令吉价钱旁边附上大约多少新币、离新山关卡多远、停车是不是免费。Google Maps 旁边加上 Waze;如果有过长堤来的熟客,就把那条评价放出来。WhatsApp 对新加坡号码一样能用,同一个预约按钮两边的客人都接得住。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="Does a beauty salon need a single landing page or a 5-page website?"
+                    data-lang-cn="美容院该做单页 landing,还是 5 页企业站?">美容院该做单页 landing,还是 5 页企业站?</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="Usually a 5-page corporate site (from RM 2,500). A salon sells many treatments, and people search for each one separately — facial, brow embroidery, lashes — so separate pages for services, prices, the team, the studio and contact each give Google something to rank. The homepage in this case study is the front door of that site. A single-page landing (from RM 590) suits a business pushing one product or one offer."
+                 data-lang-cn="通常是 5 页企业站(RM 2,500 起)。美容院卖的是很多个疗程,而大家是分开搜的——facial、绣眉、接睫毛——所以服务、价目、团队、店内环境、联络各自一页,每一页都给 Google 一个可以排名的东西。这篇拆解的首页,就是那个网站的大门。单页 landing(RM 590 起)适合只推一个产品或一个优惠的生意。">
+              通常是 5 页企业站(RM 2,500 起)。美容院卖的是很多个疗程,而大家是分开搜的——facial、绣眉、接睫毛——所以服务、价目、团队、店内环境、联络各自一页,每一页都给 Google 一个可以排名的东西。这篇拆解的首页,就是那个网站的大门。单页 landing(RM 590 起)适合只推一个产品或一个优惠的生意。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="Are auto-playing carousels bad on a salon website?"
+                    data-lang-cn="美容院网站用自动轮播,是不好的做法吗?">美容院网站用自动轮播,是不好的做法吗?</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="They're fine on a phone if they respect the reader. Keep the next card peeking in so people know they can swipe, add a visible pause button, stop when a finger touches it or when it scrolls off screen, and don't move at all if the phone has reduced motion turned on. A carousel that pulls a price away while someone is reading it costs you the booking."
+                 data-lang-cn="在手机上可以用,前提是它尊重正在读的人。让下一张卡露出一角,大家才知道可以滑;放一个看得见的暂停键;手指一碰或滑出屏幕就停;手机开了「减少动态效果」就完全不动。一个在客人读价钱时把卡片抽走的轮播,会直接让你少一个预约。">
+              在手机上可以用,前提是它尊重正在读的人。让下一张卡露出一角,大家才知道可以滑;放一个看得见的暂停键;手指一碰或滑出屏幕就停;手机开了「减少动态效果」就完全不动。一个在客人读价钱时把卡片抽走的轮播,会直接让你少一个预约。
+            </div>
+          </details>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FINAL CTA ============ -->
+    <section class="article-cta" id="cta">
+      <div class="floating-blobs" aria-hidden="true"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+      <div class="section-inner">
+        <div class="hero-badge" data-lang-en="Free 30-min consultation" data-lang-cn="免费 30 分钟咨询">免费 30 分钟咨询</div>
+        <h2 data-lang-en="Want a salon website that <em>fills the book</em>?" data-lang-cn="想要一个<em>真的能约满</em>的美容院网站?">想要一个<em>真的能约满</em>的美容院网站?</h2>
+        <p class="lead" data-lang-en="Send me your treatments, your prices and where you are. I'll map the same playbook — prices up front, live hours, local directions, a no-pressure first visit, one WhatsApp button — onto your shop, and tell you honestly what can wait."
+           data-lang-cn="把你的疗程、价钱和店在哪里发给我。我把这套打法——价目前置、实时营业时间、本地路线、没压力的首次体验、一个 WhatsApp 按钮——套到你的店上,还会老实告诉你哪些可以晚点再做。">把你的疗程、价钱和店在哪里发给我。我把这套打法——价目前置、实时营业时间、本地路线、没压力的首次体验、一个 WhatsApp 按钮——套到你的店上,还会老实告诉你哪些可以晚点再做。</p>
+        <ul class="cta-points">
+          <li data-lang-en="Free 30-min WhatsApp consult" data-lang-cn="免费 30 分钟 WhatsApp 咨询">免费 30 分钟 WhatsApp 咨询</li>
+          <li data-lang-en="A 5-page corporate site from RM 2,500" data-lang-cn="5 页企业站 RM 2,500 起">5 页企业站 RM 2,500 起</li>
+          <li data-lang-en="WhatsApp booking, Google Maps + Waze, SEO &amp; tracking as standard" data-lang-cn="标配 WhatsApp 预约、Google Maps + Waze、SEO 和追踪">标配 WhatsApp 预约、Google Maps + Waze、SEO 和追踪</li>
+        </ul>
+        <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20%E6%88%91%E5%BC%80%E5%AE%9E%E4%BD%93%E5%BA%97%EF%BC%8C%E6%83%B3%E5%81%9A%E4%B8%80%E4%B8%AA%E8%83%BD%E6%8E%A5%E4%BD%8F%E9%99%84%E8%BF%91%E5%AE%A2%E4%BA%BA%E7%9A%84%E7%BD%91%E7%AB%99%E3%80%82" class="btn-primary" target="_blank" rel="noopener" onclick="gtag('event','click',{event_category:'WhatsApp',event_label:'Case Study Serai Final CTA'})" data-lang-en="💬 WhatsApp us →" data-lang-cn="💬 WhatsApp 我们 →">💬 WhatsApp 我们 →</a>
+        <div class="article-footer-nav">
+          <a href="index.html" data-lang-en="← All case studies" data-lang-cn="← 全部案例拆解">← 全部案例拆解</a>
+          <span class="share-label" data-lang-en="Know a salon owner still saying &quot;DM for price&quot;? Share this." data-lang-cn="认识还在说「价格私讯」的美容院老板?把这篇分享给她。">认识还在说「价格私讯」的美容院老板?把这篇分享给她。</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20%E6%88%91%E6%83%B3%E4%BA%86%E8%A7%A3%E6%9B%B4%E5%A4%9A%E5%85%B3%E4%BA%8E%E7%BD%91%E7%AB%99%E8%AE%BE%E8%AE%A1%E7%9A%84%E6%9C%8D%E5%8A%A1%E3%80%82" class="wa-fab" target="_blank" rel="noopener" aria-label="Chat on WhatsApp" onclick="gtag('event','click',{event_category:'WhatsApp',event_label:'Case Study Article FAB'})">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.019-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>© 2026 H2ODreamer Studio · Malaysia</p>
+      <a href="../privacy.html" data-lang-en="Privacy Policy" data-lang-cn="隐私政策">隐私政策</a>
+      <a href="../terms.html" data-lang-en="Terms of Service" data-lang-cn="服务条款">服务条款</a>
+    </div>
+  </footer>
+
+  <script src="../js/main.min.js" defer></script>
+</body>
+</html>
