@@ -10,8 +10,11 @@ export function Footer({ lang }: { lang: Lang }) {
       <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
         <div className="flex flex-col justify-between gap-12 md:flex-row">
           <div className="max-w-xs">
-            <div className="text-[15px] font-medium tracking-[-0.01em] text-ink">
-              H2O<span className="text-accent">Dreamer</span> Studio
+            <div className="flex items-center gap-2 text-[15px] font-medium tracking-[-0.01em] text-ink">
+              <img src="/og/logo-mark.webp" alt="" width={28} height={28} loading="lazy" className="h-7 w-7" />
+              <span>
+                H2O<span className="text-accent">Dreamer</span> Studio
+              </span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-ink-subtle">
               {t(

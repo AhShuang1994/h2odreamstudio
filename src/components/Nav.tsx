@@ -56,9 +56,13 @@ export function Nav({ lang }: { lang: Lang }) {
         <nav className="mx-auto flex h-14 max-w-[1200px] items-center justify-between gap-6 px-5 sm:px-8">
           <Link
             href={localize("/", lang)}
-            className="text-[15px] font-medium tracking-[-0.01em] text-ink"
+            className="flex items-center gap-2 text-[15px] font-medium tracking-[-0.01em] text-ink"
           >
-            H2O<span className="text-accent">Dreamer</span> Studio
+            {/* 图标是装饰，店名留成文字：给搜索引擎和读屏读的是字。 */}
+            <img src="/og/logo-mark.webp" alt="" width={28} height={28} className="h-7 w-7" />
+            <span>
+              H2O<span className="text-accent">Dreamer</span> Studio
+            </span>
           </Link>
 
           <div className="hidden items-center gap-7 md:flex">
