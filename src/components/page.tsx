@@ -4,7 +4,7 @@ import { Container, Eyebrow } from "@/components/ui";
 import type { Bilingual } from "@/content/site";
 
 /**
- * 三个核心页共用的原语。视觉规矩与首页七区块完全一致（#90）——
+ * 三个核心页共用的原语。视觉规矩与首页七区块完全一致（#90），
  * 层级走表面阶梯 + 发丝描边、不用投影、圆角 12px、accent 只做强调。
  */
 
@@ -44,12 +44,14 @@ export function PageHeader({
 }
 
 /**
- * 「快速答案」块 —— 每页开头一段自足的直述性回答，专供 AI 检索时整段引用。
+ * 「快速答案」块，每页开头一段自足的直述性回答，专供 AI 检索时整段引用。
  * 这是本站流量策略的核心结构，见 CONTEXT.md 的「快速答案」词条，不要删。
  */
 export function QuickAnswerCard({ lang, children }: { lang: Lang; children: ReactNode }) {
   return (
-    <Container>
+    // 顶部留白与 PageSection 的 py 同一档：卡片不贴着 PageHeader 的底线，
+    // 上方留白也跟下方（下一个 PageSection 的 pt）一样多
+    <Container className="pt-16 sm:pt-24">
       <div className="rounded-xl border border-hairline bg-surface-1 p-7 sm:p-10">
         <div className="flex items-center gap-2.5">
           <span aria-hidden className="h-3.5 w-0.5 bg-accent" />
@@ -57,7 +59,7 @@ export function QuickAnswerCard({ lang, children }: { lang: Lang; children: Reac
             {t({ cn: "快速答案", en: "Quick answer" }, lang)}
           </span>
         </div>
-        <div className="mt-5 max-w-[62ch] text-[1.0625rem] leading-[1.65] text-ink-muted">
+        <div className="mt-5 max-w-[45rem] lg:max-w-none text-[1.0625rem] leading-[1.65] text-ink-muted">
           {children}
         </div>
       </div>
@@ -95,7 +97,7 @@ export function SectionTitle({ children }: { children: ReactNode }) {
 }
 
 /**
- * 三个核心页收尾都用同一块行动面板 —— 抽出来是为了三处长一个样。
+ * 三个核心页收尾都用同一块行动面板：抽出来是为了三处长一个样。
  *
  * 左对齐、不居中：居中对称的收尾 CTA 是模板骨架里最眼熟的一块，
  * 首页的 ContactCta 也是同一个处理。
@@ -142,10 +144,12 @@ export function FaqList({
       {items.map((f, i) => (
         <details key={i} className="group border-b border-hairline py-6">
           <summary className="flex cursor-pointer list-none items-start justify-between gap-6 text-[15px] font-medium text-ink transition-colors hover:text-accent-hover">
-            <span className="flex gap-5">
-              {/* ink-subtle 而不是 ink-faint —— 后者对底色只有 3.47:1，
+            {/* 编号列定宽 w-7 + gap-5 = 3rem，答案的 pl-12 跟它对齐。baseline 让小号编号
+                跟问题的第一行字落在同一条线上 */}
+            <span className="flex items-baseline gap-5">
+              {/* ink-subtle 而不是 ink-faint，后者对底色只有 3.47:1，
                   达不到正文对比度下限，只能用在 aria-hidden 的装饰字符上。 */}
-              <span className="font-sans text-xs tabular-nums tracking-[0.08em] text-ink-subtle">
+              <span className="w-7 shrink-0 font-sans text-xs tabular-nums tracking-[0.08em] text-ink-subtle">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span>{t(f.q, lang)}</span>
@@ -157,7 +161,7 @@ export function FaqList({
               +
             </span>
           </summary>
-          <p className="mt-4 max-w-[62ch] pl-[2.9rem] text-sm leading-relaxed text-ink-muted">
+          <p className="mt-4 max-w-[48rem] lg:max-w-none pl-12 text-sm leading-relaxed text-ink-muted">
             {t(f.a, lang)}
           </p>
         </details>

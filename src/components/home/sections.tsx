@@ -37,7 +37,7 @@ function Section({
   );
 }
 
-/** 区块标题。负字距、衬线、左对齐 —— 全站没有居中对称的区块头。 */
+/** 区块标题。负字距、衬线、左对齐：全站没有居中对称的区块头。 */
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
     <h2
@@ -69,7 +69,7 @@ export function QuickAnswer({ lang }: { lang: Lang }) {
       <Container>
         <div className="rounded-xl border border-hairline bg-surface-1 p-7 sm:p-10">
           {/* 重画前这里是一个 ⚡ emoji 加胶囊底色。emoji 当图示在自家反 AI
-              清单上；换成一小段 accent 竖线 + 标签，安静得多也更像排版。 */}
+              清单上。换成一小段 accent 竖线 + 标签，安静得多也更像排版。 */}
           <div className="flex items-center gap-2.5">
             <span aria-hidden className="h-3.5 w-0.5 bg-accent" />
             <span className="text-[13px] font-medium tracking-[0.03em] text-accent">
@@ -84,7 +84,7 @@ export function QuickAnswer({ lang }: { lang: Lang }) {
           </h2>
           <p
             data-reveal
-            className="mt-5 max-w-[62ch] text-[1.0625rem] leading-[1.65] text-ink-muted"
+            className="mt-5 max-w-[45rem] lg:max-w-none text-[1.0625rem] leading-[1.65] text-ink-muted"
           >
             {t(quickAnswer.body, lang)}
           </p>
@@ -134,7 +134,7 @@ export function Services({ lang }: { lang: Lang }) {
 }
 
 export function SelectedWork({ lang }: { lang: Lang }) {
-  // 外壳（钉住、星河、轮播）在 WorkShowcase 里 —— 它要自己管上下留白，
+  // 外壳（钉住、星河、轮播）在 WorkShowcase 里：它要自己管上下留白，
   // 钉住时那屏得贴满视口，套 Section 的 py 就钉不齐。
   return (
     <section id="work">
@@ -208,8 +208,11 @@ export function Faq({ lang }: { lang: Lang }) {
           {faq.items.map((f, i) => (
             <details key={i} className="group border-b border-hairline py-6">
               <summary className="flex cursor-pointer list-none items-start justify-between gap-6 text-[15px] font-medium text-ink transition-colors hover:text-accent-hover">
-                <span className="flex gap-5">
-                  <Ordinal n={i + 1} />
+                {/* 编号列定宽 w-7 + gap-5 = 3rem，答案的 pl-12 跟它对齐 */}
+                <span className="flex items-baseline gap-5">
+                  <span className="w-7 shrink-0">
+                    <Ordinal n={i + 1} />
+                  </span>
                   <span>{t(f.q, lang)}</span>
                 </span>
                 <span
@@ -219,7 +222,7 @@ export function Faq({ lang }: { lang: Lang }) {
                   +
                 </span>
               </summary>
-              <p className="mt-4 max-w-[62ch] pl-[2.9rem] text-sm leading-relaxed text-ink-muted">
+              <p className="mt-4 max-w-[48rem] lg:max-w-none pl-12 text-sm leading-relaxed text-ink-muted">
                 {t(f.a, lang)}
               </p>
             </details>
@@ -234,7 +237,7 @@ export function ContactCta({ lang }: { lang: Lang }) {
   return (
     <Section id="contact">
       <Container>
-        {/* 左对齐，不居中 —— 居中对称的收尾 CTA 是模板骨架里最眼熟的一块。
+        {/* 左对齐，不居中：居中对称的收尾 CTA 是模板骨架里最眼熟的一块。
             重画前这里还压着一团 blur-[100px] 的 accent 光晕，一并拿掉，
             位置留给靛紫球体（#67）。 */}
         <div className="relative overflow-hidden rounded-xl border border-hairline bg-surface-1 px-7 py-14 sm:px-14 sm:py-20">
