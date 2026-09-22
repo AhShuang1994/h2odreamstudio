@@ -1,11 +1,11 @@
 /**
- * sitemap.xml —— 构建期生成（#77）。
+ * sitemap.xml：构建期生成（#77）。
  *
- * 原先是手写的。语言拆分之后条目从 26 条变成 50 条，手维护必然脱节 ——
+ * 原先是手写的。语言拆分之后条目从 26 条变成 50 条，手维护必然脱节，
  * 加一页忘了加进来，搜索引擎就永远不知道它存在。改成扫 `out/`：**页面在
  * 哪里，sitemap 里就有什么**。
  *
- * 每条同时带上 `xhtml:link` 形式的 hreflang，与页面 `<head>` 里的声明一致 ——
+ * 每条同时带上 `xhtml:link` 形式的 hreflang，与页面 `<head>` 里的声明一致，
  * Google 的两条渠道都喂到，任一条断了另一条还在。
  *
  * 由 package.json 的 postbuild 钩子在 `next build` 之后跑，直接写进 `out/`。
@@ -14,7 +14,7 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { exportedPages, OUT_DIR } from "./lib/exported-pages.mjs";
 
-/** 收录优先级。中文版一律比对应的英文版低一档 —— 英文是主语言。 */
+/** 收录优先级。中文版一律比对应的英文版低一档：英文是主语言。 */
 function priorityOf(page) {
   const base =
     page.path === "/" || page.path === "/zh"

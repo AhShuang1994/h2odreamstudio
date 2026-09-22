@@ -1,4 +1,4 @@
-# robots.txt — H2ODreamer Studio
+# robots.txt · H2ODreamer Studio
 # Standard crawlers: index the whole site, skip code / asset / demo folders.
 
 User-agent: *
@@ -11,7 +11,7 @@ Disallow: /demos/
 Disallow: /app/
 Disallow: /scripts/
 
-# AI / LLM crawlers — explicitly welcomed so this site can be discovered and
+# AI / LLM crawlers: explicitly welcomed so this site can be discovered and
 # cited by AI answer engines (ChatGPT, Claude, Perplexity, Google AI Overviews,
 # Copilot, etc.). They get the same access as everyone else: all content is
 # open, only the asset / code / demo folders stay private.

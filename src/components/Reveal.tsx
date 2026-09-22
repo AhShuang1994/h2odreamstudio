@@ -13,17 +13,17 @@ const NO_LINE_END = "（【《〈「『〔｛“‘";
 /**
  * SplitText 的分词规则。
  *
- * 它靠「词」的包围盒归行，而默认按空格分词 —— 中文没有空格，整段就是一个词，
+ * 它靠「词」的包围盒归行，而默认按空格分词：中文没有空格，整段就是一个词，
  * 包围盒横跨两行，归出来只有一行（实测中文 h1 两行被切成一个 line）。
  *
  * 但也不能简单地逐字符分：SplitText 把每个词包成 inline-block，浏览器在任意
- * 两个 inline-block 之间都可以断行 —— 实测把 `Shopify` 断成 `Shop` / `ify`、
+ * 两个 inline-block 之间都可以断行，实测把 `Shopify` 断成 `Shop` / `ify`、
  * 把 `RM 2,500` 断成 `2,50` / `0`。
  *
  * 所以只在**中文字之间**和**空格两侧**切开，并守住避头避尾点：拉丁词与数字
  * 整块留在一个盒子里，中文按字断行，标点不会跑到行首行尾。
  *
- * 空格两侧都切，是为了让空格自己成为一个「词」—— SplitText 对纯空格的词
+ * 空格两侧都切，是为了让空格自己成为一个「词」：SplitText 对纯空格的词
  * 直接插一个文本节点、不包盒子，多余的空格补偿逻辑也就不会触发。只切一侧会
  * 让它以为分隔符被吃掉了而补回一个空格，渲染出双空格（实测 `RM  590`）。
  */
@@ -32,12 +32,12 @@ const WORD_DELIMITER = new RegExp(
 );
 
 /**
- * 逐行揭示。渲染 null —— 全站只挂一个，自己去扫 `[data-reveal]`。
+ * 逐行揭示。渲染 null，全站只挂一个，自己去扫 `[data-reveal]`。
  *
  * 做成一个全局扫描器而不是包裹组件，是为了不往版面里塞多余的 div：标题与
  * 段落只需要多一个属性，不需要多一层盒子。节奏参数也就只有这一份。
  *
- * **中文按行，永不逐字** —— 中文没有词边界，逐字会散架。见 CONTEXT.md
+ * **中文按行，永不逐字**：中文没有词边界，逐字会散架。见 CONTEXT.md
  * 的「逐行揭示」词条。
  *
  * gsap 走动态 import：它不参与首屏渲染，没有理由压在关键路径上。这样它落在
@@ -61,7 +61,7 @@ export function Reveal() {
       gsap.registerPlugin(ScrollTrigger, SplitText);
 
       /**
-       * 已经揭示过的元素。重切之后不能让它们再演一遍 —— 用户已经看过了，
+       * 已经揭示过的元素。重切之后不能让它们再演一遍：用户已经看过了，
        * 窗口一拉整屏文字重新往上飞是明显的 bug 感。
        */
       const shown = new WeakSet<Element>();
@@ -70,7 +70,7 @@ export function Reveal() {
       const build = () => {
         ctx = gsap.context(() => {
           // 首屏文案排除在外：它带 `data-reveal` 只为吃 `.reveal-armed` 的首帧
-          // 隐藏，动画归 `HeroScrub` —— 那一段要跟着滚动进度慢慢浮，而这里是
+          // 隐藏，动画归 `HeroScrub`：那一段要跟着滚动进度慢慢浮，而这里是
           // 一进视口就演完。两个都挂上去会互相抢同一个 opacity。
           for (const el of document.querySelectorAll<HTMLElement>(
             "[data-reveal]:not([data-hero-copy] [data-reveal])",
@@ -78,13 +78,13 @@ export function Reveal() {
             SplitText.create(el, {
               type: "lines",
               // 中文断行的关键，规则见文件头 WORD_DELIMITER 的注释。
-              // 这只影响量行的中间态 —— type 里没有 chars/words，最终留在
+              // 这只影响量行的中间态，type 里没有 chars/words，最终留在
               // DOM 里的只有行，中文不逐字，见 CONTEXT.md 的「逐行揭示」。
               wordDelimiter: { delimiter: WORD_DELIMITER, replaceWith: "" },
               // 行被裹进一层 overflow 隐藏的遮罩，行从遮罩下方推上来
               mask: "lines",
               // ⚠️ 不要改回 true。autoSplit 的重切会在**已经加过遮罩**的 DOM 上
-              // 再切一次，把每个词当成一行 —— 实测整页 16 个元素坏掉 14 个，
+              // 再切一次，把每个词当成一行：实测整页 16 个元素坏掉 14 个，
               // 一个四行标题被切成十行、区块高度翻三倍。重切改由下面自己做。
               autoSplit: false,
               // 3.13 起 SplitText 自带无障碍处理：整段文本回填成 aria-label，

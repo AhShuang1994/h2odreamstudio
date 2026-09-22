@@ -1,12 +1,12 @@
 /**
- * 生成 parallax/<section>.motion.json —— 链条第二环，每屏一次，必须先于美术。
+ * 生成 parallax/<section>.motion.json：链条第二环，每屏一次，必须先于美术。
  *
  * 改 k 只要改一行代码，改图要重新生成 → 抠图 → 补画布，成本差一个量级。
  * 所以这一环把尺寸定死了才准出图。
  *
  * ⚠️ 几何一律从**实测的滚动距离**反算，不写死 px。
  * 版面已冻结，hero 的真实高度是量出来的（desktop 828 / mobile 857），
- * 不用「阅读时长 × 滚动速度」去估 —— 估出来的数与真实版面对不上。
+ * 不用「阅读时长 × 滚动速度」去估：估出来的数与真实版面对不上。
  */
 import { writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
@@ -24,10 +24,10 @@ const MEASURED = {
  * ⚠️ 画布必须按**支持的最大视口**算，不能按参考视口算。
  *
  * 第一版按 1440×900 算，多分辨率验收当场报：1920 宽要 1580px、只给了 1326px，
- * 滚到一半露白；1440 那档更险，只多出 1px 余量。
+ * 滚到一半露白。1440 那档更险，只多出 1px 余量。
  * hero 高度是 0.92svh，视口一高 S 就跟着涨，两边一起放大。
  *
- * 这就是 LESSONS 第 1 条那句「与运动距离相互作用的几何量都要反算」——
+ * 这就是 LESSONS 第 1 条那句「与运动距离相互作用的几何量都要反算」，
  * 反算的基准得是最坏情况，不是手边那台显示器。
  */
 const DESIGN_FOR = {
@@ -40,12 +40,12 @@ const HERO_VH_RATIO = MEASURED.desktop.heroH / MEASURED.desktop.vh;
 
 const round50 = (n) => Math.ceil(n / 50) * 50;
 
-/** 最坏情况下的滚动行程 —— 画布用它，不用参考视口那个。 */
+/** 最坏情况下的滚动行程：画布用它，不用参考视口那个。 */
 function worstS(bp) {
   return round50(DESIGN_FOR[bp].vh * HERO_VH_RATIO);
 }
 
-/** canvasH ≥ viewportH + S × |1 − k|；canvasW ≥ viewportW × 1.15 */
+/** canvasH ≥ viewportH + S × |1 − k|。canvasW ≥ viewportW × 1.15 */
 function coverCanvas(bp, _S, k) {
   const { vw, vh } = DESIGN_FOR[bp];
   const S = worstS(bp);
@@ -59,7 +59,7 @@ function coverCanvas(bp, _S, k) {
 
 /**
  * canvas 比例 → 拿去出图的比例。
- * 超过 1:2 一律 9:16 —— 极端竖比会让模型自己加戏（链条级教训 #1）。
+ * 超过 1:2 一律 9:16：极端竖比会让模型自己加戏（链条级教训 #1）。
  */
 function genRatioFor(w, h) {
   const r = h / w;
@@ -73,7 +73,7 @@ function genRatioFor(w, h) {
 
 /**
  * WebP 字节估算。近黑、低频、带 alpha 的图，实测大致 0.08 字节/像素。
- * 这只是个量级估算，用来在**出图之前**就拦住会破 ADR-0008 的层 ——
+ * 这只是个量级估算，用来在**出图之前**就拦住会破 ADR-0008 的层，
  * 图已经生成再来发现超重，返工成本高一个量级。
  */
 const estWebpBytes = (w, h) => Math.round(w * h * 0.08);
@@ -93,7 +93,7 @@ function withGen(canvas, strategy = "transparent") {
 
 // ── s0 序幕：时间驱动，不是滚动驱动 ──────────────────────────────────
 //
-// 水滴遮罩要长到完全盖过视口才算「穿过去」。终值必须由视口反算 ——
+// 水滴遮罩要长到完全盖过视口才算「穿过去」。终值必须由视口反算，
 // 写死 vw 会在竖屏上不够（LESSONS #1：与运动量相互作用的几何都要反算）。
 //
 //   finalW = max(vw, vh × 水滴宽高比) × 1.3
@@ -135,7 +135,7 @@ const s0 = {
     ],
     concurrent:
       "洞放大的同时，洞里的球体 scale 0.75 → 1 迎上来。" +
-      "「前景放大 + 后景 0.75→1 同步」是 ERA 四次穿透的通用配方 —— " +
+      "「前景放大 + 后景 0.75→1 同步」是 ERA 四次穿透的通用配方，" +
       "少了后景那一半，穿过去会像撞墙。",
   },
   breakpoints: {
@@ -145,7 +145,7 @@ const s0 = {
   gates: [
     "首访才播：sessionStorage 记住",
     "减弱动态偏好下整段不执行",
-    "hero 文字必须在遮罩下方照常绘制，不能 opacity:0 —— 见 project.json 的 opening.gates",
+    "hero 文字必须在遮罩下方照常绘制，不能 opacity:0，见 project.json 的 opening.gates",
   ],
   transition: {
     in: { type: null, notes: "站点入口，没有上一屏" },
@@ -158,7 +158,7 @@ const s0 = {
 
 // ── s1 首屏：滚动驱动 ────────────────────────────────────────────────
 //
-// 分层。L3 是水面 —— 它就是 s1 → s2 那次 zoom-through 的「洞」，
+// 分层。L3 是水面，它就是 s1 → s2 那次 zoom-through 的「洞」，
 // 所以它的 k 必须 > 1（技能里这条是硬性的）。
 const S1_LAYERS = [
   {
@@ -181,7 +181,7 @@ const S1_LAYERS = [
     fill: "cover",
     alpha: true,
     blend: "screen",
-    // 铺满层按最坏视口算出来是 3956×2454 ≈ 776KB —— 一层就把 ADR-0008 的
+    // 铺满层按最坏视口算出来是 3956×2454 ≈ 776KB：一层就把 ADR-0008 的
     // 800KB 首屏总重吃光。而这层是纯低频光雾，没有任何需要模型画的细节：
     // 两三个 radial-gradient 加站上已有的噪点层就够，零字节、零接缝、还不用抠图。
     strategy: "css-radial",
@@ -192,7 +192,7 @@ const S1_LAYERS = [
   {
     id: "s1-L2-orb",
     z: 2,
-    role: "液态球体 —— 品牌图形本体，跨过画面中线，左侧留干净暗区。",
+    role: "液态球体：品牌图形本体，跨过画面中线，左侧留干净暗区。",
     k: { desktop: 0.55, mobile: 0.7 },
     fill: "object",
     // 球体是离散主体，画布是它自己的框，不是视口。
@@ -210,10 +210,10 @@ const S1_LAYERS = [
     fill: "bottom",
     alpha: true,
     // Gate B 第 6 条：水面全是焦散、半透明与水花，rembg 那类显著性抠图会把它
-    // 整张判成背景（这个坑在婚礼站踩过三次）。走第二条路 —— 画在纯黑上、
+    // 整张判成背景（这个坑在婚礼站踩过三次）。走第二条路：画在纯黑上、
     // blend: screen、**完全不抠图**。这也正是本站现有球体的合成方式。
     blend: "screen",
-    // 这层真的需要纹理（焦散），不能交给 CSS。但水面是横向重复的东西 ——
+    // 这层真的需要纹理（焦散），不能交给 CSS。但水面是横向重复的东西，
     // 出一条可左右无缝拼接的窄条，用 repeat-x 铺开，宽度就不必跟着视口涨。
     // 3956 宽 → 1280 宽，字节掉到三分之一。
     strategy: "tile-x",
@@ -223,7 +223,7 @@ const S1_LAYERS = [
      *
      * Gate B 第 7 条实测：k=1.5 从头跟到尾的话，滚到 150px 水面上缘就已经
      * 爬到标题里了（0.72vh 起步，每滚 1px 相对文字上移 0.5px）。
-     * k>1 是 zoom-through 的硬要求，所以不能降 k —— 要降的是它「什么时候开始动」。
+     * k>1 是 zoom-through 的硬要求，所以不能降 k：要降的是它「什么时候开始动」。
      *
      * 抄 ERA 的 img-out：trigger 从「区块底边碰到视口底边」才起算，
      * 到「区块底边离开视口顶边」结束。那时文字早已滚出画面。
@@ -295,7 +295,7 @@ const s1 = {
   kDefinition: K_DEF,
   breakpoints: { desktop: s1For("desktop"), mobile: s1For("mobile") },
   mobileKNote:
-    "手机端 k 带收窄到 0.35~0.7（技能建议 0.3~0.9）—— 屏小滚得快，desktop 那套跨度搬过来会晕。" +
+    "手机端 k 带收窄到 0.35~0.7（技能建议 0.3~0.9）：屏小滚得快，desktop 那套跨度搬过来会晕。" +
     "唯一的例外是 L3 水面：它是 zoom-through 的洞，k 必须 > 1，所以留在 1.3。这是有意偏离，不是漏改。",
   transition: {
     in: { type: "zoom-through", notes: "承接 s0 序幕，落进画面" },
@@ -323,10 +323,10 @@ for (const bp of ["desktop", "mobile"]) {
   console.log(`  ${bp}  视口 ${b.viewport.vw}×${b.viewport.vh}  S=${b.scrollDistance}px  k 带 ${b.kSpread[0]}~${b.kSpread[1]}`);
   console.log("    层                k     净位移   canvas         genRatio  padTop   估重   策略");
   for (const l of b.layers) {
-    const c = l.canvas ? `${l.canvas.w}×${l.canvas.h}` : "—（不出图）";
+    const c = l.canvas ? `${l.canvas.w}×${l.canvas.h}` : "（不出图）";
     const kb = l.estBytes ? (l.estBytes / 1024).toFixed(0) + "KB" : "0";
     console.log(
-      `    ${l.id.padEnd(16)} ${String(l.k).padStart(4)}  ${String(l.netTravel).padStart(6)}   ${c.padEnd(14)} ${String(l.genRatio ?? "—").padEnd(9)} ${String(l.padTop).padStart(6)} ${kb.padStart(6)}  ${l.padStrategy}`,
+      `    ${l.id.padEnd(16)} ${String(l.k).padStart(4)}  ${String(l.netTravel).padStart(6)}   ${c.padEnd(14)} ${String(l.genRatio ?? "-").padEnd(9)} ${String(l.padTop).padStart(6)} ${kb.padStart(6)}  ${l.padStrategy}`,
     );
   }
   const total = b.layers.reduce((n, l) => n + (l.estBytes ?? 0), 0);
@@ -360,8 +360,8 @@ for (const bp of ["desktop", "mobile"]) {
       const needH = Math.ceil(h + S * Math.abs(1 - L.k));
       const needW = Math.ceil(w * 1.15);
       // 两类层不受「宽度要盖满视口」约束：
-      //   离散主体（球体）—— 它只需容下自身 + 位移
-      //   repeat-x 平铺条 —— 宽度靠重复补，本来就不该跟视口涨
+      //   离散主体（球体）：它只需容下自身 + 位移
+      //   repeat-x 平铺条：宽度靠重复补，本来就不该跟视口涨
       const exemptW = L.anchor === "center-right" || L.repeat === "repeat-x";
       const okH = L.anchor === "center-right" ? true : L.canvas.h >= needH;
       const okW = exemptW ? true : L.canvas.w >= needW;

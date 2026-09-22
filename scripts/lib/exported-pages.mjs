@@ -1,10 +1,10 @@
 /**
- * 导出目录里「该被收录的页面」清单 —— sitemap 与 llms.txt 的共同输入。
+ * 导出目录里「该被收录的页面」清单：sitemap 与 llms.txt 的共同输入。
  *
  * 直接扫 `out/`，所以清单**天然**与实际导出的页面一致：加一页就自动进，
  * 删一页就自动出，没有手维护的余地（#77）。
  *
- * 地址取页面自己声明的 `<link rel="canonical">` —— 那是规范地址的定义，
+ * 地址取页面自己声明的 `<link rel="canonical">`：那是规范地址的定义，
  * 不用在这里猜哪些带 `.html`、哪些是目录形态（两种都是已收录的原样）。
  */
 import { readdirSync, readFileSync } from "node:fs";
@@ -16,12 +16,12 @@ export const OUT_DIR = join(process.cwd(), "out");
 /**
  * 不进 sitemap 与 llms.txt 的页面。
  *
- * - `404.html` —— 错误页，也是全站唯一没有 canonical 的页面。中英各一份
+ * - `404.html`，错误页，也是全站唯一没有 canonical 的页面。中英各一份
  *   （`404.html` 与 `zh/404.html`，见 #93），所以按文件名匹配而不是按整条路径
- * - `demos/**` —— 样板站，`robots.txt` 里本来就 Disallow（见 CONTEXT.md 的
+ * - `demos/**`，样板站，`robots.txt` 里本来就 Disallow（见 CONTEXT.md 的
  *   「样板站」词条：11 个虚构品牌的成品演示，冻结不动）
- * - `xhs.html` —— 小红书落地页，链接印在站外、纯中文、不参与语言拆分（#65）
- * - `app/**` —— 离线小工具（小帐本 PWA），`robots.txt` 里同样 Disallow。它是
+ * - `xhs.html`，小红书落地页，链接印在站外、纯中文、不参与语言拆分（#65）
+ * - `app/**`，离线小工具（小帐本 PWA），`robots.txt` 里同样 Disallow。它是
  *   装到主屏幕用的应用外壳，不是内容页：没有 canonical，也不该被当成内容收录（#98）
  */
 function isExcluded(rel) {
@@ -45,7 +45,7 @@ function walk(dir, root = dir, acc = []) {
   return acc;
 }
 
-/** 从页面自己的结构化数据里取最后修改日期；取不到就不写 lastmod（它是可选的）。 */
+/** 从页面自己的结构化数据里取最后修改日期。取不到就不写 lastmod（它是可选的）。 */
 function lastmodOf(html) {
   const patterns = [
     /"dateModified"\s*:\s*"(\d{4}-\d{2}-\d{2})/,
@@ -79,7 +79,7 @@ export function exportedPages() {
     const head = html.split("</head>")[0];
     const canonical = /<link rel="canonical" href="([^"]+)"/.exec(head);
     if (!canonical) {
-      throw new Error(`${file} 没有声明 canonical —— 收录范围内的页面必须有`);
+      throw new Error(`${file} 没有声明 canonical：收录范围内的页面必须有`);
     }
     const url = canonical[1];
     const path = url.slice(DOMAIN.length) || "/";

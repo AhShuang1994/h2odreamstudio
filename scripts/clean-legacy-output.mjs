@@ -4,7 +4,7 @@
  * ⚠️ 这不是洁癖，是防一个只在本机出现的幽灵 bug：
  *
  * `public/blog/`、`public/case-studies/`、`public/zh/` 曾经是
- * `scripts/split-content-lang.mjs` 的产物，而且是 gitignore 的 —— 所以**每台在
+ * `scripts/split-content-lang.mjs` 的产物，而且是 gitignore 的，所以**每台在
  * 内容页迁进 Next 之前构建过这个仓库的机器上都还躺着**。Next 会把 `public/`
  * 原样拷进 `out/`，于是那些陈旧文件和路由生成的同名文件撞车，谁赢看运气。
  *

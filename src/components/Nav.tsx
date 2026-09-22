@@ -13,7 +13,7 @@ export function Nav({ lang }: { lang: Lang }) {
   const sentinel = useRef<HTMLDivElement>(null);
 
   // 文档顶部 16px 处埋一个 1px 的哨兵：它离开视口，就等于滚过了
-  // 16px。不用 window 的 scroll 监听 —— 那个滚动时每帧都要跑一次回调，
+  // 16px。不用 window 的 scroll 监听：那个滚动时每帧都要跑一次回调，
   // 还跟 Lenis 的 rAF 循环挤在同一帧。判定交给浏览器，主线程上不留监听。
   useEffect(() => {
     const el = sentinel.current;
@@ -39,10 +39,10 @@ export function Nav({ lang }: { lang: Lang }) {
 
         cover 让 layout viewport 铺满整屏，`fixed top-0` 才贴得到真正的顶边
         （不加的话 iOS Safari 把 fixed 关在状态栏下面，正文却满屏绘制，
-        上面那条就一直漏字）；padding 再把导航自己的内容推回状态栏下面，
+        上面那条就一直漏字）。padding 再把导航自己的内容推回状态栏下面，
         于是这块 `bg-bg` 正好盖住状态栏那一条。
 
-        WhatsAppFab 那边补的是 bottom —— 三处一起看。
+        WhatsAppFab 那边补的是 bottom：三处一起看。
 
         手机上（md 以下）导航**不钉住**，是 absolute，跟着页面滚走。钉在顶上
         的话，iOS 26 Safari 状态栏那一条一直漏出正文，试了三种修法都压不住。
@@ -70,7 +70,7 @@ export function Nav({ lang }: { lang: Lang }) {
                 </span>
               </button>
               <div className="invisible absolute left-1/2 top-full z-10 -translate-x-1/2 pt-3 opacity-0 transition duration-200 group-hover:visible group-hover:opacity-100">
-                {/* 抬起靠表面阶梯 + 发丝描边，不用投影 —— 暗色上的投影只会糊。 */}
+                {/* 抬起靠表面阶梯 + 发丝描边，不用投影：暗色上的投影只会糊。 */}
                 <div className="min-w-[190px] rounded-xl border border-hairline-strong bg-surface-2 p-1.5">
                   {nav.services.items.map((it) => (
                     <Link

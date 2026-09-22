@@ -1,4 +1,4 @@
-/* 小帐本 — Linear 风格界面
+/* 小帐本：Linear 风格界面
    依 DESIGN/linear.app 的 token 实作。三个核心规则：
      1. 单一深色画布。#010102 是锚点，不做浅色模式（Linear 本身也不出浅色）。
      2. 层次靠「表面阶梯 + 1px hairline」，不靠阴影。
@@ -71,7 +71,7 @@
 html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{height:100%}
 body{
-  /* -apple-system 在 Apple 装置上就是 SF Pro，正是规格指定的替代字体；
+  /* -apple-system 在 Apple 装置上就是 SF Pro，正是规格指定的替代字体。
      后面接简体中文字体，Linear 自家字体没有中文字符 */
   font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI","Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
   background:var(--canvas);color:var(--ink);
@@ -182,7 +182,7 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
   font-size:var(--t-xs);color:var(--ink-subtle);line-height:1.25;
   transition:border-color .14s var(--ease),color .14s var(--ease),background .14s var(--ease),transform .1s var(--ease);
 }
-/* 分类图示是使用者自己填的 emoji，属于内容不是装饰；压小一点让它不要比界面还抢眼 */
+/* 分类图示是使用者自己填的 emoji，属于内容不是装饰。压小一点让它不要比界面还抢眼 */
 .cats button i{font-size:1.25rem;font-style:normal;line-height:1.1}
 .cats button:active{transform:scale(.96)}
 .cats button.on{background:var(--s2);border-color:var(--accent);color:var(--ink);font-weight:500}
@@ -320,7 +320,7 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .trend .b{flex:1;max-width:10px;border-radius:var(--r-xs) var(--r-xs) 0 0;min-height:2px}
 .trend .b.e{background:var(--expense);position:relative;overflow:hidden}
 .trend .b.i{background:var(--income)}
-/* 刷卡是支出的**子集**，所以画成支出柱底部的一段，不是并排的第三根柱 ——
+/* 刷卡是支出的**子集**，所以画成支出柱底部的一段，不是并排的第三根柱，
    并排会暗示两者可以相加，那会让人把钱数重（#129）。同色相压暗，一眼看得出
    它属于这根柱子。 */
 .trend .b.e u{position:absolute;left:0;right:0;bottom:0;background:var(--expense-card)}
@@ -366,14 +366,14 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
   border-radius:var(--r-sm);transition:background .12s var(--ease),color .12s var(--ease);
 }
 .cat-row button:active,.rec-row .x:active{background:var(--s2);color:var(--expense)}
-/* 整行是进入编辑的入口，所以行的主体本身就是按钮 —— 不额外挂一颗铅笔 */
+/* 整行是进入编辑的入口，所以行的主体本身就是按钮，不额外挂一颗铅笔 */
 .rec-main{display:flex;align-items:center;gap:var(--sp-3);flex:1;min-width:0;text-align:left}
 .rec-main:active{opacity:.6}
 .rec-row .t{flex:1;min-width:0}
 .rec-row .t b{display:block;font-size:var(--t-sm);font-weight:500}
 .rec-row .t small{color:var(--ink-subtle);font-size:var(--t-xs)}
 .rec-row .v{font-size:var(--t-sm);font-weight:500;white-space:nowrap}
-/* 分期还完之后规则留在列表上，灰化提示可以删了 —— 但由使用者自己决定何时删 */
+/* 分期还完之后规则留在列表上，灰化提示可以删了，但由使用者自己决定何时删 */
 .rec-row.done{opacity:.45}
 .rec-row.sub{padding-top:var(--sp-2)}
 .rec-row.sub .v{color:var(--ink-subtle);font-weight:400}

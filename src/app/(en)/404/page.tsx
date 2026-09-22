@@ -6,14 +6,14 @@ import { NotFoundPage } from "@/components/pages/NotFound";
  *
  * ⚠️ 这是一条**普通路由**，不是 `app/not-found.tsx`。原因见 ADR-0002：
  * `app/(en)` 与 `app/(zh)` 是两个并列的 root layout，它们之上没有共同的根布局，
- * 所以 `not-found.tsx` 不会被任何 layout 包住 —— 那一份拿不到 `Shell`、也拿不到
+ * 所以 `not-found.tsx` 不会被任何 layout 包住：那一份拿不到 `Shell`、也拿不到
  * 样式表，自己再渲染一个 `<html>` 就成了 `<body>` 里套 `<html>`（实测如此）。
  *
  * 走 `/404` 这条真实路由则一切照常：`trailingSlash: false` 把它导出成
- * `out/404.html`，正好盖掉 Next 的内建 404 —— Cloudflare Pages 对未匹配路径
+ * `out/404.html`，正好盖掉 Next 的内建 404: Cloudflare Pages 对未匹配路径
  * 返回的就是这一份。外壳、导航、页脚、幕布、平滑滚动全部与其余页面同源。
  *
- * **不要给它加 canonical** —— 全站唯一没有 canonical 的页面就是它，
+ * **不要给它加 canonical**：全站唯一没有 canonical 的页面就是它，
  * `scripts/lib/exported-pages.mjs` 也正是按这一点把它排除在收录范围外。
  */
 /**

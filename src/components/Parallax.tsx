@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { DESKTOP, REDUCED_MOTION, desktopMotionAllowed, motionAllowed } from "@/lib/motion";
 
 /**
- * 遮罩视差。渲染 null —— 与 Reveal 一样是全局扫描器，自己去找
+ * 遮罩视差。渲染 null：与 Reveal 一样是全局扫描器，自己去找
  * `[data-mask-parallax]`，版面里不多任何一层盒子。
  *
  * ⚠️ 属性名是 `data-mask-parallax` 不是 `data-parallax`：冻结的样板站
@@ -14,7 +14,7 @@ import { DESKTOP, REDUCED_MOTION, desktopMotionAllowed, motionAllowed } from "@/
  * 本站的「视差」**专指这一种**：图片比它的裁切框大一截，滚动时在框内反向
  * 慢速位移。不是多图层不同速度的背景。见 CONTEXT.md 的「遮罩视差」词条。
  *
- * 它是配料不是主菜 —— 实测 ERA 的 26 处视差全是同一招，真正撑起质感的是
+ * 它是配料不是主菜，实测 ERA 的 26 处视差全是同一招，真正撑起质感的是
  * 逐行揭示与滚动惯性（ADR-0001）。本站图片密度远低于它，**只用在三处**：
  * 案例缩略图、创始人照片（首页与关于页）、hero（归 #91）。不要往别处加。
  */
@@ -25,7 +25,7 @@ const SCALE = 1.2;
  * 位移幅度（占裁切框高度的百分比）。
  *
  * 变换的合成顺序是先位移再缩放，视觉位移 = SHIFT × SCALE = 7.2%，
- * 而每一侧的余量是 (SCALE − 1) / 2 = 10% —— 位移到两端仍留 2.8% 的边，
+ * 而每一侧的余量是 (SCALE − 1) / 2 = 10%：位移到两端仍留 2.8% 的边，
  * 不会把裁切框的边露出来。
  *
  * 实测一张 348px 高的缩略图：余量 34.8px、极值位移 25.1px，剩 9.7px。
@@ -54,7 +54,7 @@ export function Parallax() {
        * k = 该层滚动速度 ÷ 页面滚动速度，所以相对内容的净位移是
        * `S × (1 − k)`：k < 1 的层往下拖（看起来慢半拍），k > 1 的层往上窜。
        *
-       * 与遮罩视差不同，**这一套在手机上照跑** —— 规格里给了两端各一份 k 值，
+       * 与遮罩视差不同，**这一套在手机上照跑**：规格里给了两端各一份 k 值，
        * 手机那套已经收窄过。只有减弱动态偏好才整体关掉。
        */
       const buildHeroLayers = () => {

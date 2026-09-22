@@ -1,9 +1,9 @@
 /**
- * 内容页的字体表 —— 构建后运行（#94）。
+ * 内容页的字体表：构建后运行（#94）。
  *
  * 核心页的拉丁字体由 `next/font` 在构建期下载并自托管，文件名带内容哈希
  * （`out/_next/static/media/xxxx.woff2`），每次构建都可能变。静态内容页是构建
- * **之前**就写好的 HTML，拿不到那些路径 —— 手写死一次，下次构建就 404。
+ * **之前**就写好的 HTML，拿不到那些路径：手写死一次，下次构建就 404。
  *
  * 所以这里反过来做：构建完之后，把 Next 产出的样式表里的 `@font-face` 与
  * `--font-inter` 原样抄进一个地址固定的 `out/css/fonts.css`，内容页只认这一个
@@ -27,7 +27,7 @@ const TARGET = join(OUT, "css/fonts.css");
 function nextCss() {
   const files = readdirSync(NEXT_CSS).filter((f) => f.endsWith(".css"));
   if (files.length === 0) {
-    throw new Error(`${NEXT_CSS} 下没有样式表 —— 这个脚本必须跑在 next build 之后`);
+    throw new Error(`${NEXT_CSS} 下没有样式表，这个脚本必须跑在 next build 之后`);
   }
   return files.map((f) => readFileSync(join(NEXT_CSS, f), "utf8")).join("\n");
 }
@@ -37,11 +37,11 @@ function main() {
 
   const faces = css.match(/@font-face\s*\{[^}]*\}/g) ?? [];
   // 实际是 11 条：思源 3 个子集 + Inter 的 7 段 unicode-range + 1 条 Inter Fallback。
-  // 下限设 8 只为挡住「一条都没抄到」这种明显失败，不锁死具体条数 ——
+  // 下限设 8 只为挡住「一条都没抄到」这种明显失败，不锁死具体条数，
   // Google 改一次 Inter 的分段就会变。
   if (faces.length < 8) {
     throw new Error(
-      `只抄到 ${faces.length} 条 @font-face，太少了 —— ` +
+      `只抄到 ${faces.length} 条 @font-face，太少了：` +
         `多半是 Next 换了样式表的写法，去看 ${NEXT_CSS} 里到底长什么样`,
     );
   }
@@ -49,7 +49,7 @@ function main() {
   const inter = /--font-inter:\s*([^;}]+)/.exec(css)?.[1]?.trim();
   if (!inter) {
     throw new Error(
-      "样式表里找不到 --font-inter —— 它由 src/components/Shell.tsx 的 next/font 声明，" +
+      "样式表里找不到 --font-inter，它由 src/components/Shell.tsx 的 next/font 声明，" +
         "变量名改了就要同步改这里",
     );
   }

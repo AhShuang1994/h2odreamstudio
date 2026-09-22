@@ -3,11 +3,11 @@ import type { Bilingual } from "@/content/site";
 /**
  * 语言原语。
  *
- * **英文是主语言**，占据根路径；**中文是附加语言**，占据 `/zh`。见 CONTEXT.md
+ * **英文是主语言**，占据根路径。**中文是附加语言**，占据 `/zh`。见 CONTEXT.md
  * 的「主语言」词条与 docs/adr/0002-bilingual-separate-routes.md。
  *
- * 每个页面只渲染一种语言 —— 不要再把两种语言同时塞进 DOM 靠 CSS 显隐。
- * 隐藏的那一半量不到宽度，逐行揭示动效会直接失败；同页两套正文本来也不是
+ * 每个页面只渲染一种语言，不要再把两种语言同时塞进 DOM 靠 CSS 显隐。
+ * 隐藏的那一半量不到宽度，逐行揭示动效会直接失败。同页两套正文本来也不是
  * 搜索引擎推荐的做法。
  */
 export type Lang = "en" | "zh";
@@ -30,7 +30,7 @@ export const CORE_PATHS = ["/", "/about", "/contact", "/pricing"] as const;
  *
  * landing-page、wedding-* 这些手写服务页还是两种语言共用一份，不在此列。
  *
- * 口径与 `scripts/split-content-lang.mjs` 的 `localize()` 逐字对应 ——
+ * 口径与 `scripts/split-content-lang.mjs` 的 `localize()` 逐字对应，
  * 两边对同一个地址必须给出同一个答案，否则核心页与内容页的导航会分叉。
  */
 const LOCALIZED_CONTENT = /^\/(blog|case-studies)\//;
@@ -40,7 +40,7 @@ export function pathsFor(path: string): Record<Lang, string> {
   return { en: path, zh: path === "/" ? "/zh" : `/zh${path}` };
 }
 
-/** 把站内链接改写成目标语言的地址；没有对应语言版本的原样返回。 */
+/** 把站内链接改写成目标语言的地址。没有对应语言版本的原样返回。 */
 export function localize(href: string, lang: Lang): string {
   if (lang === "en") return href;
   const [path, hash] = href.split("#");
@@ -80,7 +80,7 @@ function canonicalContent(pathname: string): string | null {
 /**
  * 当前地址在另一种语言下的对应地址。
  *
- * 语言切换必须落在**当前页面**的另一语言版本，不能把人丢回首页 ——
+ * 语言切换必须落在**当前页面**的另一语言版本，不能把人丢回首页，
  * 这是 ADR-0002 写死的一条。
  */
 export function otherLangHref(pathname: string, lang: Lang): string {

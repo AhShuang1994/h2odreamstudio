@@ -1,5 +1,5 @@
 /**
- * 中文字体子集化 —— 构建期运行。
+ * 中文字体子集化：构建期运行。
  *
  * 完整的思源黑体／宋体是 10MB 级，但这是个**文案写死在源码里的静态站**，
  * 全站实际用到的汉字只有几百个。扫出来只打这几百字的子集，两套合计 ~90KB。
@@ -9,7 +9,7 @@
  * 字重再子集化。
  *
  * 用法：node scripts/subset-fonts.mjs [--src <源字体目录>]
- * 源字体不进仓库 —— 它们是 17MB / 24MB 的可变字体，只在需要重新生成时下载。
+ * 源字体不进仓库，它们是 17MB / 24MB 的可变字体，只在需要重新生成时下载。
  */
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync, rmSync } from "node:fs";
@@ -23,7 +23,7 @@ const OUT_DIR = join(ROOT, "public", "fonts");
 /**
  * 扫哪些文件里的中文。
  *
- * 目前只扫 src/ —— 只有 Next 渲染的核心页用这套字体。public/ 下的静态内容页
+ * 目前只扫 src/，只有 Next 渲染的核心页用这套字体。public/ 下的静态内容页
  * 仍用它们自己的字体栈，等 #66 套壳后把 "public/**\/*.html" 加进来即可。
  */
 const SOURCE_GLOBS = ["src/**/*.ts", "src/**/*.tsx", "src/**/*.css"];
@@ -33,13 +33,13 @@ const SOURCE_GLOBS = ["src/**/*.ts", "src/**/*.tsx", "src/**/*.css"];
  *
  * 字重的取舍（实测，571 字，每个字重约 76~97 KB）：
  *   - 组件里用到 font-normal(400) / font-medium(500) / font-semibold(600) 三档
- *   - **不打 500** —— 中文的 medium 与 normal 几乎无差别，浏览器会回落到 400，
+ *   - **不打 500**，中文的 medium 与 normal 几乎无差别，浏览器会回落到 400，
  *     省下 77KB。拉丁字符走 Inter，Inter 有完整字重，不受影响。
- *   - **保留 600** —— 缺它浏览器会对中文做合成粗体，糊得很明显
+ *   - **保留 600**：缺它浏览器会对中文做合成粗体，糊得很明显
  *   - 宋体只做标题用的 600
  *
  * 宋体用**全量**字符集而不是只裁标题字（那样能省 52KB）：标题字集要靠猜哪些
- * 字段算标题，以后新写的标题一旦用到集外的字，那个字会在标题中间掉回黑体 ——
+ * 字段算标题，以后新写的标题一旦用到集外的字，那个字会在标题中间掉回黑体，
  * 用 52KB 换这个风险不值。
  */
 const TARGETS = [
@@ -60,7 +60,7 @@ const TARGETS = [
 /**
  * OFL 第 2 条要求随字体分发附带版权声明与许可证全文。
  *
- * 两份必须都放 —— 版权方不同：
+ * 两份必须都放，版权方不同：
  *   Noto Sans SC  © Adobe，**声明了 Reserved Font Name 'Source'**（它源自思源黑体）
  *   Noto Serif SC © Google，未声明 RFN
  *
@@ -79,11 +79,11 @@ const ALWAYS = "　、。，．·；：？！…—～《》「」『』（）�
  * 去掉注释后再扫。
  *
  * 源码注释里的中文**永远不会被渲染**，但会被打进字形。这个仓库的注释是中文写的，
- * 不去掉的话每写一段注释子集就胖一圈 —— 实测加了几行 CSS 注释就多出 55 个字。
+ * 不去掉的话每写一段注释子集就胖一圈：实测加了几行 CSS 注释就多出 55 个字。
  */
 function stripComments(text) {
   return text
-    .replace(/\/\*[\s\S]*?\*\//g, " ") // /* 块注释 */ —— .ts/.tsx/.css 通用
+    .replace(/\/\*[\s\S]*?\*\//g, " ") // /* 块注释 */: .ts/.tsx/.css 通用
     .replace(/(^|[^:])\/\/.*$/gm, "$1 "); // // 行注释，排除 https:// 里的双斜杠
 }
 
@@ -138,13 +138,13 @@ function main() {
     // OFL 第 2 条：随字体分发必须附带许可证全文
     const licSrc = join(SRC_DIR, license);
     if (!existsSync(licSrc)) {
-      console.error(`缺少许可证：${licSrc} —— OFL 第 2 条要求随字体附带全文，不能省`);
+      console.error(`缺少许可证：${licSrc}: OFL 第 2 条要求随字体附带全文，不能省`);
       process.exit(1);
     }
     writeFileSync(join(OUT_DIR, license), readFileSync(licSrc));
 
     // ── 步骤 1：先裁字。此时输出仍是可变字体，但已经从 17MB 掉到几十 KB。
-    // 顺序很重要 —— 先实例化再裁字要在完整的 3 万字形上跑三遍，慢得多。
+    // 顺序很重要，先实例化再裁字要在完整的 3 万字形上跑三遍，慢得多。
     const trimmed = join(OUT_DIR, `${family}.trimmed.ttf`);
     execFileSync(
       "pyftsubset",
@@ -193,7 +193,7 @@ function main() {
   }
   rmSync(textFile);
 
-  // 页脚只放得下一个链接，所以额外生成一份合并的许可证 —— 两份版权方不同，
+  // 页脚只放得下一个链接，所以额外生成一份合并的许可证：两份版权方不同，
   // 都必须可被取得（OFL 第 2 条）。单独的 OFL-*.txt 也保留。
   const combined = [
     "本站自托管的中文字体子集及其授权",

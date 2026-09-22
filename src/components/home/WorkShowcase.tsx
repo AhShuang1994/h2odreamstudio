@@ -8,22 +8,22 @@ import { selectedWork } from "@/content/home";
 /**
  * 精选作品。同一份卡片 DOM，两种壳：
  *
- * **背景 = 当前那张卡的截图，放大模糊铺满**，换卡时交叉淡入 —— 整块跟着作品换气氛。
+ * **背景 = 当前那张卡的截图，放大模糊铺满**，换卡时交叉淡入：整块跟着作品换气氛。
  *
- * **iPad 与桌面（≥768px）** —— 整段**滚动钉住**。外层是
+ * **iPad 与桌面（≥768px）**：整段**滚动钉住**。外层是
  * `100vh + (n-1)×STEP_VH` 的高舞台，里面那屏 `position: sticky` 咬住视口。
  * 每张卡是一扇左右撑满的浏览器窗口，放整张桌面版截图，文字信息浮在左下角。
  * 人往下滚，下一张从右边滑进来盖住上一张，上一张缩小淡出。卡片**在动的时候
  * 文字整块藏掉**，停稳了才浮出来。
  *
- * **手机** —— 不钉住，卡片排成一行横滑轮播（原生 scroll-snap），底下一排圆点。
+ * **手机**，不钉住，卡片排成一行横滑轮播（原生 scroll-snap），底下一排圆点。
  *
  * 钉住的写法照 ServicesPicker：CSS `sticky` 而不是 ScrollTrigger 的 pin，
- * IntersectionObserver 当开关，区块可见时起一个 rAF 读 `getBoundingClientRect()`
- * —— 这个站跑着 Lenis，window 上的 scroll 事件收不到。
+ * IntersectionObserver 当开关，区块可见时起一个 rAF 读 `getBoundingClientRect()`，
+ * 这个站跑着 Lenis，window 上的 scroll 事件收不到。
  *
- * 每帧只写 CSS 变量（`--x` `--s` `--o` `--dv`），不走 React state；state 只在
- * 「当前是哪一张」变了才更新一次。变量只在 `md:motion-safe:` 下被读 —— 手机与
+ * 每帧只写 CSS 变量（`--x` `--s` `--o` `--dv`），不走 React state。state 只在
+ * 「当前是哪一张」变了才更新一次。变量只在 `md:motion-safe:` 下被读：手机与
  * 减弱动态偏好下写了也没人用，版面就是那条轮播。
  *
  * 细节栏的文字全部摘自各案例页的「一眼看懂」表。这些是概念 demo，
@@ -34,7 +34,7 @@ import { selectedWork } from "@/content/home";
 const STEP_VH = 70;
 
 /**
- * 每段行程里，卡片只在中间这一截动，前后各停一段 —— 不停的话细节栏永远在
+ * 每段行程里，卡片只在中间这一截动，前后各停一段，不停的话细节栏永远在
  * 淡入淡出，没有一刻读得完。0.25 = 前 25% 停、中间 50% 滑、后 25% 停。
  */
 const HOLD = 0.25;
@@ -58,7 +58,7 @@ export function WorkShowcase({ lang, header }: { lang: Lang; header: ReactNode }
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
   const railRef = useRef<HTMLUListElement>(null);
 
-  // 能不能钉，跟着媒体查询走 —— 平板转方向、桌面拖窄都要跟上。
+  // 能不能钉，跟着媒体查询走：平板转方向、桌面拖窄都要跟上。
   useEffect(() => {
     const wide = window.matchMedia(PIN_QUERY);
     const still = window.matchMedia(REDUCED_MOTION);
@@ -96,7 +96,7 @@ export function WorkShowcase({ lang, header }: { lang: Lang; header: ReactNode }
           const d = i - e;
           const card = cardRefs.current[i];
           if (card) {
-            // 往后排的在右边屏外候着；已经翻过去的往左缩小淡出
+            // 往后排的在右边屏外候着。已经翻过去的往左缩小淡出
             const x = d >= 0 ? d * lane : d * 160;
             card.style.setProperty("--x", `${x}px`);
             card.style.setProperty("--s", String(d >= 0 ? 1 : 1 + d * 0.1));
@@ -134,7 +134,7 @@ export function WorkShowcase({ lang, header }: { lang: Lang; header: ReactNode }
     };
   }, [canPin, n]);
 
-  // 钉住时只有当前那张可以 Tab 进去；轮播时每张都可以。
+  // 钉住时只有当前那张可以 Tab 进去。轮播时每张都可以。
   useEffect(() => {
     itemRefs.current.forEach((el, i) => {
       if (!el) return;
@@ -186,7 +186,7 @@ export function WorkShowcase({ lang, header }: { lang: Lang; header: ReactNode }
               }
             />
           ))}
-          {/* 暗罩。截图大多是白底亮色，不压一层会跟正文、卡片抢 —— 只让颜色在背后透出来。
+          {/* 暗罩。截图大多是白底亮色，不压一层会跟正文、卡片抢，只让颜色在背后透出来。
               实色半透明，不是氛围渐变。 */}
           <div className="absolute inset-0 bg-bg/60" />
         </div>
@@ -195,8 +195,8 @@ export function WorkShowcase({ lang, header }: { lang: Lang; header: ReactNode }
           {/* 毛玻璃外框，iPhone 那种：半透明白 + 背景模糊 + 顶边一道内高光。
               ⚠️ 这是站内两条规矩的**明确破例**，用户点名要的：
               ① 反 AI 清单禁 glassmorphism ② ≤768px 不开 backdrop-filter（手机性能）。
-              所以模糊只在 md 以上开；手机只留半透明底与描边，不糊背景。
-              内高光是 inset，不是投影 —— 「层级不用投影」那条没破。 */}
+              所以模糊只在 md 以上开。手机只留半透明底与描边，不糊背景。
+              内高光是 inset，不是投影：「层级不用投影」那条没破。 */}
           <div
             className={
               "flex flex-col rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-5 " +
@@ -246,17 +246,17 @@ export function WorkShowcase({ lang, header }: { lang: Lang; header: ReactNode }
                       } as React.CSSProperties
                     }
                     className={
-                      // 钉住时：比例贴着桌面截图（16:10 + 标题栏），高度不够才被 max-h 压矮 ——
+                      // 钉住时：比例贴着桌面截图（16:10 + 标题栏），高度不够才被 max-h 压矮，
                       // 压矮只会裁掉截图下半截，左右永远完整。直接 h-full 的话竖屏 iPad
                       // 框子又高又窄，cover 就去裁左右了。
-                      // 轮播时 h-full：li 被 flex 拉成同高，卡也跟着撑满 —— 每张卡一样高
+                      // 轮播时 h-full：li 被 flex 拉成同高，卡也跟着撑满，每张卡一样高
                       "relative flex h-full origin-left flex-col overflow-hidden rounded-xl border border-hairline-strong bg-surface-1 " +
                       "md:motion-safe:aspect-[16/10.4] md:motion-safe:h-auto md:motion-safe:max-h-full " +
                       "md:motion-safe:opacity-[var(--o)] md:motion-safe:will-change-transform " +
                       "md:motion-safe:[transform:translate3d(var(--x),0,0)_scale(var(--s))]"
                     }
                   >
-                    {/* 窗口标题栏。纯装饰 —— 让截图读作「一个网站」而不是一张图。 */}
+                    {/* 窗口标题栏。纯装饰，让截图读作「一个网站」而不是一张图。 */}
                     <div
                       aria-hidden
                       className="flex h-7 shrink-0 items-center gap-1.5 border-b border-hairline bg-surface-2 px-3 md:h-8 md:px-4"
@@ -266,7 +266,7 @@ export function WorkShowcase({ lang, header }: { lang: Lang; header: ReactNode }
                       <span className="h-2 w-2 rounded-full bg-hairline-strong" />
                     </div>
 
-                    {/* 截图贴顶、左右不裁 —— 只裁掉页面下半截，读起来就是窗口里的首屏 */}
+                    {/* 截图贴顶、左右不裁，只裁掉页面下半截，读起来就是窗口里的首屏 */}
                     <a
                       href={localize(w.href, lang)}
                       tabIndex={-1}
@@ -285,7 +285,7 @@ export function WorkShowcase({ lang, header }: { lang: Lang; header: ReactNode }
                       />
                     </a>
 
-                    {/* ── 文字信息 ── 手机排在截图下面；钉住时浮在左下角，卡片动的时候先藏 */}
+                    {/* ── 文字信息 ── 手机排在截图下面。钉住时浮在左下角，卡片动的时候先藏 */}
                     <div
                       ref={(el) => {
                         detailRefs.current[i] = el;

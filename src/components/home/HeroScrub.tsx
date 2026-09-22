@@ -5,26 +5,26 @@ import { HERO_RIVER } from "@/content/parallax";
 import { motionAllowed } from "@/lib/motion";
 
 /**
- * 首屏星河 —— 滚动即拉进度条。
+ * 首屏星河：滚动即拉进度条。
  *
  * 一整块 260svh 的舞台里，视口那一屏 `position: sticky` 定住不动，多出来的
- * 1.6 屏行程被映射成视频的 0~10 秒。人往下滚，球体裂开、液滴四散、汇成星河；
+ * 1.6 屏行程被映射成视频的 0~10 秒。人往下滚，球体裂开、液滴四散、汇成星河。
  * 往回滚，星河退回一颗球。文案在星河成形那一段（进度 0.58~0.86）浮上来。
  *
- * 用 CSS `sticky` 而不是 ScrollTrigger 的 `pin` —— pin 会往 DOM 里插一层
- * pin-spacer 并接管高度，和 Lenis 的惯性叠在一起容易抖；sticky 由浏览器合成器
+ * 用 CSS `sticky` 而不是 ScrollTrigger 的 `pin`: pin 会往 DOM 里插一层
+ * pin-spacer 并接管高度，和 Lenis 的惯性叠在一起容易抖。sticky 由浏览器合成器
  * 直接处理，滚动线程上零成本。
  *
  * 渲染 null，与 Reveal / Parallax 一样是扫描器，不往版面里加盒子。
  */
 
-/** ADR-0008：视频严格延到 LCP 之后 —— 首屏由 poster 顶着，1.3MB 等页面空了再拉。 */
+/** ADR-0008：视频严格延到 LCP 之后，首屏由 poster 顶着，1.3MB 等页面空了再拉。 */
 function primeAfterLoad(video: HTMLVideoElement) {
   const go = () => {
     video.preload = "auto";
     video.load();
   };
-  // Safari 17 之前没有 requestIdleCallback，退回一个短延时就够 —— 这里要的
+  // Safari 17 之前没有 requestIdleCallback，退回一个短延时就够：这里要的
   // 只是「别和首屏抢带宽」，不是精确的空闲调度。
   const idle = () => {
     const ric = window.requestIdleCallback;
@@ -75,10 +75,10 @@ export function HeroScrub() {
 
       primeAfterLoad(video);
 
-      // iOS 不给没被用户碰过的 video 解码 —— 不催一下，滚半天还是那张 poster。
+      // iOS 不给没被用户碰过的 video 解码，不催一下，滚半天还是那张 poster。
       // 播一帧立刻暂停就够唤醒解码器，muted + playsInline 下不会有任何动静。
       // React 的 SSR 不会把 `muted` 写进标记（长期已知问题），而 iOS 只肯给
-      // 静音视频免手势播放 —— 所以这里自己补一次，不能只靠 JSX 上那个属性。
+      // 静音视频免手势播放，所以这里自己补一次，不能只靠 JSX 上那个属性。
       const wake = () => {
         video.muted = true;
         void video.play().then(() => video.pause()).catch(() => {});
@@ -117,7 +117,7 @@ export function HeroScrub() {
             start: "top top",
             end: "bottom bottom",
             // ⚠️ `true` 而不是数字。数字会在滚动位置之上再加一层缓动，而这个站
-            // 桌面端本来就跑着 Lenis 的平滑滚动 —— 两层滞后串起来，实测手指停了
+            // 桌面端本来就跑着 Lenis 的平滑滚动：两层滞后串起来，实测手指停了
             // 画面还要一两秒才追上目标帧（0.6 那版是指数收敛，14 秒才落到位）。
             // 惯性交给 Lenis 一家出，这里只做忠实映射。
             scrub: true,

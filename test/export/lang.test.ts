@@ -1,8 +1,8 @@
 /**
  * 导出产物 · 双语路由（#75）
  *
- * 英文是主语言、占据根路径；中文是附加语言、占据 `/zh`。**每个地址只渲染
- * 一种语言** —— 旧的「同页双写 + CSS 显隐」已经拆掉：隐藏的那一半量不到宽度，
+ * 英文是主语言、占据根路径。中文是附加语言、占据 `/zh`。**每个地址只渲染
+ * 一种语言**，旧的「同页双写 + CSS 显隐」已经拆掉：隐藏的那一半量不到宽度，
  * 逐行揭示动效会直接失败，同页两套正文也不是搜索引擎推荐的做法。
  * 见 CONTEXT.md 的「主语言」词条与 docs/adr/0002-bilingual-separate-routes.md。
  *
@@ -17,7 +17,7 @@ import { contactHeader, contactFaq } from "../../src/content/contact";
 import { pricingHeader, pricingCta } from "../../src/content/pricing";
 import type { Bilingual } from "../../src/content/site";
 
-/** 核心页的中英对偶。左英右中 —— 已收录的地址归英文（ADR-0002）。 */
+/** 核心页的中英对偶。左英右中：已收录的地址归英文（ADR-0002）。 */
 const PAIRS: { en: string; zh: string; probes: Bilingual[] }[] = [
   { en: "index.html", zh: "zh.html", probes: [hero.h1, quickAnswer.heading] },
   {
@@ -83,11 +83,11 @@ describe("导出产物 · 双语路由", () => {
   const x = loadExport();
 
   it("核心页中英一一对应，没有孤儿", () => {
-    // 404 中英各一份，但它们不是「核心页」—— 没有 canonical、不进 sitemap、
+    // 404 中英各一份，但它们不是「核心页」：没有 canonical、不进 sitemap、
     // 不互相 hreflang 指认（见 #93），所以不参与这条配对。
     const core = PAIRS.flatMap((p) => [p.en, p.zh]).sort();
     for (const f of core) {
-      expect(x.has(f), `${f} 不见了 —— 每个英文核心页必须有 /zh 下的中文对偶`).toBe(true);
+      expect(x.has(f), `${f} 不见了，每个英文核心页必须有 /zh 下的中文对偶`).toBe(true);
       expect(x.read(f).includes("/_next/static"), `${f} 不是 Next 渲染的`).toBe(true);
     }
   });
@@ -96,7 +96,7 @@ describe("导出产物 · 双语路由", () => {
    * 反过来守：**还没进 Next 的页面**是一份会越来越短的白名单。
    *
    * 原先这条写成「Next 渲染的页面恰好是这 8 个核心页」。内容页正在逐个家族迁进
-   * Next 路由，那种写法每迁一批就要改一次，而且改的是「期望值」——
+   * Next 路由，那种写法每迁一批就要改一次，而且改的是「期望值」，
    * 等于每次都把断言往实际结果上凑，守不住任何东西。
    *
    * 倒过来列「谁还没迁」才守得住：迁完一个家族就从这份名单里划掉一批，
@@ -118,7 +118,7 @@ describe("导出产物 · 双语路由", () => {
 
     expect(
       notNext,
-      "这份名单只能变短。多出来的页面意外掉出了 Next —— " +
+      "这份名单只能变短。多出来的页面意外掉出了 Next, " +
         "多半是路由没建，或者被 public/ 下的陈旧产物遮住了（见 scripts/clean-legacy-output.mjs）",
     ).toEqual(expected);
   });
@@ -175,7 +175,7 @@ describe("导出产物 · 双语路由", () => {
             );
           }
 
-          // 对偶页必须指回来 —— 单向声明的 hreflang 会被搜索引擎忽略
+          // 对偶页必须指回来：单向声明的 hreflang 会被搜索引擎忽略
           const back = alternates(x.read(page === pair.en ? pair.zh : pair.en));
           expect(back.en).toBe(alt.en);
           expect(back["zh-CN"]).toBe(alt["zh-CN"]);

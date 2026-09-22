@@ -1,9 +1,9 @@
 /**
- * 生成 parallax/project.json —— 站级规格，后两环（motion-spec / art-director）读它。
+ * 生成 parallax/project.json，站级规格，后两环（motion-spec / art-director）读它。
  *
  * copy budget 按 skill 的几何公式算，两端各算一份取 min，再向下取整到整行倍数。
  * 与常规立项不同的一点：**本站文案是冻结的**（#66 规定七区块文案一字不改），
- * 所以这里额外把实际字数与预算并排放，超了就标出来 —— 由版面让步，不是文案让步。
+ * 所以这里额外把实际字数与预算并排放，超了就标出来：由版面让步，不是文案让步。
  */
 import { writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
@@ -80,7 +80,7 @@ function fits(bp, safe, f, share, text) {
   return true;
 }
 
-/** 从设计初值往下找最大可行字号；floor 以下就是安全区本身太小。 */
+/** 从设计初值往下找最大可行字号。floor 以下就是安全区本身太小。 */
 function autoFit(safe, font, texts) {
   const out = {};
   for (const bp of ['desktop','mobile']) {
@@ -106,11 +106,11 @@ const RAW = [
     mood: 8,
     depth: "画面之外",
     motifBeat:
-      "全黑。中央一个水滴轮廓的遮罩，洞里透出虹彩的液态球体 —— 全站唯一的品牌图形资产。水滴急速放大穿过观众 → 落进水下的 hero。整屏无文字，先静后爆。",
+      "全黑。中央一个水滴轮廓的遮罩，洞里透出虹彩的液态球体：全站唯一的品牌图形资产。水滴急速放大穿过观众 → 落进水下的 hero。整屏无文字，先静后爆。",
     palette: ["#07080b", "#7c82f0", "#9aa0ff"],
     font: { desktop: 48, mobile: 32 },
     safe: {
-      // 这一屏刻意不放文字。安全区照样定死 —— 以后想加一行（比如「再大的海，
+      // 这一屏刻意不放文字。安全区照样定死：以后想加一行（比如「再大的海，
       // 也是从一滴水开始」）时框已经在，不用重新立项。
       desktop: { x: [0.28, 0.72], y: [0.6, 0.78], bgValue: "0.00–0.04" },
       mobile: { x: [0.1, 0.9], y: [0.62, 0.8], bgValue: "0.00–0.04" },
@@ -119,7 +119,7 @@ const RAW = [
     transitionOut: { type: "zoom-through", horizonY: { desktop: 1.0, mobile: 1.0 } },
     note: [
       "洞 = 水滴轮廓本身，该层 k 必须 > 1（传给 motion-spec）。",
-      "洞内透出的是虹彩球体，与下屏 hero 的球体是同一个东西 —— 满足 zoom-through 的",
+      "洞内透出的是虹彩球体，与下屏 hero 的球体是同一个东西：满足 zoom-through 的",
       "「下屏开场 palette 要和洞内颜色一致」，穿过去不会像撞墙。",
       "ADR-0007 的多彩例外覆盖这一屏：它是 hero 的序幕，用的就是 hero 那颗球。",
     ].join(""),
@@ -169,7 +169,7 @@ const RAW = [
     act: "develop",
     mood: 6,
     depth: "浅水层",
-    motifBeat: "四道水流分头流走，一道对应一项服务；流末汇成一个圆形涡口。",
+    motifBeat: "四道水流分头流走，一道对应一项服务。流末汇成一个圆形涡口。",
     palette: ["#0e1015", "#14161d", "#7c82f0"],
     font: { desktop: 44, mobile: 30 },
     safe: {
@@ -189,7 +189,7 @@ const RAW = [
     act: "develop",
     mood: 7,
     depth: "开阔水层",
-    motifBeat: "母题在这一屏**退场**——光柱与光斑是氛围不是母题拍点，主角让给作品缩略图本身。圆形光斑仍要接住上一屏的涡口（match-cut 的落点）。",
+    motifBeat: "母题在这一屏**退场**，光柱与光斑是氛围不是母题拍点，主角让给作品缩略图本身。圆形光斑仍要接住上一屏的涡口（match-cut 的落点）。",
     palette: ["#0e1015", "#14161d", "#9aa0ff"],
     font: { desktop: 44, mobile: 30 },
     safe: {
@@ -208,7 +208,7 @@ const RAW = [
     act: "develop",
     mood: 6,
     depth: "中深水层",
-    motifBeat: "光柱里悬着一个人形轮廓 —— 这一屏的真实照片就是那个人，母题让位给人。",
+    motifBeat: "光柱里悬着一个人形轮廓：这一屏的真实照片就是那个人，母题让位给人。",
     palette: ["#0e1015", "#14161d", "#7c82f0"],
     font: { desktop: 34, mobile: 26 },
     safe: {
@@ -220,7 +220,7 @@ const RAW = [
       en: { headline: "Ah Shuang · Hui Huang Ong", sub: "" },
     },
     transitionOut: { type: "hard-cut", horizonY: { desktop: 0.46, mobile: 0.41 } },
-    note: "hard-cut 处 palette 与上屏共享 #0e1015 / #14161d；母题在下一屏立刻回来（洋流）。",
+    note: "hard-cut 处 palette 与上屏共享 #0e1015 / #14161d。母题在下一屏立刻回来（洋流）。",
   },
   {
     id: "s6-eddy",
@@ -228,7 +228,7 @@ const RAW = [
     act: "resolve",
     mood: 5,
     depth: "深水层",
-    motifBeat: "洋流回旋，一圈一圈把问题绕进去；旋涡中心是一个暗的洞眼。",
+    motifBeat: "洋流回旋，一圈一圈把问题绕进去。旋涡中心是一个暗的洞眼。",
     palette: ["#07080b", "#0e1015", "#7c82f0"],
     font: { desktop: 44, mobile: 30 },
     safe: {
@@ -248,7 +248,7 @@ const RAW = [
     act: "resolve",
     mood: 9,
     depth: "深海",
-    motifBeat: "水母主体现身，靛紫生物光自伞内亮起 —— 母题走到终点，也是品牌图形本体。",
+    motifBeat: "水母主体现身，靛紫生物光自伞内亮起：母题走到终点，也是品牌图形本体。",
     palette: ["#07080b", "#7c82f0", "#9aa0ff"],
     font: { desktop: 48, mobile: 32 },
     safe: {
@@ -290,24 +290,24 @@ const sections = RAW.map((s) => {
 });
 
 const project = {
-  project: "H2ODreamer Studio — 首页",
+  project: "H2ODreamer Studio：首页",
   mode: "motif",
   breakpoints: BP,
   refs: ["era-residence"],
   refUsage: {
-    "转场手法": "era-residence —— zoom-through 的「前景 scale↑ + 后景 scale 0.75→1 同步」配方",
-    "分层与速度": "era-residence —— 极窄 k 带（实测 0.72~1.09），不拉远景",
-    "排版反差": "era-residence —— 展示字与正文 14.8:1 的反差本身就是设计语言",
-    "配色": "本项目自有 —— ADR-0007 近黑 + 单一靛紫。**不取 ERA 的暖米白**，两者互斥",
-    "母题": "本项目自有 —— CONTEXT.md 的水母题",
+    "转场手法": "era-residence: zoom-through 的「前景 scale↑ + 后景 scale 0.75→1 同步」配方",
+    "分层与速度": "era-residence：极窄 k 带（实测 0.72~1.09），不拉远景",
+    "排版反差": "era-residence，展示字与正文 14.8:1 的反差本身就是设计语言",
+    "配色": "本项目自有：ADR-0007 近黑 + 单一靛紫。**不取 ERA 的暖米白**，两者互斥",
+    "母题": "本项目自有：CONTEXT.md 的水母题",
   },
   storyBible: {
     logline:
-      "向下滚动就是向下潜。从悬在水面之上的一滴水开始，穿过水面、随水流散开、进入开阔水层看见作品与人，最后在深海里遇见那只发着靛紫光的水母 —— 它就是这个品牌的图形本体。",
+      "向下滚动就是向下潜。从悬在水面之上的一滴水开始，穿过水面、随水流散开、进入开阔水层看见作品与人，最后在深海里遇见那只发着靛紫光的水母：它就是这个品牌的图形本体。",
     thread: "再大的海，也是从一滴水开始",
     engines: ["motif", "space-axis", "color-arc"],
     motif: {
-      element: "水 —— 滴 → 涟漪 → 流 → 海 → 水母",
+      element: "水：滴 → 涟漪 → 流 → 海 → 水母",
       appearsIn: ["s0-overture", "s1-drop", "s2-ripple", "s3-current", "s6-eddy", "s7-jelly"],
       density: "6/8 = 75%（Gate A 要求 60~80%：低于 60 连不起来，高于 80 会吵）",
     },
@@ -318,10 +318,10 @@ const project = {
   },
   styleBible: [
     "STYLE BIBLE:",
-    "Medium: 写实水下摄影感的暗调合成 —— 真实水体、悬浮微粒与焦散光。不是插画、不是 3D 渲染感、不是抽象波纹图形。",
+    "Medium: 写实水下摄影感的暗调合成：真实水体、悬浮微粒与焦散光。不是插画、不是 3D 渲染感、不是抽象波纹图形。",
     "Palette: #07080b 水体 · #0e1015 近景水层 · #14161d 中景 · #7c82f0 焦散与生物光 · #9aa0ff 高光尖端。除 s1 的那滴水外全站不出现第二个色相。",
-    "Light: 单一光源自画面上方偏左 12° 射入，冷白偏靛约 7200K；强度随下潜逐屏衰减。s1 可见直射，s2 之后一律是散射光柱。",
-    "Atmosphere: 体积雾随深度递增 —— s1 通透度 85%，s7 降到 45%。无地平线，用光柱与悬浮微粒替代纵深线索。",
+    "Light: 单一光源自画面上方偏左 12° 射入，冷白偏靛约 7200K。强度随下潜逐屏衰减。s1 可见直射，s2 之后一律是散射光柱。",
+    "Atmosphere: 体积雾随深度递增：s1 通透度 85%，s7 降到 45%。无地平线，用光柱与悬浮微粒替代纵深线索。",
     "Texture: 极淡胶片颗粒，不透明度 0.035，与站上 body::after 的噪点层同源。无纸纹、无笔触、无描边。",
     "Camera: 35mm 等效、轻微仰视、透视克制。水面线自 s1 的 0.72 逐屏上移出画，s4 之后无水面线，改用光柱汇聚线当基准。",
   ].join("\n"),
@@ -336,22 +336,22 @@ const project = {
     type: "zoom-through",
     shape: "水滴轮廓（品牌图形本体的剪影），单个 SVG path，不是位图",
     technique: [
-      "CSS mask 四层 + mask-composite: add —— 三条 linear-gradient 当遮挡柱，第四层是水滴 SVG",
+      "CSS mask 四层 + mask-composite: add，三条 linear-gradient 当遮挡柱，第四层是水滴 SVG",
       "GSAP 只动两个自定义属性：--drop-w（宽）与 --drop-y（纵向位置）",
       "洞里透出的是 hero 那颗虹彩液态球体，同时球体自身 scale 0.75 → 1 迎上来",
       "「前景放大 + 后景 0.75→1 同步」是 ERA 全部四次穿透的通用配方，穿过去才真实",
     ],
     easing:
-      "专供穿透的一条曲线：cubic-bezier(0.6, 0, 0, 1) —— 极端后段爆发。前半段几乎不动，最后一下猛冲。不要拿它做别的动效。",
+      "专供穿透的一条曲线：cubic-bezier(0.6, 0, 0, 1)，极端后段爆发。前半段几乎不动，最后一下猛冲。不要拿它做别的动效。",
     budget: {
       maxDuration: "900ms",
       why: "ERA 是 4 秒，那是豪宅盘。本站唯一 KPI 是即时通讯点击，序幕越短越好。",
     },
     gates: [
-      "首访才播：sessionStorage 记住，第二次进站直接跳过 —— ERA 也是这么干的",
+      "首访才播：sessionStorage 记住，第二次进站直接跳过，ERA 也是这么干的",
       "减弱动态偏好下整段不执行，直接是 hero",
       "⚠️ hero 的文字必须在幕布**下方照常绘制**，不能是 opacity:0。盖住不等于没画，" +
-        "LCP 照常计时；真正拖 LCP 的是 #87 那个「揭示前先藏起来」。这条要在 #92 用 Lighthouse 实测。",
+        "LCP 照常计时。真正拖 LCP 的是 #87 那个「揭示前先藏起来」。这条要在 #92 用 Lighthouse 实测。",
       "序幕不占页面高度，不计入「首页 8~10 屏」",
     ],
   },
@@ -364,7 +364,7 @@ const project = {
     "结构冻结：七个区块一个不加不减、顺序不动。不许为了叙事插屏。",
     "ADR-0007：除 s1 的那滴水外，全站严格单一靛紫。不许为了「海的层次」引入第二个色相。",
     "ADR-0008：首屏 JS < 200KB、首屏总重 < 800KB（不含 hero 视频）。分层图是净增重量，motion-spec 算 canvas 时要连着预算一起算。",
-    "首页维持 8~10 屏。ERA 的 24 屏长度明确不学 —— 本站唯一 KPI 是即时通讯点击，不是逗留时长。",
+    "首页维持 8~10 屏。ERA 的 24 屏长度明确不学：本站唯一 KPI 是即时通讯点击，不是逗留时长。",
     "减弱动态偏好与移动端：全部层退化为静态合成图，不做逐层位移。",
   ],
   sections,
@@ -374,7 +374,7 @@ const dir = join(process.cwd(), "parallax");
 mkdirSync(dir, { recursive: true });
 writeFileSync(join(dir, "project.json"), JSON.stringify(project, null, 2) + "\n", "utf8");
 
-// —— 控制台核对表 ——
+// 控制台核对表，
 console.log("屏  预算(zh head/sub)   预算(en head/sub)  实际 zh/en head  超预算");
 for (const s of sections) {
   const b = s.copy.budget;
@@ -385,7 +385,7 @@ for (const s of sections) {
     `      ${String(b.en.headline).padStart(3)}/${String(b.en.sub).padStart(3)}`,
     `      ${String(a.zh.headline.length).padStart(3)}/${String(a.en.headline.length).padStart(3)}`,
     "     ",
-    s.copy.overBudget.join(" ") || "—",
+    s.copy.overBudget.join(" ") || "-",
   );
 }
 console.log("\n写入 parallax/project.json");

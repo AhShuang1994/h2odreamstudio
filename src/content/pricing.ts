@@ -2,7 +2,7 @@ import prices from "./prices.json";
 import type { Bilingual } from "./site";
 
 /**
- * 报价页的档位 —— 站上关于价格的**唯一真相**。
+ * 报价页的档位：站上关于价格的**唯一真相**。
  *
  * 数字本身存在 `prices.json`（纯 JSON，好让构建脚本也读同一份），这里只负责
  * 把它组装成页面文案。页面、结构化数据、llms.txt 一律从这条链取值，任何地方
@@ -18,7 +18,7 @@ export const pricingMeta = {
     en: "Pricing · H2ODreamer Studio",
   } as Bilingual,
   description: {
-    cn: `H2ODreamer Studio 网站设计价格（马来西亚）：落地页 ${prices.starter} 起、5 页企业网站 ${prices.standard}、Shopify 迁移 ${prices.shopify} 起；电子喜帖 ${prices.weddingStandard} / ${prices.weddingPremium}。没有强制月费。`,
+    cn: `H2ODreamer Studio 网站设计价格（马来西亚）：落地页 ${prices.starter} 起、5 页企业网站 ${prices.standard}、Shopify 迁移 ${prices.shopify} 起。电子喜帖 ${prices.weddingStandard} / ${prices.weddingPremium}。没有强制月费。`,
     en: `H2ODreamer Studio web design pricing (Malaysia): landing pages from ${prices.starter}, 5-page corporate sites from ${prices.standard}, Shopify migration from ${prices.shopify}; wedding e-invitations ${prices.weddingStandard} / ${prices.weddingPremium}. No compulsory monthly fee.`,
   } as Bilingual,
 };
@@ -30,14 +30,14 @@ export const pricingHeader = {
     en: "Transparent pricing, no surprises",
   } as Bilingual,
   lede: {
-    cn: "以下每个价格都是「起价」。告诉我你的需求，我给你一个固定报价 —— 先免费咨询，绝不强推。",
-    en: "Every price below is a starting point. Tell me what you need and I'll give you a fixed quote — free consultation first, no hard sell.",
+    cn: "以下每个价格都是「起价」。告诉我你的需求，我给你一个固定报价：先免费咨询，绝不强推。",
+    en: "Every price below is a starting point. Tell me what you need and I'll give you a fixed quote: free consultation first, no hard sell.",
   } as Bilingual,
 };
 
 export const pricingQuickAnswer = {
-  cn: `在 H2ODreamer Studio（马来西亚）做网站的价格：单页落地页 ${prices.starter} 起（入门版）或 ${prices.basic}（进阶版，含 SEO + 分析）；5 页企业网站 ${prices.standard} 起；Shopify 迁移 ${prices.shopify} 起。电子喜帖 ${prices.weddingStandard}（标准版）与 ${prices.weddingPremium}（定制版）。没有强制月费 —— 网站是你的。`,
-  en: `A website with H2ODreamer Studio (Malaysia) costs: 1-page landing from ${prices.starter} (Starter) or ${prices.basic} (Basic, with SEO + analytics); a 5-page corporate site from ${prices.standard}; a Shopify migration from ${prices.shopify}. Wedding e-invitations are ${prices.weddingStandard} (Standard) and ${prices.weddingPremium} (Premium). No compulsory monthly fee — the site is yours.`,
+  cn: `在 H2ODreamer Studio（马来西亚）做网站的价格：单页落地页 ${prices.starter} 起（入门版）或 ${prices.basic}（进阶版，含 SEO + 分析）。5 页企业网站 ${prices.standard} 起。Shopify 迁移 ${prices.shopify} 起。电子喜帖 ${prices.weddingStandard}（标准版）与 ${prices.weddingPremium}（定制版）。没有强制月费，网站是你的。`,
+  en: `A website with H2ODreamer Studio (Malaysia) costs: 1-page landing from ${prices.starter} (Starter) or ${prices.basic} (Basic, with SEO + analytics); a 5-page corporate site from ${prices.standard}; a Shopify migration from ${prices.shopify}. Wedding e-invitations are ${prices.weddingStandard} (Standard) and ${prices.weddingPremium} (Premium). No compulsory monthly fee: the site is yours.`,
 } as Bilingual;
 
 // ── 网站设计：三档对比 ────────────────────────────────────────────────
@@ -158,16 +158,16 @@ export const otherServices = [
 
 export const pricingNotes: Bilingual[] = [
   {
-    cn: "所有价格为起价（「From」）。最终报价依需求而定 —— 开工前先确认清楚。",
-    en: "All prices are starting points (“from”). The final quote depends on your scope — confirmed before any work begins.",
+    cn: "所有价格为起价（「From」）。最终报价依需求而定：开工前先确认清楚。",
+    en: "All prices are starting points (“from”). The final quote depends on your scope: confirmed before any work begins.",
   },
   {
     cn: "主机与域名费用另计，直接付给服务商（如 Shopify、Hostinger）。",
     en: "Hosting and domain are billed separately, paid directly to the provider (e.g. Shopify, Hostinger).",
   },
   {
-    cn: "没有强制月费 —— 网站归你所有。可选维护套餐另议。",
-    en: "No compulsory monthly fee — you own the website. Optional maintenance packages are available.",
+    cn: "没有强制月费：网站归你所有。可选维护套餐另议。",
+    en: "No compulsory monthly fee. You own the website. Optional maintenance packages are available.",
   },
 ];
 
@@ -198,7 +198,7 @@ export const pricingCta = {
   heading: { cn: "获取你的专属报价", en: "Get your fixed quote" } as Bilingual,
   whatsapp: {
     cn: "💬 WhatsApp 咨询，免费报价",
-    en: "💬 WhatsApp Me — Free Quote",
+    en: "💬 WhatsApp Me: Free Quote",
   } as Bilingual,
   whatsappMessage: {
     cn: "Hi H2ODreamer! 我想要一个报价。我的生意是 [business type]。",

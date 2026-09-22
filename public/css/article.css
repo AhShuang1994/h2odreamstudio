@@ -1,5 +1,5 @@
 /* ============================================================
-   文章排版 —— blog 文章页与 case study 共用
+   文章排版：blog 文章页与 case study 共用
    ============================================================
 
    这份表原先是每个文章页自己带一块 inline <style>，9 篇 blog 加
@@ -9,7 +9,7 @@
    合并时一并修掉三类与核心页不对齐的地方：
 
    1. 老青色 rgba(0,229,255) 全部换成靛紫 rgba(124,130,240)。
-      换 token 换不到它 —— 它是写死的字面值，所以重画时被漏下了。
+      换 token 换不到它：它是写死的字面值，所以重画时被漏下了。
       同时清掉 pullquote 的绿、concept 图的紫，全站回到单一 accent
       （ADR-0007）。
 
@@ -20,7 +20,7 @@
    3. 圆角从 6 种（14/18/20/24/50px）收敛成下面三档加药丸，对齐核心页
       rounded-lg / xl / 2xl / full 那一套。
 
-   h2 前的靛紫竖条与 pullquote 的左边条**保留** —— 那是版式选择，
+   h2 前的靛紫竖条与 pullquote 的左边条**保留**：那是版式选择，
    不在这次对齐范围内，要动另开票。
 
    引法：文章页在 style.min.css 之后引 /css/article.css。 */
@@ -271,7 +271,7 @@
 }
 .summary-box .equation b { color: var(--color-primary); font-weight: 700; }
 
-/* Final CTA section — mirrors contact section pattern */
+/* Final CTA section: mirrors contact section pattern */
 .article-cta {
   position: relative;
   background:
@@ -422,7 +422,7 @@
   .author-card .author-avatar { width: 64px; height: 64px; }
 }
 
-/* Concept illustrations — decorative images (assets/blog/) */
+/* Concept illustrations: decorative images (assets/blog/) */
 .concept-figure {
   margin: 40px 0;
   padding: 0;

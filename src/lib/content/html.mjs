@@ -1,5 +1,5 @@
 /**
- * 双语原稿的 HTML 原语 —— 解析、塌成单语、改写站内地址。
+ * 双语原稿的 HTML 原语：解析、塌成单语、改写站内地址。
  *
  * 这些函数原先住在 `scripts/split-content-lang.mjs` 里。抽出来是因为内容页要迁
  * 进 Next 路由（见 `docs/adr/0002-bilingual-separate-routes.md` 与迁移计划）：
@@ -16,7 +16,7 @@ const VOID_TAGS = new Set([
   "link", "meta", "source", "track", "wbr",
 ]);
 
-/** 属性值里的实体还原成原文 —— 标注里存的是转义过的 HTML 片段。 */
+/** 属性值里的实体还原成原文：标注里存的是转义过的 HTML 片段。 */
 export function decodeAttr(v) {
   return v
     .replace(/&quot;/g, '"')
@@ -30,7 +30,7 @@ export function decodeAttr(v) {
  * 从 `<` 扫到配对的 `>`，跳过引号里的内容。
  *
  * ⚠️ 不能用 `<[^>]*>` 这类正则：双语标注的值里带着 `<em>` 这样的标签，
- * 属性值里真的有 `>`。这是这套解析最容易踩的坑 —— 下面每个函数都建在它上面，
+ * 属性值里真的有 `>`。这是这套解析最容易踩的坑：下面每个函数都建在它上面，
  * **任何一个都不要用正则重新实现**。
  */
 export function tagEnd(html, start) {
@@ -128,12 +128,12 @@ export function collapse(html, lang) {
 }
 
 /**
- * 页面上那段可见问答 —— FAQPage 结构化数据的**唯一**来源。
+ * 页面上那段可见问答：FAQPage 结构化数据的**唯一**来源。
  *
  * Google 明令禁止用页面上不可见的内容做 FAQ 标记。旧站的 16 个内容页把 74 条
  * 问答只写在 JSON-LD 里、页面上一个字都看不到（#82），所以现在反过来做：
  * 问答先渲染成可见的 `<details class="faq-item">`，标记从它生成。原稿里没有可见
- * 问答的页面（两个索引页）就没有 FAQPage —— 这条路上不可能再出现不可见的标记。
+ * 问答的页面（两个索引页）就没有 FAQPage：这条路上不可能再出现不可见的标记。
  *
  * ⚠️ 调用方必须传**已经塌成单语、且即将注入页面的那个字符串**。问答与页面上
  * 看到的逐字相同这件事，是靠「同一个输入」保证的，不是靠事后比对。
@@ -175,7 +175,7 @@ export function toAbsolute(href, dir) {
  *
  * `localize` 由调用方给：英文版传恒等函数，中文版传把站内地址挪进 `/zh` 的那个。
  * 之所以是参数而不是写死，是因为脚本（纯 Node）与 Next 侧（TypeScript）各自持有
- * 一份 —— 迁移完成后只剩 `src/lib/i18n.ts` 那一份。
+ * 一份，迁移完成后只剩 `src/lib/i18n.ts` 那一份。
  */
 export function rewriteUrls(html, dir, localize) {
   return html.replace(
@@ -187,7 +187,7 @@ export function rewriteUrls(html, dir, localize) {
 /**
  * 每页两种语言的地址。
  *
- * 文章页带 `.html`、索引页是目录形态 —— 这两种都是**已收录的原样**，
+ * 文章页带 `.html`、索引页是目录形态：这两种都是**已收录的原样**，
  * 一个字都不能动，llms.txt 给 AI 的引文地址也是它们。
  */
 export function urlsFor(rel) {
@@ -220,7 +220,7 @@ const LANG_ATTR = { en: "data-lang-en", zh: "data-lang-cn" };
 const DESC_LIMITS = { en: { min: 60, max: 160 }, zh: { min: 30, max: 80 } };
 
 /**
- * title 取 `<h1>` 上该语言的标注 —— 那是作者自己写的标题，不是新造的。
+ * title 取 `<h1>` 上该语言的标注：那是作者自己写的标题，不是新造的。
  *
  * 英文版一直这么取（原稿的 `<title>` 是中文）。服务页迁进 Next 之后中文版也走
  * 这条：那四页历史上只有一个英文地址，`<title>` 与 description 从来只有英文，

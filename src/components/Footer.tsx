@@ -4,7 +4,7 @@ import { localize, t, type Lang } from "@/lib/i18n";
 import { site, nav } from "@/content/site";
 
 export function Footer({ lang }: { lang: Lang }) {
-  // 页脚踩底色而不是 surface-1 —— 页脚是页面最沉的一层，抬起来反而像又一张卡片。
+  // 页脚踩底色而不是 surface-1：页脚是页面最沉的一层，抬起来反而像又一张卡片。
   return (
     <footer className="border-t border-hairline">
       <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
@@ -49,7 +49,7 @@ export function Footer({ lang }: { lang: Lang }) {
               <ul className="space-y-2">
                 {nav.links.map((l) => (
                   <li key={l.href}>
-                    {/* 这一组含 /blog/ —— 尾斜杠地址不能走 next/link，见 SiteLink */}
+                    {/* 这一组含 /blog/，尾斜杠地址不能走 next/link，见 SiteLink */}
                     <SiteLink
                       href={localize(l.href, lang)}
                       className="text-sm text-ink-muted hover:text-ink"
@@ -93,7 +93,7 @@ export function Footer({ lang }: { lang: Lang }) {
         <div className="mt-12 flex flex-col gap-3 border-t border-hairline pt-6 text-xs text-ink-subtle sm:flex-row sm:justify-between">
           <span>© {new Date().getFullYear()} H2ODreamer Studio · Johor, Malaysia</span>
           <div className="flex gap-5">
-            {/* 原生 <a>，不是 next/link —— /privacy 与 /terms 是 public/ 下手写的
+            {/* 原生 <a>，不是 next/link: /privacy 与 /terms 是 public/ 下手写的
                 静态页，不是 Next 路由。用 <Link> 的话它会去预取 /privacy.txt 与
                 /terms.txt 这两份不存在的 RSC 载荷，每开一个页面白挨两个 404。
                 地址本身一个字没动。这两页迁进 Next 之后可以换回 <Link>。 */}
@@ -104,7 +104,7 @@ export function Footer({ lang }: { lang: Lang }) {
               {t({ cn: "条款", en: "Terms" }, lang)}
             </a>
             {/* SIL OFL 第 2 条：随字体分发必须附带许可证全文并可被取得。
-                两份都要列 —— 思源黑体版权方是 Adobe，宋体是 Google。
+                两份都要列：思源黑体版权方是 Adobe，宋体是 Google。
                 见 docs/adr/0004-noto-cjk-self-hosted-subset.md。 */}
             <a href="/fonts/LICENSES.txt" className="hover:text-ink-muted" rel="license">
               {t({ cn: "字体授权", en: "Font license" }, lang)}

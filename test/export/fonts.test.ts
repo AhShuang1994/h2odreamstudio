@@ -2,7 +2,7 @@
  * 导出产物 · 中文字体子集
  *
  * 自托管思源黑体／宋体的子集，由 scripts/subset-fonts.mjs 生成。
- * 源字体是 17MB / 24MB 的可变字体，**不在仓库里** —— 所以生成好的 woff2
+ * 源字体是 17MB / 24MB 的可变字体，**不在仓库里**，所以生成好的 woff2
  * 必须提交进版本库，构建机没有源字体可用来重新生成。
  *
  * 见 docs/adr/0004-noto-cjk-self-hosted-subset.md。
@@ -22,11 +22,11 @@ const SUBSETS: { file: string; min: number; max: number }[] = [
  * 字体总体积上限。
  *
  * 实测 511 字 / 3 个字重 = 230KB。票里原写的 ≤150KB 是立项时的估算，实测
- * 做不到 —— CJK 每字形约 130 字节，压到 150KB 要么砍掉 600 字重（中文会被
+ * 做不到，CJK 每字形约 130 字节，压到 150KB 要么砍掉 600 字重（中文会被
  * 浏览器合成粗体，很糊），要么把宋体裁成只含标题字（以后新标题用到集外的字
  * 会在标题中间掉回黑体）。两个代价都比多 80KB 大。
  *
- * 真正的约束是 ADR-0008 的首屏总重 < 800KB —— 不含字体约 146KB，加 230KB
+ * 真正的约束是 ADR-0008 的首屏总重 < 800KB，不含字体约 146KB，加 230KB
  * 仍有充足余量。上限设 280KB 留一点文案增长空间。
  */
 const MAX_FONT_BYTES = 280 * 1024;
@@ -47,7 +47,7 @@ describe("导出产物 · 中文字体", () => {
       const kb = (x.sizes.get(file) ?? 0) / 1024;
       expect(
         kb,
-        `${file} 体积 ${kb.toFixed(1)} KB 超出预期区间 —— ` +
+        `${file} 体积 ${kb.toFixed(1)} KB 超出预期区间：` +
           `过大多半是误提交了完整字体，过小多半是子集生成失败`,
       ).toBeGreaterThan(min);
       expect(kb).toBeLessThan(max);
@@ -61,7 +61,7 @@ describe("导出产物 · 中文字体", () => {
 
   for (const file of LICENSES) {
     it(`${file} 随字体一起分发`, () => {
-      expect(x.has(file), `缺少 ${file} —— OFL 第 2 条要求许可证全文可被取得`).toBe(true);
+      expect(x.has(file), `缺少 ${file}: OFL 第 2 条要求许可证全文可被取得`).toBe(true);
       const text = x.read(file);
       expect(text, `${file} 里没有 OFL 正文`).toContain("SIL OPEN FONT LICENSE");
       expect(text.length).toBeGreaterThan(1000);
@@ -72,7 +72,7 @@ describe("导出产物 · 中文字体", () => {
     const home = x.read("index.html");
     expect(
       /href="\/fonts\/LICENSES\.txt"/.test(home),
-      "页脚缺少字体许可证链接 —— 许可证文件存在但用户取不到，不算履行 OFL 第 2 条",
+      "页脚缺少字体许可证链接，许可证文件存在但用户取不到，不算履行 OFL 第 2 条",
     ).toBe(true);
   });
 
@@ -102,12 +102,12 @@ describe("导出产物 · 中文字体", () => {
     expect(preloads).toContain("/fonts/NotoSansSC-400.woff2");
     expect(
       preloads.length,
-      `预加载了 ${preloads.length} 个字体 —— 三个挤在首屏关键路径上会拖慢 LCP，见 ADR-0008`,
+      `预加载了 ${preloads.length} 个字体，三个挤在首屏关键路径上会拖慢 LCP，见 ADR-0008`,
     ).toBe(1);
   });
 
   /**
-   * 英文页的正文全是拉丁字符，走 Inter；@font-face 的 unicode-range 已经挡住了
+   * 英文页的正文全是拉丁字符，走 Inter。@font-face 的 unicode-range 已经挡住了
    * 按需下载，再预加载一份 CJK 子集是白花的带宽（#75 拆语言后才有这个区分）。
    */
   it("英文首页不预加载中文字体", () => {
@@ -122,7 +122,7 @@ describe("导出产物 · 中文字体", () => {
  *
  * 静态内容页原先自己从 Google Fonts 拉 Space Grotesk + DM Sans：与核心页看起来
  * 像两个站，多一次阻塞渲染的外部往返，中文还落回系统字体（Windows 微软雅黑、
- * Mac 苹方、Android Noto，三个设备三种样子）—— 正是 ADR-0004 自托管要修的那件事。
+ * Mac 苹方、Android Noto，三个设备三种样子）：正是 ADR-0004 自托管要修的那件事。
  *
  * 现在两边共用 `out/css/fonts.css`：构建后由 `scripts/gen-content-fonts.mjs`
  * 从 Next 的产物里抄出 `@font-face` 与 `--font-inter`。**字体文件名带内容哈希**，
@@ -134,15 +134,15 @@ describe("导出产物 · 内容页字体", () => {
   /**
    * 仍允许对外取字体的页面。
    *
-   * - `demos/` —— 11 个虚构品牌的成品演示，冻结不动（CONTEXT.md 的「样板站」词条）
-   * - `xhs.html` —— 小红书落地页，自带一套 editorial 排版（衬线 + 等宽 + 青色），
+   * - `demos/`: 11 个虚构品牌的成品演示，冻结不动（CONTEXT.md 的「样板站」词条）
+   * - `xhs.html`，小红书落地页，自带一套 editorial 排版（衬线 + 等宽 + 青色），
    *   与全站视觉外壳不是同一套东西。它要不要并进来是一个设计决定，不是这张票的
    *   字体统一工作，**没有票之前别顺手改**。
    */
   const MAY_USE_GOOGLE = (rel: string) => rel.startsWith("demos/") || rel === "xhs.html";
 
   it("字体表在产物里，且抄全了", () => {
-    expect(x.has("css/fonts.css"), "缺 out/css/fonts.css —— 它由 postbuild 生成").toBe(
+    expect(x.has("css/fonts.css"), "缺 out/css/fonts.css：它由 postbuild 生成").toBe(
       true,
     );
     const css = x.read("css/fonts.css");

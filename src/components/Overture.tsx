@@ -5,9 +5,9 @@ import { OVERTURE } from "@/content/parallax";
 import { motionAllowed } from "@/lib/motion";
 
 /**
- * 序幕 —— 穿过一滴水。
+ * 序幕：穿过一滴水。
  *
- * 一块盖满视口的暗板，中间挖一个水滴形的洞；洞里看到的就是下面的 hero
+ * 一块盖满视口的暗板，中间挖一个水滴形的洞。洞里看到的就是下面的 hero
  * （连同那颗球）。水滴急速放大越过视口边界 → 暗板消失 → 人已经在首屏里了。
  *
  * ## 为什么用 SVG `<mask>` 而不是 CSS `mask-composite`
@@ -20,7 +20,7 @@ import { motionAllowed } from "@/lib/motion";
  *
  * - 首访才播，`sessionStorage` 记住
  * - 减弱动态偏好下整段不执行
- * - ⚠️ **hero 文字在暗板下方照常绘制，绝不能 opacity:0** —— 盖住不等于没画，
+ * - ⚠️ **hero 文字在暗板下方照常绘制，绝不能 opacity:0**：盖住不等于没画，
  *   最大内容绘制照常计时。真正拖 LCP 的是「揭示前先藏起来」那种写法。
  */
 export function Overture() {
@@ -35,7 +35,7 @@ export function Overture() {
       if (sessionStorage.getItem(OVERTURE.flagKey)) return;
       sessionStorage.setItem(OVERTURE.flagKey, "1");
     } catch {
-      // 隐私模式下 sessionStorage 会抛 —— 那就每次都播，不值得为它放弃序幕
+      // 隐私模式下 sessionStorage 会抛：那就每次都播，不值得为它放弃序幕
     }
     setArmed(true);
   }, []);
@@ -72,7 +72,7 @@ export function Overture() {
         // 前段：缓缓张开，让人看清洞里是什么
         .to(drop, { scale: toScale(peek), duration: 0.29, ease: "power2.inOut" })
         .to(orb, { scale: 0.82, duration: 0.29, ease: "power2.inOut" }, "<")
-        // 后段：猛冲穿过。「前景放大 + 后景 0.75→1 同步」是穿透的通用配方 ——
+        // 后段：猛冲穿过。「前景放大 + 后景 0.75→1 同步」是穿透的通用配方，
         // 少了后景那一半，穿过去会像撞墙。
         .to(drop, {
           scale: toScale(final),

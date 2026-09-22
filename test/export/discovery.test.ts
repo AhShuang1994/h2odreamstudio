@@ -1,11 +1,11 @@
 /**
  * 导出产物 · 收录入口（#77）
  *
- * sitemap、llms.txt、hreflang —— 三样都是「让别人找到这个站」的入口，三样
+ * sitemap、llms.txt、hreflang：三样都是「让别人找到这个站」的入口，三样
  * 都在构建期生成。生成的东西也会错，所以这里独立地重新扫一遍 `out/`，
  * 而不是复用生成器的那份清单：拿产物去对产物，才叫断言。
  *
- * llms.txt 里的地址是给 AI 的**引文地址** —— 指向 404 比不写还糟。
+ * llms.txt 里的地址是给 AI 的**引文地址**：指向 404 比不写还糟。
  */
 import { describe, it, expect } from "vitest";
 import { loadExport } from "../helpers/export";
@@ -15,7 +15,7 @@ const DOMAIN = "https://www.h2o-dreamer-studio.com";
 /**
  * 不该出现在收录入口里的页面。
  *
- * 与 scripts/lib/exported-pages.mjs 里那份**故意重复** —— 断言不能拿被测
+ * 与 scripts/lib/exported-pages.mjs 里那份**故意重复**：断言不能拿被测
  * 代码的定义来判自己对不对。这四条改动时两边一起改。
  */
 function isExcluded(file: string): boolean {
@@ -66,7 +66,7 @@ describe("导出产物 · 收录入口", () => {
       expect(locs.length - zh.length, "sitemap 里没有英文树").toBeGreaterThanOrEqual(28);
     });
 
-    it("没有死链 —— 每条地址都能落到一个真实文件", () => {
+    it("没有死链：每条地址都能落到一个真实文件", () => {
       const dead = locs.filter((u) => !fileByUrl.has(u));
       expect(dead, `sitemap 里这些地址没有对应文件：\n  ${dead.join("\n  ")}`).toEqual([]);
     });
@@ -119,7 +119,7 @@ describe("导出产物 · 收录入口", () => {
     });
 
     /**
-     * 没有对偶版本的页面不声明 hreflang —— 这是对的，不是漏了。
+     * 没有对偶版本的页面不声明 hreflang：这是对的，不是漏了。
      * 4 个手写服务页与隐私／条款目前只有一种语言，等它们也拆了再说。
      */
     it("声明了 hreflang 的，三条齐全、双向互指、指到的页面都存在", () => {
@@ -164,7 +164,7 @@ describe("导出产物 · 收录入口", () => {
       const missing = [...urls].filter((u) => !listed.has(u));
       expect(
         missing,
-        `这些页面导出了却没进 llms.txt —— AI 不会知道它们存在：\n  ${missing.join("\n  ")}`,
+        `这些页面导出了却没进 llms.txt: AI 不会知道它们存在：\n  ${missing.join("\n  ")}`,
       ).toEqual([]);
     });
 

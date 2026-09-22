@@ -6,10 +6,10 @@
 
   <link rel="canonical" href="https://www.h2o-dreamer-studio.com/shopify-migration">
   <title>Shopify Migration · {{shopify}} · H2ODreamer Studio</title>
-  <meta name="description" content="Full Shopify migration — products, pages, SEO rankings & tracking — with admin training and 30-day post-launch support. From {{shopify}}.">
+  <meta name="description" content="Full Shopify migration (products, pages, SEO rankings & tracking) with admin training and 30-day post-launch support. From {{shopify}}.">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Shopify Migration — H2ODreamer Studio">
+  <meta property="og:title" content="Shopify Migration · H2ODreamer Studio">
   <meta property="og:description" content="Move to Shopify without losing a single customer. Full migration from {{shopify}}.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="zh_CN">
@@ -18,7 +18,7 @@
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Shopify Migration — H2ODreamer Studio">
+  <meta name="twitter:title" content="Shopify Migration · H2ODreamer Studio">
   <meta name="twitter:description" content="Move to Shopify without losing a single customer.">
 
   <!-- Theme color -->
@@ -48,7 +48,7 @@
   "@id": "https://www.h2o-dreamer-studio.com/shopify-migration#service",
   "name": "Shopify Migration",
   "serviceType": "E-commerce store migration",
-  "description": "Full Shopify migration — products, pages, SEO rankings and tracking — with admin training and 30-day post-launch support. From {{shopify}}.",
+  "description": "Full Shopify migration (products, pages, SEO rankings and tracking) with admin training and 30-day post-launch support. From {{shopify}}.",
   "url": "https://www.h2o-dreamer-studio.com/shopify-migration",
   "provider": {
     "@id": "https://www.h2o-dreamer-studio.com/#business"
@@ -69,18 +69,18 @@
 }
   </script>
   <script>/**
- * 必须在首帧之前执行的那一小段。**内联进每个页面的 <head>**，不是外部脚本 ——
+ * 必须在首帧之前执行的那一小段。**内联进每个页面的 <head>**，不是外部脚本，
  * 外部脚本要多一次阻塞渲染的请求，为几百个字节不值得。
  *
  * 一份源码，两个去处：
  *   - 核心页：`src/components/Shell.tsx` 构建期读进来内联
  *   - 内容页与独立静态页：`scripts/inject-motion.mjs` 构建期注入
- * 写两份迟早会漂移，而漂移的表现是「有的页面有幕布、有的白屏硬跳」——
+ * 写两份迟早会漂移，而漂移的表现是「有的页面有幕布、有的白屏硬跳」，
  * ADR-0001 说这比完全没有更糟。
  *
  * 这里只做三件事，都必须早于首帧：
  *   1. 注入幕布的样式（幕布落在 html::after 上，不往 DOM 里塞元素）
- *   2. 上一页盖上幕布才揭幕 —— 直达访问不盖，盖了会把最大内容绘制推后
+ *   2. 上一页盖上幕布才揭幕：直达访问不盖，盖了会把最大内容绘制推后
  *   3. 给逐行揭示上预备态
  */
 (function () {
@@ -165,15 +165,15 @@
           搬到 Shopify，一个客户都不丢
         </h1>
         <p class="hero-sub"
-           data-lang-en="Worried about losing your Google rankings, breaking product links, or confusing your customers during the switch? I handle the entire migration — products, pages, SEO, tracking — so your business doesn't skip a beat."
-           data-lang-cn="担心搬家后 Google 排名下降、产品链接失效、或客户在过渡期间流失？我处理整个迁移过程 — 产品、页面、SEO、追踪 — 让你的生意不受一点影响。">
-          担心搬家后 Google 排名下降、产品链接失效、或客户在过渡期间流失？我处理整个迁移过程 — 产品、页面、SEO、追踪 — 让你的生意不受一点影响。
+           data-lang-en="Worried about losing your Google rankings, breaking product links, or confusing your customers during the switch? I handle the entire migration (products, pages, SEO, tracking) so your business doesn't skip a beat."
+           data-lang-cn="担心搬家后 Google 排名下降、产品链接失效、或客户在过渡期间流失？我处理整个迁移过程，产品、页面、SEO、追踪，让你的生意不受一点影响。">
+          担心搬家后 Google 排名下降、产品链接失效、或客户在过渡期间流失？我处理整个迁移过程，产品、页面、SEO、追踪，让你的生意不受一点影响。
         </p>
         <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20I'm%20interested%20in%20Shopify%20Migration%20(RM%2010%2C000).%20My%20current%20platform%20is%20%5Bplatform%5D."
            class="btn-primary" target="_blank" rel="noopener"
-           data-lang-en="💬 Migrate My Store — {{shopify}}"
-           data-lang-cn="💬 迁移我的网店 — {{shopify}}">
-          💬 迁移我的网店 — {{shopify}}
+           data-lang-en="💬 Migrate My Store: {{shopify}}"
+           data-lang-cn="💬 迁移我的网店：{{shopify}}">
+          💬 迁移我的网店：{{shopify}}
         </a>
         <p class="hero-price"
            data-lang-en="Usually replies within 1 hour"
@@ -193,14 +193,14 @@
           安心迁移，专业<em>到位</em>
         </h2>
         <p class="section-body"
-           data-lang-en="See how I've helped businesses move to Shopify — with zero downtime and all their data intact."
-           data-lang-cn="看看我如何帮助企业搬到 Shopify — 零停机时间，所有数据完好无损。">
-          看看我如何帮助企业搬到 Shopify — 零停机时间，所有数据完好无损。
+           data-lang-en="See how I've helped businesses move to Shopify, with zero downtime and all their data intact."
+           data-lang-cn="看看我如何帮助企业搬到 Shopify：零停机时间，所有数据完好无损。">
+          看看我如何帮助企业搬到 Shopify：零停机时间，所有数据完好无损。
         </p>
 
         <div class="showcase-grid">
 
-          <!-- Demo 1: MUSE Apparel — Fashion E-commerce Store -->
+          <!-- Demo 1: MUSE Apparel, Fashion E-commerce Store -->
           <div class="showcase-item reveal reveal-up">
             <div class="showcase-item-frames">
               <div class="mockup-desktop">
@@ -210,17 +210,17 @@
                   <span class="mockup-dot mockup-dot-green"></span>
                 </div>
                 <img src="assets/portfolio/shopify-fashion-desktop.webp"
-                     alt="MUSE Apparel — Fashion E-commerce Store on Shopify - desktop view"
+                     alt="MUSE Apparel: Fashion E-commerce Store on Shopify - desktop view"
                      loading="lazy" width="1440" height="900">
               </div>
               <div class="mockup-mobile">
                 <img src="assets/portfolio/shopify-fashion-mobile.webp"
-                     alt="MUSE Apparel — Fashion E-commerce Store on Shopify - mobile view"
+                     alt="MUSE Apparel: Fashion E-commerce Store on Shopify - mobile view"
                      loading="lazy" width="390" height="844">
               </div>
             </div>
             <div class="showcase-item-caption">
-              <span data-lang-en="MUSE Apparel — Fashion E-commerce" data-lang-cn="MUSE Apparel — 时尚电商网店">MUSE Apparel — 时尚电商网店</span>
+              <span data-lang-en="MUSE Apparel: Fashion E-commerce" data-lang-cn="MUSE Apparel：时尚电商网店">MUSE Apparel：时尚电商网店</span>
               <a href="demos/muse-apparel.html" class="demo-btn" target="_blank" rel="noopener"
                  data-lang-en="View Live Demo →" data-lang-cn="查看在线演示 →">
                 查看在线演示 →
@@ -254,9 +254,9 @@
             <span class="item-icon">📦</span>
             <h4 data-lang-en="Full Product Migration"
                 data-lang-cn="完整产品迁移">完整产品迁移</h4>
-            <p data-lang-en="Every product — titles, descriptions, images, variants, pricing — transferred accurately to your new Shopify store."
-               data-lang-cn="每件产品 — 标题、描述、图片、规格、定价 — 精确转移到你的新 Shopify 网店。">
-              每件产品 — 标题、描述、图片、规格、定价 — 精确转移到你的新 Shopify 网店。
+            <p data-lang-en="Every product (titles, descriptions, images, variants, pricing) transferred accurately to your new Shopify store."
+               data-lang-cn="每件产品，标题、描述、图片、规格、定价，精确转移到你的新 Shopify 网店。">
+              每件产品，标题、描述、图片、规格、定价，精确转移到你的新 Shopify 网店。
             </p>
           </div>
 
@@ -264,9 +264,9 @@
             <span class="item-icon">📄</span>
             <h4 data-lang-en="Page & Content Migration"
                 data-lang-cn="页面 & 内容迁移">页面 & 内容迁移</h4>
-            <p data-lang-en="Your About page, policies, blog posts, and custom pages — all moved over and formatted correctly."
-               data-lang-cn="你的关于页面、政策、博客文章和自定义页面 — 全部搬过来并正确排版。">
-              你的关于页面、政策、博客文章和自定义页面 — 全部搬过来并正确排版。
+            <p data-lang-en="Your About page, policies, blog posts, and custom pages, all moved over and formatted correctly."
+               data-lang-cn="你的关于页面、政策、博客文章和自定义页面：全部搬过来并正确排版。">
+              你的关于页面、政策、博客文章和自定义页面：全部搬过来并正确排版。
             </p>
           </div>
 
@@ -284,9 +284,9 @@
             <span class="item-icon">📊</span>
             <h4 data-lang-en="GA4 Ecommerce Tracking"
                 data-lang-cn="GA4 电商追踪">GA4 电商追踪</h4>
-            <p data-lang-en="Full ecommerce tracking — page views, add-to-cart, checkout, purchase — so you see exactly how your store performs."
-               data-lang-cn="完整的电商追踪 — 页面浏览、加入购物车、结账、购买 — 让你清楚看到网店表现。">
-              完整的电商追踪 — 页面浏览、加入购物车、结账、购买 — 让你清楚看到网店表现。
+            <p data-lang-en="Full ecommerce tracking (page views, add-to-cart, checkout, purchase) so you see exactly how your store performs."
+               data-lang-cn="完整的电商追踪，页面浏览、加入购物车、结账、购买，让你清楚看到网店表现。">
+              完整的电商追踪，页面浏览、加入购物车、结账、购买，让你清楚看到网店表现。
             </p>
           </div>
 
@@ -294,9 +294,9 @@
             <span class="item-icon">🎨</span>
             <h4 data-lang-en="Theme Customization"
                 data-lang-cn="主题定制">主题定制</h4>
-            <p data-lang-en="I customize your Shopify theme to match your brand — colors, fonts, layout, and feel."
-               data-lang-cn="我定制你的 Shopify 主题以匹配品牌 — 配色、字体、排版和整体感觉。">
-              我定制你的 Shopify 主题以匹配品牌 — 配色、字体、排版和整体感觉。
+            <p data-lang-en="I customize your Shopify theme to match your brand: colors, fonts, layout, and feel."
+               data-lang-cn="我定制你的 Shopify 主题以匹配品牌：配色、字体、排版和整体感觉。">
+              我定制你的 Shopify 主题以匹配品牌：配色、字体、排版和整体感觉。
             </p>
           </div>
 
@@ -304,9 +304,9 @@
             <span class="item-icon">💳</span>
             <h4 data-lang-en="Payment Gateway Setup"
                 data-lang-cn="支付网关设置">支付网关设置</h4>
-            <p data-lang-en="I configure iPay88, Billplz, Stripe, or your preferred gateway — tested and ready to accept payments."
-               data-lang-cn="我配置 iPay88、Billplz、Stripe 或你偏好的支付网关 — 测试完毕，随时收款。">
-              我配置 iPay88、Billplz、Stripe 或你偏好的支付网关 — 测试完毕，随时收款。
+            <p data-lang-en="I configure iPay88, Billplz, Stripe, or your preferred gateway: tested and ready to accept payments."
+               data-lang-cn="我配置 iPay88、Billplz、Stripe 或你偏好的支付网关：测试完毕，随时收款。">
+              我配置 iPay88、Billplz、Stripe 或你偏好的支付网关：测试完毕，随时收款。
             </p>
           </div>
 
@@ -355,9 +355,9 @@
           <div class="process-step reveal reveal-up">
             <div class="step-num">1</div>
             <h4 data-lang-en="Audit" data-lang-cn="审计">审计</h4>
-            <p data-lang-en="I review your current store — products, pages, apps, SEO setup — and create a detailed migration plan."
-               data-lang-cn="我审查你目前的网店 — 产品、页面、应用、SEO 设置 — 并制定详细的迁移计划。">
-              我审查你目前的网店 — 产品、页面、应用、SEO 设置 — 并制定详细的迁移计划。
+            <p data-lang-en="I review your current store (products, pages, apps, SEO setup) and create a detailed migration plan."
+               data-lang-cn="我审查你目前的网店，产品、页面、应用、SEO 设置，并制定详细的迁移计划。">
+              我审查你目前的网店，产品、页面、应用、SEO 设置，并制定详细的迁移计划。
             </p>
           </div>
 
@@ -411,7 +411,7 @@
               <span class="faq-chevron">+</span>
             </summary>
             <div class="faq-answer"
-                 data-lang-en="No. I set up 301 redirects for every URL, which tells Google your content has moved — not disappeared. Most sites see rankings recover within 2-4 weeks."
+                 data-lang-en="No. I set up 301 redirects for every URL, which tells Google your content has moved, not disappeared. Most sites see rankings recover within 2-4 weeks."
                  data-lang-cn="不会。我为每个 URL 设置 301 重定向，告诉 Google 你的内容是搬家了，不是消失了。大多数网站在 2-4 周内排名恢复。">
               不会。我为每个 URL 设置 301 重定向，告诉 Google 你的内容是搬家了，不是消失了。大多数网站在 2-4 周内排名恢复。
             </div>
@@ -472,16 +472,16 @@
           准备好<em>切换</em>了吗？
         </h2>
         <p class="motivation"
-           data-lang-en="Your competitors are already on Shopify. The longer you wait, the harder it gets to catch up. Let's make the switch — smoothly and safely."
+           data-lang-en="Your competitors are already on Shopify. The longer you wait, the harder it gets to catch up. Let's make the switch: smoothly and safely."
            data-lang-cn="你的竞争对手已经在用 Shopify 了。越晚搬，差距越大。让我安全顺利地完成这次切换。">
           你的竞争对手已经在用 Shopify 了。越晚搬，差距越大。让我安全顺利地完成这次切换。
         </p>
         <div class="contact-buttons">
           <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20I'm%20interested%20in%20Shopify%20Migration%20(RM%2010%2C000).%20My%20current%20platform%20is%20%5Bplatform%5D."
              class="btn-wa" target="_blank" rel="noopener"
-             data-lang-en="💬 WhatsApp Me — Plan My Migration"
-             data-lang-cn="💬 WhatsApp 咨询 — 规划我的迁移">
-            💬 WhatsApp 咨询 — 规划我的迁移
+             data-lang-en="💬 WhatsApp Me: Plan My Migration"
+             data-lang-cn="💬 WhatsApp 咨询：规划我的迁移">
+            💬 WhatsApp 咨询：规划我的迁移
           </a>
           <a href="mailto:H2Odreamer@outlook.com" class="btn-email"
              data-lang-en="📧 Email Me"

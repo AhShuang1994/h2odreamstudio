@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    // 只跑构建产物断言。这一层不需要浏览器，也不需要 jsdom —— 断言打在
+    // 只跑构建产物断言。这一层不需要浏览器，也不需要 jsdom：断言打在
     // 导出的文件树与文件内容上。运行时行为归接缝 ②（Playwright，见 #66）。
     include: ["test/**/*.test.ts"],
     environment: "node",

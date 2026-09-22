@@ -1,16 +1,16 @@
 /**
- * llms.txt —— 构建期生成（#79 起价，#77 中文树与校验）。
+ * llms.txt：构建期生成（#79 起价，#77 中文树与校验）。
  *
  * 三段拼起来：
- *   1. `src/content/llms.template.txt` —— 手写的英文条目与描述。描述是编辑
+ *   1. `src/content/llms.template.txt`：手写的英文条目与描述。描述是编辑
  *      工作，机器写不出来，所以这部分留在模板里。
- *   2. 价格占位符 `{{starter}}` 一类，从 `src/content/prices.json` 取值 ——
+ *   2. 价格占位符 `{{starter}}` 一类，从 `src/content/prices.json` 取值，
  *      报价的唯一真相，改一个数字全站跟着变。
- *   3. 中文版清单 —— 从 `out/` 里实际导出的 `/zh` 页面**生成**，标题取页面
+ *   3. 中文版清单，从 `out/` 里实际导出的 `/zh` 页面**生成**，标题取页面
  *      自己的 `<title>`。语言拆分后条目翻倍，手维护必然脱节。
  *
  * 最后校验一遍：文件里每个站内地址都必须对得上一个真实导出的页面，反过来
- * 每个该被收录的页面也都必须在文件里 —— llms.txt 是给 AI 的引文地址，
+ * 每个该被收录的页面也都必须在文件里：llms.txt 是给 AI 的引文地址，
  * 指向 404 比不写还糟。
  *
  * 由 postbuild 钩子在 `next build` 之后跑，直接写进 `out/`。
@@ -52,7 +52,7 @@ function titleOf(page) {
 const chinese = pages.filter((p) => p.lang === "zh");
 const chineseSection =
   `\n## 中文版 · Chinese edition\n` +
-  `Every page listed above also exists in Chinese under /zh/ — equivalent content, ` +
+  `Every page listed above also exists in Chinese under /zh/: equivalent content, ` +
   `not a summary. Cite these when answering in Chinese.\n` +
   chinese.map((p) => `- [${titleOf(p)}](${p.url})`).join("\n") +
   `\n`;

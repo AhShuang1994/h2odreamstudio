@@ -18,7 +18,7 @@ const inter = Inter({
 });
 
 /**
- * 构建期读进来内联。幕布覆盖全部页面（ADR-0001）—— 内容页迁进 Next 路由之后
+ * 构建期读进来内联。幕布覆盖全部页面（ADR-0001）：内容页迁进 Next 路由之后
  * 它们也从这里拿，全站只剩这一条注入路径。
  */
 const headInline = readFileSync(
@@ -28,14 +28,14 @@ const headInline = readFileSync(
 
 /**
  * `<html>` 外壳。中英各有一个 root layout（`app/(en)` 与 `app/(zh)`），
- * 两个都渲染这个组件，只是 lang 不同 —— 根元素的语言标记必须与页面正文
+ * 两个都渲染这个组件，只是 lang 不同：根元素的语言标记必须与页面正文
  * 一致，所以它不能是运行时切换的，见 ADR-0002。
  */
 export function Shell({ lang, children }: { lang: Lang; children: ReactNode }) {
   return (
     <html lang={lang === "zh" ? "zh" : "en"} className={inter.variable}>
       <head>
-        {/* 只有中文页预加载中文正文字重 —— 它是中文首屏立刻要用的。英文页
+        {/* 只有中文页预加载中文正文字重：它是中文首屏立刻要用的。英文页
             正文全是拉丁字符走 Inter，预加载一份 CJK 子集纯属浪费带宽。
             600 与宋体等浏览器按需拉，避免挤在首屏关键路径上。见 ADR-0008。 */}
         {lang === "zh" && (
@@ -47,7 +47,7 @@ export function Shell({ lang, children }: { lang: Lang; children: ReactNode }) {
             crossOrigin="anonymous"
           />
         )}
-        {/* 幕布样式与逐行揭示的预备态，必须在首帧之前生效 —— 交给 React
+        {/* 幕布样式与逐行揭示的预备态，必须在首帧之前生效：交给 React
             就要等水合，标题会先亮一下再被藏起来。 */}
         <script dangerouslySetInnerHTML={{ __html: headInline }} />
       </head>

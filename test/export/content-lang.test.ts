@@ -5,7 +5,7 @@
  * 下的双语原稿生成两份单语页面：英文**沿用已收录的原地址**，中文落在 `/zh`
  * 下的对应地址。那批英文地址同时是 llms.txt 给 AI 的引文地址，一个字都不能动。
  *
- * 正文一字不改 —— 两份输出的文本逐字来自原稿的两个标注。
+ * 正文一字不改：两份输出的文本逐字来自原稿的两个标注。
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -27,7 +27,7 @@ const SOURCES = readdirSync(SRC, { withFileTypes: true })
 /** 汉字。英文页里只允许语言切换按钮上的「中文」两个字。 */
 const CJK = /[一-鿿]/g;
 
-/** 去标签、还原实体、压空白 —— 用来把标注值与渲染结果放在同一个尺度上比。 */
+/** 去标签、还原实体、压空白：用来把标注值与渲染结果放在同一个尺度上比。 */
 function plainText(fragment: string): string {
   return fragment
     .replace(/<[^>]+>/g, " ")
@@ -90,7 +90,7 @@ describe("导出产物 · 内容页语言拆分", () => {
     );
     for (const rel of SOURCES) {
       const source = readFileSync(join(SRC, rel), "utf8");
-      expect(source, `${rel} 不再是双语原稿 —— 别把生成结果写回原稿`).toContain(
+      expect(source, `${rel} 不再是双语原稿：别把生成结果写回原稿`).toContain(
         "data-lang-en=",
       );
     }
@@ -109,7 +109,7 @@ describe("导出产物 · 内容页语言拆分", () => {
 
     describe(rel, () => {
       it("英文版的地址与拆分前完全一致", () => {
-        expect(x.has(p.en.file), `${p.en.file} 不见了 —— 这是已收录的地址`).toBe(true);
+        expect(x.has(p.en.file), `${p.en.file} 不见了：这是已收录的地址`).toBe(true);
       });
 
       it("英文版只有英文，中文版只有中文", () => {
@@ -129,7 +129,7 @@ describe("导出产物 · 内容页语言拆分", () => {
        *
        * ⚠️ **范围是 `<main>`，不是整份原稿。** 原稿是完整的独立 HTML 文档，自带
        * 导航与页脚，那些也挂着双语标注。内容页迁进 Next 路由之后，导航与页脚改由
-       * `Nav.tsx` / `Footer.tsx` 渲染，与核心页共用一套文字 —— 那正是迁移买到的
+       * `Nav.tsx` / `Footer.tsx` 渲染，与核心页共用一套文字：那正是迁移买到的
        * 东西，不是「弄丢了」。实测差异就两处：页脚的 Privacy Policy → Privacy、
        * Terms of Service → Terms。
        *
@@ -138,7 +138,7 @@ describe("导出产物 · 内容页语言拆分", () => {
       it("两份产物的正文与原稿逐字一致", () => {
         const source = readFileSync(join(SRC, rel), "utf8");
         const main = source.slice(source.indexOf("<main"), source.lastIndexOf("</main>"));
-        expect(main.length, `${rel} 里找不到 <main> —— 正文边界没了`).toBeGreaterThan(0);
+        expect(main.length, `${rel} 里找不到 <main>，正文边界没了`).toBeGreaterThan(0);
         for (const [attr, file] of [
           ["data-lang-en", p.en.file],
           ["data-lang-cn", p.zh.file],
@@ -191,8 +191,8 @@ describe("导出产物 · 内容页语言拆分", () => {
        * ⚠️ 断言写成**与渲染器无关**：找一个 href 恰为对偶地址、hrefLang 为另一语言
        * 的 `<a>`，而不是找 `class="lang-toggle"`。
        *
-       * 拆分脚本发的是手写的 `<a class="lang-toggle">`；迁进 Next 路由之后是
-       * `LangToggle.tsx` 渲染的 `<Link>`，带一串 Tailwind 类。两种都该通过 ——
+       * 拆分脚本发的是手写的 `<a class="lang-toggle">`、迁进 Next 路由之后是
+       * `LangToggle.tsx` 渲染的 `<Link>`，带一串 Tailwind 类。两种都该通过，
        * 这条守的是「切到同一篇的另一语言」，不是切换器长什么样。
        *
        * 地址必须**逐字等于 canonical**（索引页带尾斜杠、文章页带 .html），
@@ -224,13 +224,13 @@ describe("导出产物 · 内容页语言拆分", () => {
        * 内容页一篇都不能少。
        *
        * 曾经有 9 篇没有（两个索引页 + 7 篇案例拆解），那时这条只断言「原稿里
-       * 有的要保留」；补齐之后升成**必须有** —— 别再退回「保留」的写法。
+       * 有的要保留」。补齐之后升成**必须有**：别再退回「保留」的写法。
        */
       it("有「快速答案」块，它与结构化数据在两份产物里都还在", () => {
         const source = readFileSync(join(SRC, rel), "utf8");
         expect(
           /Quick answer|快速答案/i.test(source),
-          `${rel} 原稿里没有「快速答案」块 —— 它是本站流量策略的核心结构，见 CONTEXT.md`,
+          `${rel} 原稿里没有「快速答案」块，它是本站流量策略的核心结构，见 CONTEXT.md`,
         ).toBe(true);
         // 原稿里的块都要保下来，再加上从可见问答生成的那一个 FAQPage（#82）
         const sourceBlocks =
@@ -241,7 +241,7 @@ describe("导出产物 · 内容页语言拆分", () => {
           const html = x.read(file);
           expect(
             /Quick answer|快速答案/i.test(html),
-            `${file} 丢了「快速答案」块 —— 它是本站流量策略的核心结构`,
+            `${file} 丢了「快速答案」块：它是本站流量策略的核心结构`,
           ).toBe(true);
 
           const blocks = [

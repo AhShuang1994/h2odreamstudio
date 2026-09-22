@@ -6,7 +6,7 @@ import { t, type Lang } from "./i18n";
  * 全站共用的结构化数据节点。
  *
  * ⚠️ FAQPage 只能放在**页面上真的有可见问答**的页面上。Google 明令禁止用
- * 不可见的内容做 FAQ 标记 —— 旧站的 about 与 pricing 就踩了这个坑（3 个与
+ * 不可见的内容做 FAQ 标记，旧站的 about 与 pricing 就踩了这个坑（3 个与
  * 4 个问题在页面上找不到），迁移时已移除。加 FAQPage 之前先确认问答渲染出来了。
  */
 
@@ -22,7 +22,7 @@ export function businessNode() {
     logo: `${site.domain}/og/logo.svg`,
     image: `${site.domain}/og/og-image.jpg`,
     description:
-      "Web design studio in Malaysia — landing pages, multi-page corporate websites, wedding e-invitations and Shopify migration. Bilingual service in English and Chinese.",
+      "Web design studio in Malaysia: landing pages, multi-page corporate websites, wedding e-invitations and Shopify migration. Bilingual service in English and Chinese.",
     areaServed: "MY",
     address: {
       "@type": "PostalAddress",
@@ -58,7 +58,7 @@ export function businessNode() {
 /**
  * 页面本体节点，统一挂到工作室实体上。
  *
- * `inLanguage` 是**单值** —— 每个地址只渲染一种语言，声明两种会和 hreflang
+ * `inLanguage` 是**单值**，每个地址只渲染一种语言，声明两种会和 hreflang
  * 互相打架。中英两份各自声明自己那一种。
  */
 export function pageNode(
@@ -80,7 +80,7 @@ export function pageNode(
   };
 }
 
-/** 只在问答**页面上可见**时才调用；问答的语言必须与页面一致。 */
+/** 只在问答**页面上可见**时才调用。问答的语言必须与页面一致。 */
 export function faqNode(items: { q: Bilingual; a: Bilingual }[], lang: Lang) {
   return {
     "@type": "FAQPage",

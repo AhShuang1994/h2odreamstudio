@@ -6,8 +6,8 @@ export const contactMeta = {
     en: "Contact · H2ODreamer Studio",
   } as Bilingual,
   description: {
-    cn: "联系 H2ODreamer Studio — WhatsApp +60 17-513 8694，通常 1 小时内回复，或电邮 H2Odreamer@outlook.com。服务全马来西亚，中英双语，每个项目从免费 30 分钟咨询开始。",
-    en: "Reach H2ODreamer Studio — WhatsApp +60 17-513 8694, usually a reply within 1 hour, or email H2Odreamer@outlook.com. Serving all of Malaysia in English and 中文; every project starts with a free 30-minute consultation.",
+    cn: "联系 H2ODreamer Studio: WhatsApp +60 17-513 8694，通常 1 小时内回复，或电邮 H2Odreamer@outlook.com。服务全马来西亚，中英双语，每个项目从免费 30 分钟咨询开始。",
+    en: "Reach H2ODreamer Studio: WhatsApp +60 17-513 8694, usually a reply within 1 hour, or email H2Odreamer@outlook.com. Serving all of Malaysia in English and 中文; every project starts with a free 30-minute consultation.",
   } as Bilingual,
 };
 
@@ -19,13 +19,13 @@ export const contactHeader = {
   } as Bilingual,
   lede: {
     cn: "有梦想，却不知道从哪里开始？随时来找我，我会就你的生意真正需要什么给出诚实建议，绝不强推。",
-    en: "Have a dream but not sure where to start? Reach out — I'll give you honest advice on what your business actually needs. No hard sell.",
+    en: "Have a dream but not sure where to start? Reach out. I'll give you honest advice on what your business actually needs. No hard sell.",
   } as Bilingual,
 };
 
 export const contactQuickAnswer = {
   cn: "联系 H2ODreamer Studio 最快的方式是 WhatsApp +60 17-513 8694，我通常在 1 小时内回复。也可以电邮 H2Odreamer@outlook.com。这是我（阿爽）在马来西亚一个人经营的网站设计工作室，提供中英双语服务，每个项目都从免费 30 分钟 WhatsApp 咨询开始。",
-  en: "The fastest way to reach H2ODreamer Studio is WhatsApp at +60 17-513 8694 — I usually reply within 1 hour. You can also email H2Odreamer@outlook.com. It is a one-person web design studio I run in Malaysia, working in English and Chinese, and every project starts with a free 30-minute WhatsApp consultation.",
+  en: "The fastest way to reach H2ODreamer Studio is WhatsApp at +60 17-513 8694. I usually reply within 1 hour. You can also email H2Odreamer@outlook.com. It is a one-person web design studio I run in Malaysia, working in English and Chinese, and every project starts with a free 30-minute WhatsApp consultation.",
 } as Bilingual;
 
 export const contactMethods = [
@@ -34,8 +34,8 @@ export const contactMethods = [
     value: "+60 17-513 8694",
     href: "https://wa.me/60175138694?text=Hi%20H2ODreamer!%20%E6%88%91%E6%83%B3%E4%BA%86%E8%A7%A3%E6%9B%B4%E5%A4%9A%E5%85%B3%E4%BA%8E%E7%BD%91%E7%AB%99%E8%AE%BE%E8%AE%A1%E7%9A%84%E6%9C%8D%E5%8A%A1%E3%80%82",
     note: {
-      cn: "最快 — 通常 1 小时内回复",
-      en: "Fastest — usually replies within 1 hour",
+      cn: "最快：通常 1 小时内回复",
+      en: "Fastest, usually replies within 1 hour",
     } as Bilingual,
   },
   {
@@ -108,7 +108,7 @@ export const contactCtaBlock = {
   } as Bilingual,
   whatsapp: {
     cn: "💬 WhatsApp 咨询，免费顾问",
-    en: "💬 WhatsApp Me — Free Consultation",
+    en: "💬 WhatsApp Me: Free Consultation",
   } as Bilingual,
   whatsappMessage: {
     cn: "Hi H2ODreamer! 我想了解更多关于网站设计的服务。",
@@ -120,7 +120,7 @@ export const contactCtaBlock = {
 /**
  * 这 6 条在页面上是可见的，所以配套的 FAQPage 结构化数据合规。
  * about 与 pricing 的 FAQ 结构化数据在旧站上**页面不可见**，属于 Google
- * 明令禁止的用法，迁移时已移除；补可见 FAQ 另有一张票。
+ * 明令禁止的用法，迁移时已移除。补可见 FAQ 另有一张票。
  */
 export const contactFaq = {
   heading: { cn: "联系常见问题", en: "Contact FAQ" } as Bilingual,
@@ -132,14 +132,14 @@ export const contactFaq = {
       } as Bilingual,
       a: {
         cn: "最快的方式是 WhatsApp +60 17-513 8694，营业时间内我通常 1 小时内回复。也可以电邮 H2Odreamer@outlook.com，或在小红书和 Instagram（@h2odreamer.studio）上找我。",
-        en: "The fastest way is WhatsApp at +60 17-513 8694 — I usually reply within 1 hour during business hours. You can also email H2Odreamer@outlook.com or reach me on Xiaohongshu and Instagram (@h2odreamer.studio).",
+        en: "The fastest way is WhatsApp at +60 17-513 8694. I usually reply within 1 hour during business hours. You can also email H2Odreamer@outlook.com or reach me on Xiaohongshu and Instagram (@h2odreamer.studio).",
       } as Bilingual,
     },
     {
       q: { cn: "咨询要收费吗？", en: "Is the consultation free?" } as Bilingual,
       a: {
-        cn: "不收费。每个项目都从免费 30 分钟 WhatsApp 咨询开始。我会就你的生意真正需要什么给出诚实建议 — 不强推、无义务。",
-        en: "Yes. Every project starts with a free 30-minute WhatsApp consultation. I give honest advice on what your business actually needs — no hard sell and no obligation.",
+        cn: "不收费。每个项目都从免费 30 分钟 WhatsApp 咨询开始。我会就你的生意真正需要什么给出诚实建议：不强推、无义务。",
+        en: "Yes. Every project starts with a free 30-minute WhatsApp consultation. I give honest advice on what your business actually needs, no hard sell and no obligation.",
       } as Bilingual,
     },
     {
@@ -175,8 +175,8 @@ export const contactFaq = {
         en: "What happens after I reach out?",
       } as Bilingual,
       a: {
-        cn: "先是免费 WhatsApp 咨询，了解你的需求和预算，然后给出报价和设计方向。你确认后我开始制作 — 上线前你会先审阅。",
-        en: "First a free WhatsApp consultation to understand your needs and budget, then a quote and design direction. Once you approve, I build — and you review before launch.",
+        cn: "先是免费 WhatsApp 咨询，了解你的需求和预算，然后给出报价和设计方向。你确认后我开始制作：上线前你会先审阅。",
+        en: "First a free WhatsApp consultation to understand your needs and budget, then a quote and design direction. Once you approve, I build, and you review before launch.",
       } as Bilingual,
     },
   ],

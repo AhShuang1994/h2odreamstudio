@@ -1,8 +1,8 @@
-/* 小帐本 — 纯前端离线记帐 PWA
+/* 小帐本：纯前端离线记帐 PWA
    资料全部存在浏览器 localStorage，不上传任何服务器，也不去任何地方取汇率。
 
-   这个文件只负责**渲染与事件接线**。状态、迁移与全部派生数字都在 ledger.js
-   —— 那一层是纯的，也是唯一被自动化测试盯着的地方（见 #98）。 */
+   这个文件只负责**渲染与事件接线**。状态、迁移与全部派生数字都在 ledger.js，
+   那一层是纯的，也是唯一被自动化测试盯着的地方（见 #98）。 */
 import * as L from './ledger.js';
 
 (() => {
@@ -23,7 +23,7 @@ import * as L from './ledger.js';
   // ── 状态 ────────────────────────────────────────────
   const loaded = L.loadState(localStorage.getItem(KEY));
   let state = loaded.state;
-  // 读不懂的资料绝不回存 —— 拿预设值覆盖掉，才是真的把使用者的帐弄丢
+  // 读不懂的资料绝不回存：拿预设值覆盖掉，才是真的把使用者的帐弄丢
   let readOnly = loaded.corrupt;
 
   let view = 'entry';
@@ -32,7 +32,7 @@ import * as L from './ledger.js';
   let statsType = 'expense';        // 统计页
   let catEditType = 'expense';      // 设定页分类编辑
   let recType = 'expense';          // 固定收支
-  let recFirstTouched = false;      // 使用者改过首期没有 —— 改过就不再自动跳默认值
+  let recFirstTouched = false;      // 使用者改过首期没有：改过就不再自动跳默认值
   let editingRuleId = null;         // 正在编辑哪条固定收支。null = 表单在「新增」态
   let picked = null;                // 已选分类 id
   let buffer = '0';                 // 金额输入缓冲
@@ -60,7 +60,7 @@ import * as L from './ledger.js';
   }
   let toastTimer;
   /**
-   * 带动作的 toast 停久一点，也才点得到 —— 平常的 toast 是 pointer-events:none 的，
+   * 带动作的 toast 停久一点，也才点得到，平常的 toast 是 pointer-events:none 的，
    * 不然它会挡住底下的东西。
    */
   function toast(msg, action) {
@@ -111,7 +111,7 @@ import * as L from './ledger.js';
     side = next;
     L.setActiveSide(state, side);
     save();
-    // 切了侧，明细、统计、预算全部跟着换 —— 看到的是一套自洽的数字
+    // 切了侧，明细、统计、预算全部跟着换：看到的是一套自洽的数字
     if (editingId) resetEntry(); else { picked = pickedOrFirst(); renderEntry(); }
     renderSideSwitch();
     if (view === 'list') renderList();
@@ -191,7 +191,7 @@ import * as L from './ledger.js';
   }
 
   /**
-   * 刷卡勾选框**只属于支出** —— 收入与转帐上不出现，不必回答一个没有意义的问题。
+   * 刷卡勾选框**只属于支出**：收入与转帐上不出现，不必回答一个没有意义的问题。
    *
    * 切到收入时只是收起来、不清掉勾选：切回支出时使用者本来就期待它还在那里，
    * 而存下去时也只在支出上读它（saveRecord）。
@@ -317,11 +317,11 @@ import * as L from './ledger.js';
     save();
     curMonth = date.slice(0, 7);
     resetEntry();
-    // 第一次勾刷卡时把话说清楚：这是整件事里唯一会真正弄坏资料的动作 —— 扣款日再记
+    // 第一次勾刷卡时把话说清楚：这是整件事里唯一会真正弄坏资料的动作，扣款日再记
     // 一笔「还卡」，同一笔钱就被算两次，而且记下去之后没有任何征兆（#123）。
     if (firstCard) alert(
       '这笔已经记成支出了。\n\n' +
-      '银行扣款那天不用再记一笔 —— 那笔钱在你刷卡的当天就已经离开了，' +
+      '银行扣款那天不用再记一笔：那笔钱在你刷卡的当天就已经离开了，' +
       '扣款日再记一次「还卡」，同一笔钱会被算两次。\n\n' +
       '这个说明只出现这一次。'
     );
@@ -377,8 +377,8 @@ import * as L from './ledger.js';
   /**
    * 一条记录在明细里要显示成几行。
    *
-   * 转帐同时挂在两侧上，所以在当前这一侧只显示它跟这一侧有关的那一行
-   * ——「走出」或「到帐」——读起来跟脑子里的「两笔帐」一致（story 14）。
+   * 转帐同时挂在两侧上，所以在当前这一侧只显示它跟这一侧有关的那一行，
+   * 「走出」或「到帐」：读起来跟脑子里的「两笔帐」一致（story 14）。
    */
   function linesOf(r) {
     if (!L.isTransfer(r)) {
@@ -413,7 +413,7 @@ import * as L from './ledger.js';
     const rs = L.recordsOfMonth(state, side, curMonth);
 
     // 「累计」而不是「余额」：这个数字是用本 app 以来这一侧的净流入，
-    // 不是银行户口余额 —— 措辞必须让这一点自明（ADR-0001）。
+    // 不是银行户口余额：措辞必须让这一点自明（ADR-0001）。
     $('#list-summary').innerHTML = `
       <div><small>收入</small><b class="v income">${money(sum.income)}</b></div>
       <div><small>支出</small><b class="v expense">${money(sum.expense)}</b></div>
@@ -440,12 +440,12 @@ import * as L from './ledger.js';
       return `<div class="day">
         <div class="day-head"><span>${day.slice(5)}　周${wd}</span><span>${head}</span></div>
         <div class="items">${items.map(it => {
-          // 分期最重要的信息是它会停 —— 标签直接画期次，扫一眼就知道还剩几次。
+          // 分期最重要的信息是它会停：标签直接画期次，扫一眼就知道还剩几次。
           // 算不出期次（无限期、或规则已删）就退回一般的自动记录标签（#118）。
           const auto = it.ruleId
             ? `<span class="auto-tag">${it.term ? `💳 ${it.term.index}/${it.term.total}` : '🔁 固定'}</span>`
             : '';
-          // 刷卡用**文字**徽章 —— 期次那个 💳 不动，它已经在使用者眼睛里跑了一段时间，
+          // 刷卡用**文字**徽章，期次那个 💳 不动，它已经在使用者眼睛里跑了一段时间，
           // 而一笔刷卡的分期不该挂着两个一样的符号（#125）
           const card = it.card ? '<span class="card-tag">卡</span>' : '';
           return `<button class="item" data-id="${esc(it.id)}">
@@ -476,12 +476,12 @@ import * as L from './ledger.js';
     $('#stats-month').textContent = monthLabel(curMonth);
 
     // 月底预计结余（#128）。固定收支要到那一天才补记，所以 25 号才扣的房租在 13 号
-    // 看不到 —— 月中的「本月结余」永远偏乐观。三种月份三种说法：
+    // 看不到，月中的「本月结余」永远偏乐观。三种月份三种说法：
     //   过去 → 实际结余，标签就叫「结余」，不做任何预测（历史数字不该自己漂移）
     //   本月 → 确定值：已记净额 + 本月还没到日子的固定收支
     //   未来 → 整块不显示。那个月一天都还没过，把房租薪水加减一遍看起来像预测，
     //          其实什么都没预测
-    // 主数字是**外推值** —— 使用者问的是「这个月能存多少钱」，而确定值回答的是
+    // 主数字是**外推值**，使用者问的是「这个月能存多少钱」，而确定值回答的是
     // 「从今天起一毛不花能存多少」，那不回答任何问题（#130）。确定值退成底下的小字。
     // 月初 7 天样本太少，那几天只显示确定值并说明原因。
     const today = L.dateOf(new Date());
@@ -490,13 +490,13 @@ import * as L from './ledger.js';
     const p = past ? null : L.projectedNet(state, side, curMonth, today);
     const net = past ? L.monthlySummary(state, side, curMonth).net : (p.extrapolated ?? p.certain);
     // 小字一行讲两件事：确定的部分是多少、其余是估的。日均不认得「一次性」，一笔大额
-    // 消费会把它拉高、让这个数字偏低 —— 换记法那个月尤其明显（手动记的那笔「还卡」
+    // 消费会把它拉高、让这个数字偏低：换记法那个月尤其明显（手动记的那笔「还卡」
     // 没有规则来源，会被当成日常消费）。与其加一个「一次性支出」标记（每次记帐永久多
     // 一个决定），不如把话说清楚，完整的说明在设定页（#123、#131）。
     const note = past ? ''
       : p.extrapolated == null
         ? '本月还早，先只算固定的'
-        : `已定 ${money(p.certain)}，其余按日均估 —— 大额或一次性支出会让这个数字偏低`;
+        : `已定 ${money(p.certain)}，其余按日均估：大额或一次性支出会让这个数字偏低`;
     $('#forecast').innerHTML = curMonth > thisMonth ? '' : `<div class="card">
         <div class="cat-row" style="border:none;padding:0">
           <span>${past ? '结余' : '月底预计结余'}</span>
@@ -518,10 +518,10 @@ import * as L from './ledger.js';
         </div>
       </div>` : '';
 
-    // 本月刷卡：≈ 下个月要还的钱。整本帐从没出现过刷卡记录的人根本看不到这一行
-    // ——「有没有刷过卡」是它出现的条件，不是一个开关（比照第二币种）。
+    // 本月刷卡：≈ 下个月要还的钱。整本帐从没出现过刷卡记录的人根本看不到这一行，
+    // 「有没有刷过卡」是它出现的条件，不是一个开关（比照第二币种）。
     // 切到收入时也整块消失：收入不会刷卡，显示 0 等于暗示它可能。
-    // 有过之后，某个月一笔都没刷仍然照常显示 0 ——「这个月我没刷卡」是一条信息。
+    // 有过之后，某个月一笔都没刷仍然照常显示 0：「这个月我没刷卡」是一条信息。
     const showCard = statsType === 'expense' && L.hasCard(state);
     $('#card-sum').innerHTML = showCard ? `<div class="card">
         <div class="cat-row" style="border:none;padding:0">
@@ -531,7 +531,7 @@ import * as L from './ledger.js';
         <p class="muted small" style="margin-top:6px">≈ 下个月要还的钱，以银行账单为准</p>
       </div>` : '';
 
-    // 分类占比 —— 转帐不在其中，汇款不再盖住真实的消费结构
+    // 分类占比：转帐不在其中，汇款不再盖住真实的消费结构
     const { total, rows } = L.categoryBreakdown(state, side, curMonth, statsType);
 
     $('#donut-label').textContent = statsType === 'expense' ? '本月支出' : '本月收入';
@@ -567,7 +567,7 @@ import * as L from './ledger.js';
 
     // 近 6 个月趋势，仍然只属于这一侧。
     // 支出柱染成两段：下段刷卡、上段现金。刷卡是支出的**子集**，所以画在柱子里面
-    // 而不是并排 —— 并排会暗示两者可以相加，那会让人把钱数重（#129）。
+    // 而不是并排，并排会暗示两者可以相加，那会让人把钱数重（#129）。
     // 从没刷过卡的人、以及切到收入时，分段根本不被创建，柱子与今天完全一致。
     const data = L.trend(state, side, curMonth, 6);
     const max = Math.max(1, ...data.map(d => Math.max(d.expense, d.income)));
@@ -601,7 +601,7 @@ import * as L from './ledger.js';
       const word = r.type === 'expense' ? '待还' : '待收';
       meta = `每月 ${r.day} 号 · 还剩 ${left} 期 · ${word} ${money(L.outstandingOf(r, month), r.currency)}`;
     }
-    // 刷卡的规则带同一个「卡」徽章 —— 明细里那几笔继承来的记录长得跟它一样（#127）
+    // 刷卡的规则带同一个「卡」徽章：明细里那几笔继承来的记录长得跟它一样（#127）
     const card = L.isCard(r) ? '<span class="card-tag">卡</span>' : '';
     return `<div class="rec-row${settled ? ' done' : ''}">
       <button class="rec-main" data-edit-rec="${esc(r.id)}">
@@ -616,7 +616,7 @@ import * as L from './ledger.js';
   function renderRecurring() {
     const month = L.monthOf(new Date());
 
-    // 按侧分组，每一侧末尾结自己的待还小计 —— 两侧的数字永不相加。
+    // 按侧分组，每一侧末尾结自己的待还小计：两侧的数字永不相加。
     const groups = L.sides(state).map(c => ({ currency: c, rules: state.recurring.filter(r => r.currency === c) }));
     // 币种被移除后规则仍留着但已停止补记（#116）。照样列出来，否则使用者看不到它还挂在那。
     const live = L.sides(state);
@@ -649,7 +649,7 @@ import * as L from './ledger.js';
       $('#rec-day').innerHTML = Array.from({ length: 31 }, (_, i) =>
         `<option value="${i + 1}">每月 ${i + 1} 号</option>`).join('');
     }
-    // 刷卡只属于支出的规则 —— 收入的规则不问这件事（同记帐页）
+    // 刷卡只属于支出的规则：收入的规则不问这件事（同记帐页）
     $('#rec-card-box').hidden = recType !== 'expense';
     syncRecEditMode();
     syncRecFirst();
@@ -658,7 +658,7 @@ import * as L from './ledger.js';
   /**
    * 表单现在是「新增」还是「编辑」态。
    *
-   * 编辑时**币种锁住** —— 改了会让已产生的记录留在旧侧、以后的落在新侧，一条规则横跨
+   * 编辑时**币种锁住**，改了会让已产生的记录留在旧侧、以后的落在新侧，一条规则横跨
    * 两侧，而这个 app 的整套词汇建立在「一侧各自独立、永不相加」上（ADR-0001）。
    */
   function syncRecEditMode() {
@@ -674,7 +674,7 @@ import * as L from './ledger.js';
     }
   }
 
-  /** 列表行上进入编辑，复用同一个表单 —— 不必删了重建，也就不会重复补记本月那期。 */
+  /** 列表行上进入编辑，复用同一个表单，不必删了重建，也就不会重复补记本月那期。 */
   function startEditRule(id) {
     const rule = state.recurring.find(r => r.id === id);
     if (!rule) return;
@@ -706,7 +706,7 @@ import * as L from './ledger.js';
   /**
    * 保存编辑。**只管以后，当月已经记下的那一笔不碰。**
    *
-   * 改完直接说出本月那笔已经记下了，并让人跳过去看 —— 生效月份因此是眼睛看得见的，
+   * 改完直接说出本月那笔已经记下了，并让人跳过去看：生效月份因此是眼睛看得见的，
    * 否则「房租九月起涨、我八月底就手痒去改了」会静静改错八月。首期设成下月的分期
    * 本来就还没有那一笔，那就不弹。
    */
@@ -738,7 +738,7 @@ import * as L from './ledger.js';
     }
   }
 
-  /** 跳到明细里的那一笔，并让它亮一下 —— 不然到了那页还得自己找。 */
+  /** 跳到明细里的那一笔，并让它亮一下，不然到了那页还得自己找。 */
   function jumpToRecord(rec) {
     if (rec.currency !== side) {
       side = rec.currency;
@@ -757,10 +757,10 @@ import * as L from './ledger.js';
 
   /**
    * 「首期本月 / 下月」只在填了期数之后才有意义，所以填了才展开。
-   * 默认值由今天与扣款日的先后决定，但使用者一改就不再自动跳 —— 那之后它是他的选择。
+   * 默认值由今天与扣款日的先后决定，但使用者一改就不再自动跳：那之后它是他的选择。
    */
   function syncRecFirst() {
-    // 编辑时首期不可改 —— 它是已还进度的锚点，动了就等于把旧记录算到别的期数上去
+    // 编辑时首期不可改，它是已还进度的锚点，动了就等于把旧记录算到别的期数上去
     const sel = $('#rec-first');
     sel.hidden = Boolean(editingRuleId) || !$('#rec-terms').value.trim();
     if (sel.hidden) return;
@@ -798,7 +798,7 @@ import * as L from './ledger.js';
         cat: $('#rec-cat').value,
         day: Number($('#rec-day').value),
         note: $('#rec-note').value.trim(),
-        // 分期的首期由使用者定；没填期数就跟今天一样，从本月起算
+        // 分期的首期由使用者定。没填期数就跟今天一样，从本月起算
         from: terms ? $('#rec-first').value : L.monthOf(new Date()),
         terms,
         card: recType === 'expense' && $('#rec-card').checked
@@ -873,7 +873,7 @@ import * as L from './ledger.js';
   $('#set-currency2').addEventListener('change', e => {
     const raw = e.target.value.trim();
     if (!raw) {
-      // 想删掉第二币种，先把那一侧还挂着什么说清楚 —— 不静默弄丢资料。
+      // 想删掉第二币种，先把那一侧还挂着什么说清楚，不静默弄丢资料。
       // 记录与规则都要说：记录是死的，固定收支才是会继续生长的那个（#116）
       if (L.hasSecondary(state)) {
         const hanging = [];
@@ -883,7 +883,7 @@ import * as L from './ledger.js';
         if (k) hanging.push(`${k} 条固定收支`);
         const msg = hanging.length
           ? `${state.currency2} 那侧还有${hanging.join('、')}。移除第二币种后它们会留在资料里但不再显示，` +
-            `固定收支也会停止补记；重新加回同一个币种就会再出现，中间漏掉的月份一次补上。确定移除？`
+            `固定收支也会停止补记。重新加回同一个币种就会再出现，中间漏掉的月份一次补上。确定移除？`
           : '确定移除第二币种？';
         if (!confirm(msg)) { e.target.value = state.currency2; return; }
       }
@@ -1034,8 +1034,8 @@ import * as L from './ledger.js';
   // ── Service Worker ─────────────────────────────────
   if ('serviceWorker' in navigator) {
     // 新版 SW 接管时重整一次。否则这一页还挂着旧的 CSS/JS，使用者会觉得
-    // 「明明部署了却没变」—— 页面本身不会因为背后换了 SW 就重新套用样式。
-    // hadController 用来区分「首次安装」与「版本更新」：首次安装不需要重整；
+    // 「明明部署了却没变」：页面本身不会因为背后换了 SW 就重新套用样式。
+    // hadController 用来区分「首次安装」与「版本更新」：首次安装不需要重整。
     // refreshing 旗标防止重整循环。
     const hadController = !!navigator.serviceWorker.controller;
     let refreshing = false;

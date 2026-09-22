@@ -1,5 +1,5 @@
 /* ============================================================
-   Case-study article layout — shared by all /case-studies/ pages.
+   Case-study article layout: shared by all /case-studies/ pages.
    Depends on the design tokens (--color-*, --font-*) defined in
    css/style.css (loaded first via style.min.css).
    ============================================================ */
@@ -349,7 +349,7 @@
 }
 
 /* ============================================================
-   /case-studies/ index — grid of case study cards
+   /case-studies/ index: grid of case study cards
    ============================================================ */
 .cs-index-section { background: var(--color-bg-mid); padding: 64px 20px 90px; }
 @media (min-width: 768px) { .cs-index-section { padding: 90px 24px 120px; } }

@@ -25,7 +25,7 @@ function findPage(files: string[], name: string): string | undefined {
   return files.find((f) => f === name) ?? files.find((f) => f === dir);
 }
 
-/** 实体还原 —— 页面上的 `I&#x27;m` 与结构化数据里的 `I'm` 是同一句话。 */
+/** 实体还原，页面上的 `I&#x27;m` 与结构化数据里的 `I'm` 是同一句话。 */
 function decodeEntities(text: string): string {
   return text
     .replace(/&#x27;|&#39;/g, "'")
@@ -66,7 +66,7 @@ describe("导出产物 · GEO 结构", () => {
         const text = visibleText(x.read(p));
         expect(
           /快速答案|Quick answer/i.test(text),
-          `${p} 里找不到「快速答案」块 —— 它是本站流量策略的核心结构，见 CONTEXT.md`,
+          `${p} 里找不到「快速答案」块，它是本站流量策略的核心结构，见 CONTEXT.md`,
         ).toBe(true);
       });
 
@@ -84,12 +84,12 @@ describe("导出产物 · GEO 结构", () => {
   /**
    * Google 明令禁止用**页面上不可见**的内容做 FAQ 标记。
    *
-   * 旧站的 about（3 个问题）与 pricing（4 个问题）踩了这个坑 —— #74 迁移时
+   * 旧站的 about（3 个问题）与 pricing（4 个问题）踩了这个坑：#74 迁移时
    * 移除了那两个 FAQPage 节点。16 个内容页的 74 条问题也一样，#82 把它们
    * 渲染成了可见问答，标记改由 `scripts/split-content-lang.mjs` 从那段可见
    * 问答生成。这条断言防止任何一页再退回去。
    *
-   * **范围是全站每一个 HTML 页面** —— 手写的服务页、样板站也在内。
+   * **范围是全站每一个 HTML 页面**：手写的服务页、样板站也在内。
    */
   it("凡是声明了 FAQPage 的页面，每个问答都必须在页面上可见", () => {
     type Faq = {
@@ -121,7 +121,7 @@ describe("导出产物 · GEO 结构", () => {
 
     expect(
       offenders,
-      `这些 FAQ 内容写进了结构化数据，但页面上找不到 —— Google 会判违规：\n  ` +
+      `这些 FAQ 内容写进了结构化数据，但页面上找不到，Google 会判违规：\n  ` +
         offenders.join("\n  "),
     ).toEqual([]);
   });

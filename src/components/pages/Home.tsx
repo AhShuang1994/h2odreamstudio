@@ -21,7 +21,7 @@ export function HomePage({ lang }: { lang: Lang }) {
       // 工作室实体与价格区间都来自共享节点，价格由报价单一数据源推导
       businessNode(),
       {
-        // 站点实体只有一个，两种语言共用 —— 单语的是**页面**，不是站点
+        // 站点实体只有一个，两种语言共用：单语的是**页面**，不是站点
         "@type": "WebSite",
         "@id": `${site.domain}/#website`,
         url: `${site.domain}/`,

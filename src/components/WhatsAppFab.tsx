@@ -11,7 +11,7 @@ export function WhatsAppFab({ lang }: { lang: Lang }) {
   );
 
   // 绿色是 WhatsApp 的**第三方标识色**，不算破 ADR-0007 的「除 hero 外单一
-  // accent」—— 这颗按钮直接对着全站唯一的 KPI，换成靛紫会削掉一眼认出的识别度。
+  // accent」，这颗按钮直接对着全站唯一的 KPI，换成靛紫会削掉一眼认出的识别度。
   // 投影去掉了，改成发丝描边：暗色上的投影只会糊。
   return (
     <a

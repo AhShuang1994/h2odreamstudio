@@ -51,7 +51,7 @@ export function ContactPage({ lang }: { lang: Lang }) {
       <PageSection>
         <Container>
           {/* 四张渠道卡原本各挂一个 emoji（💬📧📕📸）。emoji 当图示在自家
-              反 AI 清单上，四个不同风格的彩色符号也把「单一 accent」破了 ——
+              反 AI 清单上，四个不同风格的彩色符号也把「单一 accent」破了，
               去掉之后靠渠道名与账号本身识别，安静得多。 */}
           <div className="grid gap-px overflow-hidden rounded-xl border border-hairline bg-hairline sm:grid-cols-2">
             {contactMethods.map((m, i) => (

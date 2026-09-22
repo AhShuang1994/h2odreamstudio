@@ -28,7 +28,7 @@ const data = {
     id: s.id,
     act: ACT_CN[p.storyBible.arc.find((a) => a.section === s.id)?.act] ?? "",
     mood: s.mood,
-    // 模板的 time 字段这里放「深度」—— 本站的轴是空间不是时间
+    // 模板的 time 字段这里放「深度」：本站的轴是空间不是时间
     time: s.depth,
     palette: s.paletteShift,
     motifBeat: s.motifBeat,

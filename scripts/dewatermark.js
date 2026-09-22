@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * dewatermark.js — remove the Nano Banana / Gemini corner watermark from images.
+ * dewatermark.js: remove the Nano Banana / Gemini corner watermark from images.
  *
  * Method (NOT cropping): finds the low-saturation grey "✦" sparkle in the
  * bottom-right, clones a clean adjacent same-row patch over it with a feathered
  * mask, then exports WebP. The full composition and aspect ratio are preserved.
  * Tuned for dark-background images; on light/busy corners it can't find the mark
- * and passes the file through unchanged (with a warning) — fails safe.
+ * and passes the file through unchanged (with a warning): fails safe.
  *
  * Usage (run from the project root so sharp resolves):
  *   node scripts/dewatermark.js <image...> [options]

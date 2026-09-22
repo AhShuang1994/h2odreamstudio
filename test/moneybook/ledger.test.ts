@@ -1,11 +1,11 @@
 /**
  * 小帐本 · ledger 核心（#98）
  *
- * 这个 app 的测试接缝只有一个：ledger 核心。它是纯的 —— 不碰 DOM、不碰
+ * 这个 app 的测试接缝只有一个：ledger 核心。它是纯的，不碰 DOM、不碰
  * `localStorage`，所以直接用现成的 vitest 跑，零新基建。
  *
  * 断言只打在**外部行为**上：给定一份状态与一串操作，得到什么新状态、什么派生数字。
- * 不断言内部函数怎么组织、不断言 DOM 结构 —— 与本仓库既有的「拿产物去对产物」
+ * 不断言内部函数怎么组织、不断言 DOM 结构：与本仓库既有的「拿产物去对产物」
  * 同一个口径。
  *
  * 渲染与切换器的 DOM 行为不在这里：它们的错误一眼可见，写起来脆且贵，用浏览器手测。
@@ -13,7 +13,7 @@
 import { describe, it, expect } from "vitest";
 import * as L from "../../public/app/moneybook/ledger.js";
 
-// —— 夹具 ————————————————————————————————————————————————
+// -- 夹具 ------------------------------------------------
 
 /** 一份典型的 v1 资料：台湾口味的预设值、没有币种字段、单一预算。 */
 function v1Fixture() {
@@ -52,7 +52,7 @@ describe("小帐本 · ledger 核心", () => {
       expect(s.records.map((r: any) => r.currency)).toEqual(["NT$", "NT$"]);
     });
 
-    it("老使用者的币种原样保留 —— 升级后的数字跟升级前对得上", () => {
+    it("老使用者的币种原样保留：升级后的数字跟升级前对得上", () => {
       const s = L.migrate(v1Fixture());
       expect(s.currency, "不能把老使用者的 NT$ 换成新的预设 SGD").toBe("NT$");
       expect(L.monthlySummary(s, "NT$", "2026-03")).toMatchObject({
@@ -83,7 +83,7 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.hasSecondary(s)).toBe(false);
     });
 
-    it("升级是幂等的 —— v2 再迁一次不会变形", () => {
+    it("升级是幂等的：v2 再迁一次不会变形", () => {
       const once = L.migrate(v1Fixture());
       const twice = L.migrate(JSON.parse(JSON.stringify(once)));
       expect(twice).toEqual(once);
@@ -126,7 +126,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(() => L.migrate([])).not.toThrow();
       });
 
-      it("读不懂的原始字符串会被标成 corrupt —— 外层据此拒绝回存", () => {
+      it("读不懂的原始字符串会被标成 corrupt：外层据此拒绝回存", () => {
         const bad = L.loadState("{ 这不是 JSON");
         expect(bad.corrupt, "不标记的话，下一次 save() 就把使用者的帐真的覆盖掉了").toBe(true);
 
@@ -206,7 +206,7 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.cumulative(s, "MYR")).toBe(-330);
     });
 
-    it("分类占比只看本侧 —— 马币那侧看不到新币的分类", () => {
+    it("分类占比只看本侧：马币那侧看不到新币的分类", () => {
       const s = twoSided();
       const myr = L.categoryBreakdown(s, "MYR", "2026-03", "expense");
       expect(myr.total).toBe(330);
@@ -260,7 +260,7 @@ describe("小帐本 · ledger 核心", () => {
       const { s } = withTransfer();
       const sgd = L.monthlySummary(s, "SGD", "2026-03");
       expect(sgd.income, "搬钱不是赚钱").toBe(3000);
-      expect(sgd.expense, "搬钱不是花钱 —— 这正是这张票要修的失真").toBe(0);
+      expect(sgd.expense, "搬钱不是花钱：这正是这张票要修的失真").toBe(0);
 
       const myr = L.monthlySummary(s, "MYR", "2026-03");
       expect(myr.income).toBe(0);
@@ -314,7 +314,7 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.rateOf(t)).toBeCloseTo(3.4, 10);
     });
 
-    it("任一个金额被改，汇率跟着变 —— 不会留下第二个真相", () => {
+    it("任一个金额被改，汇率跟着变，不会留下第二个真相", () => {
       const s = crossBorder();
       const t = L.addTransfer(s, {
         amount: 2000, currency: "SGD", toAmount: 6800, toCurrency: "MYR", date: "2026-03-10",
@@ -451,7 +451,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(datesOf(s, "MYR"), "移除之前那一笔要留着，之后一笔都不该多").toEqual(["2026-01-01"]);
       });
 
-      it("分期也一样停 —— 消失期间不烧掉期数", () => {
+      it("分期也一样停：消失期间不烧掉期数", () => {
         const s = crossBorder();
         L.addRule(s, { type: "expense", amount: 500, currency: "MYR", cat: "other_e", day: 1, from: "2026-01", terms: 3 });
         L.applyRecurring(s, "2026-01-15");
@@ -483,7 +483,7 @@ describe("小帐本 · ledger 核心", () => {
       });
     });
 
-    // 分期：一笔会自己停的固定收支（#117）。期数含本月在内 —— 填 1 表示这个月还完。
+    // 分期：一笔会自己停的固定收支（#117）。期数含本月在内，填 1 表示这个月还完。
     describe("分期：补到最后一期自动停", () => {
       const datesOf = (s: any) => s.records.map((r: any) => r.date);
 
@@ -512,7 +512,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(datesOf(s)).toEqual(["2026-03-01"]);
       });
 
-      it("首期选下月时，本月绝不产生记录 —— 即使扣款日已过", () => {
+      it("首期选下月时，本月绝不产生记录，即使扣款日已过", () => {
         const s = crossBorder();
         L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-04", terms: 3 });
         expect(L.applyRecurring(s, "2026-03-28"), "本月那期假定已经还过，不该重复记").toBe(0);
@@ -556,7 +556,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(datesOf(s)).toEqual(["2026-01-31", "2026-02-28", "2026-03-31"]);
       });
 
-      it("分期产生的记录与固定收支同口径 —— 进月度支出、吃预算、进分类占比", () => {
+      it("分期产生的记录与固定收支同口径：进月度支出、吃预算、进分类占比", () => {
         const s = crossBorder();
         L.setBudget(s, "SGD", 1000);
         L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "fun", day: 1, from: "2026-03", terms: 3 });
@@ -584,7 +584,7 @@ describe("小帐本 · ledger 核心", () => {
       });
     });
 
-    // 界面要显示的每一个数字都在核心里算完 —— 算术留在渲染层就等于挪到接缝外面。
+    // 界面要显示的每一个数字都在核心里算完：算术留在渲染层就等于挪到接缝外面。
     describe("分期的派生值：剩余期数、待还总额、每侧小计", () => {
       function installments() {
         const s = crossBorder();
@@ -595,7 +595,7 @@ describe("小帐本 · ledger 核心", () => {
       }
       const byNote = (s: any, note: string) => s.recurring.find((r: any) => r.note === note);
 
-      it("剩余期数含当月在内 —— 首期那个月就是全部期数", () => {
+      it("剩余期数含当月在内：首期那个月就是全部期数", () => {
         const s = installments();
         const phone = byNote(s, "手机");
         expect(L.remainingTerms(phone, "2026-01")).toBe(12);
@@ -618,7 +618,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.outstandingOf(byNote(s, "冷气"), "2026-03")).toBe(1000);  // 250 × 4
       });
 
-      it("补完最后一期后算「已还完」，待还归零 —— 不必等到下个月", () => {
+      it("补完最后一期后算「已还完」，待还归零，不必等到下个月", () => {
         const s = installments();
         L.applyRecurring(s, "2026-12-15");
         const phone = byNote(s, "手机");
@@ -644,19 +644,19 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.sides(s).map((c: string) => L.outstandingOnSide(s, c, "2026-03"))).toEqual([4000, 1000]);
       });
 
-      it("无限期的固定收支不进待还小计 —— 房租没有「还完」的那一天", () => {
+      it("无限期的固定收支不进待还小计：房租没有「还完」的那一天", () => {
         const s = installments();
         expect(L.outstandingOnSide(s, "SGD", "2026-03"), "1800 的房租不该被算进去").toBe(4000);
       });
 
-      it("收入的分期不进待还小计 —— 待收跟待还是两回事", () => {
+      it("收入的分期不进待还小计：待收跟待还是两回事", () => {
         const s = installments();
         L.addRule(s, { type: "income", amount: 900, currency: "SGD", cat: "bonus", day: 5, from: "2026-01", terms: 4 });
         expect(L.outstandingOnSide(s, "SGD", "2026-03")).toBe(4000);
       });
     });
 
-    // 期次：明细里认得出这是第几期（#118）。跟剩余期数一样是派生值 —— 由记录所属
+    // 期次：明细里认得出这是第几期（#118）。跟剩余期数一样是派生值，由记录所属
     // 月份减去规则的首期月份算出，不存进记录里。
     describe("期次：这笔记录是第几期", () => {
       function withInstallment(from: string, terms = 12) {
@@ -696,7 +696,7 @@ describe("小帐本 · ledger 核心", () => {
         ]);
       });
 
-      it("规则被删掉之后算不出期次 —— 返回 null，界面据此退回一般的自动记录标签", () => {
+      it("规则被删掉之后算不出期次：返回 null，界面据此退回一般的自动记录标签", () => {
         const { s, rule } = withInstallment("2026-01");
         L.applyRecurring(s, "2026-02-15");
         L.removeRule(s, rule.id);
@@ -704,7 +704,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(s.records[0].note, "备注还在，这笔记录不至于失籍").toBe("UOB iPhone");
       });
 
-      it("无限期的固定收支没有期次 —— 房租不该显示第几期", () => {
+      it("无限期的固定收支没有期次：房租不该显示第几期", () => {
         const s = crossBorder();
         L.addRule(s, { type: "expense", amount: 1800, currency: "SGD", cat: "home", day: 1, from: "2026-01", note: "房租" });
         L.applyRecurring(s, "2026-02-15");
@@ -719,7 +719,7 @@ describe("小帐本 · ledger 核心", () => {
     });
 
     // 编辑（#119）：银行调月供、一次多还几期、期数当初填错，都是大概率会发生的事，
-    // 而删了重建会把本月那期重复补记一次。编辑**只管以后** —— 已经记下的一笔不碰。
+    // 而删了重建会把本月那期重复补记一次。编辑**只管以后**：已经记下的一笔不碰。
     describe("编辑固定收支与分期：只管以后", () => {
       /** 一笔跑到第 3 期的分期：2026-06 起 12 期，补记到 2026-08。 */
       function midway() {
@@ -740,7 +740,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(s.records.at(-1)).toMatchObject({ date: "2026-09-08", amount: 200 });
       });
 
-      it("改剩余期数后已还进度不变 —— 3/12 改成还剩 5 期变 3/8，不是 0/5", () => {
+      it("改剩余期数后已还进度不变：3/12 改成还剩 5 期变 3/8，不是 0/5", () => {
         const { s, rule } = midway();
         const updated = L.updateRule(s, rule.id, { remaining: 5 });
         expect(updated.terms, "总期数 = 已补记的 3 期 + 还剩的 5 期").toBe(8);
@@ -748,7 +748,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(updated.from, "首期不动，否则已还的进度会被抹掉").toBe("2026-06");
       });
 
-      it("剩余期数改成 0 就立刻算已还完，也不再产生新记录 —— 提前还清不必再学一个新操作", () => {
+      it("剩余期数改成 0 就立刻算已还完，也不再产生新记录：提前还清不必再学一个新操作", () => {
         const { s, rule } = midway();
         L.updateRule(s, rule.id, { remaining: 0 });
         expect(L.isSettled(s.recurring[0], "2026-08"), "当月就该显示已还完，不是等下个月").toBe(true);
@@ -757,7 +757,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(s.records).toHaveLength(3);
       });
 
-      it("一期都还没补记时不能填 0 —— 那样等于这条规则从没存在过，该直接删", () => {
+      it("一期都还没补记时不能填 0：那样等于这条规则从没存在过，该直接删", () => {
         const s = crossBorder();
         const rule = L.addRule(s, { type: "expense", amount: 180, currency: "SGD", cat: "other_e", day: 8, from: "2026-09", terms: 6 });
         expect(() => L.updateRule(s, rule.id, { remaining: 0 })).toThrow(/删除/);
@@ -775,7 +775,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(s.records).toHaveLength(7);
       });
 
-      it("清空期数，分期变回无限期 —— 两种形态之间可逆", () => {
+      it("清空期数，分期变回无限期：两种形态之间可逆", () => {
         const { s, rule } = midway();
         L.updateRule(s, rule.id, { remaining: "" });
         expect(L.isInstallment(s.recurring[0])).toBe(false);
@@ -799,7 +799,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(s.recurring[0]).toMatchObject({ cat: "fun", note: "UOB 手机分期" });
       });
 
-      it("币种改不了 —— 一条规则不能横跨两侧", () => {
+      it("币种改不了：一条规则不能横跨两侧", () => {
         const { s, rule } = midway();
         expect(() => L.updateRule(s, rule.id, { currency: "MYR" })).toThrow(/币种/);
         expect(s.recurring[0].currency, "被挡下就什么都不该改").toBe("SGD");
@@ -818,7 +818,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(s.recurring[0].terms).toBe(12);
       });
 
-      it("编辑不写入任何记录 —— 规则对记录仍然是单向的", () => {
+      it("编辑不写入任何记录：规则对记录仍然是单向的", () => {
         const { s, rule } = midway();
         const before = JSON.stringify(s.records);
         L.updateRule(s, rule.id, { amount: 999, day: 20, cat: "fun", note: "改过", remaining: 2 });
@@ -837,7 +837,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.appliedRecordOf(s, rule.id, "2026-08")).toMatchObject({ date: "2026-08-08", amount: 180 });
       });
 
-      it("首期设在下月、本月还没有记录时，找不到那一笔 —— 界面据此不弹提示", () => {
+      it("首期设在下月、本月还没有记录时，找不到那一笔：界面据此不弹提示", () => {
         const s = crossBorder();
         const rule = L.addRule(s, { type: "expense", amount: 180, currency: "SGD", cat: "other_e", day: 8, from: "2026-09", terms: 6 });
         L.applyRecurring(s, "2026-08-15");
@@ -851,7 +851,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.defaultFirstMonth("2026-03-10", 25)).toBe("2026-03");
       });
 
-      it("扣款日已经过了，默认下月 —— 免得把还过的那期又记一笔", () => {
+      it("扣款日已经过了，默认下月：免得把还过的那期又记一笔", () => {
         expect(L.defaultFirstMonth("2026-03-26", 25)).toBe("2026-04");
       });
 
@@ -866,9 +866,9 @@ describe("小帐本 · ledger 核心", () => {
     });
 
     // 「该记哪一天、记了没、日期到了没」是补记与预测**共用**的一份判定（#124）。
-    // 两处各写一遍的话，预测会说房租还没记、补记逻辑却已经记下了，同一笔钱被减两次
-    // —— 而且帐面上完全看不出异常。所以这里直接钉住这份判定本身。
-    describe("该记哪一天、记了没 —— 补记与预测共用的同一份判定", () => {
+    // 两处各写一遍的话，预测会说房租还没记、补记逻辑却已经记下了，同一笔钱被减两次，
+    // 而且帐面上完全看不出异常。所以这里直接钉住这份判定本身。
+    describe("该记哪一天、记了没：补记与预测共用的同一份判定", () => {
       /** 25 号扣的房租，从三月起，无限期。 */
       function rent() {
         const s = crossBorder();
@@ -885,7 +885,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.dueOf(rent(), "2026-03", "2026-03-26")).toMatchObject({ arrived: true, due: true });
       });
 
-      it("已经补记过的月份不算 —— 补记一次之后同一格就不该再说「该记」", () => {
+      it("已经补记过的月份不算：补记一次之后同一格就不该再说「该记」", () => {
         const s = crossBorder();
         const rule = L.addRule(s, { type: "expense", amount: 1800, currency: "SGD", cat: "home", day: 25, from: "2026-03" });
         L.applyRecurring(s, "2026-03-26");
@@ -893,7 +893,7 @@ describe("小帐本 · ledger 核心", () => {
           .toMatchObject({ applied: true, due: false });
       });
 
-      it("超过最后一期的月份根本不成立 —— 那个月这条分期已经不存在了", () => {
+      it("超过最后一期的月份根本不成立：那个月这条分期已经不存在了", () => {
         const s = crossBorder();
         const rule = L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-01", terms: 3 });
         expect(L.dueOf(rule, "2026-03", "2026-12-31"), "第三期就是最后一期").toMatchObject({ due: true });
@@ -904,7 +904,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.dueOf(rent(), "2026-02", "2026-12-31")).toBeNull();
       });
 
-      it("无限期的规则在任何一个未来月份都成立 —— 它没有「完」这回事", () => {
+      it("无限期的规则在任何一个未来月份都成立：它没有「完」这回事", () => {
         expect(L.dueOf(rent(), "2099-12", "2099-12-31")).toMatchObject({ date: "2099-12-25", due: true });
       });
 
@@ -914,7 +914,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.dueOf(rule, "2026-02", "2026-12-31").date, "2 月没有 31 号，那一期不该被跳过").toBe("2026-02-28");
       });
 
-      it("到期按月份算，不按已补记的笔数 —— 手动删掉中间那一笔也不往后顺延", () => {
+      it("到期按月份算，不按已补记的笔数：手动删掉中间那一笔也不往后顺延", () => {
         const s = crossBorder();
         const rule = L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-01", terms: 3 });
         L.applyRecurring(s, "2026-02-15");
@@ -923,7 +923,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.dueOf(rule, "2026-04", "2026-12-31"), "删掉一笔不该让分期多长出第四个月").toBeNull();
       });
 
-      it("「今天」是传进去的，不是问系统时间来的 —— 同一份状态换个今天就换个答案", () => {
+      it("「今天」是传进去的，不是问系统时间来的：同一份状态换个今天就换个答案", () => {
         const rule = rent();
         expect(L.dueOf(rule, "2026-03", "2026-03-24").due).toBe(false);
         expect(L.dueOf(rule, "2026-03", "2026-03-25").due).toBe(true);
@@ -961,7 +961,7 @@ describe("小帐本 · ledger 核心", () => {
       return s;
     }
 
-    it("只有一侧 —— 切换器与汇款入口没有东西可渲染", () => {
+    it("只有一侧：切换器与汇款入口没有东西可渲染", () => {
       const s = single();
       expect(L.sides(s)).toEqual(["SGD"]);
       expect(L.hasSecondary(s)).toBe(false);
@@ -1012,7 +1012,7 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.countOnSide(s, "MYR"), "转帐也挂在马币那侧上，要一起算进去").toBe(2);
     });
 
-    it("也能问出那一侧还挂着几条固定收支 —— 会继续生长的是规则，不是记录", () => {
+    it("也能问出那一侧还挂着几条固定收支：会继续生长的是规则，不是记录", () => {
       const s = single();
       L.setSecondaryCurrency(s, "MYR");
       L.addRule(s, { type: "expense", amount: 300, currency: "MYR", cat: "health", day: 10, from: "2026-01" });
@@ -1059,7 +1059,7 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.budgetStatus(s, "MYR", "2026-03")).toMatchObject({ budget: 800, spent: 900, left: -100, over: true });
     });
 
-    it("转帐不吃预算 —— 汇款不是花钱", () => {
+    it("转帐不吃预算：汇款不是花钱", () => {
       const s = budgeted();
       L.addTransfer(s, { amount: 1200, currency: "SGD", toAmount: 4080, toCurrency: "MYR", date: "2026-03-10" });
       expect(L.budgetStatus(s, "SGD", "2026-03")).toMatchObject({ spent: 400, over: false });
@@ -1092,7 +1092,7 @@ describe("小帐本 · ledger 核心", () => {
       expect("card" in byNote(s, "巴士"), "没勾就不该留一个 false 在那里").toBe(false);
     });
 
-    it("存下去、读回来，标记还在 —— 逐字段救援必须显式认得它", () => {
+    it("存下去、读回来，标记还在：逐字段救援必须显式认得它", () => {
       const s = withCard();
       const back = L.loadState(JSON.stringify(s)).state;
       expect(L.isCard(byNote(back, "晚餐")), "救援不认得这个字段的话，勾了卡的记录重开 app 就变回没勾").toBe(true);
@@ -1107,7 +1107,7 @@ describe("小帐本 · ledger 核心", () => {
         .toMatchObject({ income: 3000, expense: 30, net: 2970 });
     });
 
-    it("收入上标不起来 —— 收入不必回答一个没有意义的问题", () => {
+    it("收入上标不起来：收入不必回答一个没有意义的问题", () => {
       const s = crossBorder();
       const r = L.addRecord(s, { type: "income", amount: 3000, currency: "SGD", cat: "salary", date: "2026-08-01", card: true });
       expect(L.isCard(r)).toBe(false);
@@ -1145,13 +1145,13 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.activeCard(s), "这一笔没勾，下一笔就不该替他勾上").toBe(false);
     });
 
-    it("上次勾了没跟着帐本一起存下来 —— 不然重开 app 又要重勾", () => {
+    it("上次勾了没跟着帐本一起存下来，不然重开 app 又要重勾", () => {
       const s = crossBorder();
       L.addRecord(s, { type: "expense", amount: 68, currency: "SGD", cat: "food", date: "2026-08-03", card: true });
       expect(L.activeCard(L.loadState(JSON.stringify(s)).state)).toBe(true);
     });
 
-    it("收入不会改动上次勾了没 —— 记收入时那个勾选框根本不出现", () => {
+    it("收入不会改动上次勾了没：记收入时那个勾选框根本不出现", () => {
       const s = crossBorder();
       L.addRecord(s, { type: "expense", amount: 68, currency: "SGD", cat: "food", date: "2026-08-03", card: true });
       L.addRecord(s, { type: "income", amount: 3000, currency: "SGD", cat: "salary", date: "2026-08-05" });
@@ -1167,7 +1167,7 @@ describe("小帐本 · ledger 核心", () => {
     });
 
     // 回归：刷卡的钱在消费当天就离开了，所以它在其余每一个数字里都跟现金一模一样。
-    it("照常进分类占比、预算条、月结余 —— 这些数字的口径一个都没变", () => {
+    it("照常进分类占比、预算条、月结余：这些数字的口径一个都没变", () => {
       const s = withCard();
       L.setBudget(s, "SGD", 500);
       L.addRecord(s, { type: "income", amount: 3000, currency: "SGD", cat: "salary", date: "2026-08-01" });
@@ -1192,13 +1192,13 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.outstandingOnSide(s, "SGD", "2026-08")).toBe(4400);
     });
 
-    it("CSV 与备份照旧 —— #125 不加任何新的统计数字", () => {
+    it("CSV 与备份照旧：#125 不加任何新的统计数字", () => {
       const s = withCard();
       expect(L.toCSV(s).split("\r\n")).toHaveLength(3);   // 表头 + 两笔
       expect(L.loadState(JSON.stringify(s)).state.records).toHaveLength(2);
     });
 
-    // 「本月刷卡」≈ 下个月要还的钱（#126）。它**绝不叫「待还」** —— 那个词已经属于
+    // 「本月刷卡」≈ 下个月要还的钱（#126）。它**绝不叫「待还」**：那个词已经属于
     // 分期（outstandingOnSide），同一页两个「待还」是最容易让人算错帐的一次撞车。
     describe("本月刷卡：这一侧、这个自然月，带刷卡标记的支出合计", () => {
       /** 两侧都刷过卡的一本帐。 */
@@ -1221,40 +1221,40 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.cardSpentOnSide(s, "SGD", "2026-08")).toBe(100.5);
       });
 
-      it("按自然月切，上个月刷的不算进这个月 —— 这功能第一天就不能说谎", () => {
+      it("按自然月切，上个月刷的不算进这个月：这功能第一天就不能说谎", () => {
         const s = spent();
         L.addRecord(s, { type: "expense", amount: 999, currency: "SGD", cat: "food", date: "2026-07-31", card: true });
         expect(L.cardSpentOnSide(s, "SGD", "2026-08"), "七月刷的钱算进八月，就正是这个功能要修的那个错").toBe(100.5);
         expect(L.cardSpentOnSide(s, "SGD", "2026-07")).toBe(999);
       });
 
-      it("转帐不在其中 —— 汇款不是刷卡，也不进任何一侧的收支汇总", () => {
+      it("转帐不在其中：汇款不是刷卡，也不进任何一侧的收支汇总", () => {
         const s = spent();
         L.addTransfer(s, { amount: 1200, currency: "SGD", toAmount: 4080, toCurrency: "MYR", date: "2026-08-10" });
         expect(L.cardSpentOnSide(s, "SGD", "2026-08")).toBe(100.5);
         expect(L.cardSpentOnSide(s, "MYR", "2026-08")).toBe(300);
       });
 
-      it("有过刷卡记录、但这个月一笔都没刷时是 0 ——「这个月我没刷卡」是一条看得见的信息", () => {
+      it("有过刷卡记录、但这个月一笔都没刷时是 0：「这个月我没刷卡」是一条看得见的信息", () => {
         const s = spent();
         expect(L.hasCard(s), "整本帐有过刷卡记录，所以这一行该出现").toBe(true);
         expect(L.cardSpentOnSide(s, "SGD", "2026-09")).toBe(0);
       });
 
-      it("从来不刷卡的人根本没有这一行 —— 不是显示 0，是它没被创建", () => {
+      it("从来不刷卡的人根本没有这一行，不是显示 0，是它没被创建", () => {
         const s = crossBorder();
         L.addRecord(s, { type: "expense", amount: 12, currency: "SGD", cat: "traffic", date: "2026-08-21" });
         expect(L.hasCard(s)).toBe(false);
       });
 
-      it("派生值，不存 —— 取消一笔的标记，合计当场跟着变", () => {
+      it("派生值，不存：取消一笔的标记，合计当场跟着变", () => {
         const s = spent();
         const r = s.records.find((x: any) => x.amount === 68);
         L.updateRecord(s, r.id, { type: "expense", cat: "food", card: false });
         expect(L.cardSpentOnSide(s, "SGD", "2026-08"), "合计存下来就会有第二个真相").toBe(32.5);
       });
 
-      it("规则补记出来的记录也算进去 —— 否则最稳定的那一块被系统性漏掉", () => {
+      it("规则补记出来的记录也算进去：否则最稳定的那一块被系统性漏掉", () => {
         const s = crossBorder();
         L.addRule(s, { type: "expense", amount: 15.9, currency: "SGD", cat: "fun", day: 2, from: "2026-08", note: "订阅", card: true });
         L.applyRecurring(s, "2026-08-15");
@@ -1274,7 +1274,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(rows.every((r: any) => r.card <= r.expense), "刷卡永远不该大于当月支出，否则柱子会画出界").toBe(true);
       });
 
-      it("那个月一笔都没刷时刷卡是 0 —— 渲染层据此不画高度为 0 的色块", () => {
+      it("那个月一笔都没刷时刷卡是 0：渲染层据此不画高度为 0 的色块", () => {
         const s = spent();
         expect(L.trend(s, "SGD", "2026-09", 1)).toEqual([{ month: "2026-09", income: 0, expense: 0, card: 0 }]);
       });
@@ -1284,7 +1284,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.trend(s, "MYR", "2026-08", 1)[0]).toMatchObject({ expense: 300, card: 300 });
       });
 
-      it("跟分期的「待还」是两个数，互不干扰 —— 同一页上不能是同一个词", () => {
+      it("跟分期的「待还」是两个数，互不干扰：同一页上不能是同一个词", () => {
         const s = spent();
         L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-08", terms: 12 });
         L.applyRecurring(s, "2026-08-15");
@@ -1311,12 +1311,12 @@ describe("小帐本 · ledger 核心", () => {
         expect("card" in byNote(s, "房租")).toBe(false);
       });
 
-      it("存下去、读回来，规则的标记还在 —— 救援同样必须认得它", () => {
+      it("存下去、读回来，规则的标记还在：救援同样必须认得它", () => {
         const back = L.loadState(JSON.stringify(rules())).state;
         expect(L.isCard(byNote(back, "订阅")), "丢掉的话订阅会静静变回现金，本月刷卡跟着偏小").toBe(true);
       });
 
-      it("补记出来的每一笔继承规则的标记 —— 不必每个月手动去勾", () => {
+      it("补记出来的每一笔继承规则的标记，不必每个月手动去勾", () => {
         const s = rules();
         L.applyRecurring(s, "2026-10-15");
         const auto = s.records.filter((r: any) => r.cat === "fun");
@@ -1325,7 +1325,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(s.records.filter((r: any) => r.cat === "home").every((r: any) => L.isCard(r)), "现金的房租不该被标上").toBe(false);
       });
 
-      it("收入的规则标不起来 —— 收入不会刷卡", () => {
+      it("收入的规则标不起来：收入不会刷卡", () => {
         const s = crossBorder();
         const rule = L.addRule(s, { type: "income", amount: 3000, currency: "SGD", cat: "salary", day: 1, from: "2026-08", card: true });
         expect(L.isCard(rule)).toBe(false);
@@ -1338,7 +1338,7 @@ describe("小帐本 · ledger 核心", () => {
         expect("card" in L.updateRule(s, rule.id, { type: "expense", cat: "fun" })).toBe(false);
       });
 
-      it("改标记只管以后 —— 当月已经记下的那一笔不碰", () => {
+      it("改标记只管以后：当月已经记下的那一笔不碰", () => {
         const s = rules();
         L.applyRecurring(s, "2026-08-15");
         const done = s.records.find((r: any) => r.cat === "fun");
@@ -1348,7 +1348,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.isCard(s.records.find((r: any) => r.date.startsWith("2026-09"))), "九月那笔才跟着新的标记走").toBe(false);
       });
 
-      it("现有规则的日期一律不动 —— 那是跟银行账单对得上的唯一线索", () => {
+      it("现有规则的日期一律不动：那是跟银行账单对得上的唯一线索", () => {
         const s = rules();
         L.updateRule(s, byNote(s, "房租").id, { card: true });
         expect(byNote(s, "房租").day, "标上刷卡不该动到扣款日").toBe(25);
@@ -1368,7 +1368,7 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.cardSpentOnSide(s, "SGD", "2026-09")).toBe(400);
       });
 
-      it("分期到期仍按月份算，不按已补记笔数 —— 标了刷卡也一样", () => {
+      it("分期到期仍按月份算，不按已补记笔数：标了刷卡也一样", () => {
         const s = crossBorder();
         L.addRule(s, { type: "expense", amount: 400, currency: "SGD", cat: "other_e", day: 1, from: "2026-08", terms: 3, card: true });
         L.applyRecurring(s, "2026-09-15");
@@ -1381,7 +1381,7 @@ describe("小帐本 · ledger 核心", () => {
   });
 
   // ── 10. 月底预计结余 ───────────────────────────────────
-  // 固定收支要到那一天才补记，所以 25 号才扣的房租在 13 号看不到 —— 月中的「本月结余」
+  // 固定收支要到那一天才补记，所以 25 号才扣的房租在 13 号看不到：月中的「本月结余」
   // 永远偏乐观。这一段把「还没发生但确定会发生」的那部分算进来（#128）。
   describe("月底预计结余：把本月还没到日子的固定收支也算进来", () => {
     /** 薪水 1 号进、房租 25 号扣，两笔手动记的支出。 */
@@ -1402,7 +1402,7 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").certain, "月中就要看得见 25 号的房租，否则这个数一直骗人").toBe(1900);
     });
 
-    it("已补记过的月份不重复计入 —— 房租一记下，待发生就空了", () => {
+    it("已补记过的月份不重复计入：房租一记下，待发生就空了", () => {
       const s = payday();
       L.applyRecurring(s, "2026-08-25");
       expect(L.pendingRecurring(s, "SGD", "2026-08", "2026-08-25").net).toBe(0);
@@ -1423,7 +1423,7 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.projectedNet(s, "MYR", "2026-08", "2026-08-13").certain, "马币那侧只该看见马币那条规则").toBe(-300);
     });
 
-    it("「今天」是传进去的 —— 同一份状态，换个今天就换个答案", () => {
+    it("「今天」是传进去的：同一份状态，换个今天就换个答案", () => {
       const s = payday();
       expect(L.pendingRecurring(s, "SGD", "2026-08", "2026-08-24").net, "24 号房租还没扣").toBe(-1800);
       expect(L.pendingRecurring(s, "SGD", "2026-08", "2026-08-25").net, "25 号当天就算到了，它不再是「待发生」").toBe(0);
@@ -1439,7 +1439,7 @@ describe("小帐本 · ledger 核心", () => {
       expect(pending.expense, "两份判定漂开的话，房租会既算已记又算待发生，同一笔钱减两次").toBe(1800);
     });
 
-    it("过去的月份没有待发生 —— 那个月的日子全过完了", () => {
+    it("过去的月份没有待发生：那个月的日子全过完了", () => {
       const s = payday();
       L.applyRecurring(s, "2026-09-30");
       expect(L.pendingRecurring(s, "SGD", "2026-08", "2026-09-30").net).toBe(0);
@@ -1447,41 +1447,41 @@ describe("小帐本 · ledger 核心", () => {
         .toBe(L.monthlySummary(s, "SGD", "2026-08").net);
     });
 
-    it("派生值，不存 —— 多记一笔支出，预计结余当场跟着变", () => {
+    it("派生值，不存：多记一笔支出，预计结余当场跟着变", () => {
       const s = payday();
       L.addRecord(s, { type: "expense", amount: 50, currency: "SGD", cat: "food", date: "2026-08-13" });
       expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").certain).toBe(1850);
     });
 
-    it("刷卡的支出照常算进去 —— 刷卡本来就是支出，这一层不必认识那个标记", () => {
+    it("刷卡的支出照常算进去：刷卡本来就是支出，这一层不必认识那个标记", () => {
       const s = payday();
       L.addRecord(s, { type: "expense", amount: 68, currency: "SGD", cat: "food", date: "2026-08-13", card: true });
       expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").certain).toBe(1832);
     });
 
-    it("转帐不进预计结余 —— 汇款不是花钱，与 monthlySummary 同口径", () => {
+    it("转帐不进预计结余，汇款不是花钱，与 monthlySummary 同口径", () => {
       const s = payday();
       L.addTransfer(s, { amount: 1200, currency: "SGD", toAmount: 4080, toCurrency: "MYR", date: "2026-08-10" });
       expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").certain).toBe(1900);
     });
 
-    // 确定值回答的是「从今天起一毛不花能存多少」—— 那不回答任何问题，因为他不会
+    // 确定值回答的是「从今天起一毛不花能存多少」：那不回答任何问题，因为他不会
     // 一毛不花。外推值把接下来还会花的日常钱估进来，回答「这个月能存多少」（#130）。
     describe("日均外推：把接下来还会花的钱也估进去", () => {
       it("外推值 = 确定值 − 日均 × 剩余天数", () => {
         const s = payday();
-        // 已记的非固定支出 300，13 天 → 日均 23.0769；八月剩 18 天 → 再花 415.38
+        // 已记的非固定支出 300，13 天 → 日均 23.0769。八月剩 18 天 → 再花 415.38
         expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13")).toMatchObject({
           certain: 1900,
           extrapolated: 1484.62,
         });
       });
 
-      it("规则产生的记录不算进日均 —— 它们已经在确定值里，而且不是日常消费", () => {
+      it("规则产生的记录不算进日均：它们已经在确定值里，而且不是日常消费", () => {
         const s = payday();
         const auto = s.records.filter((r: any) => r.ruleId);
         expect(auto.length, "薪水那笔是规则记的").toBeGreaterThan(0);
-        // 把同额的一笔手动支出加进来，日均就该跟着动；规则那几笔则完全不影响
+        // 把同额的一笔手动支出加进来，日均就该跟着动。规则那几笔则完全不影响
         const before = L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated;
         L.addRule(s, { type: "expense", amount: 60, currency: "SGD", cat: "health", day: 3, from: "2026-08", note: "保费" });
         L.applyRecurring(s, "2026-08-13");
@@ -1490,26 +1490,26 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.round2(before - after.extrapolated), "但它一分钱都不该进日均，否则外推会凭空多减一次").toBe(60);
       });
 
-      it("转帐不算进日均 —— 汇款不是日常消费", () => {
+      it("转帐不算进日均：汇款不是日常消费", () => {
         const s = payday();
         const before = L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated;
         L.addTransfer(s, { amount: 1200, currency: "SGD", toAmount: 4080, toCurrency: "MYR", date: "2026-08-10" });
         expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated).toBe(before);
       });
 
-      it("月初 7 天内不外推 —— 2 号买台大的会外推出一个荒谬的数字", () => {
+      it("月初 7 天内不外推：2 号买台大的会外推出一个荒谬的数字", () => {
         const s = payday();
         expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-07").extrapolated, "第 7 天仍在月初，样本太少").toBeNull();
         expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-08").extrapolated, "第 8 天起才开始外推").not.toBeNull();
         expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-02").certain, "不外推时确定值照常给").toBe(1900);
       });
 
-      it("过去的月份没有外推值 —— 历史数字不该自己漂移", () => {
+      it("过去的月份没有外推值：历史数字不该自己漂移", () => {
         const s = payday();
         expect(L.projectedNet(s, "SGD", "2026-08", "2026-09-20").extrapolated).toBeNull();
       });
 
-      it("「今天」是传进去的 —— 同一份状态，越接近月底外推的部分越小", () => {
+      it("「今天」是传进去的：同一份状态，越接近月底外推的部分越小", () => {
         const s = payday();
         const mid = L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated!;
         const late = L.projectedNet(s, "SGD", "2026-08", "2026-08-30").extrapolated!;
@@ -1530,14 +1530,14 @@ describe("小帐本 · ledger 核心", () => {
         expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13")).toMatchObject({ certain: -1800, extrapolated: -1800 });
       });
 
-      it("刷卡的日常消费照常进日均 —— 刷卡本来就是支出", () => {
+      it("刷卡的日常消费照常进日均：刷卡本来就是支出", () => {
         const s = payday();
         const before = L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated!;
         L.addRecord(s, { type: "expense", amount: 130, currency: "SGD", cat: "food", date: "2026-08-13", card: true });
         expect(L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated!).toBeLessThan(before);
       });
 
-      it("按侧各算各的 —— 另一侧的日常消费不该拉歪这一侧的日均", () => {
+      it("按侧各算各的：另一侧的日常消费不该拉歪这一侧的日均", () => {
         const s = payday();
         const before = L.projectedNet(s, "SGD", "2026-08", "2026-08-13").extrapolated;
         L.addRecord(s, { type: "expense", amount: 500, currency: "MYR", cat: "family", date: "2026-08-11" });

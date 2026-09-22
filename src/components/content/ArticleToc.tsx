@@ -5,7 +5,7 @@ import type { Lang } from "@/lib/i18n";
 
 type Item = { id: string; num: string | null; label: string };
 
-/** 读哪些标题：正文里的 h2，加上 FAQ 区的标题。CTA 的 h2 不算 —— 它不是章节。 */
+/** 读哪些标题：正文里的 h2，加上 FAQ 区的标题。CTA 的 h2 不算，它不是章节。 */
 const HEADINGS = ".legacy-content .article-content h2, .legacy-content .detail-faq h2";
 
 /** 导航栏高度。hero 的底边滚过这条线，目录才出现。 */
@@ -18,14 +18,14 @@ const NAV = 80;
  * 缺 id 的补一个 `sec-N`。点击走的是 `<a href="#id">`，由 main.js 那段
  * 锚点拦截接手（扣掉导航高度、扛住懒加载图片撑高页面）。
  *
- * 外观照正文的 `.summary-box` 卡片与 h2 的竖条、编号来 —— 同一张底色、
+ * 外观照正文的 `.summary-box` 卡片与 h2 的竖条、编号来：同一张底色、
  * 同一条描边、同一个 16px 圆角、同一种靛紫竖条。
  *
- * 只在 ≥1280px 出现 —— 正文 720px 居中，窄于这个宽度左边放不下。
+ * 只在 ≥1280px 出现：正文 720px 居中，窄于这个宽度左边放不下。
  * hero 还在屏幕上时隐藏：hero 的标题是满宽居中的，目录会压在标题上。
  *
  * 同一个滚动监听还驱动两样东西，所有宽度都有：
- * · 屏幕顶端的阅读进度条 —— 从正文开始算，到 CTA 露出屏幕底部为 100%。
+ * · 屏幕顶端的阅读进度条：从正文开始算，到 CTA 露出屏幕底部为 100%。
  *   目录卡片里再写一句「还剩约 N 分钟」，N 按原稿 hero 上的「6 min read」折算。
  * · 左下角的「回到顶部」。右下角已经叠了 WhatsApp 与手机菜单，不再往上堆。
  */
@@ -101,7 +101,7 @@ export function ArticleToc({ lang }: { lang: Lang }) {
 
   return (
     <>
-      {/* 阅读进度条。装饰性的 —— 同样的信息在目录卡片里有文字版。 */}
+      {/* 阅读进度条。装饰性的：同样的信息在目录卡片里有文字版。 */}
       <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[3px]">
         <div
           className="h-full origin-left bg-gradient-to-r from-accent to-accent-hover"
@@ -148,7 +148,7 @@ export function ArticleToc({ lang }: { lang: Lang }) {
                   <a
                     href={`#${it.id}`}
                     onClick={() => {
-                      // main.js 已经 preventDefault 并用 window.scrollTo 滚过去了；但桌面上
+                      // main.js 已经 preventDefault 并用 window.scrollTo 滚过去了。但桌面上
                       // Lenis 接管着滚动，会把 window.scrollTo 写回去（见 ServicesPicker），
                       // 所以再交给它滚一次。偏移与 main.js 同一个算法：导航高度 + 18。
                       const lenis = window.__h2odLenis;

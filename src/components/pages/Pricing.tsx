@@ -22,7 +22,7 @@ import {
   pricingCta,
 } from "@/content/pricing";
 
-/** 表格单元格：布尔值渲染成 ✓ / —，双语文本按当前语言渲染。 */
+/** 表格单元格：布尔值渲染成 ✓ / -，双语文本按当前语言渲染。 */
 function Cell({ v, lang }: { v: Bilingual | boolean; lang: Lang }) {
   if (typeof v === "boolean") {
     return v ? (
@@ -31,7 +31,7 @@ function Cell({ v, lang }: { v: Bilingual | boolean; lang: Lang }) {
       </span>
     ) : (
       <span className="text-ink-subtle" aria-label="不包含">
-        —
+        -
       </span>
     );
   }
@@ -55,11 +55,11 @@ export function PricingPage({ lang }: { lang: Lang }) {
       {
         "@type": "OfferCatalog",
         "@id": `${site.domain}/pricing#catalog`,
-        name: "H2ODreamer Studio — services and starting prices",
+        name: "H2ODreamer Studio: services and starting prices",
         itemListElement: [
           ...webTiers.map((tier) => ({
             "@type": "Offer",
-            name: `Website Design — ${tier.name.en}`,
+            name: `Website Design: ${tier.name.en}`,
             price: tier.price.replace(/[^0-9]/g, ""),
             priceCurrency: "MYR",
             url: `${site.domain}${tier.href}`,

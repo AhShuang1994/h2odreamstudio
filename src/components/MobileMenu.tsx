@@ -14,7 +14,7 @@ import { SiteLink } from "./SiteLink";
  * md 以上导航本来就钉在顶上，这颗整个不出现。
  *
  * 位置：FAB 的 bottom（1.25rem）+ FAB 高度（3.5rem）+ 间距（0.75rem）
- * = 5.5rem，再加安全区 —— 跟 WhatsAppFab 同一套算法，改一边要改另一边。
+ * = 5.5rem，再加安全区，跟 WhatsAppFab 同一套算法，改一边要改另一边。
  */
 export function MobileMenu({ lang }: { lang: Lang }) {
   const [open, setOpen] = useState(false);

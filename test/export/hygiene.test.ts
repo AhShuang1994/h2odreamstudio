@@ -29,7 +29,7 @@ const FORBIDDEN: Forbidden[] = [
     what: "借来的占位帧序列",
     match: (f) => /(^|\/)scrub-frames(-desktop)?\//i.test(f),
     why:
-      "240 帧 / 16.3MB，注释显示借自 ember-scroll，不是本站内容；且帧序列 scrub " +
+      "240 帧 / 16.3MB，注释显示借自 ember-scroll，不是本站内容。且帧序列 scrub " +
       "本就不是选定的动效手法（实测参考站 pin 数为 0），见 ADR-0001。",
   },
   {

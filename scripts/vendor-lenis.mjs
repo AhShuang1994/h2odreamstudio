@@ -1,5 +1,5 @@
 /**
- * 把 Lenis 的浏览器版拷进 `public/js/` —— 构建期运行（#89）。
+ * 把 Lenis 的浏览器版拷进 `public/js/`：构建期运行（#89）。
  *
  * 静态内容页没有打包器，只能吃现成的 `<script src>`。这个 dist 文件本身就是
  * 挂 `globalThis.Lenis` 的 IIFE，拷过去就能用，不需要引入打包工具。

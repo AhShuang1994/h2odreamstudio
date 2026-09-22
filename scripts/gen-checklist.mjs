@@ -1,12 +1,12 @@
 /**
- * 人肉过页用的清单页 —— 把全站每个页面列成一行，点一个开一个，勾过的记住。
+ * 人肉过页用的清单页：把全站每个页面列成一行，点一个开一个，勾过的记住。
  *
  *   npm run preview     # 另一个终端开着
  *   npm run checklist   # 生成并打印路径，浏览器打开它
  *
- * 地址口径以 `out/sitemap.xml` 为准（它是给搜索引擎的那份，形态就是线上形态）；
+ * 地址口径以 `out/sitemap.xml` 为准（它是给搜索引擎的那份，形态就是线上形态）。
  * sitemap 里没有的页面（404、privacy、terms、xhs 这些 noindex 的）按文件路径补，
- * 补的时候保留 `.html` —— 那个形态一定能访问，不依赖服务器补扩展名。
+ * 补的时候保留 `.html`：那个形态一定能访问，不依赖服务器补扩展名。
  *
  * 生成到项目根的 checklist.html（已在 .gitignore 里），不进产物、不会被部署。
  */
@@ -17,7 +17,7 @@ const OUT = process.argv[2] || "out";
 const BASE = process.argv[3] || "http://localhost:8099";
 const DEST = resolve("checklist.html");
 
-/** out/ 下的全部页面文件；构建产物与资源目录不算页面。 */
+/** out/ 下的全部页面文件。构建产物与资源目录不算页面。 */
 function htmlFiles(dir, acc = []) {
   for (const name of readdirSync(dir)) {
     if (name === "_next" || name === "assets" || name === "fonts" || name === "og") continue;
@@ -46,7 +46,7 @@ try {
   console.log("(没有 sitemap.xml，全部按文件路径列)");
 }
 
-/** sitemap 收录的页面对应哪个文件 —— 用来找出没被收录的那些。 */
+/** sitemap 收录的页面对应哪个文件：用来找出没被收录的那些。 */
 function urlToFile(url) {
   const p = url.replace(/\/$/, "/index").replace(/^\//, "");
   return [join(OUT, p + ".html"), join(OUT, p)].map((f) => relative(OUT, f).replaceAll("\\", "/"));
@@ -223,4 +223,4 @@ ${rows}
 writeFileSync(DEST, html, "utf8");
 console.log(`清单已生成：${DEST}`);
 console.log(`  ${total} 个页面，服务地址 ${BASE}`);
-console.log(`\n浏览器打开它，点一个开一个；勾过的会记住，关了页面也还在。`);
+console.log(`\n浏览器打开它，点一个开一个。勾过的会记住，关了页面也还在。`);

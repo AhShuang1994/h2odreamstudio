@@ -2,7 +2,7 @@
 const nextConfig = {
   output: "export",
 
-  // ⚠️ 不要改回 true —— 见 docs/adr/0003-trailing-slash-false.md
+  // ⚠️ 不要改回 true，见 docs/adr/0003-trailing-slash-false.md
   //
   // Next 官方文档倾向对静态托管使用 trailingSlash: true，所以这行看起来「配错了」。
   // 但 sitemap 里已收录的 26 条地址是**无扩展名无尾斜杠**的形式（/about、/pricing …）。

@@ -1,4 +1,4 @@
-// H2ODreamer Studio — main.js (Organic Fluid + Micro-interactions)
+// H2ODreamer Studio: main.js (Organic Fluid + Micro-interactions)
 
 // Navbar scroll background
 (function () {
@@ -12,7 +12,7 @@
   requestAnimationFrame(onScroll);
 })();
 
-// Reliable anchor scrolling — offsets the fixed navbar and survives layout
+// Reliable anchor scrolling: offsets the fixed navbar and survives layout
 // shifts from async CSS / web fonts / lazy-loaded images / reveal animations
 // that otherwise leave native hash scroll short of the target.
 (function () {
@@ -127,7 +127,7 @@
   });
 })();
 
-// FAQ accordion — only one open at a time
+// FAQ accordion, only one open at a time
 (function () {
   const items = document.querySelectorAll('.faq-item');
   if (!items.length) return;
@@ -142,7 +142,7 @@
   });
 })();
 
-// Scroll reveal with varied entrance directions — deferred to avoid blocking first paint
+// Scroll reveal with varied entrance directions: deferred to avoid blocking first paint
 (function () {
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReduced) return;
@@ -260,14 +260,14 @@
   }, { passive: true });
 })();
 
-// Scroll-linked storytelling — maps each section's scroll progress to a CSS
+// Scroll-linked storytelling: maps each section's scroll progress to a CSS
 // var (--p, 0..1). CSS derives per-step --lit from it (see style.css). Pure JS
 // so it works in every browser, unlike native animation-timeline.
 (function () {
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReduced) return;
 
-  // .journey + .founder scrub simply as they cross the viewport —
+  // .journey + .founder scrub simply as they cross the viewport, 
   // a larger factor means the fill rises more slowly
   const targets = [
     { sel: '.journey', factor: 1.8 },
@@ -393,25 +393,25 @@
     if (typeof gtag === 'function') gtag('event', event, params);
   }
 
-  // CTA clicks — WhatsApp (hero)
+  // CTA clicks: WhatsApp (hero)
   var heroWa = document.querySelector('.hero .btn-primary');
   if (heroWa) heroWa.addEventListener('click', function () {
     ga('cta_whatsapp_hero', { event_category: 'lead', event_label: 'hero' });
   });
 
-  // CTA clicks — WhatsApp (footer)
+  // CTA clicks: WhatsApp (footer)
   var footerWa = document.querySelector('.contact .btn-wa');
   if (footerWa) footerWa.addEventListener('click', function () {
     ga('cta_whatsapp_footer', { event_category: 'lead', event_label: 'footer' });
   });
 
-  // CTA clicks — Email
+  // CTA clicks: Email
   var emailBtn = document.querySelector('.contact .btn-email');
   if (emailBtn) emailBtn.addEventListener('click', function () {
     ga('cta_email', { event_category: 'lead', event_label: 'email' });
   });
 
-  // CTA clicks — Service cards
+  // CTA clicks: Service cards
   document.querySelectorAll('.service-cta').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var card = btn.closest('.service-card');
@@ -439,7 +439,7 @@
     });
   });
 
-  // Section visibility — high-intent sections
+  // Section visibility: high-intent sections
   var tracked = {};
   var sectionObserver = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {

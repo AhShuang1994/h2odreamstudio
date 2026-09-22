@@ -11,11 +11,11 @@ import { hero } from "@/content/home";
  *
  * 结构是「高盒子 + 定住的一屏」：外层 260svh 只用来提供滚动行程，里面那屏
  * `sticky` 钉在视口上不动。多出来的行程被 `HeroScrub` 映射成星河视频的播放
- * 进度 —— 人往下滚，球体裂开、汇成星河；星河成形时文案才浮上来。
+ * 进度，人往下滚，球体裂开、汇成星河。星河成形时文案才浮上来。
  *
  * 版面仍按 ADR-0001 分两半：**左侧是永远干净的暗区**，标题与行动按钮住在
  * 这里。星河从左上斜贯到右下，本身会压到左侧，所以那块干净暗区现在由
- * `HeroStage` 的暗罩保证，不是靠构图留白 —— 数字见 `HERO_RIVER.scrim`。
+ * `HeroStage` 的暗罩保证，不是靠构图留白：数字见 `HERO_RIVER.scrim`。
  *
  * 文案上的 `data-reveal` 只用来**吃 `.reveal-armed` 的首帧隐藏**，动画本身归
  * `HeroScrub`：`Reveal` 那套一进视口就演完，而这里要的是跟着滚动进度慢慢浮，
@@ -30,7 +30,7 @@ export function Hero({ lang }: { lang: Lang }) {
     >
       <HeroScrub />
 
-      {/* pt-14 是给固定导航让位 —— 视口高的盒子里居中，短屏上标题会顶到导航。 */}
+      {/* pt-14 是给固定导航让位：视口高的盒子里居中，短屏上标题会顶到导航。 */}
       <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden pt-14">
         <HeroStage />
         <Container className="relative z-10">
@@ -59,7 +59,7 @@ export function Hero({ lang }: { lang: Lang }) {
           </div>
         </Container>
 
-        {/* 滚动提示。开场那几屏文案还没浮上来，画面上只有一颗球 —— 没有这个
+        {/* 滚动提示。开场那几屏文案还没浮上来，画面上只有一颗球：没有这个
             东西，人不知道这一屏要滚，也就永远看不到星河。
             它跟文案是此消彼长的：一开始滚就淡出（HERO_RIVER.hintOut）。 */}
         <div
@@ -86,7 +86,7 @@ export function Hero({ lang }: { lang: Lang }) {
         </div>
       </div>
 
-      {/* 首屏底部的发丝线 —— 让第一屏与第二屏之间有一道明确的界，
+      {/* 首屏底部的发丝线，让第一屏与第二屏之间有一道明确的界，
           而不是靠一段空白含糊过去。挂在外层盒子上，不跟着 sticky 那屏走。 */}
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-px bg-hairline" />
     </section>

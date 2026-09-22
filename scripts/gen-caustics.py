@@ -1,14 +1,14 @@
 """
-程序化生成水面焦散平铺条 —— s1-L3-surface。
+程序化生成水面焦散平铺条：s1-L3-surface。
 
 为什么不用出图模型：这层要的是「横向照明完全均匀、左右无缝可平铺」的**纹理**，
 而模型画的是**有光源的场景**，天生带中心热点与四周渐晕。同一条要求写进 prompt
-两次，中心/边缘比 2.08 → 8.46，越写越糟；第二次两端直接是纯黑，
+两次，中心/边缘比 2.08 → 8.46，越写越糟。第二次两端直接是纯黑，
 连后期归一化都救不回来（没有内容可拉亮）。
 
 焦散本身是波的干涉图样，用周期函数就能算。算出来的东西：
-  · 左右无缝 —— 所有基函数的横向周期都是画布宽度的整数分之一
-  · 横向绝对均匀 —— 没有光源，没有渐晕
+  · 左右无缝：所有基函数的横向周期都是画布宽度的整数分之一
+  · 横向绝对均匀：没有光源，没有渐晕
   · 颜色精确落在 project.json 的 Palette 上
   · 平滑低频，WebP 压得很小
 
@@ -32,14 +32,14 @@ FADE_END = 0.65       # 到这里完全没入黑
 
 def caustic_field(w, h, seed=7):
     """
-    多个**方向不同**的平面波叠加，取零交叉附近的亮线 —— 这就是焦散的成因。
+    多个**方向不同**的平面波叠加，取零交叉附近的亮线：这就是焦散的成因。
 
     ⚠️ 波矢必须是二维的 `cos(a·x + b·y)`，a、b 都不为零。
     第一版写成了 `cos(a·x + 相位随 y 调制)`，那是沿 x 单向传播的波，
-    叠出来是一片竖条纹 —— 数字（均匀度、接缝）全部合格，但看起来完全不像水。
+    叠出来是一片竖条纹：数字（均匀度、接缝）全部合格，但看起来完全不像水。
     **指标过不等于图对，一定要看。**
 
-    a 取整数保证以画布宽为周期 → 左右天然无缝；b 任意，纵向不需要无缝。
+    a 取整数保证以画布宽为周期 → 左右天然无缝。b 任意，纵向不需要无缝。
     """
     rng = np.random.default_rng(seed)
     x = np.linspace(0, 2 * np.pi, w, endpoint=False)[None, :]
@@ -77,7 +77,7 @@ def equalize_columns(f, rows=None):
     """
     把横向照明压到绝对均匀。
 
-    做法是除以每列均值的**周期性**平滑剖面 —— 剖面自己也是以画布宽为周期的，
+    做法是除以每列均值的**周期性**平滑剖面：剖面自己也是以画布宽为周期的，
     所以除完不破坏左右无缝。这一步在这里能用，而在 AI 出的那张图上不能用：
     那张图两端是纯黑，没有内容可以拉亮，除法救不回来。
     """
@@ -85,7 +85,7 @@ def equalize_columns(f, rows=None):
     prof = (f if rows is None else f[rows[0] : rows[1]]).mean(0)
     w = len(prof)
     k = max(3, (w // 12) | 1)
-    # 环形卷积 —— 用 wrap 而不是 reflect，剖面才保持周期性
+    # 环形卷积，用 wrap 而不是 reflect，剖面才保持周期性
     pad = np.pad(prof, k // 2, mode="wrap")
     smooth = np.convolve(pad, np.ones(k) / k, mode="valid")[:w]
     return f * (smooth.mean() / np.maximum(smooth, 1e-6))[None, :]
@@ -96,7 +96,7 @@ def render(w, h, seed=7):
     f = np.clip(equalize_columns(caustic_field(w, h, seed), band), 0, 1)
     # 压平要在**所有非线性之后**再做一次：上面那次除法之后的 clip 会重新引入不均。
     f = np.clip(equalize_columns(f, band), 0, 1) * vertical_envelope(h)
-    # 颜色：暗处走 INDIGO，最亮的丝尖走 TIP —— 亮度越高越偏 TIP。
+    # 颜色：暗处走 INDIGO，最亮的丝尖走 TIP，亮度越高越偏 TIP。
     # 乘 f 会把中亮区压暗，所以先把整体亮度抬一档再乘，中亮区才落在目标 RGB 上。
     mix = np.clip(f[:, :, None] * 1.15, 0, 1)
     color = INDIGO[None, None, :] * (1 - mix) + TIP[None, None, :] * mix
@@ -113,7 +113,7 @@ def report(a):
     print("  8 段亮度", [round(s) for s in seg])
     print("  中心/边缘 %.2f  (目标 ~1.00)" % (np.mean(seg[3:5]) / np.mean([seg[0], seg[-1]])))
     # ⚠️ 无缝的判据是「末列能接上首列」，不是「末列等于首列」。
-    # 拿跨接缝的相邻列差值，去比画面内部相邻列差值的分布 —— 落在同一量级才算无缝。
+    # 拿跨接缝的相邻列差值，去比画面内部相邻列差值的分布：落在同一量级才算无缝。
     wrap = np.abs(lum[:, 0] - lum[:, -1]).mean()
     inner = np.abs(np.diff(lum, axis=1)).mean()
     print("  接缝处相邻列差 %.2f   画面内部相邻列差 %.2f   比值 %.2f  (~1.0 = 看不出接缝)"

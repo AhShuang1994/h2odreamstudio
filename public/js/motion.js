@@ -1,5 +1,5 @@
 /**
- * 全站动效外壳 —— 平滑滚动惯性 + 幕布转场。
+ * 全站动效外壳：平滑滚动惯性 + 幕布转场。
  *
  * 为什么是一份手写的原生脚本、而不是 React 组件：内容页是纯静态 HTML、没有
  * 打包器，而 ADR-0001 要求幕布**覆盖全部页面**（只覆盖核心页会造成「点关于页
@@ -9,7 +9,7 @@
  * 依赖 /js/lenis.min.js 先加载（两个都是 defer，defer 保序）。缺了它只是
  * 没有惯性，幕布照常工作。
  *
- * 逐行揭示不在这里 —— 它只跑在核心页上，走 React 那条动态 import 的链路。
+ * 逐行揭示不在这里，它只跑在核心页上，走 React 那条动态 import 的链路。
  */
 (function () {
   "use strict";
@@ -45,8 +45,8 @@
       lenis.destroy();
       lenis = null;
     }
-    // 挂出去给别人用。Lenis 跑起来之后，`window.scrollTo` 会被它下一帧写回去
-    // —— 想把页面挪到某个位置，必须走它的 `scrollTo`，否则只会闪一下就弹回。
+    // 挂出去给别人用。Lenis 跑起来之后，`window.scrollTo` 会被它下一帧写回去，
+    // 想把页面挪到某个位置，必须走它的 `scrollTo`，否则只会闪一下就弹回。
     // 目前的用户是 ServicesPicker（点方块跳到对应的滚动段）。
     window.__h2odLenis = lenis;
   }
@@ -103,7 +103,7 @@
     } catch (e) {
       return null;
     }
-    // 外链、mailto:、tel:、WhatsApp —— 都不是换页
+    // 外链、mailto:、tel:、WhatsApp：都不是换页
     if (url.origin !== window.location.origin) return null;
     if (url.protocol !== "http:" && url.protocol !== "https:") return null;
     // 同页锚点交给浏览器，换页才盖幕布
@@ -114,11 +114,11 @@
   }
 
   // ⚠️ 捕获阶段。核心页的站内链接是 next/link，它自己会 preventDefault 走
-  // 客户端路由 —— 冒泡阶段轮到我们时已经晚了。抢在它前面 preventDefault，
+  // 客户端路由：冒泡阶段轮到我们时已经晚了。抢在它前面 preventDefault，
   // next/link 看到事件已被拦下就不再接管，链接全部收成「盖幕布 → 真跳转」。
   // 这正是 ADR-0001 要的：不走路由，换页行为在核心页与静态内容页之间一致。
   //
-  // 只 preventDefault、**不** stopPropagation —— 别的组件挂在链接上的
+  // 只 preventDefault、**不** stopPropagation：别的组件挂在链接上的
   // onClick（语言切换写 localStorage、手机菜单收起）还得照常跑完。
   document.addEventListener(
     "click",

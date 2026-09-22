@@ -9,7 +9,7 @@
   <meta name="description" content="A premium multi-section digital wedding invitation with RSVP, countdown, animations & background music. From {{weddingPremium}}.">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Wedding E-Invitation Premium — H2ODreamer Studio">
+  <meta property="og:title" content="Wedding E-Invitation Premium · H2ODreamer Studio">
   <meta property="og:description" content="An invitation your guests won't stop talking about. Premium digital wedding invitations from {{weddingPremium}}.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="zh_CN">
@@ -18,7 +18,7 @@
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Wedding E-Invitation Premium — H2ODreamer Studio">
+  <meta name="twitter:title" content="Wedding E-Invitation Premium · H2ODreamer Studio">
   <meta name="twitter:description" content="An invitation your guests won't stop talking about.">
 
   <!-- Theme color -->
@@ -46,7 +46,7 @@
   "@context": "https://schema.org",
   "@type": "Service",
   "@id": "https://www.h2o-dreamer-studio.com/wedding-premium#service",
-  "name": "Wedding E-Invitation — Premium",
+  "name": "Wedding E-Invitation: Premium",
   "serviceType": "Digital wedding invitation website",
   "description": "A premium multi-section digital wedding invitation with RSVP, countdown, animations and background music. From {{weddingPremium}}.",
   "url": "https://www.h2o-dreamer-studio.com/wedding-premium",
@@ -69,18 +69,18 @@
 }
   </script>
   <script>/**
- * 必须在首帧之前执行的那一小段。**内联进每个页面的 <head>**，不是外部脚本 ——
+ * 必须在首帧之前执行的那一小段。**内联进每个页面的 <head>**，不是外部脚本，
  * 外部脚本要多一次阻塞渲染的请求，为几百个字节不值得。
  *
  * 一份源码，两个去处：
  *   - 核心页：`src/components/Shell.tsx` 构建期读进来内联
  *   - 内容页与独立静态页：`scripts/inject-motion.mjs` 构建期注入
- * 写两份迟早会漂移，而漂移的表现是「有的页面有幕布、有的白屏硬跳」——
+ * 写两份迟早会漂移，而漂移的表现是「有的页面有幕布、有的白屏硬跳」，
  * ADR-0001 说这比完全没有更糟。
  *
  * 这里只做三件事，都必须早于首帧：
  *   1. 注入幕布的样式（幕布落在 html::after 上，不往 DOM 里塞元素）
- *   2. 上一页盖上幕布才揭幕 —— 直达访问不盖，盖了会把最大内容绘制推后
+ *   2. 上一页盖上幕布才揭幕：直达访问不盖，盖了会把最大内容绘制推后
  *   3. 给逐行揭示上预备态
  */
 (function () {
@@ -165,15 +165,15 @@
           一张让宾客赞不绝口的喜帖
         </h1>
         <p class="hero-sub"
-           data-lang-en="More than just a date and venue — it's a mini wedding website with RSVP tracking, countdown, animations, and background music. The kind of invitation people screenshot and share."
-           data-lang-cn="不只是日期和地点 — 这是一个迷你婚礼网站，内建 RSVP 追踪、倒数计时、动画效果和背景音乐。那种让人截图转发的喜帖。">
-          不只是日期和地点 — 这是一个迷你婚礼网站，内建 RSVP 追踪、倒数计时、动画效果和背景音乐。那种让人截图转发的喜帖。
+           data-lang-en="More than just a date and venue. It's a mini wedding website with RSVP tracking, countdown, animations, and background music. The kind of invitation people screenshot and share."
+           data-lang-cn="不只是日期和地点：这是一个迷你婚礼网站，内建 RSVP 追踪、倒数计时、动画效果和背景音乐。那种让人截图转发的喜帖。">
+          不只是日期和地点：这是一个迷你婚礼网站，内建 RSVP 追踪、倒数计时、动画效果和背景音乐。那种让人截图转发的喜帖。
         </p>
         <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20I'm%20interested%20in%20the%20Premium%20Wedding%20E-Invitation%20(RM%201%2C500).%20My%20wedding%20date%20is%20%5Bdate%5D."
            class="btn-primary" target="_blank" rel="noopener"
-           data-lang-en="💬 Design My Premium Invite — {{weddingPremium}}"
-           data-lang-cn="💬 定制我的高级喜帖 — {{weddingPremium}}">
-          💬 定制我的高级喜帖 — {{weddingPremium}}
+           data-lang-en="💬 Design My Premium Invite: {{weddingPremium}}"
+           data-lang-cn="💬 定制我的高级喜帖：{{weddingPremium}}">
+          💬 定制我的高级喜帖：{{weddingPremium}}
         </a>
         <p class="hero-price"
            data-lang-en="Usually replies within 1 hour"
@@ -193,9 +193,9 @@
           高级设计，难忘<em>印象</em>
         </h2>
         <p class="section-body"
-           data-lang-en="Each premium invitation is designed to feel like a complete experience — not just an announcement."
-           data-lang-cn="每一张高级喜帖都被设计成一种完整的体验 — 而不仅仅是一则通知。">
-          每一张高级喜帖都被设计成一种完整的体验 — 而不仅仅是一则通知。
+           data-lang-en="Each premium invitation is designed to feel like a complete experience, not just an announcement."
+           data-lang-cn="每一张高级喜帖都被设计成一种完整的体验：而不仅仅是一则通知。">
+          每一张高级喜帖都被设计成一种完整的体验：而不仅仅是一则通知。
         </p>
 
         <div class="showcase-grid">
@@ -323,9 +323,9 @@
             <span class="item-icon">📄</span>
             <h4 data-lang-en="Multi-Section Design"
                 data-lang-cn="多区块设计">多区块设计</h4>
-            <p data-lang-en="A full scrolling experience with hero, story, details, gallery, and more — like a real wedding website."
-               data-lang-cn="完整的滚动体验，包含主视觉、故事、细节、相册等 — 就像一个真正的婚礼网站。">
-              完整的滚动体验，包含主视觉、故事、细节、相册等 — 就像一个真正的婚礼网站。
+            <p data-lang-en="A full scrolling experience with hero, story, details, gallery, and more, like a real wedding website."
+               data-lang-cn="完整的滚动体验，包含主视觉、故事、细节、相册等：就像一个真正的婚礼网站。">
+              完整的滚动体验，包含主视觉、故事、细节、相册等：就像一个真正的婚礼网站。
             </p>
           </div>
 
@@ -343,9 +343,9 @@
             <span class="item-icon">⏱</span>
             <h4 data-lang-en="Countdown Timer"
                 data-lang-cn="倒数计时器">倒数计时器</h4>
-            <p data-lang-en="A live countdown to your big day — builds excitement every time someone visits."
-               data-lang-cn="婚礼倒数实时显示 — 每次有人访问都增添一份期待。">
-              婚礼倒数实时显示 — 每次有人访问都增添一份期待。
+            <p data-lang-en="A live countdown to your big day: builds excitement every time someone visits."
+               data-lang-cn="婚礼倒数实时显示：每次有人访问都增添一份期待。">
+              婚礼倒数实时显示：每次有人访问都增添一份期待。
             </p>
           </div>
 
@@ -363,9 +363,9 @@
             <span class="item-icon">🎵</span>
             <h4 data-lang-en="Background Music Toggle"
                 data-lang-cn="背景音乐开关">背景音乐开关</h4>
-            <p data-lang-en="Set the mood with a song that plays when guests open your invitation — with a mute button for courtesy."
-               data-lang-cn="宾客打开喜帖时播放你选的歌曲 — 贴心附带静音按钮。">
-              宾客打开喜帖时播放你选的歌曲 — 贴心附带静音按钮。
+            <p data-lang-en="Set the mood with a song that plays when guests open your invitation, with a mute button for courtesy."
+               data-lang-cn="宾客打开喜帖时播放你选的歌曲：贴心附带静音按钮。">
+              宾客打开喜帖时播放你选的歌曲：贴心附带静音按钮。
             </p>
           </div>
 
@@ -393,9 +393,9 @@
             <span class="item-icon">🔗</span>
             <h4 data-lang-en="Shareable Link"
                 data-lang-cn="可分享链接">可分享链接</h4>
-            <p data-lang-en="One link for everything — share via WhatsApp, social media, or even embed in your physical card's QR code."
-               data-lang-cn="一个链接包含一切 — 通过 WhatsApp、社交媒体分享，甚至嵌入实体喜帖的 QR 码。">
-              一个链接包含一切 — 通过 WhatsApp、社交媒体分享，甚至嵌入实体喜帖的 QR 码。
+            <p data-lang-en="One link for everything: share via WhatsApp, social media, or even embed in your physical card's QR code."
+               data-lang-cn="一个链接包含一切：通过 WhatsApp、社交媒体分享，甚至嵌入实体喜帖的 QR 码。">
+              一个链接包含一切：通过 WhatsApp、社交媒体分享，甚至嵌入实体喜帖的 QR 码。
             </p>
           </div>
 
@@ -423,9 +423,9 @@
           <div class="process-step reveal reveal-up">
             <div class="step-num">1</div>
             <h4 data-lang-en="Consult" data-lang-cn="咨询">咨询</h4>
-            <p data-lang-en="I discuss your vision — theme, color mood, must-have features, and the story you want to tell."
-               data-lang-cn="我讨论你的愿景 — 主题、色调、必备功能，以及你想讲述的故事。">
-              我讨论你的愿景 — 主题、色调、必备功能，以及你想讲述的故事。
+            <p data-lang-en="I discuss your vision: theme, color mood, must-have features, and the story you want to tell."
+               data-lang-cn="我讨论你的愿景：主题、色调、必备功能，以及你想讲述的故事。">
+              我讨论你的愿景：主题、色调、必备功能，以及你想讲述的故事。
             </p>
           </div>
 
@@ -506,9 +506,9 @@
               <span class="faq-chevron">+</span>
             </summary>
             <div class="faq-answer"
-                 data-lang-en="Yes, it counts down in real-time to the exact date and time you set — no manual updates needed."
-                 data-lang-cn="会，它会实时倒数到你设定的日期和时间 — 不需要手动更新。">
-              会，它会实时倒数到你设定的日期和时间 — 不需要手动更新。
+                 data-lang-en="Yes, it counts down in real-time to the exact date and time you set, no manual updates needed."
+                 data-lang-cn="会，它会实时倒数到你设定的日期和时间：不需要手动更新。">
+              会，它会实时倒数到你设定的日期和时间：不需要手动更新。
             </div>
           </details>
 
@@ -541,16 +541,16 @@
           准备好发出这份<em>宣告</em>了吗？
         </h2>
         <p class="motivation"
-           data-lang-en="Your wedding only happens once. Make the first impression count — starting with the invitation."
+           data-lang-en="Your wedding only happens once. Make the first impression count: starting with the invitation."
            data-lang-cn="婚礼一生只有一次。从喜帖开始，就给宾客留下深刻印象。">
           婚礼一生只有一次。从喜帖开始，就给宾客留下深刻印象。
         </p>
         <div class="contact-buttons">
           <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20I'd%20like%20to%20start%20my%20Premium%20Wedding%20E-Invitation%20(RM%201%2C500).%20My%20wedding%20date%20is%20%5Bdate%5D."
              class="btn-wa" target="_blank" rel="noopener"
-             data-lang-en="💬 WhatsApp Me — Design My Premium Invite"
-             data-lang-cn="💬 WhatsApp 咨询 — 定制我的高级喜帖">
-            💬 WhatsApp 咨询 — 定制我的高级喜帖
+             data-lang-en="💬 WhatsApp Me: Design My Premium Invite"
+             data-lang-cn="💬 WhatsApp 咨询：定制我的高级喜帖">
+            💬 WhatsApp 咨询：定制我的高级喜帖
           </a>
           <a href="mailto:H2Odreamer@outlook.com" class="btn-email"
              data-lang-en="📧 Email Me"

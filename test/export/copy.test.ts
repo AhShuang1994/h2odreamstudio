@@ -3,7 +3,7 @@
  *
  * 两件访客能直接发现的矛盾，都靠这里守住：
  *
- * ① **人称**。全站第一人称一律用「我」—— 见 CONTEXT.md 的「我」词条。
+ * ① **人称**。全站第一人称一律用「我」：见 CONTEXT.md 的「我」词条。
  *    「设计到上线一人包办、不外包」是这个工作室唯一的差异化，用复数会稀释掉它。
  * ② **报价**。数字只存在 src/content/prices.json 一份，页面、结构化数据、
  *    llms.txt 都从它取值。改一个数字，全站跟着变。
@@ -31,7 +31,7 @@ const CORE_PAGES = [
 ];
 
 /** 仍是手写 HTML 的服务页。价格在里面是硬编码的，只能靠断言看住（见文件末）。 */
-/** 四个服务页，中英各一份 —— 迁进 Next 路由之后才有了中文对偶版（ADR-0002）。 */
+/** 四个服务页，中英各一份，迁进 Next 路由之后才有了中文对偶版（ADR-0002）。 */
 const SERVICE_SLUGS = [
   "landing-page",
   "shopify-migration",
@@ -75,7 +75,7 @@ describe("导出产物 · 文案口径", () => {
         const hits = visibleText(x.read(p!)).match(PLURAL) ?? [];
         expect(
           hits,
-          `${p} 用了第一人称复数 ${JSON.stringify([...new Set(hits)])} —— ` +
+          `${p} 用了第一人称复数 ${JSON.stringify([...new Set(hits)])}: ` +
             `全站一律用「我」，见 CONTEXT.md 的「我」词条`,
         ).toEqual([]);
       });
@@ -109,7 +109,7 @@ describe("导出产物 · 文案口径", () => {
     ];
 
     /**
-     * 首页与报价页都必须报出全部六档 —— #79 之前首页只写了落地页一档、
+     * 首页与报价页都必须报出全部六档：#79 之前首页只写了落地页一档、
      * Shopify 写成「报价而定」，访客点进报价页当场发现矛盾。
      */
     for (const name of ["index.html", "pricing.html", "zh.html", "zh/pricing.html"]) {
@@ -136,12 +136,12 @@ describe("导出产物 · 文案口径", () => {
       // 尾部的中文版清单是从导出页面生成的（#77），归 discovery.test.ts 管
       expect(
         x.read("llms.txt").replace(/\r\n/g, "\n").startsWith(rendered),
-        "llms.txt 是构建产物 —— 改 src/content/llms.template.txt 或 prices.json，别改它",
+        "llms.txt 是构建产物，改 src/content/llms.template.txt 或 prices.json，别改它",
       ).toBe(true);
     });
 
     /**
-     * 服务页的价格**已经接进 prices.json**（迁进 Next 路由时做的）——
+     * 服务页的价格**已经接进 prices.json**（迁进 Next 路由时做的），
      * 原稿里写的是 `{{starter}}` 这类占位符，构建期填。
      *
      * 这条现在守的是「填对了」，不是「有人手动同步了」。
@@ -160,7 +160,7 @@ describe("导出产物 · 文案口径", () => {
           const missing = expected.filter((p) => !text.includes(p));
           expect(
             missing,
-            `${name} 里找不到 ${missing.join(", ")} —— 占位符没填上？` +
+            `${name} 里找不到 ${missing.join(", ")}：占位符没填上？` +
               `见 src/lib/content/doc.mjs 的 fillPrices()`,
           ).toEqual([]);
         });
@@ -170,8 +170,8 @@ describe("导出产物 · 文案口径", () => {
     /**
      * 源级守卫：原稿里不许再出现字面价格。
      *
-     * 上面那条只查得到「替换器坏了」；真正会让价格再次脱节的是有人在原稿里
-     * 手写一个新价格 —— 那样输出是对的，数据源却不知道。这条堵的是那个。
+     * 上面那条只查得到「替换器坏了」。真正会让价格再次脱节的是有人在原稿里
+     * 手写一个新价格：那样输出是对的，数据源却不知道。这条堵的是那个。
      *
      * 域名、寄存这类杂费（RM 10 / RM 40 / RM 150）不在报价单里，是允许的字面量。
      */
@@ -188,7 +188,7 @@ describe("导出产物 · 文案口径", () => {
       }
       expect(
         offenders,
-        `${offenders.join("；")} —— 改用占位符（如 {{starter}}），价格的唯一真相是 prices.json`,
+        `${offenders.join("、")}，改用占位符（如 {{starter}}），价格的唯一真相是 prices.json`,
       ).toEqual([]);
     });
   });

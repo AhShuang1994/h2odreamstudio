@@ -6,10 +6,10 @@
 
   <link rel="canonical" href="https://www.h2o-dreamer-studio.com/wedding-basic">
   <title>Wedding E-Invitation Standard · {{weddingStandard}} · H2ODreamer Studio</title>
-  <meta name="description" content="A beautifully designed digital wedding invitation — mobile-friendly, shareable via WhatsApp, ready in 3-5 days. From {{weddingStandard}}.">
+  <meta name="description" content="A beautifully designed digital wedding invitation: mobile-friendly, shareable via WhatsApp, ready in 3-5 days. From {{weddingStandard}}.">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Wedding E-Invitation Standard — H2ODreamer Studio">
+  <meta property="og:title" content="Wedding E-Invitation Standard · H2ODreamer Studio">
   <meta property="og:description" content="Your love deserves more than a group chat message. Digital wedding invitations from {{weddingStandard}}.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="zh_CN">
@@ -18,7 +18,7 @@
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Wedding E-Invitation Standard — H2ODreamer Studio">
+  <meta name="twitter:title" content="Wedding E-Invitation Standard · H2ODreamer Studio">
   <meta name="twitter:description" content="Your love deserves more than a group chat message.">
 
   <!-- Theme color -->
@@ -46,9 +46,9 @@
   "@context": "https://schema.org",
   "@type": "Service",
   "@id": "https://www.h2o-dreamer-studio.com/wedding-basic#service",
-  "name": "Wedding E-Invitation — Standard",
+  "name": "Wedding E-Invitation: Standard",
   "serviceType": "Digital wedding invitation website",
-  "description": "A beautifully designed digital wedding invitation — mobile-friendly, shareable via WhatsApp, ready in 3–5 days. From {{weddingStandard}}.",
+  "description": "A beautifully designed digital wedding invitation: mobile-friendly, shareable via WhatsApp, ready in 3–5 days. From {{weddingStandard}}.",
   "url": "https://www.h2o-dreamer-studio.com/wedding-basic",
   "provider": {
     "@id": "https://www.h2o-dreamer-studio.com/#business"
@@ -69,18 +69,18 @@
 }
   </script>
   <script>/**
- * 必须在首帧之前执行的那一小段。**内联进每个页面的 <head>**，不是外部脚本 ——
+ * 必须在首帧之前执行的那一小段。**内联进每个页面的 <head>**，不是外部脚本，
  * 外部脚本要多一次阻塞渲染的请求，为几百个字节不值得。
  *
  * 一份源码，两个去处：
  *   - 核心页：`src/components/Shell.tsx` 构建期读进来内联
  *   - 内容页与独立静态页：`scripts/inject-motion.mjs` 构建期注入
- * 写两份迟早会漂移，而漂移的表现是「有的页面有幕布、有的白屏硬跳」——
+ * 写两份迟早会漂移，而漂移的表现是「有的页面有幕布、有的白屏硬跳」，
  * ADR-0001 说这比完全没有更糟。
  *
  * 这里只做三件事，都必须早于首帧：
  *   1. 注入幕布的样式（幕布落在 html::after 上，不往 DOM 里塞元素）
- *   2. 上一页盖上幕布才揭幕 —— 直达访问不盖，盖了会把最大内容绘制推后
+ *   2. 上一页盖上幕布才揭幕：直达访问不盖，盖了会把最大内容绘制推后
  *   3. 给逐行揭示上预备态
  */
 (function () {
@@ -165,15 +165,15 @@
           一张像迷你婚礼网站般精致的电子喜帖
         </h1>
         <p class="hero-sub"
-           data-lang-en="Multi-section scrolling design with scroll animations, editorial photo gallery, and venue details — all in one shareable link. Ready in 4-6 days."
-           data-lang-cn="多区块滚动设计，配备滚动动画、编辑风格相册和场地详情 — 一个链接搞定。4-6 天即可完成。">
-          多区块滚动设计，配备滚动动画、编辑风格相册和场地详情 — 一个链接搞定。4-6 天即可完成。
+           data-lang-en="Multi-section scrolling design with scroll animations, editorial photo gallery, and venue details, all in one shareable link. Ready in 4-6 days."
+           data-lang-cn="多区块滚动设计，配备滚动动画、编辑风格相册和场地详情：一个链接搞定。4-6 天即可完成。">
+          多区块滚动设计，配备滚动动画、编辑风格相册和场地详情：一个链接搞定。4-6 天即可完成。
         </p>
         <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20I'm%20interested%20in%20the%20Standard%20Wedding%20E-Invitation%20(RM%20800).%20My%20wedding%20date%20is%20%5Bdate%5D."
            class="btn-primary" target="_blank" rel="noopener"
-           data-lang-en="💬 Design My Standard Invite — {{weddingStandard}}"
-           data-lang-cn="💬 定制我的标准喜帖 — {{weddingStandard}}">
-          💬 定制我的标准喜帖 — {{weddingStandard}}
+           data-lang-en="💬 Design My Standard Invite: {{weddingStandard}}"
+           data-lang-cn="💬 定制我的标准喜帖：{{weddingStandard}}">
+          💬 定制我的标准喜帖：{{weddingStandard}}
         </a>
         <p class="hero-price"
            data-lang-en="Usually replies within 1 hour"
@@ -280,9 +280,9 @@
             <span class="item-icon">📄</span>
             <h4 data-lang-en="Multi-Section Design"
                 data-lang-cn="多区块设计">多区块设计</h4>
-            <p data-lang-en="A full scrolling experience with hero, event details, venue, story gallery, and RSVP — like a mini wedding website."
-               data-lang-cn="完整的滚动体验，包含主视觉、活动详情、场地、故事相册和 RSVP — 就像一个迷你婚礼网站。">
-              完整的滚动体验，包含主视觉、活动详情、场地、故事相册和 RSVP — 就像一个迷你婚礼网站。
+            <p data-lang-en="A full scrolling experience with hero, event details, venue, story gallery, and RSVP, like a mini wedding website."
+               data-lang-cn="完整的滚动体验，包含主视觉、活动详情、场地、故事相册和 RSVP：就像一个迷你婚礼网站。">
+              完整的滚动体验，包含主视觉、活动详情、场地、故事相册和 RSVP：就像一个迷你婚礼网站。
             </p>
           </div>
 
@@ -320,9 +320,9 @@
             <span class="item-icon">🎞</span>
             <h4 data-lang-en="Custom Colors & Photos"
                 data-lang-cn="专属配色 & 照片">专属配色 & 照片</h4>
-            <p data-lang-en="Your photos, your palette — I match every element to your wedding aesthetic."
-               data-lang-cn="用你的照片、你的色调 — 每个元素都配合你的婚礼美学。">
-              用你的照片、你的色调 — 每个元素都配合你的婚礼美学。
+            <p data-lang-en="Your photos, your palette. I match every element to your wedding aesthetic."
+               data-lang-cn="用你的照片、你的色调：每个元素都配合你的婚礼美学。">
+              用你的照片、你的色调：每个元素都配合你的婚礼美学。
             </p>
           </div>
 
@@ -359,9 +359,9 @@
           <div class="process-step reveal reveal-up">
             <div class="step-num">1</div>
             <h4 data-lang-en="Consult" data-lang-cn="咨询">咨询</h4>
-            <p data-lang-en="Tell me about your wedding — date, venue, theme, and any must-haves. I'll suggest a design direction."
-               data-lang-cn="告诉我你的婚礼细节 — 日期、地点、主题和必须包含的元素。我会建议设计方向。">
-              告诉我你的婚礼细节 — 日期、地点、主题和必须包含的元素。我会建议设计方向。
+            <p data-lang-en="Tell me about your wedding: date, venue, theme, and any must-haves. I'll suggest a design direction."
+               data-lang-cn="告诉我你的婚礼细节：日期、地点、主题和必须包含的元素。我会建议设计方向。">
+              告诉我你的婚礼细节：日期、地点、主题和必须包含的元素。我会建议设计方向。
             </p>
           </div>
 
@@ -429,9 +429,9 @@
               <span class="faq-chevron">+</span>
             </summary>
             <div class="faq-answer"
-                 data-lang-en="No. It's a web link — guests just tap and view. Works on any phone, tablet, or computer."
-                 data-lang-cn="不需要。这是一个网页链接 — 点击即可查看。手机、平板、电脑都能打开。">
-              不需要。这是一个网页链接 — 点击即可查看。手机、平板、电脑都能打开。
+                 data-lang-en="No. It's a web link: guests just tap and view. Works on any phone, tablet, or computer."
+                 data-lang-cn="不需要。这是一个网页链接：点击即可查看。手机、平板、电脑都能打开。">
+              不需要。这是一个网页链接：点击即可查看。手机、平板、电脑都能打开。
             </div>
           </details>
 
@@ -442,9 +442,9 @@
               <span class="faq-chevron">+</span>
             </summary>
             <div class="faq-answer"
-                 data-lang-en="Absolutely. That's how most Malaysian couples share it. Just copy the link and send — the preview will show your wedding details beautifully."
-                 data-lang-cn="当然可以。大部分马来西亚新人都这样分享。复制链接发送即可 — 预览会精美地显示你的婚礼信息。">
-              当然可以。大部分马来西亚新人都这样分享。复制链接发送即可 — 预览会精美地显示你的婚礼信息。
+                 data-lang-en="Absolutely. That's how most Malaysian couples share it. Just copy the link and send: the preview will show your wedding details beautifully."
+                 data-lang-cn="当然可以。大部分马来西亚新人都这样分享。复制链接发送即可：预览会精美地显示你的婚礼信息。">
+              当然可以。大部分马来西亚新人都这样分享。复制链接发送即可：预览会精美地显示你的婚礼信息。
             </div>
           </details>
 
@@ -483,9 +483,9 @@
         <div class="contact-buttons">
           <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20I'd%20like%20to%20start%20my%20Standard%20Wedding%20E-Invitation%20(RM%20800).%20My%20wedding%20date%20is%20%5Bdate%5D."
              class="btn-wa" target="_blank" rel="noopener"
-             data-lang-en="💬 WhatsApp Me — Start My E-Invite"
-             data-lang-cn="💬 WhatsApp 咨询 — 开始制作喜帖">
-            💬 WhatsApp 咨询 — 开始制作喜帖
+             data-lang-en="💬 WhatsApp Me: Start My E-Invite"
+             data-lang-cn="💬 WhatsApp 咨询：开始制作喜帖">
+            💬 WhatsApp 咨询：开始制作喜帖
           </a>
           <a href="mailto:H2Odreamer@outlook.com" class="btn-email"
              data-lang-en="📧 Email Me"

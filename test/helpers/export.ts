@@ -1,11 +1,11 @@
 /**
- * 测试接缝 ① —— 构建产物。
+ * 测试接缝 ①：构建产物。
  *
  * 这个站的绝大部分验收都能在「导出目录里有什么文件、文件里写了什么」这一层
  * 完成，不需要浏览器。这是最高的接缝，反馈是秒级的。
  *
  * 用法：在测试里 `const x = loadExport()`，然后断言 x 上的字段。
- * 加新断言时不要改这个文件的结构 —— 优先在 test/export/ 下加 it，
+ * 加新断言时不要改这个文件的结构：优先在 test/export/ 下加 it，
  * 需要新数据时在这里加一个派生字段。
  */
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -20,7 +20,7 @@ export interface AssetRef {
   page: string;
   /** 原始属性值，未解析 */
   raw: string;
-  /** 解析后相对 out/ 的 POSIX 路径；无法解析为站内路径时为 null */
+  /** 解析后相对 out/ 的 POSIX 路径。无法解析为站内路径时为 null */
   resolved: string | null;
   /** 来自哪种属性 */
   kind: "src" | "srcset" | "href" | "poster" | "css-url";
@@ -43,7 +43,7 @@ export interface ExportSnapshot {
   read(rel: string): string;
 }
 
-// —— 内部工具 ————————————————————————————————————————————————
+// -- 内部工具 ------------------------------------------------
 
 const TEXT_EXT = new Set([".html", ".css", ".xml", ".txt", ".json", ".js"]);
 
@@ -96,7 +96,7 @@ const ATTR_RE = /\b(src|srcset|href|poster)\s*=\s*("([^"]*)"|'([^']*)')/gi;
 // 会被当成 CSS 的 url(...) 匹配到（实测在 demos/ 的独立页里踩过）。
 const CSS_URL_RE = /(?<![\w-])url\(\s*(?:"([^"]*)"|'([^']*)'|([^)'"]+))\s*\)/gi;
 
-/** 只对**资源类**属性做存在性检查；页面之间的链接不在此列（见 ADR-0003 / #73）。 */
+/** 只对**资源类**属性做存在性检查。页面之间的链接不在此列（见 ADR-0003 / #73）。 */
 function extractRefs(pageRel: string, html: string): AssetRef[] {
   const out: AssetRef[] = [];
   const push = (raw: string, kind: AssetRef["kind"]) => {
@@ -129,7 +129,7 @@ function extractRefs(pageRel: string, html: string): AssetRef[] {
   return out;
 }
 
-// —— 对外 ————————————————————————————————————————————————————
+// -- 对外 ----------------------------------------------------
 
 let cached: ExportSnapshot | null = null;
 
@@ -139,7 +139,7 @@ export function loadExport(): ExportSnapshot {
   if (!existsSync(OUT_DIR)) {
     throw new Error(
       `找不到导出目录 ${OUT_DIR}。\n` +
-        `这些断言跑在构建产物上 —— 先跑 \`npm run build\`，或直接用 \`npm test\`（它会先构建）。`,
+        `这些断言跑在构建产物上，先跑 \`npm run build\`，或直接用 \`npm test\`（它会先构建）。`,
     );
   }
 
@@ -155,7 +155,7 @@ export function loadExport(): ExportSnapshot {
 
   const htmlPages = files.filter((f) => f.endsWith(".html"));
 
-  // 只读文本文件；out/ 里有几百 MB 图片，绝不整包读进内存
+  // 只读文本文件。out/ 里有几百 MB 图片，绝不整包读进内存
   const seen = new Set<string>();
   const assetRefs: AssetRef[] = [];
   for (const page of [...htmlPages, ...files.filter((f) => f.endsWith(".css"))]) {
@@ -185,7 +185,7 @@ export function loadExport(): ExportSnapshot {
   return cached;
 }
 
-/** 把 a/b/c.webp 拆成 { dir, stem, ext } —— 找同名不同扩展名的兄弟文件时用。 */
+/** 把 a/b/c.webp 拆成 { dir, stem, ext }：找同名不同扩展名的兄弟文件时用。 */
 export function splitPath(rel: string) {
   const ext = extname(rel).toLowerCase();
   return { dir: posix.dirname(rel), stem: basename(rel, extname(rel)), ext };

@@ -85,7 +85,7 @@ export function AboutPage({ lang }: { lang: Lang }) {
         </Container>
       </PageSection>
 
-      {/* 引言是这一页的视觉重音。左对齐、衬线、大字 —— 居中的引言块太像
+      {/* 引言是这一页的视觉重音。左对齐、衬线、大字：居中的引言块太像
           模板里的 testimonial。 */}
       <PageSection className="border-y border-hairline bg-surface-1">
         <Container>
