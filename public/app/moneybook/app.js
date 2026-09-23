@@ -1147,11 +1147,11 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
         <ol>
           ${SHORTCUT_URL
             ? `<li>点「安装快捷指令」，加入时贴上连接码。</li>
-               <li>「快捷指令」app →「自动化」→「+」→「钱包」，勾选要记的卡，选「立即运行」并关掉「运行时通知」。</li>
-               <li>动作选「运行快捷指令：小帐本记帐」，输入用「快捷指令输入」。</li>`
-            : `<li>「快捷指令」app →「自动化」→「+」→「钱包」，勾选要记的卡，选「立即运行」并关掉「运行时通知」，再选「新建空白自动化」。</li>
-               <li>添加「获取 URL 内容」：网址贴上连接码，点「显示更多」，方法选 POST，请求体选 JSON。</li>
-               <li>加三个文本字段：<code>amount</code> 填「快捷指令输入」的金额、<code>merchant</code> 填商家、<code>card</code> 填卡片名称。插入「快捷指令输入」后再点它一下，就能选属性（中文名以 iOS 显示为准）。</li>`}
+               <li>「快捷指令（Shortcuts）」app →「自动化（Automation）」→「+」→「钱包（Wallet）」，勾选要记的卡，选「立即运行（Run Immediately）」并关掉「运行时通知（Notify When Run）」。</li>
+               <li>动作选「运行快捷指令（Run Shortcut）：小帐本记帐」，输入用「快捷指令输入（Shortcut Input）」。</li>`
+            : `<li>「快捷指令（Shortcuts）」app →「自动化（Automation）」→「+」→「钱包（Wallet）」，勾选要记的卡，选「立即运行（Run Immediately）」并关掉「运行时通知（Notify When Run）」，再选「新建空白自动化（New Blank Automation）」。</li>
+               <li>「添加操作（Add Action）」→「获取 URL 内容（Get Contents of URL）」：网址贴上连接码，点动作右边的 ›「显示更多（Show More）」，「方法（Method）」选 POST，「请求体（Request Body）」选 JSON。</li>
+               <li>「添加新字段（Add new field）」→「文本（Text）」，加三个：<code>amount</code> 填「快捷指令输入（Shortcut Input）」的「金额（Amount）」、<code>merchant</code> 填「商家（Merchant）」、<code>card</code> 填「卡片或票证（Card or Pass）」。插入「快捷指令输入」后再点它一下，就能选属性。键盘上方找不到它的话，长按输入栏，选「选取变量（Select Variable）」。</li>`}
         </ol>
         <p class="muted small">之后每张卡第一次出现时，记帐页会问一次它在哪一侧、是不是信用卡。</p>
       </details>
