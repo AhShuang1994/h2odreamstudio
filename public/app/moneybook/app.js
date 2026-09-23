@@ -262,7 +262,7 @@ import * as L from './ledger.js';
   });
 
   // 键盘是底部抽屉：点金额才滑出。不加遮罩，让分类键与分页列保持可点，
-  // 改由「选好分类 / 保存 / 换页 / 编辑备注」这些动作自动收起。
+  // 改由「选好分类 / 保存 / 换页 / 编辑备注 / 点键盘以外任何地方」这些动作自动收起。
   function openKeypad() {
     $('#keypad').classList.add('open');
     $('#amount-tap').classList.add('on');
@@ -273,6 +273,14 @@ import * as L from './ledger.js';
   }
   $('#amount-tap').addEventListener('click', () => {
     $('#keypad').classList.contains('open') ? closeKeypad() : openKeypad();
+  });
+  // 点键盘与金额框以外的地方就收起。用 pointerdown 而不是 click：iOS Safari 点在
+  // 不可点的空白上不会派发 click 到 document，空白处就收不起来。点下去的那个按钮
+  // （分类、支出/收入）照常生效，因为没有遮罩挡着。
+  document.addEventListener('pointerdown', e => {
+    if (!$('#keypad').classList.contains('open')) return;
+    if (e.target.closest('#keypad, #amount-tap')) return;
+    closeKeypad();
   });
   // 备注／日期就在键盘底下，要输入时先收起
   $('#note').addEventListener('focus', closeKeypad);
