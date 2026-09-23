@@ -1128,6 +1128,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       el.innerHTML = `<div class="card">
         <b>刷完 Apple Pay，打开小帐本就已经记好</b>
         <p>iPhone 的快捷指令会在你<b>实体店感应刷卡</b>时把金额、商家、卡名交给小帐本。网购与 app 内付款触发不了，那几笔还是要手记。</p>
+        <p><b>需要 iOS 18 以上。</b>旧版 iOS 的快捷指令没有钱包刷卡自动化，开了也收不到。</p>
         <p>还没同步的刷卡记录会<b>加密</b>后暂放在服务器，只有这台手机解得开，同步后随即删掉。帐本本身不会离开这台手机。</p>
         <div class="btns"><button class="primary" id="btn-ap-on">开启</button></div>
       </div>`;
@@ -1144,6 +1145,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       </div>
       <details class="ap-steps">
         <summary>设置步骤</summary>
+        <p class="muted small">需要 iOS 18 以上。</p>
         <ol>
           ${SHORTCUT_URL
             ? `<li>点「安装快捷指令」，加入时贴上连接码。</li>
