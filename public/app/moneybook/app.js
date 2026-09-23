@@ -483,36 +483,6 @@ import * as L from './ledger.js';
   function renderStats() {
     $('#stats-month').textContent = monthLabel(curMonth);
 
-    // 月底预计结余（#128）。固定收支要到那一天才补记，所以 25 号才扣的房租在 13 号
-    // 看不到，月中的「本月结余」永远偏乐观。三种月份三种说法：
-    //   过去 → 实际结余，标签就叫「结余」，不做任何预测（历史数字不该自己漂移）
-    //   本月 → 确定值：已记净额 + 本月还没到日子的固定收支
-    //   未来 → 整块不显示。那个月一天都还没过，把房租薪水加减一遍看起来像预测，
-    //          其实什么都没预测
-    // 主数字是**外推值**，使用者问的是「这个月能存多少钱」，而确定值回答的是
-    // 「从今天起一毛不花能存多少」，那不回答任何问题（#130）。确定值退成底下的小字。
-    // 月初 7 天样本太少，那几天只显示确定值并说明原因。
-    const today = L.dateOf(new Date());
-    const thisMonth = today.slice(0, 7);
-    const past = curMonth < thisMonth;
-    const p = past ? null : L.projectedNet(state, side, curMonth, today);
-    const net = past ? L.monthlySummary(state, side, curMonth).net : (p.extrapolated ?? p.certain);
-    // 小字一行讲两件事：确定的部分是多少、其余是估的。日均不认得「一次性」，一笔大额
-    // 消费会把它拉高、让这个数字偏低：换记法那个月尤其明显（手动记的那笔「还卡」
-    // 没有规则来源，会被当成日常消费）。与其加一个「一次性支出」标记（每次记帐永久多
-    // 一个决定），不如把话说清楚，完整的说明在设定页（#123、#131）。
-    const note = past ? ''
-      : p.extrapolated == null
-        ? '本月还早，先只算固定的'
-        : `已定 ${money(p.certain)}，其余按日均估：大额或一次性支出会让这个数字偏低`;
-    $('#forecast').innerHTML = curMonth > thisMonth ? '' : `<div class="card">
-        <div class="cat-row" style="border:none;padding:0">
-          <span>${past ? '结余' : '月底预计结余'}</span>
-          <b class="tnum"${net < 0 ? ' style="color:var(--expense)"' : ''}>${money(net)}</b>
-        </div>${note ? `
-        <p class="muted small" style="margin-top:6px">${esc(note)}</p>` : ''}
-      </div>`;
-
     // 预算进度（只在看支出时显示），只吃本侧的支出
     const bs = statsType === 'expense' ? L.budgetStatus(state, side, curMonth) : null;
     $('#budget-box').innerHTML = bs ? `<div class="card">

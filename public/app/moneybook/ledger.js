@@ -790,10 +790,6 @@ export function removeRule(state, id) {
  * 一条规则在某个月**该记哪一天、记了没、日期到了没**。首期之前或过了最后一期
  * 返回 null：那个月这条规则根本不该出现。
  *
- * 抽出来是因为「这个月还没到日子的固定收支」正是它的取反（#123 的月底预计结余）。
- * 若补记与预测各写一遍月份行走与日期比较，两份实作**迟早会漂开**：预测说房租还
- * 没记、补记逻辑却已经记下了，同一笔钱就被减两次，而且帐面上完全看不出异常。
- *
  * 到期仍然**按月份**算（首期往后数「总期数 − 1」个月），不按已补记的笔数。
  * 「今天」由呼叫端传入，这一层不问系统时间（同 applyRecurring、defaultFirstMonth）。
  */
@@ -850,80 +846,6 @@ export function applyRecurring(state, today) {
     }
   }
   return added;
-}
-
-// -- 月底预计结余 ----------------------------------------
-//
-// 固定收支要到那一天才补记，所以 25 号才扣的房租在 13 号看不到：月中的「本月结余」
-// 永远偏乐观。下面这两个推导把「还没发生但确定会发生」的那部分算进来（#128）。
-//
-// 这是**流量**推导，不是存量：它不需要知道户口里有多少钱，所以不碰 ADR-0001 那条
-// 「不引入期初余额」。全是派生值，一个都不存。
-
-/**
- * 这一侧这个月**还没到日子**的固定收支，还没补记、应记日期还没到、还没过最后一期。
- *
- * 判定整个借给 `dueOf`：这里就是它的取反（`!applied && !arrived`）。**不许在这里
- * 另写一遍月份与日期的比较**，那正是 #124 抽出 `dueOf` 要防的事：两份实作漂开之后，
- * 同一笔钱会既被算成「已记」又被算成「待发生」，而帐面上完全看不出异常。
- *
- * 「今天」由呼叫端传入。传一个未来的月份进来会把整月的规则都算成待发生（那个月一天
- * 都还没过，本来就是这样）：界面因此不在未来月份显示预测，那是渲染层的判断。
- */
-export function pendingRecurring(state, currency, month, today) {
-  let income = 0, expense = 0;
-  for (const rule of state.recurring) {
-    if (rule.currency !== currency) continue;
-    const slot = dueOf(rule, month, today);
-    if (!slot || slot.applied || slot.arrived) continue;
-    if (rule.type === INCOME) income += rule.amount; else expense += rule.amount;
-  }
-  return { currency, income: round2(income), expense: round2(expense), net: round2(income - expense) };
-}
-
-/**
- * 月底预计结余，「结余」（monthlySummary 的 net）把这个月还没发生的部分也算进去
- * 之后的样子。同一个数的延伸，不是新概念。回传两个数：
- *
- * - `certain` **确定值**：已记净额 + 本月待发生的固定收支净额。只含已经发生的与确定
- *   会发生的，所以是可以信的那个数。
- * - `extrapolated` **外推值**：确定值再减去按日均估出来的、接下来还会花的日常钱。
- *   它回答的是「这个月能存多少」，而确定值回答的是「从今天起一毛不花能存多少」，
- *   后者不回答任何问题，因为他不会一毛不花。所以界面拿外推值当主角（#130）。
- *   算不出来时为 null，渲染层据此退回只显示确定值。
- *
- * 日均的分子是**本月已记的非固定支出**，分母是**本月已过的天数**：
- * - 排除规则产生的记录，它们已经在确定值里，而且不是日常消费，会把日均拉歪
- * - 排除转帐，类型不是支出，自然被挡在外面（同 monthlySummary）
- *
- * 帐面口径：支出含这个月刷的卡，因为刷卡本来就是支出。这一层不需要认识刷卡标记。
- *
- * **不做「一次性支出」标记，也不做自动大额门槛**：门槛定在哪都会错，而且会静静吃掉
- * 真实的大额消费。换记法那个月的外推会偏高，那是已经接受的代价（#123）。
- *
- * 外推那一段刻意留在这里、不拆成独立模块：它只被这一处使用，拆出去等于为了测试
- * 多开一个公开接口，而它留在这里本来就测得到。
- */
-export function projectedNet(state, currency, month, today) {
-  const recorded = monthlySummary(state, currency, month);
-  const pending = pendingRecurring(state, currency, month, today);
-  const certain = round2(recorded.net + pending.net);
-
-  // 外推只对**本月**说话。过去的月份日子已经过完，历史数字不该自己漂移
-  if (month !== today.slice(0, 7)) return { certain, extrapolated: null };
-
-  // 月初 7 天不外推：样本太少，2 号买台 800 的东西会外推出「这个月要花 12,400」
-  const passed = Number(today.slice(8, 10));
-  if (passed <= 7) return { certain, extrapolated: null };
-
-  let daily = 0;
-  for (const r of state.records) {
-    if (r.type !== EXPENSE || r.ruleId) continue;
-    if (r.currency !== currency || !r.date.startsWith(month)) continue;
-    daily += r.amount;
-  }
-  const left = lastDayOfMonth(month) - passed;
-  return { certain, extrapolated: round2(certain - (daily / passed) * left) };
 }
 
 // -- 导出 ------------------------------------------------
