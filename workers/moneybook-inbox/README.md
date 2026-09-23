@@ -34,15 +34,24 @@ npx wrangler deploy
 
 ## 在 iPhone 上设置
 
+按钮名称写成「中文（English）」，中英文 iOS 都能照着点。
+
 ### 自己用：自动化里直接发请求
 
-1. 「快捷指令」app →「自动化」→「+」→「钱包」。
-2. 勾选要记的卡，选「立即运行」，关掉「运行时通知」，再选「新建空白自动化」。
-3. 添加「获取 URL 内容」：
+1. 「快捷指令（Shortcuts）」app →「自动化（Automation）」→「+」→「钱包（Wallet）」。
+2. 勾选要记的卡，选「立即运行（Run Immediately）」，关掉「运行时通知（Notify When Run）」，再选「新建空白自动化（New Blank Automation）」。
+3. 「添加操作（Add Action）」→「获取 URL 内容（Get Contents of URL）」：
    - URL：贴上小帐本给的连接码
-   - 点「显示更多」，方法选 POST，请求体选 JSON
-   - 加三个文本字段：`amount` = 快捷指令输入的金额、`merchant` = 商家、`card` = 卡片名称
-     （插入「快捷指令输入」后再点它一下选属性，属性的中文名以 iOS 实际显示为准）
+   - 点动作右边的 ›「显示更多（Show More）」，「方法（Method）」选 POST，「请求体（Request Body）」选 JSON
+   - 「添加新字段（Add new field）」→「文本（Text）」，加三个：
+
+     | Key | Value：「快捷指令输入（Shortcut Input）」的属性 |
+     |---|---|
+     | `amount` | 金额（Amount） |
+     | `merchant` | 商家（Merchant） |
+     | `card` | 卡片或票证（Card or Pass） |
+
+     插入「快捷指令输入」后再点它一下选属性。键盘上方找不到它的话，长按输入栏，选「选取变量（Select Variable）」。属性名称以 iOS 实际显示为准。
 
 `t`（刷卡时间）是选填的，不给的话 Worker 用收到的时间，只差几秒。
 
@@ -50,11 +59,11 @@ npx wrangler deploy
 
 Apple 不允许分享自动化，只能分享快捷指令。
 
-1. 新建快捷指令「小帐本记帐」，只放一个「获取 URL 内容」，设置同上，三个字段的值都取「快捷指令输入」的属性。
-2. 在快捷指令的设置里加一个**导入问题**，对象选「获取 URL 内容」的 URL，问题写「贴上小帐本的连接码」。
-3. 分享 → 拷贝 iCloud 链接，填进 `public/app/moneybook/app.js` 的 `SHORTCUT_URL`。填了之后，小帐本的设置步骤会改为「安装快捷指令」这一套。
+1. 新建快捷指令「小帐本记帐」，只放一个「获取 URL 内容（Get Contents of URL）」，设置同上，三个字段的值都取「快捷指令输入（Shortcut Input）」的属性。
+2. 在快捷指令的设置里加一个**导入问题（Import Question）**，对象选「获取 URL 内容」的 URL，问题写「贴上小帐本的连接码」。
+3. 分享（Share）→ 拷贝 iCloud 链接（Copy iCloud Link），填进 `public/app/moneybook/app.js` 的 `SHORTCUT_URL`。填了之后，小帐本的设置步骤会改为「安装快捷指令」这一套。
 
-每个使用者还要自己建自动化：「自动化」→「+」→「钱包」→ 勾选卡片 →「立即运行」并关掉「运行时通知」→ 动作选「运行快捷指令：小帐本记帐」，输入用「快捷指令输入」。
+每个使用者还要自己建自动化：「自动化（Automation）」→「+」→「钱包（Wallet）」→ 勾选卡片 →「立即运行（Run Immediately）」并关掉「运行时通知（Notify When Run）」→ 动作选「运行快捷指令（Run Shortcut）：小帐本记帐」，输入用「快捷指令输入（Shortcut Input）」。
 
 **限制**：只有实体店感应刷卡会触发这个自动化，网购与 app 内付款触发不了。
 
