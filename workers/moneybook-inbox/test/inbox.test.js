@@ -117,6 +117,18 @@ test("投递 → 拉取 → 解封：只有私钥解得开，库里没有明文"
   await assert.rejects(open(other.priv, items[0]));
 });
 
+test("投递：不带刷卡时间也收，用收到的时间补上", async () => {
+  const DB = freshDb();
+  const e = env(DB);
+  const box = await openInbox(e);
+  const { t, ...noTime } = swipe;
+  assert.equal((await post(e, box, noTime)).status, 200);
+  const [item] = await pull(e, box);
+  const got = await open(box.priv, item);
+  assert.equal(got.t, NOW.toISOString());
+  assert.equal(got.merchant, "7-Eleven");
+});
+
 test("权限：写钥匙读不到，读钥匙写不进，猜错的 id 一律 404", async () => {
   const DB = freshDb();
   const e = env(DB);
