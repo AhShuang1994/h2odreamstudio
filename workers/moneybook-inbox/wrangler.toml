@@ -12,7 +12,7 @@ enabled = false
 
 [vars]
 # 小帐本在哪些网址上跑。只有这些来源能开箱、拉取、确认、关闭（快捷指令投递不受影响）
-ALLOWED_ORIGINS = "https://www.h2o-dreamer-studio.com,http://localhost:3000,http://localhost:8099"
+ALLOWED_ORIGINS = "https://www.h2o-dreamer-studio.com,https://h2odreamstudio-next.pages.dev,http://localhost:3000,http://localhost:8099"
 MAX_OPENS_PER_HOUR = "5"   # 同一个 IP 每小时最多开几个收件箱
 MAX_ITEMS_PER_DAY = "300"  # 一个收件箱每天最多收几笔
 MAX_PENDING = "500"        # 一个收件箱最多囤几笔没拉走的
@@ -23,7 +23,7 @@ MAX_BODY_BYTES = "1024"    # 一笔投递的请求体上限
 [[d1_databases]]
 binding = "DB"
 database_name = "moneybook-inbox"
-database_id = "REPLACE_WITH_DATABASE_ID"
+database_id = "b4c14362-757f-4211-b2e5-e65b58cad0b6"
 
 # 用 `wrangler secret put QUOTA_SALT` 设一串随机字（选填）：
 # 开箱限速存的是 IP 加盐后的哈希，有盐的话库里的哈希就反推不回 IP
