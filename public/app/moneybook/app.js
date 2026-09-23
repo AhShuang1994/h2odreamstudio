@@ -30,6 +30,7 @@ import * as L from './ledger.js';
   let side = L.activeSide(state);   // 当前在看哪一侧
   let entryType = 'expense';        // 记帐页：支出 / 收入 / 转帐
   let statsType = 'expense';        // 统计页
+  const openCats = new Set();       // 统计页里点开了明细的分类。翻月、换侧都保留，没有那一格就不显示
   let catEditType = 'expense';      // 设定页分类编辑
   let recType = 'expense';          // 固定收支
   let recFirstTouched = false;      // 使用者改过首期没有：改过就不再自动跳默认值
@@ -480,6 +481,16 @@ import * as L from './ledger.js';
     renderStats();
   });
 
+  $('#rank').addEventListener('click', e => {
+    const it = e.target.closest('.item');
+    if (it) return editRecord(it.dataset.id);
+    const b = e.target.closest('.rank-item');
+    if (!b) return;
+    const cat = b.dataset.cat;
+    openCats.has(cat) ? openCats.delete(cat) : openCats.add(cat);
+    renderStats();
+  });
+
   function renderStats() {
     $('#stats-month').textContent = monthLabel(curMonth);
 
@@ -531,15 +542,31 @@ import * as L from './ledger.js';
         return seg;
       }).join('');
 
+      // 每一格都能点开，看这个分类这个月是哪几笔组成的。明细的口径与占比同一个
+      // （recordsOfCategory），加起来一定等于那一格的数字。点明细里的一笔直接去编辑。
       $('#rank').innerHTML = rows.map((row, i) => {
         const c = catOf(statsType, row.cat);
-        return `<div class="rank-item">
+        const open = openCats.has(row.cat);
+        const detail = open ? L.recordsOfCategory(state, side, curMonth, statsType, row.cat)
+          .flatMap(linesOf).map(it => {
+            const auto = it.ruleId
+              ? `<span class="auto-tag">${it.term ? `💳 ${it.term.index}/${it.term.total}` : '🔁 固定'}</span>`
+              : '';
+            const card = it.card ? '<span class="card-tag">卡</span>' : '';
+            const rec = L.findRecord(state, it.id);
+            return `<button class="item" data-id="${esc(it.id)}">
+              <span class="d">${rec.date.slice(5)}</span>
+              <span class="t"><b>${esc(it.note || it.title)}${card}${auto}</b></span>
+              <span class="v ${it.cls}">${money(it.amount)}</span>
+            </button>`;
+          }).join('') : '';
+        return `<button class="rank-item${open ? ' open' : ''}" data-cat="${esc(row.cat)}" aria-expanded="${open}">
           <i>${esc(c.icon)}</i>
           <span class="t"><b>${esc(c.name)}</b>
             <span class="bar-bg"><i style="width:${row.pct.toFixed(1)}%;background:${catColor(i)}"></i></span>
           </span>
           <span class="v">${money(row.amount)}<small>${row.pct.toFixed(1)}%</small></span>
-        </div>`;
+        </button>${open ? `<div class="items rank-detail">${detail}</div>` : ''}`;
       }).join('');
     }
 

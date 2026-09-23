@@ -1380,6 +1380,33 @@ describe("小帐本 · ledger 核心", () => {
     });
   });
 
+  // ── 分类明细 ─────────────────────────────────────────
+  describe("分类明细：统计页点开一个分类，看是哪几笔组成的", () => {
+    it("只列这一侧、这个月、这个类型、这个分类，新的在前", () => {
+      const s = crossBorder();
+      L.addRecord(s, { type: "expense", amount: 12, currency: "SGD", cat: "food", date: "2026-08-03", note: "早餐" });
+      L.addRecord(s, { type: "expense", amount: 30, currency: "SGD", cat: "food", date: "2026-08-20", note: "晚餐" });
+      L.addRecord(s, { type: "expense", amount: 99, currency: "SGD", cat: "transport", date: "2026-08-05" });
+      L.addRecord(s, { type: "expense", amount: 50, currency: "MYR", cat: "food", date: "2026-08-06" });
+      L.addRecord(s, { type: "expense", amount: 7, currency: "SGD", cat: "food", date: "2026-07-30" });
+      L.addRecord(s, { type: "income", amount: 5, currency: "SGD", cat: "food", date: "2026-08-07" });
+      const rs = L.recordsOfCategory(s, "SGD", "2026-08", "expense", "food");
+      expect(rs.map((r: any) => r.note)).toEqual(["晚餐", "早餐"]);
+    });
+
+    it("加起来一定等于分类占比里那一格的数字", () => {
+      const s = crossBorder();
+      L.addRecord(s, { type: "expense", amount: 12.1, currency: "SGD", cat: "food", date: "2026-08-03" });
+      L.addRecord(s, { type: "expense", amount: 30.25, currency: "SGD", cat: "food", date: "2026-08-20", card: true });
+      L.addRule(s, { type: "expense", amount: 8, currency: "SGD", cat: "food", day: 1, from: "2026-08", note: "订阅" });
+      L.applyRecurring(s, "2026-08-21");
+      L.addTransfer(s, { amount: 100, currency: "SGD", toAmount: 330, toCurrency: "MYR", date: "2026-08-10" });
+      const row = L.categoryBreakdown(s, "SGD", "2026-08", "expense").rows.find((r: any) => r.cat === "food");
+      const sum = L.recordsOfCategory(s, "SGD", "2026-08", "expense", "food").reduce((t: number, r: any) => t + r.amount, 0);
+      expect(L.round2(sum)).toBe(row.amount);
+    });
+  });
+
   // ── 导出与备份 ─────────────────────────────────────────
   describe("导出与备份", () => {
     it("CSV 每一行都带币种", () => {
