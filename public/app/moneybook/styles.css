@@ -306,6 +306,19 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .rank-item .t .bar-bg i{display:block;height:100%;border-radius:var(--r-pill)}
 .rank-item .v{text-align:right;font-size:var(--t-sm);font-weight:500;flex-shrink:0}
 .rank-item .v small{display:block;color:var(--ink-subtle);font-size:var(--t-xs);font-weight:400}
+/* 分类可以点开看明细：按钮要撑满、文字靠左，右边一个会转的箭头提示点得开 */
+.rank-item{width:100%;text-align:left;color:inherit}
+.rank-item:active{background:var(--s2)}
+.rank-item::after{
+  content:"";flex-shrink:0;width:6px;height:6px;margin-left:2px;
+  border-right:1.5px solid var(--ink-subtle);border-bottom:1.5px solid var(--ink-subtle);
+  transform:rotate(45deg) translateY(-2px);transition:transform .18s var(--ease);
+}
+.rank-item.open{border-color:var(--hairline-strong);margin-bottom:0;border-radius:var(--r-md) var(--r-md) 0 0}
+.rank-item.open::after{transform:rotate(-135deg) translateY(-2px)}
+.rank-detail{border-top:none;border-radius:0 0 var(--r-md) var(--r-md);margin-bottom:6px}
+.rank-detail .item{padding:var(--sp-2) var(--sp-3)}
+.rank-detail .d{color:var(--ink-subtle);font-size:var(--t-xs);flex-shrink:0;width:3.2em}
 /* 规格的 eyebrow：正字距。中文本来就吃得下一点正字距，读起来更像分类标签 */
 .sec{
   font-size:13px;color:var(--ink-subtle);font-weight:500;

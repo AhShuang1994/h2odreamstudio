@@ -444,6 +444,20 @@ export function categoryBreakdown(state, currency, month, type) {
 }
 
 /**
+ * 分类占比里某一格**是由哪几笔组成的**：统计页点开一个分类时列出来的明细。
+ * 筛选口径与 categoryBreakdown 完全相同（这一侧、这个月、这个类型、不含转帐），
+ * 所以列出来的金额加起来一定等于那一格的数字。新的在前。
+ */
+export function recordsOfCategory(state, currency, month, type, cat) {
+  // 先倒过来再做稳定排序：同一天里后记的也排在前面（同明细页）
+  return state.records
+    .filter(r => !isTransfer(r) && r.type === type && r.cat === cat
+      && r.currency === currency && r.date.startsWith(month))
+    .reverse()
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/**
  * 近 n 个月的收支趋势，仍然只属于这一侧。
  *
  * 每个月多带一个 `card`，供渲染层把支出柱染成两段（#129）。它是 `expense` 的**子集**
