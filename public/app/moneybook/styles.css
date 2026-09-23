@@ -358,7 +358,7 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .mini{width:96px;text-align:right}
 .mini.wide{width:134px}
 .btns{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-top:var(--sp-3)}
-.btns button,.primary{
+.btns button,.btns a.btn,.primary{
   background:var(--s2);border:1px solid var(--hairline);border-radius:var(--r-md);
   padding:8px 14px;font-size:var(--t-sm);font-weight:500;
   transition:transform .1s var(--ease),background .12s var(--ease);
@@ -369,6 +369,24 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .primary.big{display:block;width:100%;margin-top:var(--sp-5);padding:13px;font-size:var(--t-sm);border-radius:var(--r-md)}
 .danger{color:var(--expense)}
 .card p+.btns{margin-top:var(--sp-3)}
+.btns a.btn{color:var(--ink);text-decoration:none;display:inline-block}
+
+/* Apple Pay 收件箱：记帐页顶部的新卡确认，与「更多」页的连接码 */
+#ap-cards[hidden]{display:none}
+.ap-card .seg{margin-top:var(--sp-3)}
+.ap-card .check{margin-top:var(--sp-2)}
+.ap-card .primary{width:100%;margin-top:var(--sp-2)}
+.card p+p{margin-top:var(--sp-2)}
+.code{
+  display:block;width:100%;margin-top:var(--sp-2);padding:10px 12px;
+  background:var(--s2);border:1px solid var(--hairline);border-radius:var(--r-md);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--t-xs);color:var(--ink-muted);
+}
+.ap-steps{margin-top:var(--sp-3);font-size:var(--t-sm);color:var(--ink-muted)}
+.ap-steps summary{cursor:pointer;color:var(--ink);font-weight:500}
+.ap-steps ol{margin:var(--sp-2) 0 0;padding-left:1.2em;display:flex;flex-direction:column;gap:var(--sp-2)}
+.ap-steps code{font-size:var(--t-xs)}
+.ap-steps p{margin-top:var(--sp-2)}
 
 .cat-row,.rec-row{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-bottom:1px solid var(--hairline)}
 .cat-row:last-child,.rec-row:last-child{border-bottom:none}

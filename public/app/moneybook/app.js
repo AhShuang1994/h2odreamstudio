@@ -1,9 +1,12 @@
 /* 小帐本：纯前端离线记帐 PWA
-   资料全部存在浏览器 localStorage，不上传任何服务器，也不去任何地方取汇率。
+   帐本全部存在浏览器 localStorage，不上传任何服务器，也不去任何地方取汇率。
+   唯一的例外是使用者自己开启的 Apple Pay 自动记帐（ADR-0002）：还没同步的刷卡记录
+   加密后暂放在收件箱 Worker，这里拉回来解封、记进本机，服务器随即删掉。
 
    这个文件只负责**渲染与事件接线**。状态、迁移与全部派生数字都在 ledger.js，
    那一层是纯的，也是唯一被自动化测试盯着的地方（见 #98）。 */
 import * as L from './ledger.js';
+import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
 
 (() => {
   'use strict';
@@ -12,6 +15,12 @@ import * as L from './ledger.js';
   // 储存键保持不变：改键名会让旧资料找不到，风险远大于「键名写着 v1 而资料是 v2」
   // 这点观感问题。版本号在资料里（state.version），迁移看的是它。
   const KEY = 'moneybook.v1';
+
+  // Apple Pay 收件箱（workers/moneybook-inbox）。留空 = 这个功能根本不被创建，
+  // 「更多」页不会出现那一段，跟没做过一模一样。部署 Worker 之后填上它的网址。
+  const INBOX_API = '';
+  // 「小帐本记帐」快捷指令的 iCloud 分享链接。留空就只显示手动建的步骤。
+  const SHORTCUT_URL = '';
 
   // 分类色定义在 CSS 的 --cat-1…--cat-10，主题要换整组就只改 CSS。
   // 这里只吐出 var() 字串，写进 inline style 由浏览器解析。
@@ -41,12 +50,15 @@ import * as L from './ledger.js';
   let curMonth = L.monthOf(new Date());
   let deferredPrompt = null;
 
+  /** 存进本机。返回有没有真的存到：收件箱要存到了才去服务器那边确认删除。 */
   function save() {
-    if (readOnly) return;
+    if (readOnly) return false;
     try {
       localStorage.setItem(KEY, JSON.stringify(state));
+      return true;
     } catch (e) {
       toast('保存失败：装置空间不足？');
+      return false;
     }
   }
 
@@ -202,6 +214,7 @@ import * as L from './ledger.js';
   }
 
   function renderEntry() {
+    renderApCards();
     renderTypeSeg();
     renderCats();
     renderCard();
@@ -841,6 +854,7 @@ import * as L from './ledger.js';
     renderBudgetSettings();
     renderRecurring();
     renderCatEditor();
+    renderApSettings();
     renderInstallCard();
   }
 
@@ -979,6 +993,7 @@ import * as L from './ledger.js';
       readOnly = false;              // 还原成功，写入解禁
       side = L.activeSide(state);
       save(); resetEntry(); renderMore(); toast('还原完成');
+      syncInbox();                   // 备份带着收件箱与私钥：还原后接着同步
     } catch (err) {
       toast('还原失败：' + err.message);
     } finally {
@@ -994,6 +1009,219 @@ import * as L from './ledger.js';
     side = L.activeSide(state);
     save(); resetEntry(); renderMore(); toast('已清除');
   });
+
+  // ── Apple Pay 收件箱（ADR-0002）────────────────────
+  // 快捷指令在刷卡当下把这一笔投进收件箱，Worker 当场用这台手机的公钥封起来。
+  // 这里拉回来、解封、交给 ledger 记帐，存好了才请服务器删掉。
+  let syncing = false;
+  let inboxGoneWarned = false;
+
+  const connectCode = () => state.inbox ? `${INBOX_API}/i/${state.inbox.id}/${state.inbox.write}` : '';
+  const authHeader = inbox => ({ Authorization: `Bearer ${inbox.read}` });
+
+  async function syncInbox() {
+    if (!INBOX_API || !state.inbox || readOnly || syncing || !navigator.onLine) return;
+    syncing = true;
+    const inbox = state.inbox;
+    try {
+      const res = await fetch(`${INBOX_API}/i/${inbox.id}`, { headers: authHeader(inbox), cache: 'no-store' });
+      if (res.status === 404) {
+        // 180 天没打开被清掉了，或是在别台手机上关掉了
+        if (!inboxGoneWarned) toast('Apple Pay 收件箱已失效，请到「更多」重新开启');
+        inboxGoneWarned = true;
+        return;
+      }
+      if (!res.ok) return;
+      const { items } = await res.json();
+      if (!Array.isArray(items) || !items.length) return;
+
+      const opened = [];
+      let broken = 0;
+      for (const it of items) {
+        try {
+          opened.push({ ...(await openSealed(inbox.priv, it)), id: it.id, receivedAt: it.receivedAt });
+        } catch {
+          broken++;   // 解不开（私钥换过、内容坏了）：照样确认删掉，不然每次打开都卡在这一笔
+        }
+      }
+      if (state.inbox !== inbox) return;   // 拉的时候被关掉了
+
+      const r = L.receiveInbox(state, opened, L.dateOf(new Date()));
+      if (!save()) return;
+      // 存好了才确认。确认没送到的话下次会再拉到同一批，apSeen 认得出来，不会记两次
+      fetch(`${INBOX_API}/i/${inbox.id}/ack`, {
+        method: 'POST',
+        headers: { ...authHeader(inbox), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: items.map(it => it.id) })
+      }).catch(() => {});
+
+      renderEntry();
+      renderSideSwitch();
+      if (view === 'list') renderList();
+      if (view === 'stats') renderStats();
+      const msg = [];
+      if (r.added) msg.push(`已自动记入 ${r.added} 笔 Apple Pay` + (r.fallback ? `（${r.fallback} 笔归到「其他」）` : ''));
+      if (L.unmappedCards(state).length) msg.push('有新卡要确认');
+      if (r.bad + broken) msg.push(`${r.bad + broken} 笔读不懂，已略过`);
+      if (msg.length) toast(msg.join('，'));
+    } catch {
+      // 离线、服务器没回应：什么都不做，下次打开再拉
+    } finally {
+      syncing = false;
+    }
+  }
+
+  /** 新卡：问一次在哪一侧、是不是信用卡。放在记帐页最上面，答完就消失。 */
+  function renderApCards() {
+    const el = $('#ap-cards');
+    const names = INBOX_API ? L.unmappedCards(state) : [];
+    el.hidden = !names.length;
+    if (!names.length) { el.innerHTML = ''; return; }
+    const two = L.hasSecondary(state);
+    el.innerHTML = names.map(name => {
+      const items = state.apPending.filter(p => p.cardName === name);
+      const last = items[items.length - 1];
+      return `<div class="card ap-card" data-card="${esc(name)}">
+        <b>Apple Pay 刷了「${esc(name || '未知的卡')}」</b>
+        <p>${items.length} 笔等着记帐，最近一笔是 ${esc(last.merchant || '未知商家')} ${esc(last.amount)}。这张卡记在哪里？答一次，以后这张卡自动记。</p>
+        ${two ? `<div class="seg small" data-ap-side>${L.sides(state).map((c, i) =>
+          `<button data-cur="${esc(c)}" class="${i === 0 ? 'on' : ''}">${esc(c)}</button>`).join('')}</div>` : ''}
+        <label class="check compact">
+          <input type="checkbox" data-ap-credit />
+          <span class="check-t"><b>信用卡</b><small>勾了就带「卡」：下个月才从户口扣</small></span>
+        </label>
+        <button class="primary" data-ap-ok>确定</button>
+      </div>`;
+    }).join('');
+  }
+
+  $('#ap-cards').addEventListener('click', e => {
+    const box = e.target.closest('.ap-card');
+    if (!box) return;
+    const sideBtn = e.target.closest('[data-ap-side] button');
+    if (sideBtn) {
+      $$('[data-ap-side] button', box).forEach(b => b.classList.toggle('on', b === sideBtn));
+      return;
+    }
+    if (!e.target.closest('[data-ap-ok]')) return;
+    if (readOnly) return toast('资料读不懂，已停用写入以免覆盖。请先还原备份。');
+    const currency = $('[data-ap-side] button.on', box)?.dataset.cur || state.currency;
+    const card = $('[data-ap-credit]', box).checked;
+    try {
+      const r = L.mapCard(state, box.dataset.card, { currency, card });
+      save();
+      renderEntry();
+      renderSideSwitch();
+      toast(`已记入 ${r.added} 笔` + (r.fallback ? `（${r.fallback} 笔归到「其他」，可在明细里改）` : ''));
+    } catch (err) {
+      toast(err.message);
+    }
+  });
+
+  /** 「更多」页那一段。INBOX_API 没填就整段不创建。 */
+  function renderApSettings() {
+    const wrap = $('#ap-wrap');
+    wrap.hidden = !INBOX_API;
+    if (!INBOX_API) return;
+    const el = $('#ap-settings');
+    if (!state.inbox) {
+      el.innerHTML = `<div class="card">
+        <b>刷完 Apple Pay，打开小帐本就已经记好</b>
+        <p>iPhone 的快捷指令会在你<b>实体店感应刷卡</b>时把金额、商家、卡名交给小帐本。网购与 app 内付款触发不了，那几笔还是要手记。</p>
+        <p>还没同步的刷卡记录会<b>加密</b>后暂放在服务器，只有这台手机解得开，同步后随即删掉。帐本本身不会离开这台手机。</p>
+        <div class="btns"><button class="primary" id="btn-ap-on">开启</button></div>
+      </div>`;
+      return;
+    }
+    const mapped = Object.entries(state.cardMap);
+    el.innerHTML = `<div class="card">
+      <b>已开启</b>
+      <p>第 1 步：复制连接码。它等于这个收件箱的钥匙，别贴到别处。</p>
+      <input type="text" class="code" id="ap-code" readonly value="${esc(connectCode())}" aria-label="连接码" />
+      <div class="btns">
+        <button class="primary" id="btn-ap-copy">复制连接码</button>
+        ${SHORTCUT_URL ? `<a class="btn" href="${esc(SHORTCUT_URL)}" target="_blank" rel="noopener">安装快捷指令</a>` : ''}
+      </div>
+      <details class="ap-steps">
+        <summary>设置步骤</summary>
+        <ol>
+          ${SHORTCUT_URL
+            ? `<li>点「安装快捷指令」，加入时贴上连接码。</li>
+               <li>「快捷指令」app →「自动化」→「+」→「钱包」，勾选要记的卡，选「立即运行」并关掉「运行时通知」。</li>
+               <li>动作选「运行快捷指令：小帐本记帐」，输入用「快捷指令输入」。</li>`
+            : `<li>「快捷指令」app →「自动化」→「+」→「钱包」，勾选要记的卡，选「立即运行」并关掉「运行时通知」，再选「新建空白自动化」。</li>
+               <li>添加「获取 URL 内容」：网址贴上连接码，点「显示更多」，方法选 POST，请求体选 JSON。</li>
+               <li>加三个文本字段：<code>amount</code> 填「快捷指令输入」的金额、<code>merchant</code> 填商家、<code>card</code> 填卡片名称。插入「快捷指令输入」后再点它一下，就能选属性（中文名以 iOS 显示为准）。</li>`}
+        </ol>
+        <p class="muted small">之后每张卡第一次出现时，记帐页会问一次它在哪一侧、是不是信用卡。</p>
+      </details>
+      ${mapped.length ? `<p class="muted small" style="margin-top:12px">已对应的卡</p>
+        ${mapped.map(([name, m]) => `<div class="cat-row"><i>💳</i>
+          <span>${esc(name || '未知的卡')} · ${esc(m.currency)}${m.card ? ' · 信用卡' : ''}</span>
+          <button data-ap-forget="${esc(name)}" aria-label="忘掉这张卡">✕</button></div>`).join('')}` : ''}
+      <p class="muted small" style="margin-top:12px">⚠️ 私钥存在帐本里，「备份 JSON」会带着它：备份档请像密码一样保管。</p>
+      <div class="btns"><button class="danger" id="btn-ap-off">关闭</button></div>
+    </div>`;
+  }
+
+  $('#ap-settings').addEventListener('click', async e => {
+    const t = e.target;
+    if (t.closest('#btn-ap-on')) return enableInbox(t.closest('button'));
+    if (t.closest('#btn-ap-off')) return disableInbox();
+    if (t.closest('#btn-ap-copy')) {
+      try {
+        await navigator.clipboard.writeText(connectCode());
+        toast('已复制连接码');
+      } catch {
+        $('#ap-code').select();
+        toast('复制不了，请长按连接码手动复制');
+      }
+      return;
+    }
+    const forget = t.closest('[data-ap-forget]');
+    if (forget) {
+      L.unmapCard(state, forget.dataset.apForget);
+      save(); renderApSettings(); toast('已忘掉，下次刷这张卡会再问');
+    }
+  });
+
+  async function enableInbox(btn) {
+    if (readOnly) return toast('资料读不懂，已停用写入以免覆盖。请先还原备份。');
+    if (!navigator.onLine) return toast('要联网才能开启');
+    btn.disabled = true;
+    try {
+      const kp = await generateKeyPair();
+      const res = await fetch(`${INBOX_API}/inbox`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pubkey: kp.pub })
+      });
+      if (res.status === 429) throw new Error('这个网络刚开过太多次，一小时后再试');
+      if (!res.ok) throw new Error('服务器没有回应');
+      const { id, read, write } = await res.json();
+      L.setInbox(state, { id, read, write, priv: kp.priv });
+      inboxGoneWarned = false;
+      save(); renderApSettings(); toast('已开启，下一步：复制连接码');
+    } catch (err) {
+      toast('开启失败：' + err.message);
+      btn.disabled = false;
+    }
+  }
+
+  async function disableInbox() {
+    if (!confirm('关闭后收件箱会被删掉，快捷指令随之失效。还没同步的刷卡记录会先拉回来。确定关闭？')) return;
+    await syncInbox();
+    const inbox = state.inbox;
+    if (!inbox) return;
+    try {
+      const res = await fetch(`${INBOX_API}/i/${inbox.id}`, { method: 'DELETE', headers: authHeader(inbox) });
+      if (!res.ok && res.status !== 404) throw new Error();
+    } catch {
+      if (!confirm('连不上服务器。只在这台手机上关闭吗？服务器上的收件箱 180 天没人读取就会自动清掉。')) return;
+    }
+    L.clearInbox(state);
+    save(); renderApSettings(); toast('已关闭 Apple Pay 自动记帐');
+  }
 
   // ── 安装提示 ────────────────────────────────────────
   window.addEventListener('beforeinstallprompt', e => {
@@ -1071,11 +1299,15 @@ import * as L from './ledger.js';
   } else {
     const autoAdded = L.applyRecurring(state, L.dateOf(new Date()));
     if (autoAdded) { save(); renderSideSwitch(); toast(`已自动记入 ${autoAdded} 笔固定收支`); }
+    syncInbox();
   }
 
   // App 长时间放在背景、跨月后再打开时，回前景也要补记
+  // 刷完卡回到 App 时，收件箱里的也拉回来。断网后重新连上也拉一次
+  window.addEventListener('online', syncInbox);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible' || readOnly) return;
+    syncInbox();
     const n = L.applyRecurring(state, L.dateOf(new Date()));
     if (!n) return;
     save();

@@ -1,12 +1,13 @@
 /* 小帐本 Service Worker：让 App 完全离线可用。
    改版时把 CACHE 的版号 +1，使用者下次连线就会自动更新。 */
-const CACHE = 'moneybook-v11';
+const CACHE = 'moneybook-v13';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './app.js',
   './ledger.js',
+  './inbox-crypto.js',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png'

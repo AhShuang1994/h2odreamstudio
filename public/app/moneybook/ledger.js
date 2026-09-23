@@ -52,7 +52,12 @@ export function defaultState() {
     budgets: {},                  // 按币种各持一份月预算
     cats: structuredCloneish(DEFAULT_CATS),
     recurring: [],
-    records: []
+    records: [],
+    // Apple Pay 收件箱（ADR-0002）。没开启时 inbox 为 null，其余三个都是空的
+    inbox: null,                  // { id, read, write, priv }：收件箱与这台手机的私钥
+    cardMap: {},                  // 卡片对应：卡名 → { currency, card }
+    apPending: [],                // 卡还没对应好的刷卡记录，等使用者答一次
+    apSeen: []                    // 处理过的收件箱 id：ack 失败重拉时不会记两次
   };
 }
 
@@ -178,6 +183,44 @@ function sanitizeRule(r, primary) {
   return rule;
 }
 
+const isStr = v => typeof v === 'string' && v.length > 0;
+const isDate = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
+
+/** 收件箱：少一个字段就整个不要。半套钥匙既拉不到也解不开，留着只会一直报错。 */
+function sanitizeInbox(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const p = raw.priv;
+  if (![raw.id, raw.read, raw.write].every(isStr)) return null;
+  if (!p || p.kty !== 'EC' || p.crv !== 'P-256' || ![p.x, p.y, p.d].every(isStr)) return null;
+  return { id: raw.id, read: raw.read, write: raw.write, priv: { kty: 'EC', crv: 'P-256', x: p.x, y: p.y, d: p.d } };
+}
+
+function sanitizeCardMap(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+  for (const [name, v] of Object.entries(raw)) {
+    const currency = normalizeCurrency(v?.currency);
+    // 空卡名也要留：快捷指令没给卡名时，那几笔就挂在「未知的卡」这一张上
+    if (currency && name !== '__proto__') out[name] = { currency, card: v.card === true };
+  }
+  return out;
+}
+
+function sanitizePending(r) {
+  if (!r || !isStr(r.id) || !isDate(r.date)) return null;
+  const amount = round2(r.amount);
+  if (!(amount > 0)) return null;
+  return {
+    id: r.id,
+    date: r.date,
+    amount,
+    merchant: typeof r.merchant === 'string' ? r.merchant : '',
+    cardName: typeof r.cardName === 'string' ? r.cardName : ''
+  };
+}
+
+const isSeen = s => s && isStr(s.id) && isDate(s.at);
+
 /**
  * 任意输入 → 一份合法的 v2 状态。
  *
@@ -202,7 +245,13 @@ export function migrate(data) {
     budgets: {},
     cats: sanitizeCats(data.cats),
     recurring: [],
-    records: []
+    records: [],
+    // 收件箱这几个字段同样要**显式救援**（理由同 sanitizeRecord 里的刷卡）：丢了 inbox
+    // 等于丢了私钥，收件箱里的密文再也解不开。丢了 apSeen，ack 没送达的那几笔会记两次
+    inbox: sanitizeInbox(data.inbox),
+    cardMap: sanitizeCardMap(data.cardMap),
+    apPending: Array.isArray(data.apPending) ? data.apPending.map(sanitizePending).filter(Boolean) : [],
+    apSeen: Array.isArray(data.apSeen) ? data.apSeen.filter(isSeen) : []
   };
 
   // v1 的单一预算归给主币种。v2 的 budgets 按币种各取各的
@@ -344,6 +393,10 @@ export function setPrimaryCurrency(state, code) {
   if (state.budgets[old] != null) {
     state.budgets[c] = state.budgets[old];
     delete state.budgets[old];
+  }
+  // 卡片对应也挂在侧上：不跟着改名，那几张卡下次刷就会被当成新卡重问一遍
+  for (const m of Object.values(state.cardMap)) {
+    if (m.currency === old) m.currency = c;
   }
   if (state.lastSide === old) state.lastSide = c;
   state.currency = c;
@@ -860,6 +913,159 @@ export function applyRecurring(state, today) {
     }
   }
   return added;
+}
+
+// -- Apple Pay 收件箱 --------------------------------------
+//
+// 快捷指令在刷卡当下把金额、商家、卡名投进收件箱（ADR-0002），小帐本打开时拉回来、
+// 解封，交给这里。进帐的就是一笔**普通支出**：刷卡只是它身上的标记，不是新的记录类型。
+// 哪一侧、刷不刷卡看的是**卡片对应**：一张卡问一次，之后都照着记。
+
+/** 收件箱 id 留多久：比服务器保留记录的 30 天长一点，ack 失败后重拉的那几笔一定认得出来。 */
+const SEEN_DAYS = 45;
+
+/**
+ * 快捷指令给的金额 → 数字。`S$12.50`、`RM 1,234.00`、`12.5`、`12,50` 都认得。
+ * 认不得或不大于 0（退款）就回 null：宁可不记，也不要记错。
+ */
+export function parseAmount(raw) {
+  if (typeof raw === 'number') return raw > 0 ? round2(raw) : null;
+  let s = String(raw ?? '').replace(/[^\d.,-]/g, '');
+  if (!s || s.includes('-')) return null;
+  if (s.includes('.')) s = s.replace(/,/g, '');
+  else if (/,\d{1,2}$/.test(s)) s = s.replace(/,(?=\d{1,2}$)/, '.').replace(/,/g, '');
+  else s = s.replace(/,/g, '');
+  const n = Number(s);
+  return Number.isFinite(n) && n > 0 ? round2(n) : null;
+}
+
+/** 刷卡时间 → 这台手机的本地日期。认不得就退回服务器收到的时间，再不行就是今天。 */
+function localDateOf(...candidates) {
+  for (const c of candidates) {
+    if (typeof c !== 'string' || !c) continue;
+    const d = new Date(c);
+    if (!Number.isNaN(d.getTime())) return dateOf(d);
+    if (isDate(c.slice(0, 10))) return c.slice(0, 10);
+  }
+  return null;
+}
+
+/** 这张卡对应到的一侧还在不在。第二币种被移除后，对应到那一侧的卡要重新问。 */
+function mappingOf(state, cardName) {
+  const m = Object.hasOwn(state.cardMap, cardName) ? state.cardMap[cardName] : null;
+  return m && sides(state).includes(m.currency) ? m : null;
+}
+
+/**
+ * 沿用这个商家上次的分类。只看同一侧的支出：新币那侧的 7-Eleven 是早餐，
+ * 马币那侧的可能是给家里买的日用。找不到就归「其他」，由使用者之后改。
+ */
+function guessCat(state, currency, merchant) {
+  const cats = state.cats.expense;
+  const key = merchant.trim().toLowerCase();
+  if (key) {
+    for (let i = state.records.length - 1; i >= 0; i--) {
+      const r = state.records[i];
+      if (r.type === EXPENSE && r.currency === currency && (r.note || '').trim().toLowerCase() === key &&
+          cats.some(c => c.id === r.cat)) {
+        return { cat: r.cat, guessed: true };
+      }
+    }
+  }
+  const other = cats.find(c => c.id === 'other_e') || cats[cats.length - 1];
+  return { cat: other ? other.id : '', guessed: false };
+}
+
+/** 把卡已经对应好的待入帐项目记成支出。其余的留着等使用者答。 */
+function settlePending(state) {
+  // 自动进帐不能改掉使用者手动记帐时的默认值：addRecord 会顺手记下侧与刷卡
+  const { lastSide, lastCard } = state;
+  let added = 0, fallback = 0;
+  const keep = [];
+  for (const p of state.apPending) {
+    const m = mappingOf(state, p.cardName);
+    if (!m) { keep.push(p); continue; }
+    const { cat, guessed } = guessCat(state, m.currency, p.merchant);
+    if (!guessed) fallback++;
+    addRecord(state, {
+      type: EXPENSE, amount: p.amount, currency: m.currency, cat, date: p.date, note: p.merchant, card: m.card
+    });
+    added++;
+  }
+  state.apPending = keep;
+  state.lastSide = lastSide;
+  state.lastCard = lastCard;
+  return { added, fallback };
+}
+
+/**
+ * 收下从收件箱拉回来、已经解封的记录。
+ *
+ * items：`[{ id, receivedAt, t, amount, merchant, card }]`，id 是收件箱那边的 id。
+ * 返回 `{ added, pending, bad, fallback }`：
+ * - added：记进帐本的笔数
+ * - pending：卡还没对应、在等使用者答的笔数（累计，含之前留下的）
+ * - bad：金额读不懂、没法记的笔数
+ * - fallback：新记进去的笔数里，分类归到「其他」的有几笔
+ *
+ * 同一个 id 只会被处理一次：ack 没送到服务器、下次又拉到同一笔，这里认得出来。
+ */
+export function receiveInbox(state, items, today) {
+  const seen = new Set(state.apSeen.map(s => s.id));
+  let bad = 0;
+  for (const it of items) {
+    if (!it || !isStr(it.id) || seen.has(it.id)) continue;
+    seen.add(it.id);
+    state.apSeen.push({ id: it.id, at: today });
+    const amount = parseAmount(it.amount);
+    const date = localDateOf(it.t, it.receivedAt) || today;
+    if (!amount) { bad++; continue; }
+    state.apPending.push({
+      id: it.id,
+      date,
+      amount,
+      merchant: String(it.merchant ?? '').trim(),
+      cardName: String(it.card ?? '').trim()
+    });
+  }
+  const cutoff = dateOf(new Date(new Date(today + 'T00:00:00').getTime() - SEEN_DAYS * 864e5));
+  state.apSeen = state.apSeen.filter(s => s.at >= cutoff);
+  const { added, fallback } = settlePending(state);
+  return { added, pending: state.apPending.length, bad, fallback };
+}
+
+/** 还没对应好的卡名。空卡名也算一张（快捷指令没给卡名时），界面上显示成「未知的卡」。 */
+export function unmappedCards(state) {
+  return [...new Set(state.apPending.filter(p => !mappingOf(state, p.cardName)).map(p => p.cardName))];
+}
+
+/** 答一次这张卡在哪一侧、是不是信用卡。在等它的那几笔随即进帐。 */
+export function mapCard(state, cardName, { currency, card }) {
+  const c = normalizeCurrency(currency);
+  if (!sides(state).includes(c)) throw new Error(`帐本里没有 ${c} 这一侧`);
+  if (cardName === '__proto__') throw new Error('这个卡名不能用');
+  state.cardMap[cardName] = { currency: c, card: Boolean(card) };
+  return settlePending(state);
+}
+
+/** 忘掉一张卡的对应。已经记进帐本的不动，下次再刷这张卡会重新问。 */
+export function unmapCard(state, cardName) {
+  delete state.cardMap[cardName];
+  return state;
+}
+
+/** 开启收件箱：记下钥匙与私钥。 */
+export function setInbox(state, { id, read, write, priv }) {
+  const inbox = sanitizeInbox({ id, read, write, priv });
+  if (!inbox) throw new Error('收件箱资料不完整');
+  state.inbox = inbox;
+  return state;
+}
+
+/** 关闭收件箱。卡片对应留着：重新开启时不必再答一遍。等着的那几笔也留着。 */
+export function clearInbox(state) {
+  state.inbox = null;
+  return state;
 }
 
 // -- 导出 ------------------------------------------------

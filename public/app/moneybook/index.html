@@ -33,6 +33,9 @@
   </header>
 
   <div class="scroll">
+    <!-- Apple Pay 刷了一张没见过的卡：问一次在哪一侧、是不是信用卡（ADR-0002） -->
+    <div id="ap-cards" hidden></div>
+
     <div class="seg" id="seg-type">
       <button data-type="expense" class="on">支出</button>
       <button data-type="income">收入</button>
@@ -220,9 +223,15 @@
       </div>
     </div>
 
+    <!-- 收件箱 Worker 的网址没填（app.js 的 INBOX_API）时整段不显示 -->
+    <div id="ap-wrap" hidden>
+      <h2 class="sec">Apple Pay 自动记帐</h2>
+      <div id="ap-settings"></div>
+    </div>
+
     <h2 class="sec">资料</h2>
     <div class="card">
-      <p class="muted">资料只存在这台装置的浏览器，没有服务器、没有帐号。换手机或清除浏览器资料前请先备份。</p>
+      <p class="muted">帐本只存在这台装置的浏览器，没有帐号。开启 Apple Pay 自动记帐的话，还没同步的刷卡记录会加密后暂放在服务器，同步后即删。换手机或清除浏览器资料前请先备份。</p>
       <p class="muted small" style="margin-top:8px">
         ⚠️ <b>换网址等于换一台装置。</b>浏览器按网址隔离储存，从预览网址换到正式网址时资料不会跟着走。
         换网址那天先「备份 JSON」，到新网址再「还原备份」，帐就整本搬过去了。
