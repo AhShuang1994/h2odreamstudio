@@ -23,7 +23,7 @@ MAX_BODY_BYTES = "1024"    # 一笔投递的请求体上限
 [[d1_databases]]
 binding = "DB"
 database_name = "moneybook-inbox"
-database_id = "REPLACE_WITH_DATABASE_ID"
+database_id = "b4c14362-757f-4211-b2e5-e65b58cad0b6"
 
 # 用 `wrangler secret put QUOTA_SALT` 设一串随机字（选填）：
 # 开箱限速存的是 IP 加盐后的哈希，有盐的话库里的哈希就反推不回 IP
