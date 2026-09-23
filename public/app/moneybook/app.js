@@ -18,7 +18,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
 
   // Apple Pay 收件箱（workers/moneybook-inbox）。留空 = 这个功能根本不被创建，
   // 「更多」页不会出现那一段，跟没做过一模一样。部署 Worker 之后填上它的网址。
-  const INBOX_API = 'https://moneybook-inbox.fastfix-demo.workers.dev';
+  const INBOX_API = 'https://moneybook-inbox.h2odreamerstudio.workers.dev';
   // 「小帐本记帐」快捷指令的 iCloud 分享链接。留空就只显示手动建的步骤。
   const SHORTCUT_URL = '';
 
