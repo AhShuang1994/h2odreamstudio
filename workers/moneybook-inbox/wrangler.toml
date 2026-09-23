@@ -12,7 +12,7 @@ enabled = false
 
 [vars]
 # 小帐本在哪些网址上跑。只有这些来源能开箱、拉取、确认、关闭（快捷指令投递不受影响）
-ALLOWED_ORIGINS = "https://www.h2o-dreamer-studio.com,http://localhost:3000,http://localhost:8099"
+ALLOWED_ORIGINS = "https://www.h2o-dreamer-studio.com,https://h2odreamstudio-next.pages.dev,http://localhost:3000,http://localhost:8099"
 MAX_OPENS_PER_HOUR = "5"   # 同一个 IP 每小时最多开几个收件箱
 MAX_ITEMS_PER_DAY = "300"  # 一个收件箱每天最多收几笔
 MAX_PENDING = "500"        # 一个收件箱最多囤几笔没拉走的
