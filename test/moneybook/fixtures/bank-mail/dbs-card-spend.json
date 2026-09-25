@@ -1,0 +1,14 @@
+{
+  "mail": {
+    "from": "DBS Alerts <ibanking.alert@dbs.com>",
+    "subject": "Card Transaction Alert",
+    "body": "Card Transaction Alert\nTransaction Ref: XXXX\n\nDear Sir / Madam,\n\nWe refer to your card transaction request dated 24/09/26. We are pleased to confirm that the transaction was completed.\n\nDate & Time: 24 SEP 05:56 (SGT)\nAmount: SGD3.64\nFrom: DBS/POSB card ending XXXX\nTo: BUS/MRT\n\nIf unauthorised, please login to DBS digibank mobile to report fraud dispute immediately. Alternatively, call our DBS hotline.\n\nThank you for banking with us.\n\nYours faithfully,\nDBS Bank Ltd"
+  },
+  "expect": {
+    "bank": "DBS",
+    "direction": "out",
+    "amount": 3.64,
+    "currency": "SGD",
+    "merchant": "BUS/MRT"
+  }
+}
