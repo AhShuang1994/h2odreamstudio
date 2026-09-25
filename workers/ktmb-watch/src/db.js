@@ -28,14 +28,24 @@ export function getUser(db, chatId) {
   return db.prepare("SELECT * FROM users WHERE chat_id = ?").bind(chatId).first();
 }
 
-export async function addUser(db, chatId, name, isAdmin = 0) {
+export async function addUser(db, chatId, name, isAdmin = 0, invitedBy = null) {
   await db
     .prepare(
-      `INSERT INTO users (chat_id, name, points, is_admin, created_at)
-       VALUES (?, ?, 0, ?, ?)
+      `INSERT INTO users (chat_id, name, points, is_admin, invited_by, created_at)
+       VALUES (?, ?, 0, ?, ?, ?)
        ON CONFLICT(chat_id) DO UPDATE SET name = excluded.name`,
     )
-    .bind(chatId, name, isAdmin, now())
+    .bind(chatId, name, isAdmin, invitedBy, now())
+    .run();
+}
+
+/** 第一次充值的时间戳。只写一次 —— 记的是「什么时候开始付钱的」。 */
+export async function markFirstTopup(db, chatId) {
+  await db
+    .prepare(
+      "UPDATE users SET first_topup_at = ? WHERE chat_id = ? AND first_topup_at IS NULL",
+    )
+    .bind(now(), chatId)
     .run();
 }
 
@@ -172,7 +182,7 @@ export async function deactivateWatches(db, ids) {
 export async function watchersOf(db, direction, date, hourMinute) {
   const { results } = await db
     .prepare(
-      `SELECT w.id AS watch_id, w.chat_id, w.trains, u.points,
+      `SELECT w.id AS watch_id, w.chat_id, w.trains, u.points, u.trial_until,
               (SELECT MAX(offered_at) FROM offers o WHERE o.chat_id = w.chat_id)
                 AS last_offered_at
        FROM watches w
@@ -194,6 +204,135 @@ export function dedupeByUser(watchers) {
     if (!seen.has(w.chat_id)) seen.set(w.chat_id, w);
   }
   return [...seen.values()];
+}
+
+/**
+ * 手上还有 active 盯梢、但已经不是付费会员的人。
+ *
+ * 只捞「还有盯梢的」，所以停完一次之后自然就捞不到了 ——
+ * 不需要另一个「通知过没」的标记。
+ */
+export async function lapsedWatchers(db, nowIso, today) {
+  const { results } = await db
+    .prepare(
+      `SELECT DISTINCT u.chat_id FROM users u
+       JOIN watches w ON w.chat_id = u.chat_id
+       WHERE w.active = 1 AND w.date >= ?
+         AND u.points <= 0
+         AND (u.trial_until IS NULL OR u.trial_until <= ?)`,
+    )
+    .bind(today, nowIso)
+    .all();
+  return results;
+}
+
+/** 试用快到期、还没预告过的人 */
+export async function trialEndingSoon(db, nowIso, cutoffIso) {
+  const { results } = await db
+    .prepare(
+      `SELECT chat_id, trial_until FROM users
+       WHERE trial_until > ? AND trial_until <= ? AND trial_warned_at IS NULL`,
+    )
+    .bind(nowIso, cutoffIso)
+    .all();
+  return results;
+}
+
+export async function markTrialWarned(db, chatId, nowIso) {
+  await db
+    .prepare("UPDATE users SET trial_warned_at = ? WHERE chat_id = ?")
+    .bind(nowIso, chatId)
+    .run();
+}
+
+export async function deactivateAllWatches(db, chatId) {
+  await db
+    .prepare("UPDATE watches SET active = 0 WHERE chat_id = ? AND active = 1")
+    .bind(chatId)
+    .run();
+}
+
+/* ---------- listings（挂票告示板） ---------- */
+
+export function getListingDraft(db, chatId) {
+  return db
+    .prepare("SELECT * FROM listing_drafts WHERE chat_id = ?")
+    .bind(chatId)
+    .first();
+}
+
+/** 部分更新：只覆盖有给的字段，没给的保持原样 */
+export async function saveListingDraft(db, chatId, patch) {
+  const old = (await getListingDraft(db, chatId)) ?? {};
+  const v = (k) => (k in patch ? patch[k] : (old[k] ?? null));
+  await db
+    .prepare(
+      `INSERT INTO listing_drafts
+         (chat_id, direction, date, hour_minute, qty, gender, fare, trips, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(chat_id) DO UPDATE SET
+         direction = excluded.direction, date = excluded.date,
+         hour_minute = excluded.hour_minute, qty = excluded.qty,
+         gender = excluded.gender, fare = excluded.fare,
+         trips = excluded.trips, updated_at = excluded.updated_at`,
+    )
+    .bind(
+      chatId,
+      v("direction"),
+      v("date"),
+      v("hour_minute"),
+      v("qty"),
+      v("gender"),
+      v("fare"),
+      v("trips"),
+      now(),
+    )
+    .run();
+}
+
+export async function clearListingDraft(db, chatId) {
+  await db.prepare("DELETE FROM listing_drafts WHERE chat_id = ?").bind(chatId).run();
+}
+
+export async function createListing(db, chatId, l) {
+  const r = await db
+    .prepare(
+      `INSERT INTO listings
+         (chat_id, direction, date, hour_minute, qty, fare, gender, active, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?) RETURNING id`,
+    )
+    .bind(chatId, l.direction, l.date, l.hour_minute, l.qty, l.fare, l.gender, now())
+    .first();
+  return r.id;
+}
+
+/**
+ * 还挂着的票。日期过了的不算 —— 车开走的票留在板上只会浪费大家时间。
+ * 同一天里哪几班已经开走，由呼叫端用 hasDeparted 再滤一次。
+ */
+export async function openListings(db, today) {
+  const { results } = await db
+    .prepare(
+      `SELECT * FROM listings
+       WHERE active = 1 AND date >= ?
+       ORDER BY date, hour_minute, id`,
+    )
+    .bind(today)
+    .all();
+  return results;
+}
+
+export function getListing(db, id) {
+  return db.prepare("SELECT * FROM listings WHERE id = ?").bind(id).first();
+}
+
+/** 卖掉了。只有挂的人本人下得了架。 */
+export async function closeListing(db, id, chatId) {
+  const r = await db
+    .prepare("UPDATE listings SET active = 0 WHERE id = ? AND chat_id = ?")
+    .bind(id, chatId)
+    .run();
+  return r.meta.changes > 0;
 }
 
 /* ---------- seat_log ---------- */
@@ -218,10 +357,10 @@ export async function logSeats(db, direction, date, trips) {
     trips.map((x) =>
       db
         .prepare(
-          `INSERT INTO seat_log (direction, date, hour_minute, seats, seen_at)
-           VALUES (?, ?, ?, ?, ?)`,
+          `INSERT INTO seat_log (direction, date, hour_minute, seats, fare, seen_at)
+           VALUES (?, ?, ?, ?, ?, ?)`,
         )
-        .bind(direction, date, x.hourMinute, x.seats, t),
+        .bind(direction, date, x.hourMinute, x.seats, x.fare ?? null, t),
     ),
   );
 }
@@ -287,6 +426,26 @@ export async function createOffer(db, o, windowMinutes) {
   return r.id;
 }
 
+/**
+ * 认领一个还没结案的 offer。**扣点唯一的入口。**
+ *
+ * 条件里的 `chat_id = ?` 挡住「按别人的 offer」，`outcome IS NULL` 挡住重复按 ——
+ * 两个都靠 SQL 的原子性，不靠先读再写（那会有竞态）。
+ *
+ * @returns 认领成功的那笔 offer；已经结案或不是他的就回 null
+ */
+export async function claimOffer(db, offerId, chatId) {
+  const r = await db
+    .prepare(
+      `UPDATE offers SET outcome = 'booked'
+       WHERE id = ? AND chat_id = ? AND outcome IS NULL
+       RETURNING *`,
+    )
+    .bind(offerId, chatId)
+    .first();
+  return r ?? null;
+}
+
 export async function settleOffer(db, offerId, outcome) {
   await db
     .prepare("UPDATE offers SET outcome = ? WHERE id = ?")
@@ -299,7 +458,7 @@ export function lastTakenOffer(db, chatId) {
   return db
     .prepare(
       `SELECT * FROM offers
-       WHERE chat_id = ? AND outcome = 'taken'
+       WHERE chat_id = ? AND outcome = 'booked'
        ORDER BY offered_at DESC LIMIT 1`,
     )
     .bind(chatId)
