@@ -35,6 +35,69 @@ function primeAfterLoad(video: HTMLVideoElement) {
   else window.addEventListener("load", idle, { once: true });
 }
 
+/**
+ * 自动演示：替停在顶部不动的人把星河滚一遍，停在舞台末端（文案已到齐）。
+ *
+ * 只动滚动位置，画面仍由上面那条 ScrollTrigger 映射出来：自动与手动是同一条路，
+ * 人中途接手不会跳帧。等视频 `canplaythrough` 才开滚，不然滚过去的只是一张 poster。
+ *
+ * ⚠️ 桌面必须走 Lenis 的 `scrollTo`，原因同 ServicesPicker 的 `select`。
+ *
+ * 返回清理函数。
+ */
+function autoplay(stage: HTMLElement, video: HTMLVideoElement, wake: () => void) {
+  const { waitMs, durationS, flagKey } = HERO_RIVER.autoplay;
+  try {
+    if (sessionStorage.getItem(flagKey)) return () => {};
+  } catch {
+    // 隐私模式读不到就当首访
+  }
+  // 带锚点进来（/#services）或刷新时停在半路的，都不是「停在顶部」
+  if (location.hash || window.scrollY > 4) return () => {};
+
+  let timer = 0;
+  let raf = 0;
+  const inputs = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
+  const stop = () => {
+    window.clearTimeout(timer);
+    cancelAnimationFrame(raf);
+    video.removeEventListener("canplaythrough", arm);
+    for (const e of inputs) window.removeEventListener(e, stop);
+  };
+  for (const e of inputs) window.addEventListener(e, stop, { passive: true });
+
+  const run = () => {
+    if (window.scrollY > 4) return stop();
+    try {
+      sessionStorage.setItem(flagKey, "1");
+    } catch {}
+    wake(); // iOS：没被碰过的 video 不解码，拉进度也只看到 poster
+
+    const from = window.scrollY;
+    const to = stage.getBoundingClientRect().top + window.scrollY + stage.offsetHeight - window.innerHeight;
+    const t0 = performance.now();
+    const step = (now: number) => {
+      const x = Math.min(1, (now - t0) / (durationS * 1000));
+      const e = x < 0.5 ? 2 * x * x : 1 - (-2 * x + 2) ** 2 / 2; // easeInOutQuad
+      const y = from + (to - from) * e;
+      const lenis = window.__h2odLenis;
+      if (lenis) lenis.scrollTo(y, { immediate: true });
+      else window.scrollTo(0, y);
+      if (x < 1) raf = requestAnimationFrame(step);
+      else stop();
+    };
+    raf = requestAnimationFrame(step);
+  };
+
+  function arm() {
+    timer = window.setTimeout(run, waitMs);
+  }
+  if (video.readyState >= 4) arm();
+  else video.addEventListener("canplaythrough", arm, { once: true });
+
+  return stop;
+}
+
 export function HeroScrub() {
   useEffect(() => {
     const stage = document.querySelector<HTMLElement>("[data-hero-stage]");
@@ -152,7 +215,10 @@ export function HeroScrub() {
         }
       }, stage);
 
+      const stopAuto = autoplay(stage, video, wake);
+
       cleanup = () => {
+        stopAuto();
         window.removeEventListener("touchstart", wake);
         video.removeEventListener("seeked", onSeeked);
         ctx.revert();
