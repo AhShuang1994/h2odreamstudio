@@ -1,6 +1,7 @@
 import { JsonLd } from "@/components/JsonLd";
 import { ArticleToc } from "@/components/content/ArticleToc";
 import { visibleFaq } from "@/lib/content/html.mjs";
+import { assetUrl, versionAssetRefs } from "@/lib/asset-url.mjs";
 import { localize, type Lang } from "@/lib/i18n";
 import type { ContentDoc } from "@/lib/content/doc.d.mts";
 import "@/styles/legacy-content.css";
@@ -19,7 +20,8 @@ export function LegacyArticle({ doc, lang }: { doc: ContentDoc; lang: Lang }) {
   // 一次算出、两处使用：注入页面的字符串，和生成 FAQPage 的输入。
   // 「结构化数据里的问答必须在页面上可见」于是成了构造保证，不是事后比对，
   // 见 CONTEXT.md 的「可见问答」与 test/export/geo.test.ts。
-  const body = doc.bodyHtml(lang, (href) => localize(href, lang));
+  // 原稿里的图片与样式表引用在注入时接上内容指纹，原稿本身不动。
+  const body = versionAssetRefs(doc.bodyHtml(lang, (href) => localize(href, lang)));
   const faq = visibleFaq(body);
 
   return (
@@ -27,7 +29,7 @@ export function LegacyArticle({ doc, lang }: { doc: ContentDoc; lang: Lang }) {
       {/* 原稿 head 里的内联 <style>。博客首页的 blog-grid / blog-card 等 11 个类
           只存在于这里，任何样式表里都没有：丢了那一页会裸奔。 */}
       {doc.headStyle && (
-        <style dangerouslySetInnerHTML={{ __html: doc.headStyle }} />
+        <style dangerouslySetInnerHTML={{ __html: versionAssetRefs(doc.headStyle) }} />
       )}
 
       {/* 原稿自带的 BlogPosting / Article 节点，原样发。英文版的 headline 与
@@ -67,7 +69,7 @@ export function LegacyArticle({ doc, lang }: { doc: ContentDoc; lang: Lang }) {
       {/* 正文今天就带着这支脚本（揭示、锚点滚动、FAQ 展开）。它里面的导航与
           语言切换 IIFE 会因为找不到对应元素而自己让开。要不要拆掉是迁移收尾的
           事，不是迁移本身的事：先保证「同样的像素，新的网址」。 */}
-      <script src="/js/main.min.js" defer />
+      <script src={assetUrl("/js/main.min.js")} defer />
     </>
   );
 }

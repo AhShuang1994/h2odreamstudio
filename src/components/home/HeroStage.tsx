@@ -1,4 +1,5 @@
 import { HERO_LAYERS, HERO_RIVER } from "@/content/parallax";
+import { assetUrl } from "@/lib/asset-url.mjs";
 
 /**
  * 首屏舞台。三层，从远到近：暗空 → 星河视频 → 暗罩。
@@ -48,8 +49,8 @@ export function HeroStage() {
       <video
         data-hero-river
         data-orb
-        src={HERO_RIVER.src}
-        poster={HERO_RIVER.poster}
+        src={assetUrl(HERO_RIVER.src)}
+        poster={assetUrl(HERO_RIVER.poster)}
         width={HERO_RIVER.w}
         height={HERO_RIVER.h}
         preload="none"

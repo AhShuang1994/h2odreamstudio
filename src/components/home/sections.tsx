@@ -1,4 +1,5 @@
 import { localize, t, type Lang } from "@/lib/i18n";
+import { assetUrl } from "@/lib/asset-url.mjs";
 import { Button, Container, Eyebrow, OrbSlot } from "@/components/ui";
 import { ServicesPicker } from "@/components/home/ServicesPicker";
 import { WorkShowcase } from "@/components/home/WorkShowcase";
@@ -140,6 +141,7 @@ export function SelectedWork({ lang }: { lang: Lang }) {
     <section id="work">
       <WorkShowcase
         lang={lang}
+        items={selectedWork.items.map((w) => ({ ...w, img: assetUrl(w.img) }))}
         header={
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
@@ -171,7 +173,7 @@ export function Founder({ lang }: { lang: Lang }) {
           <div data-mask-parallax className="overflow-hidden rounded-xl border border-hairline">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={founder.avatar}
+              src={assetUrl(founder.avatar)}
               alt={t(founder.name, lang)}
               width={260}
               height={325}

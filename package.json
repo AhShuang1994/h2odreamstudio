@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/gen-asset-versions.mjs",
     "dev": "next dev",
-    "prebuild": "node scripts/vendor-lenis.mjs && node scripts/clean-legacy-output.mjs",
-    "postbuild": "node scripts/fix-dir-index.mjs && node scripts/gen-content-fonts.mjs && node scripts/gen-sitemap.mjs && node scripts/gen-llms.mjs",
+    "prebuild": "node scripts/vendor-lenis.mjs && node scripts/clean-legacy-output.mjs && node scripts/gen-asset-versions.mjs",
+    "postbuild": "node scripts/fix-dir-index.mjs && node scripts/gen-content-fonts.mjs && node scripts/version-static-html.mjs && node scripts/gen-sitemap.mjs && node scripts/gen-llms.mjs",
     "build": "next build",
     "start": "next start",
     "preview": "npx -y wrangler pages dev out --port 8099",
