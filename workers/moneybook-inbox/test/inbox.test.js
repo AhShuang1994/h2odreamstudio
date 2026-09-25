@@ -176,6 +176,56 @@ test("投递：商家与卡名截到 80 字", async () => {
   assert.equal(got.card.length, 80);
 });
 
+const bankMail = {
+  from: "DBS Alerts <ibanking.alert@dbs.com>",
+  subject: "Card Transaction Alert",
+  body: "Amount: SGD12.50 To: KOPITIAM PTE LTD Card ending 1234",
+};
+
+test("银行邮件：投递 → 拉取 → 解封，库里没有明文", async () => {
+  const DB = freshDb();
+  const e = env(DB, { MAX_MAIL_BYTES: "16384" });
+  const box = await openInbox(e);
+  assert.equal((await post(e, box, { mail: bankMail })).status, 200);
+
+  const all = dump(DB);
+  for (const plain of ["KOPITIAM", "SGD12.50", "dbs.com", "Card Transaction"]) {
+    assert.ok(!all.includes(plain), `库里不该出现明文：${plain}`);
+  }
+  const [item] = await pull(e, box);
+  assert.deepEqual(await open(box.priv, item), { t: NOW.toISOString(), mail: bankMail });
+});
+
+test("银行邮件：正文截到 8000 字，寄件人与标题也截短", async () => {
+  const DB = freshDb();
+  const e = env(DB, { MAX_MAIL_BYTES: "16384" });
+  const box = await openInbox(e);
+  const long = { from: "f".repeat(500), subject: "s".repeat(500), body: "b".repeat(9000) };
+  assert.equal((await post(e, box, { mail: long })).status, 200);
+  const [item] = await pull(e, box);
+  const got = (await open(box.priv, item)).mail;
+  assert.equal(got.body.length, 8000);
+  assert.equal(got.from.length, 200);
+  assert.equal(got.subject.length, 300);
+});
+
+test("银行邮件：超过邮件上限、没标题也没正文都拒绝", async () => {
+  const DB = freshDb();
+  const e = env(DB, { MAX_MAIL_BYTES: "16384" });
+  const box = await openInbox(e);
+  const huge = { ...bankMail, body: "b".repeat(17000) };
+  assert.equal((await post(e, box, { mail: huge })).status, 413);
+  assert.equal((await post(e, box, { mail: { from: "x@dbs.com" } })).status, 400);
+  assert.equal(rows(DB, "SELECT * FROM items").length, 0);
+});
+
+test("银行邮件的上限不放宽刷卡投递：刷卡仍然只收 1 KB", async () => {
+  const DB = freshDb();
+  const e = env(DB, { MAX_MAIL_BYTES: "16384" });
+  const box = await openInbox(e);
+  assert.equal((await post(e, box, { ...swipe, merchant: "x".repeat(2000) })).status, 413);
+});
+
 test("投递：每天上限与待同步上限", async () => {
   const DB = freshDb();
   const e = env(DB, { MAX_ITEMS_PER_DAY: "2", MAX_PENDING: "3" });

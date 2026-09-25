@@ -9,12 +9,12 @@
 | 方法 | 路径 | 权限 | 作用 |
 |---|---|---|---|
 | POST | `/inbox` | 无（同一个 IP 每小时限 5 个） | 请求体 `{pubkey}`（P-256 公钥 JWK），返回 `{id, write, read}` |
-| POST | `/i/:id/:write` | 写钥匙 | 快捷指令投递，JSON `{amount, merchant, card, t?}`（`t` 选填，缺了用收到的时间） |
+| POST | `/i/:id/:write` | 写钥匙 | 快捷指令投递。刷卡：`{amount, merchant, card, t?}`。银行邮件：`{mail: {from, subject, body}, t?}`（ADR-0003）。`t` 选填，缺了用收到的时间 |
 | GET | `/i/:id` | `Authorization: Bearer <read>` | 拉取待同步的密文（最多 200 笔） |
 | POST | `/i/:id/ack` | 读钥匙 | `{ids}`：删掉已同步的记录 |
 | DELETE | `/i/:id` | 读钥匙 | 关闭：收件箱连同记录一起删 |
 
-上限可在 `wrangler.toml` 的 `[vars]` 里调整：每箱每天 300 笔，最多囤 500 笔，请求体 1 KB。每天的 cron 会删掉 30 天前的记录，以及 180 天没被读取过的收件箱。
+上限可在 `wrangler.toml` 的 `[vars]` 里调整：每箱每天 300 笔，最多囤 500 笔，刷卡的请求体 1 KB，银行邮件的请求体 16 KB（正文截到 8000 字，寄件人 200 字、标题 300 字）。Worker 不读邮件内容，只封起来：怎么认银行、怎么抓金额全在小帐本的 `ledger.js`。每天的 cron 会删掉 30 天前的记录，以及 180 天没被读取过的收件箱。
 
 ## 部署
 
@@ -68,6 +68,36 @@ Apple 不允许分享自动化，只能分享快捷指令。
 每个使用者还要自己建自动化：「自动化（Automation）」→「+」→「钱包（Wallet）」→ 勾选卡片 →「立即运行（Run Immediately）」并关掉「运行时通知（Notify When Run）」→ 动作选「运行快捷指令（Run Shortcut）：小帐本记帐」，输入用「快捷指令输入（Shortcut Input）」。
 
 **限制**：只有实体店感应刷卡会触发这个自动化，网购与 app 内付款触发不了。
+
+## 用银行邮件记帐（ADR-0003）
+
+网购、app 内付款、PayNow / DuitNow 转帐靠银行每笔寄来的交易通知邮件补上。**需要 iOS 17 以上**（「电子邮件」自动化）。
+
+快捷指令只转寄原文，读邮件的是小帐本：以后新增银行、银行改格式，快捷指令都不用动。
+
+1. 银行 app 里打开「每笔交易寄电邮通知」。
+2. 这个邮箱要在 iPhone 自带的「邮件（Mail）」app 里。只用 Gmail app 的话：「设置（Settings）」→「邮件（Mail）」→「账户（Accounts）」→「添加账户（Add Account）」。
+3. 新建快捷指令「小帐本邮件」，只放一个「获取 URL 内容（Get Contents of URL）」：URL 贴连接码，「方法（Method）」POST，「请求体（Request Body）」JSON。
+4. 「添加新字段（Add new field）」→「词典（Dictionary）」，键 `mail`，里面加三个「文本（Text）」：
+
+   | Key | Value |
+   |---|---|
+   | `from` | 「快捷指令输入（Shortcut Input）」的「发件人（Sender）」 |
+   | `subject` | 「快捷指令输入」的「主题（Subject）」 |
+   | `body` | 「快捷指令输入」本身（正文） |
+
+   属性名称以 iOS 实际显示为准。
+5. 「自动化（Automation）」→「+」→「电子邮件（Email）」→「发件人（Sender）」填银行寄通知的地址 →「立即运行（Run Immediately）」→「运行快捷指令（Run Shortcut）：小帐本邮件」，输入用「快捷指令输入」。**每家银行各建一个。**
+
+**同一张卡只能二选一**：走邮件的卡，别在钱包自动化里勾选，否则一笔记两次。
+
+**限制**：
+- 「电子邮件」自动化只看「邮件（Mail）」app 里的帐号。
+- 邮件寄到了才会进帐。
+- 只推送通知、不寄邮件的付款（TNG eWallet 之类）接不到，iOS 不让快捷指令读别的 app 的通知。
+- 银行改了格式，那一家会暂时落到小帐本的「认不得的银行邮件」清单，直到 `ledger.js` 补上新规则。
+
+补一家银行：把使用者复制过来、打码后的邮件放进 `test/moneybook/fixtures/bank-mail/`（格式见那里的 README），在 `public/app/moneybook/ledger.js` 的 `BANK_RULES` 加规则，跑 `npx vitest run test/moneybook`，然后把 `sw.js` 的 `CACHE` 升一版发出去。
 
 ## 测试
 

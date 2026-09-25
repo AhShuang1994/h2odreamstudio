@@ -47,6 +47,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
   let picked = null;                // 已选分类 id
   let buffer = '0';                 // 金额输入缓冲
   let editingId = null;
+  let inboxDraft = null;            // 正在手记收件箱里的哪一笔（外币消费、认不得的邮件）。存了就从清单拿掉
   let curMonth = L.monthOf(new Date());
   let deferredPrompt = null;
 
@@ -224,6 +225,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
 
   function resetEntry() {
     editingId = null;
+    inboxDraft = null;
     buffer = '0';
     side = L.activeSide(state);
     if (isXfer() && !L.hasSecondary(state)) entryType = 'expense';
@@ -334,6 +336,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     } catch (err) {
       return toast(err.message);
     }
+    if (inboxDraft && !wasEditing) L.dropInboxItem(state, inboxDraft);
 
     toast(wasEditing ? '已更新' : (isXfer() ? '已记下转帐' : '已记帐 ' + money(amount)));
     save();
@@ -1046,6 +1049,8 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       }
       if (state.inbox !== inbox) return;   // 拉的时候被关掉了
 
+      const unparsedBefore = state.apUnparsed.length;
+      const foreignBefore = L.foreignPending(state).length;
       const r = L.receiveInbox(state, opened, L.dateOf(new Date()));
       if (!save()) return;
       // 存好了才确认。确认没送到的话下次会再拉到同一批，apSeen 认得出来，不会记两次
@@ -1060,8 +1065,10 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       if (view === 'list') renderList();
       if (view === 'stats') renderStats();
       const msg = [];
-      if (r.added) msg.push(`已自动记入 ${r.added} 笔 Apple Pay` + (r.fallback ? `（${r.fallback} 笔归到「其他」）` : ''));
-      if (L.unmappedCards(state).length) msg.push('有新卡要确认');
+      if (r.added) msg.push(`已自动记入 ${r.added} 笔` + (r.fallback ? `（${r.fallback} 笔归到「其他」）` : ''));
+      if (L.unmappedCards(state).length) msg.push('有新卡或银行要确认');
+      if (L.foreignPending(state).length > foreignBefore) msg.push('有外币消费要确认');
+      if (r.unparsed > unparsedBefore) msg.push(`${r.unparsed - unparsedBefore} 封银行邮件认不得`);
       if (r.bad + broken) msg.push(`${r.bad + broken} 笔读不懂，已略过`);
       if (msg.length) toast(msg.join('，'));
     } catch {
@@ -1071,19 +1078,51 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     }
   }
 
-  /** 新卡：问一次在哪一侧、是不是信用卡。放在记帐页最上面，答完就消失。 */
+  /**
+   * 记帐页最上面、收件箱送来却还记不下去的东西，处理完就消失：
+   * - 新卡或新银行：问一次在哪一侧、是不是信用卡
+   * - 外币消费（ADR-0003）：邮件上的币种跟那一侧对不上，要使用者填折合多少
+   * - 认不得的银行邮件：手记（预填猜到的金额）、复制原文给开发者补规则、或删掉
+   */
   function renderApCards() {
     const el = $('#ap-cards');
     const names = INBOX_API ? L.unmappedCards(state) : [];
-    el.hidden = !names.length;
-    if (!names.length) { el.innerHTML = ''; return; }
+    const foreign = INBOX_API ? L.foreignPending(state) : [];
+    const unparsed = INBOX_API ? state.apUnparsed.slice().reverse() : [];
+    el.hidden = !names.length && !foreign.length && !unparsed.length;
+    if (el.hidden) { el.innerHTML = ''; return; }
+    const acts = (id, copy) => `<span class="ib-acts">
+        <button data-ib-record="${esc(id)}">记一笔</button>
+        ${copy ? `<button data-ib-copy="${esc(id)}">复制内容</button>` : ''}
+        <button class="danger" data-ib-drop="${esc(id)}">删掉</button>
+      </span>`;
+    const foreignHtml = foreign.length ? `<div class="card ap-card">
+        <b>外币消费，要你确认</b>
+        <p>邮件上的币种跟这家银行那一侧对不上。折合多少以帐单为准，点「记一笔」填进去。</p>
+        ${foreign.map(p => `<div class="ib-row">
+          <span class="t"><b>${esc(p.merchant || '未知商家')}</b>
+            <small>${esc(p.date.slice(5))} · ${esc(p.cardName)} · ${esc(L.formatMoney(p.amount, p.currency))} → 记在 ${esc(p.side)}</small></span>
+          ${acts(p.id, false)}
+        </div>`).join('')}
+      </div>` : '';
+    const unparsedHtml = unparsed.length ? `<div class="card ap-card">
+        <b>认不得的银行邮件</b>
+        <p>小帐本还不会读这几封。先手记，再点「复制内容」发给开发者（姓名、卡号、户口号改成 XXXX），补上之后同样的邮件就会自动记。</p>
+        ${unparsed.map(u => `<div class="ib-row">
+          <span class="t"><b>${esc(u.subject || '（没有标题）')}</b>
+            <small>${esc(u.date.slice(5))} · ${esc(u.from || '未知寄件人')}</small></span>
+          ${acts(u.id, true)}
+        </div>`).join('')}
+      </div>` : '';
     const two = L.hasSecondary(state);
     el.innerHTML = names.map(name => {
       const items = state.apPending.filter(p => p.cardName === name);
       const last = items[items.length - 1];
+      const mail = items.every(p => p.via === 'mail');
       return `<div class="card ap-card" data-card="${esc(name)}">
-        <b>Apple Pay 刷了「${esc(name || '未知的卡')}」</b>
-        <p>${items.length} 笔等着记帐，最近一笔是 ${esc(last.merchant || '未知商家')} ${esc(last.amount)}。这张卡记在哪里？答一次，以后这张卡自动记。</p>
+        <b>${mail ? `银行邮件：「${esc(name)}」` : `Apple Pay 刷了「${esc(name || '未知的卡')}」`}</b>
+        <p>${items.length} 笔等着记帐，最近一笔是 ${esc(last.merchant || '未知商家')} ${esc(last.amount)}。${
+          mail ? '这家银行记在哪里？答一次，以后这家的邮件自动记。' : '这张卡记在哪里？答一次，以后这张卡自动记。'}</p>
         ${two ? `<div class="seg small" data-ap-side>${L.sides(state).map((c, i) =>
           `<button data-cur="${esc(c)}" class="${i === 0 ? 'on' : ''}">${esc(c)}</button>`).join('')}</div>` : ''}
         <label class="check compact">
@@ -1092,11 +1131,68 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
         </label>
         <button class="primary" data-ap-ok>确定</button>
       </div>`;
-    }).join('');
+    }).join('') + foreignHtml + unparsedHtml;
+  }
+
+  /**
+   * 手记收件箱里的一笔：把表单预填好，存下去的那一刻才从清单拿掉（saveRecord）。
+   * 中途切走就当没发生，那一笔还在清单上。
+   */
+  function recordInboxItem(id) {
+    const f = L.foreignPending(state).find(p => p.id === id);
+    const u = state.apUnparsed.find(x => x.id === id);
+    if (!f && !u) return;
+    resetEntry();
+    inboxDraft = id;
+    entryType = 'expense';
+    picked = pickedOrFirst();
+    if (f) {
+      // 折合多少邮件上没有，金额留空；原本的外币金额写进备注，对帐时看得到
+      side = f.side;
+      $('#note').value = `${f.merchant} ${L.formatMoney(f.amount, f.currency)}`.trim().slice(0, 40);
+      $('#card').checked = f.card;
+      $('#date').value = f.date;
+    } else {
+      const guess = L.guessMailAmount(`${u.subject}\n${u.body}`);
+      if (guess) buffer = String(guess.amount);
+      if (guess && L.sides(state).includes(guess.currency)) side = guess.currency;
+      $('#date').value = u.date;
+    }
+    L.setActiveSide(state, side);
+    $('#entry-title').textContent = '手记这一笔';
+    renderEntry();
+    renderSideSwitch();
+    $('#amount-tap').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    toast(buffer === '0' ? '填上金额，选好分类再保存' : '金额是猜的，确认一下再保存');
+  }
+
+  async function copyInboxMail(id) {
+    const u = state.apUnparsed.find(x => x.id === id);
+    if (!u) return;
+    const text = `From: ${u.from}\nSubject: ${u.subject}\nDate: ${u.date}\n\n${u.body}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      toast('已复制。发出去之前把姓名、卡号、户口号改成 XXXX');
+    } catch {
+      toast('复制不了，这台装置不让网页用剪贴板');
+    }
   }
 
   $('#ap-cards').addEventListener('click', e => {
-    const box = e.target.closest('.ap-card');
+    const rec = e.target.closest('[data-ib-record]');
+    if (rec) return recordInboxItem(rec.dataset.ibRecord);
+    const copy = e.target.closest('[data-ib-copy]');
+    if (copy) return copyInboxMail(copy.dataset.ibCopy);
+    const drop = e.target.closest('[data-ib-drop]');
+    if (drop) {
+      if (readOnly) return toast('资料读不懂，已停用写入以免覆盖。请先还原备份。');
+      if (!confirm('删掉这一笔？它不会记进帐本。')) return;
+      L.dropInboxItem(state, drop.dataset.ibDrop);
+      save(); renderEntry(); toast('已删掉');
+      return;
+    }
+
+    const box = e.target.closest('.ap-card[data-card]');
     if (!box) return;
     const sideBtn = e.target.closest('[data-ap-side] button');
     if (sideBtn) {
@@ -1127,7 +1223,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     if (!state.inbox) {
       el.innerHTML = `<div class="card">
         <b>刷完 Apple Pay，打开小帐本就已经记好</b>
-        <p>iPhone 的快捷指令会在你<b>实体店感应刷卡</b>时把金额、商家、卡名交给小帐本。网购与 app 内付款触发不了，那几笔还是要手记。</p>
+        <p>iPhone 的快捷指令会在你<b>实体店感应刷卡</b>时把金额、商家、卡名交给小帐本。网购与 app 内付款触发不了，那几笔可以改用银行寄来的交易邮件记（开启后看设置步骤）。</p>
         <p><b>需要 iOS 18 以上。</b>旧版 iOS 的快捷指令没有钱包刷卡自动化，开了也收不到。</p>
         <p>还没同步的刷卡记录会<b>加密</b>后暂放在服务器，只有这台手机解得开，同步后随即删掉。帐本本身不会离开这台手机。</p>
         <div class="btns"><button class="primary" id="btn-ap-on">开启</button></div>
@@ -1156,6 +1252,22 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
                <li>「添加新字段（Add new field）」→「文本（Text）」，加三个：<code>amount</code> 填「快捷指令输入（Shortcut Input）」的「金额（Amount）」、<code>merchant</code> 填「商家（Merchant）」、<code>card</code> 填「卡片或票证（Card or Pass）」。插入「快捷指令输入」后再点它一下，就能选属性。键盘上方找不到它的话，长按输入栏，选「选取变量（Select Variable）」。</li>`}
         </ol>
         <p class="muted small">之后每张卡第一次出现时，记帐页会问一次它在哪一侧、是不是信用卡。</p>
+      </details>
+      <details class="ap-steps">
+        <summary>用银行邮件记帐</summary>
+        <p class="muted small">网购、app 内付款、PayNow / DuitNow 转帐这些刷卡自动化接不到的，靠银行每笔寄来的交易通知邮件补上。需要 iOS 17 以上。</p>
+        <p class="muted small">目前认得的银行：${L.BANK_RULES.length
+          ? esc(L.BANK_RULES.map(r => r.bank).join('、'))
+          : '还没有。每家银行都要一封真邮件来教：第一封会出现在记帐页的「认不得的银行邮件」，点「复制内容」发给开发者。'}</p>
+        <ol>
+          <li>在银行 app 里打开「每笔交易寄电邮通知」，各家叫法不同。</li>
+          <li>这个邮箱要加进 iPhone 自带的「邮件（Mail）」app。平常只用 Gmail app 的话：「设置（Settings）」→「邮件（Mail）」→「账户（Accounts）」→「添加账户（Add Account）」。</li>
+          <li>「快捷指令（Shortcuts）」app → 右上角「+」新建快捷指令，取名「小帐本邮件」。「添加操作（Add Action）」→「获取 URL 内容（Get Contents of URL）」：网址贴上连接码，点 ›「显示更多（Show More）」，「方法（Method）」选 POST，「请求体（Request Body）」选 JSON。</li>
+          <li>「添加新字段（Add new field）」→「词典（Dictionary）」，键填 <code>mail</code>。在它里面加三个「文本（Text）」：<code>from</code> 填「快捷指令输入（Shortcut Input）」的「发件人（Sender）」、<code>subject</code> 填「主题（Subject）」、<code>body</code> 直接填「快捷指令输入」（就是正文）。属性名称以 iOS 实际显示为准。</li>
+          <li>「自动化（Automation）」→「+」→「电子邮件（Email）」→「发件人（Sender）」填银行寄通知的那个地址，选「立即运行（Run Immediately）」→ 动作选「运行快捷指令（Run Shortcut）：小帐本邮件」，输入用「快捷指令输入（Shortcut Input）」。<b>每家银行各建一个。</b></li>
+        </ol>
+        <p class="muted small">⚠️ <b>同一张卡只能二选一。</b>走邮件的卡，别在上面的钱包自动化里勾它，不然一笔会记两次。</p>
+        <p class="muted small">限制：邮件寄到了才会进帐。只推送通知、不寄邮件的付款（TNG eWallet 之类）接不到，还是要手记。银行改了邮件格式，那一家会暂时落到「认不得」清单，补上新规则之后恢复。</p>
       </details>
       ${mapped.length ? `<p class="muted small" style="margin-top:12px">已对应的卡</p>
         ${mapped.map(([name, m]) => `<div class="cat-row"><i>💳</i>

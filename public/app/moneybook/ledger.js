@@ -56,8 +56,9 @@ export function defaultState() {
     // Apple Pay 收件箱（ADR-0002）。没开启时 inbox 为 null，其余三个都是空的
     inbox: null,                  // { id, read, write, priv }：收件箱与这台手机的私钥
     cardMap: {},                  // 卡片对应：卡名 → { currency, card }
-    apPending: [],                // 卡还没对应好的刷卡记录，等使用者答一次
-    apSeen: []                    // 处理过的收件箱 id：ack 失败重拉时不会记两次
+    apPending: [],                // 卡还没对应好、或币种对不上的记录，等使用者答一次
+    apSeen: [],                   // 处理过的收件箱 id：ack 失败重拉时不会记两次
+    apUnparsed: []                // 认不得的银行邮件（ADR-0003），等使用者手记、复制或删掉
   };
 }
 
@@ -210,13 +211,24 @@ function sanitizePending(r) {
   if (!r || !isStr(r.id) || !isDate(r.date)) return null;
   const amount = round2(r.amount);
   if (!(amount > 0)) return null;
-  return {
+  const p = {
     id: r.id,
     date: r.date,
     amount,
     merchant: typeof r.merchant === 'string' ? r.merchant : '',
     cardName: typeof r.cardName === 'string' ? r.cardName : ''
   };
+  // 银行邮件来的才有这两个。币种丢了的话，外币消费会被当成本币直接进帐
+  const currency = normalizeCurrency(r.currency);
+  if (currency) p.currency = currency;
+  if (r.via === 'mail') p.via = 'mail';
+  return p;
+}
+
+function sanitizeUnparsed(r) {
+  if (!r || !isStr(r.id) || !isDate(r.date)) return null;
+  const str = v => (typeof v === 'string' ? v : '');
+  return { id: r.id, date: r.date, from: str(r.from), subject: str(r.subject), body: str(r.body) };
 }
 
 const isSeen = s => s && isStr(s.id) && isDate(s.at);
@@ -251,7 +263,8 @@ export function migrate(data) {
     inbox: sanitizeInbox(data.inbox),
     cardMap: sanitizeCardMap(data.cardMap),
     apPending: Array.isArray(data.apPending) ? data.apPending.map(sanitizePending).filter(Boolean) : [],
-    apSeen: Array.isArray(data.apSeen) ? data.apSeen.filter(isSeen) : []
+    apSeen: Array.isArray(data.apSeen) ? data.apSeen.filter(isSeen) : [],
+    apUnparsed: Array.isArray(data.apUnparsed) ? data.apUnparsed.map(sanitizeUnparsed).filter(Boolean) : []
   };
 
   // v1 的单一预算归给主币种。v2 的 budgets 按币种各取各的
@@ -984,7 +997,8 @@ function settlePending(state) {
   const keep = [];
   for (const p of state.apPending) {
     const m = mappingOf(state, p.cardName);
-    if (!m) { keep.push(p); continue; }
+    // 外币消费：邮件上的币种跟这张卡那一侧对不上。折合多少只有帐单知道，交给使用者
+    if (!m || (p.currency && p.currency !== m.currency)) { keep.push(p); continue; }
     const { cat, guessed } = guessCat(state, m.currency, p.merchant);
     if (!guessed) fallback++;
     addRecord(state, {
@@ -998,15 +1012,100 @@ function settlePending(state) {
   return { added, fallback };
 }
 
+// -- 银行交易邮件（ADR-0003）-------------------------------
+//
+// 快捷指令只把邮件原文（寄件人、标题、正文）投进收件箱，怎么读由这里决定：银行改了
+// 格式，改这里、发一版，所有人一起好，快捷指令一个都不用动。
+// 认出来的消费当成一笔待入帐，卡名就是银行名，照卡片对应记。认不得的放进 apUnparsed。
+
+/**
+ * 各家银行的规则。**一家都没有也能上线**：认不得的邮件进「认不得」清单，使用者手记，
+ * 并把打码后的原文交给开发者补规则（样本放 test/moneybook/fixtures/bank-mail/）。
+ *
+ * 一条规则：`{ bank, from, parse }`
+ * - bank：显示用的银行名，也是卡片对应里的卡名（`DBS`、`Maybank`）
+ * - from：比对寄件人的正则
+ * - parse(mail)：回 `{ direction: 'out', amount, currency, merchant }`（消费）、
+ *   `{ direction: 'in' }`（入帐）、`{ direction: 'none' }`（OTP、通知这类），
+ *   是这家银行却读不懂就回 null，那封邮件会落到「认不得」清单
+ */
+export const BANK_RULES = [];
+
+/** 标题像验证码的邮件：不是交易，不进「认不得」清单。只看标题：交易邮件的正文常写着「绝不要把 OTP 告诉别人」 */
+const OTP_SUBJECT = /\b(OTP|TAC)\b|one[- ]time (password|pin)|verification code|验证码/i;
+
+/** 「认不得」清单最多留几封：每封正文最长 8000 字，没人处理的话别把手机的储存空间吃光 */
+const MAX_UNPARSED = 50;
+
+/**
+ * 读一封银行邮件。返回 `{ bank, direction, amount, currency, merchant }`，认不得回 null。
+ * 只有 direction 为 'out'（消费）时才带金额，入帐与 OTP 由呼叫端略过。
+ * `rules` 只给测试换用。
+ */
+export function parseBankMail(mail, rules = BANK_RULES) {
+  const m = {
+    from: String(mail?.from ?? ''),
+    subject: String(mail?.subject ?? ''),
+    body: String(mail?.body ?? '')
+  };
+  for (const rule of rules) {
+    if (!rule.from.test(m.from)) continue;
+    const r = rule.parse(m);
+    if (!r) break;
+    if (r.direction !== 'out') return { bank: rule.bank, direction: r.direction === 'in' ? 'in' : 'none' };
+    const amount = parseAmount(r.amount);
+    if (!amount) break;
+    return {
+      bank: rule.bank,
+      direction: 'out',
+      amount,
+      currency: normalizeCurrency(r.currency),
+      merchant: String(r.merchant ?? '').trim()
+    };
+  }
+  return OTP_SUBJECT.test(m.subject) ? { bank: '', direction: 'none' } : null;
+}
+
+const MAIL_CUR = { 'S$': 'SGD', 'RM': 'MYR', 'US$': 'USD' };
+const CODE = '(S\\$|US\\$|RM|SGD|MYR|USD|EUR|GBP|AUD|HKD|CNY|JPY|THB|IDR)';
+const NUM = '(\\d{1,3}(?:,\\d{3})+(?:\\.\\d{1,2})?|\\d+(?:\\.\\d{1,2})?)';
+// 币种代号只认大写、前面要断开：不然 CONFIRM 1234 里的 RM 也会被当成马币。
+// 紧跟在 Amount 后面的才不分大小写
+const MAIL_AMOUNT = [
+  new RegExp(`\\bamount\\b\\s*[:：]?\\s*(?:${CODE}\\s*)?${NUM}`, 'i'),
+  new RegExp(`(?:^|[^A-Za-z])${CODE}\\s?${NUM}`),
+  new RegExp(`()${NUM}\\s?(SGD|MYR|USD)\\b`)
+];
+
+/**
+ * 认不得的邮件里猜一个金额，给手记表单预填：`RM 12.50`、`SGD12.50`、`Amount: 12.50`。
+ * 返回 `{ amount, currency }`（币种猜不到是 ''），一个都找不到回 null。只是预填，由使用者确认。
+ */
+export function guessMailAmount(text) {
+  const s = String(text ?? '');
+  for (const re of MAIL_AMOUNT) {
+    const hit = re.exec(s);
+    if (!hit) continue;
+    const [, cur1, num, cur2] = hit;
+    const amount = parseAmount(num);
+    if (!amount) continue;
+    const code = (cur1 || cur2 || '').toUpperCase();
+    return { amount, currency: MAIL_CUR[code] || code };
+  }
+  return null;
+}
+
 /**
  * 收下从收件箱拉回来、已经解封的记录。
  *
- * items：`[{ id, receivedAt, t, amount, merchant, card }]`，id 是收件箱那边的 id。
- * 返回 `{ added, pending, bad, fallback }`：
+ * items：刷卡是 `[{ id, receivedAt, t, amount, merchant, card }]`，银行邮件是
+ * `[{ id, receivedAt, t, mail: { from, subject, body } }]`。id 是收件箱那边的 id。
+ * 返回 `{ added, pending, bad, fallback, unparsed }`：
  * - added：记进帐本的笔数
- * - pending：卡还没对应、在等使用者答的笔数（累计，含之前留下的）
+ * - pending：在等使用者答的笔数（卡还没对应、或外币消费；累计，含之前留下的）
  * - bad：金额读不懂、没法记的笔数
  * - fallback：新记进去的笔数里，分类归到「其他」的有几笔
+ * - unparsed：「认不得」清单里有几封（累计）
  *
  * 同一个 id 只会被处理一次：ack 没送到服务器、下次又拉到同一笔，这里认得出来。
  */
@@ -1017,8 +1116,25 @@ export function receiveInbox(state, items, today) {
     if (!it || !isStr(it.id) || seen.has(it.id)) continue;
     seen.add(it.id);
     state.apSeen.push({ id: it.id, at: today });
-    const amount = parseAmount(it.amount);
     const date = localDateOf(it.t, it.receivedAt) || today;
+
+    if (it.mail && typeof it.mail === 'object') {
+      const parsed = parseBankMail(it.mail);
+      if (!parsed) {
+        // 原文只留到使用者处理掉为止：手记、复制给开发者、或删掉
+        const str = v => String(v ?? '');
+        state.apUnparsed.push({ id: it.id, date, from: str(it.mail.from), subject: str(it.mail.subject), body: str(it.mail.body) });
+        continue;
+      }
+      if (parsed.direction !== 'out') continue;   // 入帐、OTP：不是花出去的钱
+      // 解析完只留金额、商家、日期，原文到此为止
+      const p = { id: it.id, date, amount: parsed.amount, merchant: parsed.merchant, cardName: parsed.bank, via: 'mail' };
+      if (parsed.currency) p.currency = parsed.currency;
+      state.apPending.push(p);
+      continue;
+    }
+
+    const amount = parseAmount(it.amount);
     if (!amount) { bad++; continue; }
     state.apPending.push({
       id: it.id,
@@ -1030,13 +1146,33 @@ export function receiveInbox(state, items, today) {
   }
   const cutoff = dateOf(new Date(new Date(today + 'T00:00:00').getTime() - SEEN_DAYS * 864e5));
   state.apSeen = state.apSeen.filter(s => s.at >= cutoff);
+  state.apUnparsed = state.apUnparsed.slice(-MAX_UNPARSED);
   const { added, fallback } = settlePending(state);
-  return { added, pending: state.apPending.length, bad, fallback };
+  return { added, pending: state.apPending.length, bad, fallback, unparsed: state.apUnparsed.length };
 }
 
 /** 还没对应好的卡名。空卡名也算一张（快捷指令没给卡名时），界面上显示成「未知的卡」。 */
 export function unmappedCards(state) {
   return [...new Set(state.apPending.filter(p => !mappingOf(state, p.cardName)).map(p => p.cardName))];
+}
+
+/**
+ * 外币消费：卡已经对应好了，但邮件上的币种跟那一侧对不上，在等使用者填折合的金额。
+ * 每一笔带上它对应到的侧（side）与刷卡标记（card），手记表单照着预填。
+ */
+export function foreignPending(state) {
+  return state.apPending.flatMap(p => {
+    const m = mappingOf(state, p.cardName);
+    return m && p.currency && p.currency !== m.currency ? [{ ...p, side: m.currency, card: m.card }] : [];
+  });
+}
+
+/** 使用者手记了、或删掉了一笔待入帐或一封认不得的邮件：从清单里拿掉。 */
+export function dropInboxItem(state, id) {
+  const before = state.apPending.length + state.apUnparsed.length;
+  state.apPending = state.apPending.filter(p => p.id !== id);
+  state.apUnparsed = state.apUnparsed.filter(u => u.id !== id);
+  return state.apPending.length + state.apUnparsed.length < before;
 }
 
 /** 答一次这张卡在哪一侧、是不是信用卡。在等它的那几笔随即进帐。 */

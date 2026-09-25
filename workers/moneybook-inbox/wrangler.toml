@@ -16,7 +16,8 @@ ALLOWED_ORIGINS = "https://www.h2o-dreamer-studio.com,https://h2odreamstudio-nex
 MAX_OPENS_PER_HOUR = "5"   # 同一个 IP 每小时最多开几个收件箱
 MAX_ITEMS_PER_DAY = "300"  # 一个收件箱每天最多收几笔
 MAX_PENDING = "500"        # 一个收件箱最多囤几笔没拉走的
-MAX_BODY_BYTES = "1024"    # 一笔投递的请求体上限
+MAX_BODY_BYTES = "1024"    # 一笔刷卡投递的请求体上限
+MAX_MAIL_BYTES = "16384"   # 一封银行邮件投递的请求体上限（正文另外截到 8000 字）
 
 # 建库：npx wrangler d1 create moneybook-inbox
 # 把输出的 database_id 贴到下面，再跑 migration（--local 和 --remote 各一次）

@@ -22,8 +22,12 @@ const limits = (env) => ({
   perDay: num(env.MAX_ITEMS_PER_DAY, 300),
   pending: num(env.MAX_PENDING, 500),
   body: num(env.MAX_BODY_BYTES, 1024),
+  mail: num(env.MAX_MAIL_BYTES, 16384),
   page: 200,
 });
+
+/** 银行邮件正文截到这么多字（ADR-0003）：交易资料都在开头，后面是免责声明 */
+const MAIL_BODY_CHARS = 8000;
 
 /* ---------- 小工具 ---------- */
 
@@ -153,23 +157,33 @@ export async function handle(request, env, now = new Date()) {
     if (!inbox || !sameHash(await sha256(parts[2]), inbox.write_hash)) {
       return json({ error: "not_found" }, 404);
     }
-    const text = await readBody(request, L.body);
+    // 两种投递：刷卡 {amount, merchant, card} 与银行邮件 {mail:{from, subject, body}}（ADR-0003）。
+    // 邮件大得多，所以先按大的上限读，认出不是邮件之后再按刷卡的上限量一次
+    const text = await readBody(request, Math.max(L.body, L.mail));
     if (text == null) return json({ error: "too_large" }, 413);
     const body = parseJson(text);
-    const amount = clip(body?.amount, 40);
-    if (!amount) return json({ error: "bad_request" }, 400);
+    const mail = body?.mail && typeof body.mail === "object" ? body.mail : null;
+    if (!mail && new TextEncoder().encode(text).length > L.body) return json({ error: "too_large" }, 413);
+
+    let plain;
+    if (mail) {
+      plain = {
+        t: clip(body.t, 40) || iso,
+        mail: { from: clip(mail.from, 200), subject: clip(mail.subject, 300), body: clip(mail.body, MAIL_BODY_CHARS) },
+      };
+      if (!plain.mail.subject && !plain.mail.body) return json({ error: "bad_request" }, 400);
+    } else {
+      const amount = clip(body?.amount, 40);
+      if (!amount) return json({ error: "bad_request" }, 400);
+      plain = { t: clip(body.t, 40) || iso, amount, merchant: clip(body.merchant, 80), card: clip(body.card, 80) };
+    }
 
     if ((await db.countPending(env.DB, id)) >= L.pending) return json({ error: "inbox_full" }, 429);
     if (!(await db.takeDayQuota(env.DB, id, iso.slice(0, 10), L.perDay))) {
       return json({ error: "too_many" }, 429);
     }
 
-    const sealed = await seal(JSON.parse(inbox.pubkey), {
-      t: clip(body.t, 40) || iso,
-      amount,
-      merchant: clip(body.merchant, 80),
-      card: clip(body.card, 80),
-    });
+    const sealed = await seal(JSON.parse(inbox.pubkey), plain);
     await db.insertItem(env.DB, { id: randomToken(12), inboxId: id, now: iso, ...sealed });
     return json({ ok: true }, 200);
   }
