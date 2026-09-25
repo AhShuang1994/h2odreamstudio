@@ -1,0 +1,1294 @@
+/**
+ * 小帐本 · ledger 核心
+ *
+ * 状态与推导，**不碰 DOM、不碰 localStorage**：载入用的原始字符串由外层传进来，
+ * 写入也由外层负责。这是本 app 唯一的测试接缝（见 #98）：给定一份状态与一串操作，
+ * 断言得到什么新状态、什么派生数字。
+ *
+ * 领域词汇见 CONTEXT.md，决策见 adr/0001-currency-as-side.md。通篇使用那份词汇表：
+ * **侧 / 主币种 / 第二币种 / 转帐 / 到帐金额 / 家用**。
+ *
+ * 这一层存在的理由：加了「转帐」之后记录类型从二元变三元，而二元判断散在 8 处渲染
+ * 函数里。收敛到这里之后，**只有这个文件需要认识第三种类型**。
+ */
+
+export const SCHEMA_VERSION = 2;
+
+/** 预设主币种。新装才会用到，老使用者的币种在迁移时原样保留（#98 story 28）。 */
+export const DEFAULT_CURRENCY = 'SGD';
+
+export const EXPENSE = 'expense';
+export const INCOME = 'income';
+export const TRANSFER = 'transfer';
+
+const DEFAULT_CATS = {
+  expense: [
+    { id: 'food',    icon: '🍜', name: '餐饮' },
+    { id: 'daily',   icon: '🛒', name: '日用' },
+    { id: 'traffic', icon: '🚌', name: '交通' },
+    { id: 'fun',     icon: '🎬', name: '娱乐' },
+    { id: 'home',    icon: '🏠', name: '居家' },
+    { id: 'family',  icon: '👪', name: '家用' },
+    { id: 'health',  icon: '💊', name: '医疗' },
+    { id: 'learn',   icon: '📚', name: '学习' },
+    { id: 'other_e', icon: '📦', name: '其他' }
+  ],
+  income: [
+    { id: 'salary',  icon: '💼', name: '薪水' },
+    { id: 'bonus',   icon: '🎁', name: '奖金' },
+    { id: 'invest',  icon: '📈', name: '投资' },
+    { id: 'other_i', icon: '✨', name: '其他' }
+  ]
+};
+
+/** 全新的一本帐。 */
+export function defaultState() {
+  return {
+    version: SCHEMA_VERSION,
+    currency: DEFAULT_CURRENCY,   // 主币种：必填，唯一
+    currency2: null,              // 第二币种：可选，至多一个。有没有它就是唯一的「模式」
+    lastSide: null,               // 上次记帐落在哪一侧（story 8）
+    lastCard: false,              // 上次记帐有没有勾刷卡（#125）
+    budgets: {},                  // 按币种各持一份月预算
+    cats: structuredCloneish(DEFAULT_CATS),
+    recurring: [],
+    records: [],
+    // Apple Pay 收件箱（ADR-0002）。没开启时 inbox 为 null，其余三个都是空的
+    inbox: null,                  // { id, read, write, priv }：收件箱与这台手机的私钥
+    cardMap: {},                  // 卡片对应：卡名 → { currency, card }
+    apPending: [],                // 卡还没对应好、或币种对不上的记录，等使用者答一次
+    apSeen: [],                   // 处理过的收件箱 id：ack 失败重拉时不会记两次
+    apUnparsed: []                // 认不得的银行邮件（ADR-0003），等使用者手记、复制或删掉
+  };
+}
+
+// -- 小工具 ------------------------------------------------
+
+/** structuredClone 在旧 Safari 上没有，而这个 app 就是给手机用的。 */
+function structuredCloneish(v) {
+  return JSON.parse(JSON.stringify(v));
+}
+
+export function pad(n) { return String(n).padStart(2, '0'); }
+export function dateOf(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+export function monthOf(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; }
+
+export function shiftMonth(m, delta) {
+  const [y, mo] = m.split('-').map(Number);
+  return monthOf(new Date(y, mo - 1 + delta, 1));
+}
+
+/** 两个月份相差几个月。用于按月份算期数，而不是数已补记的笔数。 */
+export function monthsBetween(from, to) {
+  const [y1, m1] = from.split('-').map(Number);
+  const [y2, m2] = to.split('-').map(Number);
+  return (y2 - y1) * 12 + (m2 - m1);
+}
+
+/** 这个月的最后一天是几号：2 月没有 31 号。 */
+function lastDayOfMonth(m) {
+  const [y, mo] = m.split('-').map(Number);
+  return new Date(y, mo, 0).getDate();
+}
+
+export function newId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+/** 金额一律收敛到分，避免浮点误差在累计里越滚越大。 */
+export function round2(n) {
+  return Math.round((Number(n) || 0) * 100) / 100;
+}
+
+/** 币种代号：去空白、转大写。符号型的旧值（NT$、$）原样保留。 */
+export function normalizeCurrency(code) {
+  const s = String(code ?? '').trim();
+  return /^[a-z]+$/i.test(s) ? s.toUpperCase() : s;
+}
+
+// -- 迁移 ------------------------------------------------
+
+function sanitizeCats(raw) {
+  const pick = (list, fallback) => {
+    const ok = Array.isArray(list)
+      ? list.filter(c => c && typeof c === 'object' && typeof c.id === 'string')
+          .map(c => ({ id: c.id, icon: String(c.icon ?? '🏷️'), name: String(c.name ?? c.id) }))
+      : [];
+    return ok.length ? ok : structuredCloneish(fallback);
+  };
+  return {
+    expense: pick(raw?.expense, DEFAULT_CATS.expense),
+    income: pick(raw?.income, DEFAULT_CATS.income)
+  };
+}
+
+/** 一条记录能不能救得回来：缺了这些字段就没有意义，只能丢掉这一条。 */
+function sanitizeRecord(r, primary) {
+  if (!r || typeof r !== 'object') return null;
+  const date = typeof r.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.date) ? r.date : null;
+  if (!date) return null;
+
+  const amount = round2(r.amount);
+  if (!(amount > 0)) return null;
+
+  const base = {
+    id: typeof r.id === 'string' && r.id ? r.id : newId(),
+    date,
+    amount,
+    // v1 的记录没有币种：全部归给主币种（story 28）
+    currency: normalizeCurrency(r.currency || primary) || primary,
+    note: typeof r.note === 'string' ? r.note : ''
+  };
+  if (typeof r.ruleId === 'string') base.ruleId = r.ruleId;
+
+  if (r.type === TRANSFER) {
+    const toAmount = round2(r.toAmount);
+    const toCurrency = normalizeCurrency(r.toCurrency);
+    // 转帐少了对侧就不成其为转帐，也没法算汇率：丢掉，别留一半
+    if (!(toAmount > 0) || !toCurrency) return null;
+    return { ...base, type: TRANSFER, toAmount, toCurrency };
+  }
+
+  const type = r.type === INCOME ? INCOME : EXPENSE;
+  const rec = { ...base, type, cat: typeof r.cat === 'string' ? r.cat : '' };
+  // 刷卡：**救援必须显式认得它**。这里是逐字段救援的，不认得的字段会被静默丢掉，
+  // 勾了卡的记录重开 app 就变回没勾，而且帐面上完全看不出来（#125）。
+  // 只有支出带这个字段。旧资料没有它，于是一律视为不是刷卡（#123 story 28）。
+  if (type === EXPENSE && r.card) rec.card = true;
+  return rec;
+}
+
+function sanitizeRule(r, primary) {
+  if (!r || typeof r !== 'object') return null;
+  const amount = round2(r.amount);
+  if (!(amount > 0)) return null;
+  const day = Math.min(31, Math.max(1, Math.round(Number(r.day)) || 1));
+  const from = typeof r.from === 'string' && /^\d{4}-\d{2}$/.test(r.from) ? r.from : null;
+  if (!from) return null;
+  const rule = {
+    id: typeof r.id === 'string' && r.id ? r.id : newId(),
+    type: r.type === INCOME ? INCOME : EXPENSE,
+    amount,
+    currency: normalizeCurrency(r.currency || primary) || primary,
+    cat: typeof r.cat === 'string' ? r.cat : '',
+    day,
+    note: typeof r.note === 'string' ? r.note : '',
+    from,
+    applied: Array.isArray(r.applied) ? r.applied.filter(m => typeof m === 'string') : []
+  };
+  // 期数坏掉只丢这个字段、退回无限期，丢掉整条规则的话，使用者会莫名少一笔帐（#117）
+  if (Number.isInteger(r.terms) && r.terms >= 1) rule.terms = r.terms;
+  // 规则的刷卡标记同样要显式救援（同 sanitizeRecord）：丢掉的话，订阅与卡上的
+  // 分期会静静变回现金，「本月刷卡」跟着系统性偏小，而且偏小的正是最稳定那一块（#127）
+  if (rule.type === EXPENSE && r.card) rule.card = true;
+  return rule;
+}
+
+const isStr = v => typeof v === 'string' && v.length > 0;
+const isDate = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
+
+/** 收件箱：少一个字段就整个不要。半套钥匙既拉不到也解不开，留着只会一直报错。 */
+function sanitizeInbox(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const p = raw.priv;
+  if (![raw.id, raw.read, raw.write].every(isStr)) return null;
+  if (!p || p.kty !== 'EC' || p.crv !== 'P-256' || ![p.x, p.y, p.d].every(isStr)) return null;
+  return { id: raw.id, read: raw.read, write: raw.write, priv: { kty: 'EC', crv: 'P-256', x: p.x, y: p.y, d: p.d } };
+}
+
+function sanitizeCardMap(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+  for (const [name, v] of Object.entries(raw)) {
+    const currency = normalizeCurrency(v?.currency);
+    // 空卡名也要留：快捷指令没给卡名时，那几笔就挂在「未知的卡」这一张上
+    if (currency && name !== '__proto__') out[name] = { currency, card: v.card === true };
+  }
+  return out;
+}
+
+function sanitizePending(r) {
+  if (!r || !isStr(r.id) || !isDate(r.date)) return null;
+  const amount = round2(r.amount);
+  if (!(amount > 0)) return null;
+  const p = {
+    id: r.id,
+    date: r.date,
+    amount,
+    merchant: typeof r.merchant === 'string' ? r.merchant : '',
+    cardName: typeof r.cardName === 'string' ? r.cardName : ''
+  };
+  // 银行邮件来的才有这两个。币种丢了的话，外币消费会被当成本币直接进帐
+  const currency = normalizeCurrency(r.currency);
+  if (currency) p.currency = currency;
+  if (r.via === 'mail') p.via = 'mail';
+  return p;
+}
+
+function sanitizeUnparsed(r) {
+  if (!r || !isStr(r.id) || !isDate(r.date)) return null;
+  const str = v => (typeof v === 'string' ? v : '');
+  return { id: r.id, date: r.date, from: str(r.from), subject: str(r.subject), body: str(r.body) };
+}
+
+const isSeen = s => s && isStr(s.id) && isDate(s.at);
+
+/**
+ * 任意输入 → 一份合法的 v2 状态。
+ *
+ * **逐字段救援**：某一条记录烂掉只丢那一条，不会连累整本帐。某个字段类型不对就回退
+ * 到该字段的预设值，而不是整份回退成空白帐本。
+ */
+export function migrate(data) {
+  const base = defaultState();
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return base;
+
+  // v1 的 state.currency 是纯显示前缀，v2 里它就是主币种：原样接手，
+  // 这样老使用者升级后看到的数字跟升级前对得上。
+  const primary = normalizeCurrency(data.currency) || DEFAULT_CURRENCY;
+  const secondary = normalizeCurrency(data.currency2);
+
+  const state = {
+    version: SCHEMA_VERSION,
+    currency: primary,
+    currency2: secondary && secondary !== primary ? secondary : null,
+    lastSide: null,
+    lastCard: data.lastCard === true,
+    budgets: {},
+    cats: sanitizeCats(data.cats),
+    recurring: [],
+    records: [],
+    // 收件箱这几个字段同样要**显式救援**（理由同 sanitizeRecord 里的刷卡）：丢了 inbox
+    // 等于丢了私钥，收件箱里的密文再也解不开。丢了 apSeen，ack 没送达的那几笔会记两次
+    inbox: sanitizeInbox(data.inbox),
+    cardMap: sanitizeCardMap(data.cardMap),
+    apPending: Array.isArray(data.apPending) ? data.apPending.map(sanitizePending).filter(Boolean) : [],
+    apSeen: Array.isArray(data.apSeen) ? data.apSeen.filter(isSeen) : [],
+    apUnparsed: Array.isArray(data.apUnparsed) ? data.apUnparsed.map(sanitizeUnparsed).filter(Boolean) : []
+  };
+
+  // v1 的单一预算归给主币种。v2 的 budgets 按币种各取各的
+  if (data.budgets && typeof data.budgets === 'object' && !Array.isArray(data.budgets)) {
+    for (const [code, v] of Object.entries(data.budgets)) {
+      const c = normalizeCurrency(code);
+      const n = round2(v);
+      if (c && n > 0) state.budgets[c] = n;
+    }
+  } else {
+    const legacy = round2(data.budget);
+    if (legacy > 0) state.budgets[primary] = legacy;
+  }
+
+  if (Array.isArray(data.records)) {
+    state.records = data.records.map(r => sanitizeRecord(r, primary)).filter(Boolean);
+  }
+  if (Array.isArray(data.recurring)) {
+    state.recurring = data.recurring.map(r => sanitizeRule(r, primary)).filter(Boolean);
+  }
+
+  const last = normalizeCurrency(data.lastSide);
+  if (last && sides(state).includes(last)) state.lastSide = last;
+
+  return state;
+}
+
+/**
+ * 从 localStorage 的原始字符串还原。
+ *
+ * `corrupt` 为真时**外层绝不能回存**：拿预设值覆盖掉一份读不懂的资料，
+ * 就是把使用者几个月的帐真正弄丢的那一步。
+ */
+export function loadState(raw) {
+  if (raw == null || raw === '') return { state: defaultState(), corrupt: false, fresh: true };
+  try {
+    return { state: migrate(JSON.parse(raw)), corrupt: false, fresh: false };
+  } catch {
+    return { state: defaultState(), corrupt: true, fresh: false };
+  }
+}
+
+// -- 侧 ----------------------------------------------------
+
+/** 这本帐有哪几侧。只有主币种时长度为 1：切换器与汇款入口就不会被创建。 */
+export function sides(state) {
+  return state.currency2 ? [state.currency, state.currency2] : [state.currency];
+}
+
+export function hasSecondary(state) {
+  return Boolean(state.currency2);
+}
+
+/** 另一侧是谁。只有一侧时为 null。 */
+export function otherSide(state, currency) {
+  const s = sides(state);
+  return s.length < 2 ? null : (s[0] === currency ? s[1] : s[0]);
+}
+
+export function isTransfer(r) {
+  return r.type === TRANSFER;
+}
+
+/**
+ * 这笔是不是**刷卡**。
+ *
+ * 刷卡只是支出上的一个标记，**不是**第四种记录类型、不是一侧、不是一个分类：它在
+ * 消费当天照常记成支出，进分类占比、进预算、进结余，跟现金一模一样（#123）。
+ * 缺席即不是刷卡：旧资料因此一律视为现金，升级不问任何问题。
+ */
+export function isCard(r) {
+  return Boolean(r?.card);
+}
+
+/** 这本帐出现过刷卡记录没有。界面据此决定刷卡那些东西要不要被创建（比照 hasSecondary）。 */
+export function hasCard(state) {
+  return state.records.some(isCard);
+}
+
+/** 记帐时该默认落在哪一侧。 */
+export function activeSide(state) {
+  const s = sides(state);
+  return state.lastSide && s.includes(state.lastSide) ? state.lastSide : state.currency;
+}
+
+/** 下一笔支出的刷卡勾选框默认勾着没有：沿用上次（比照 activeSide）。 */
+export function activeCard(state) {
+  return state.lastCard === true;
+}
+
+export function setActiveSide(state, currency) {
+  if (sides(state).includes(currency)) state.lastSide = currency;
+  return state;
+}
+
+/** 加第二币种。只问币种代号这一件事（story 3）。 */
+export function setSecondaryCurrency(state, code) {
+  const c = normalizeCurrency(code);
+  if (!c) throw new Error('请输入币种代号');
+  if (c === state.currency) throw new Error('第二币种不能与主币种相同');
+  state.currency2 = c;
+  return state;
+}
+
+/** 这一侧上挂着多少笔记录：删第二币种前要拿它去问使用者（story 36）。 */
+export function countOnSide(state, currency) {
+  return state.records.filter(r => touchesSide(r, currency)).length;
+}
+
+/**
+ * 这一侧上挂着多少条固定收支：删第二币种前也要拿它去问使用者（#116）。
+ * 记录是死的，规则才是会继续生长的那个东西，所以两个数都要说。
+ */
+export function countRulesOnSide(state, currency) {
+  return state.recurring.filter(r => r.currency === currency).length;
+}
+
+export function removeSecondaryCurrency(state) {
+  state.currency2 = null;
+  if (state.lastSide && !sides(state).includes(state.lastSide)) state.lastSide = null;
+  return state;
+}
+
+/** 改主币种。原本挂在旧主币种上的一切跟着改名，否则那一侧会整个失联。 */
+export function setPrimaryCurrency(state, code) {
+  const c = normalizeCurrency(code);
+  if (!c) throw new Error('主币种不能留空');
+  const old = state.currency;
+  if (c === old) return state;
+  if (c === state.currency2) throw new Error('主币种不能与第二币种相同');
+
+  for (const r of state.records) {
+    if (r.currency === old) r.currency = c;
+    if (r.toCurrency === old) r.toCurrency = c;
+  }
+  for (const rule of state.recurring) {
+    if (rule.currency === old) rule.currency = c;
+  }
+  if (state.budgets[old] != null) {
+    state.budgets[c] = state.budgets[old];
+    delete state.budgets[old];
+  }
+  // 卡片对应也挂在侧上：不跟着改名，那几张卡下次刷就会被当成新卡重问一遍
+  for (const m of Object.values(state.cardMap)) {
+    if (m.currency === old) m.currency = c;
+  }
+  if (state.lastSide === old) state.lastSide = c;
+  state.currency = c;
+  return state;
+}
+
+/** 这条记录跟这一侧有没有关系：转帐同时挂在两侧上。 */
+export function touchesSide(r, currency) {
+  return r.currency === currency || (isTransfer(r) && r.toCurrency === currency);
+}
+
+/**
+ * 这条记录让这一侧的钱多了还是少了。
+ *
+ * 这是全 app 唯一认识三种类型的地方。转帐在两侧上各有一次相反的影响，
+ * 加起来净值不变：钱只是搬了地方，没有离开你。
+ */
+export function signedDelta(r, currency) {
+  if (isTransfer(r)) {
+    let d = 0;
+    if (r.currency === currency) d -= r.amount;
+    if (r.toCurrency === currency) d += r.toAmount;
+    return round2(d);
+  }
+  if (r.currency !== currency) return 0;
+  return r.type === INCOME ? r.amount : -r.amount;
+}
+
+// -- 查询 ------------------------------------------------
+
+export function recordsOfSide(state, currency) {
+  return state.records.filter(r => touchesSide(r, currency));
+}
+
+export function recordsOfMonth(state, currency, month) {
+  return state.records.filter(r => r.date.startsWith(month) && touchesSide(r, currency));
+}
+
+/**
+ * 一侧一个月的收入 / 支出 / 结余。
+ *
+ * **转帐不进收入也不进支出**（story 15）：把钱搬到马币那侧不是花掉，
+ * 记成支出的话月结余会长期失真，这正是这张票要修的问题。
+ */
+export function monthlySummary(state, currency, month) {
+  let income = 0, expense = 0;
+  for (const r of state.records) {
+    if (!r.date.startsWith(month) || r.currency !== currency || isTransfer(r)) continue;
+    if (r.type === INCOME) income += r.amount; else expense += r.amount;
+  }
+  return { currency, income: round2(income), expense: round2(expense), net: round2(income - expense) };
+}
+
+/**
+ * 这一侧这个月的**本月刷卡**：带刷卡标记的支出合计。
+ *
+ * 约等于下个月的账单，但**不承诺等于**：年费、外币手续费、退款都不在帐本里，
+ * 界面的措辞必须让这一点自明。
+ *
+ * **绝不叫「待还」**，那个词已经属于分期（outstandingOnSide）。同一页出现两个
+ * 「待还」是这个 app 最容易让人算错帐的一次撞车。
+ *
+ * 只算支出、只算这一侧、只算这个自然月。转帐的类型不是支出，于是自然被挡在外面
+ * （同 monthlySummary 的口径）。派生值，一个都不存（同 rateOf、outstandingOf）。
+ */
+export function cardSpentOnSide(state, currency, month) {
+  let sum = 0;
+  for (const r of state.records) {
+    if (r.type !== EXPENSE || !isCard(r)) continue;
+    if (r.currency !== currency || !r.date.startsWith(month)) continue;
+    sum += r.amount;
+  }
+  return round2(sum);
+}
+
+/**
+ * 这一侧还剩多少，定义是**使用本 app 以来这一侧的净流入**，不是银行户口余额。
+ * 不引入期初余额（ADR-0001）。界面上的措辞必须让这一点自明。
+ */
+export function cumulative(state, currency) {
+  return round2(state.records.reduce((s, r) => s + signedDelta(r, currency), 0));
+}
+
+/** 分类占比。转帐不在其中：汇款不再盖住真实的消费结构。 */
+export function categoryBreakdown(state, currency, month, type) {
+  const byCat = new Map();
+  let total = 0;
+  for (const r of state.records) {
+    if (isTransfer(r) || r.type !== type) continue;
+    if (r.currency !== currency || !r.date.startsWith(month)) continue;
+    byCat.set(r.cat, round2((byCat.get(r.cat) || 0) + r.amount));
+    total = round2(total + r.amount);
+  }
+  const rows = [...byCat.entries()]
+    .map(([cat, amount]) => ({ cat, amount, pct: total ? (amount / total) * 100 : 0 }))
+    .sort((a, b) => b.amount - a.amount);
+  return { total, rows };
+}
+
+/**
+ * 分类占比里某一格**是由哪几笔组成的**：统计页点开一个分类时列出来的明细。
+ * 筛选口径与 categoryBreakdown 完全相同（这一侧、这个月、这个类型、不含转帐），
+ * 所以列出来的金额加起来一定等于那一格的数字。新的在前。
+ */
+export function recordsOfCategory(state, currency, month, type, cat) {
+  // 先倒过来再做稳定排序：同一天里后记的也排在前面（同明细页）
+  return state.records
+    .filter(r => !isTransfer(r) && r.type === type && r.cat === cat
+      && r.currency === currency && r.date.startsWith(month))
+    .reverse()
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/**
+ * 近 n 个月的收支趋势，仍然只属于这一侧。
+ *
+ * 每个月多带一个 `card`，供渲染层把支出柱染成两段（#129）。它是 `expense` 的**子集**
+ * 「刷卡」与「支出」不能相加，所以永远不该被画成并排的第二根柱子。口径直接借给
+ * cardSpentOnSide，这里不另写一套筛选。
+ */
+export function trend(state, currency, month, n = 6) {
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const m = shiftMonth(month, -i);
+    const { income, expense } = monthlySummary(state, currency, m);
+    out.push({ month: m, income, expense, card: cardSpentOnSide(state, currency, m) });
+  }
+  return out;
+}
+
+// -- 汇率 ------------------------------------------------
+
+/**
+ * 这次换了多少。**派生值，不存**：存下来会与两个金额产生第二个真相，
+ * 改了金额而忘了改它，帐本就开始自相矛盾。
+ */
+export function rateOf(record) {
+  if (!isTransfer(record) || !(record.amount > 0) || !(record.toAmount > 0)) return null;
+  return record.toAmount / record.amount;
+}
+
+// -- 预算 ------------------------------------------------
+
+export function budgetOf(state, currency) {
+  return round2(state.budgets?.[currency] || 0);
+}
+
+export function setBudget(state, currency, amount) {
+  const n = Math.max(0, round2(amount));
+  state.budgets ||= {};
+  if (n > 0) state.budgets[currency] = n; else delete state.budgets[currency];
+  return state;
+}
+
+/** 预算只对所属侧生效。没设就返回 null，界面据此决定要不要画那根进度条。 */
+export function budgetStatus(state, currency, month) {
+  const budget = budgetOf(state, currency);
+  if (!(budget > 0)) return null;
+  const { expense } = monthlySummary(state, currency, month);
+  return {
+    budget,
+    spent: expense,
+    left: round2(budget - expense),
+    pct: Math.min(100, (expense / budget) * 100),
+    over: expense > budget
+  };
+}
+
+// -- 增删改 ------------------------------------------------
+
+/** 记一笔支出或收入。币种决定它属于哪一侧。刷卡只是支出上的一个标记。 */
+export function addRecord(state, { type, amount, currency, cat, date, note, ruleId, card }) {
+  const rec = {
+    id: newId(),
+    type: type === INCOME ? INCOME : EXPENSE,
+    amount: round2(amount),
+    currency: normalizeCurrency(currency) || state.currency,
+    cat: cat || '',
+    date,
+    note: note || ''
+  };
+  if (!(rec.amount > 0)) throw new Error('金额要大于 0');
+  if (ruleId) rec.ruleId = ruleId;
+  // 刷卡只属于支出：收入上留一个旗标，等于暗示收入也可能刷卡
+  if (card && rec.type === EXPENSE) rec.card = true;
+  state.records.push(rec);
+  setActiveSide(state, rec.currency);
+  if (rec.type === EXPENSE) state.lastCard = isCard(rec);
+  return rec;
+}
+
+/**
+ * 建一笔转帐。
+ *
+ * **一条记录，两个金额**：走出的与到帐的。拆成两条就再也算不出汇率，
+ * 而且改错时会拆散、删除时可能只删一半（ADR-0001 已否）。
+ */
+export function addTransfer(state, { amount, currency, toAmount, toCurrency, date, note }) {
+  const rec = {
+    id: newId(),
+    type: TRANSFER,
+    amount: round2(amount),
+    currency: normalizeCurrency(currency) || state.currency,
+    toAmount: round2(toAmount),
+    toCurrency: normalizeCurrency(toCurrency),
+    date,
+    note: note || ''
+  };
+  if (!(rec.amount > 0)) throw new Error('请填走出的金额');
+  if (!(rec.toAmount > 0)) throw new Error('请填到帐金额');
+  if (!rec.toCurrency || rec.toCurrency === rec.currency) throw new Error('转帐要跨两个不同的币种');
+  state.records.push(rec);
+  return rec;
+}
+
+export function findRecord(state, id) {
+  return state.records.find(r => r.id === id) || null;
+}
+
+/** 改一笔。转帐的两个金额同属一条记录，所以改一次两侧一起改（story 12）。 */
+export function updateRecord(state, id, patch) {
+  const i = state.records.findIndex(r => r.id === id);
+  if (i < 0) return null;
+  const prev = state.records[i];
+  const next = { ...prev, ...patch };
+
+  next.amount = round2(next.amount);
+  if (!(next.amount > 0)) throw new Error('金额要大于 0');
+  next.currency = normalizeCurrency(next.currency) || state.currency;
+
+  if (next.type === TRANSFER) {
+    next.toAmount = round2(next.toAmount);
+    next.toCurrency = normalizeCurrency(next.toCurrency);
+    if (!(next.toAmount > 0)) throw new Error('请填到帐金额');
+    if (!next.toCurrency || next.toCurrency === next.currency) throw new Error('转帐要跨两个不同的币种');
+    delete next.cat;
+    delete next.card;
+  } else {
+    delete next.toAmount;
+    delete next.toCurrency;
+    // 改成收入就把刷卡标记删掉，而不是留一个 false 在那里：留着的话它是隐形的，
+    // 改回支出时会突然复活（同上面的 delete next.cat）
+    if (next.type === EXPENSE && next.card) next.card = true; else delete next.card;
+  }
+
+  state.records[i] = next;
+  if (!isTransfer(next)) setActiveSide(state, next.currency);
+  if (next.type === EXPENSE) state.lastCard = isCard(next);
+  return next;
+}
+
+/** 删一笔。转帐是一条记录，所以两侧同时回退（story 12）。 */
+export function removeRecord(state, id) {
+  const before = state.records.length;
+  state.records = state.records.filter(r => r.id !== id);
+  return state.records.length < before;
+}
+
+// -- 每月固定收支 ----------------------------------------
+
+export function addRule(state, { type, amount, currency, cat, day, note, from, terms, card }) {
+  const rule = {
+    id: newId(),
+    type: type === INCOME ? INCOME : EXPENSE,
+    amount: round2(amount),
+    currency: normalizeCurrency(currency) || state.currency,
+    cat: cat || '',
+    day: Math.min(31, Math.max(1, Math.round(Number(day)) || 1)),
+    note: note || '',
+    from: from || monthOf(new Date()),
+    applied: []
+  };
+  if (!(rule.amount > 0)) throw new Error('金额要大于 0');
+
+  // 刷卡只属于支出的规则：订阅、保费、卡上的分期。收入的规则不问这件事
+  if (card && rule.type === EXPENSE) rule.card = true;
+
+  // 期数留空 = 一直重复，所以「没填」与「填错」必须分开：没填就不长这个字段，
+  // 填错要当场说清楚，绝不悄悄退回无限期，也不建出一笔生下来就结束的分期（#117）
+  if (terms != null && terms !== '') {
+    const n = Number(terms);
+    if (!Number.isInteger(n) || n < 1) throw new Error('期数要填 1 以上的整数，留空表示一直重复');
+    rule.terms = n;
+  }
+
+  state.recurring.push(rule);
+  return rule;
+}
+
+// -- 分期 ------------------------------------------------
+//
+// 分期就是有期数的固定收支。**期数含首期在内**：填 1 表示那个月就还完。
+// 到期判定按月份算（首期往后数「总期数 − 1」个月），不按已补记的笔数：使用者
+// 手动删掉中间某个月那一笔时，分期仍然在原本那个月结束，与银行那边的日历对齐。
+//
+// 下面全是派生值，一个都不存：存下来就会与期数产生第二个真相（同 rateOf）。
+
+export function isInstallment(rule) {
+  return Boolean(rule?.terms);
+}
+
+/** 最后一期落在哪个月。无限期返回 null。 */
+export function lastTermMonth(rule) {
+  return isInstallment(rule) ? shiftMonth(rule.from, rule.terms - 1) : null;
+}
+
+/**
+ * 站在某个月往前看，这笔分期**还有几期没记**。含该月在内，但**已经补记过的那几期
+ * 不再算进去**：本月那笔一记下，还剩就少 1，待还也跟着少一期的钱。
+ *
+ * 数「还没记的笔数」而不是「还有几个月」，是为了让界面上只有一个「还剩」：编辑框里
+ * 填的、列表行上写的、「填 0 即提前还清」判定的，全是同一个数（#119）。到期停在哪个
+ * 月仍然按月份算（lastTermMonth），跟这里无关。
+ *
+ * 无限期返回 null（不是 Infinity：界面要据此决定这一行画不画期数）。
+ */
+export function remainingTerms(rule, month) {
+  if (!isInstallment(rule)) return null;
+  const last = lastTermMonth(rule);
+  if (month > last) return 0;
+  const applied = rule.applied || [];
+  let n = 0;
+  for (let m = month < rule.from ? rule.from : month; m <= last; m = shiftMonth(m, 1)) {
+    if (!applied.includes(m)) n++;
+  }
+  return n;
+}
+
+/** 还完了没有：该记的都记完了就是完了。无限期永远是 false，它没有「完」这回事。 */
+export function isSettled(rule, month) {
+  return remainingTerms(rule, month) === 0;
+}
+
+/**
+ * 这笔记录是第几期，`{ index, total }`，算不出来时为 null。
+ *
+ * 由记录所属月份减去规则的首期月份算出，**不存进记录里**（同 rateOf）：存下来就有了
+ * 第二个真相，使用者一改期数，旧记录上那个「共 12 期」当场就跟现实对不上。
+ *
+ * 代价是规则被删掉之后算不出期次。此时返回 null，渲染层据此退回一般的自动记录标签，
+ * 不显示错的数字，也不让它变成一笔来路不明的支出：备注还在，记录不至于失籍。
+ */
+export function termOf(state, record) {
+  if (!record?.ruleId) return null;
+  const rule = state.recurring.find(r => r.id === record.ruleId);
+  if (!isInstallment(rule)) return null;   // 规则已删，或它本来就是无限期的
+  const index = monthsBetween(rule.from, record.date.slice(0, 7)) + 1;
+  // 记录的日期被手动改到期数范围之外时同样退回：宁可不显示，也不显示 0/12
+  if (index < 1 || index > rule.terms) return null;
+  return { index, total: rule.terms };
+}
+
+/** 这笔分期还要付出去多少：每期金额 × 剩余期数。 */
+export function outstandingOf(rule, month) {
+  const left = remainingTerms(rule, month);
+  return left == null ? null : round2(rule.amount * left);
+}
+
+/**
+ * 这一侧的待还小计。
+ *
+ * **只算支出**：收入的分期是待收，性质不同，跟待还加在一起就跟把两侧相加一样
+ * 没有意义。两侧之间当然更不相加（ADR-0001）。
+ */
+export function outstandingOnSide(state, currency, month) {
+  return round2(state.recurring.reduce(
+    (s, r) => s + (r.currency === currency && r.type === EXPENSE ? (outstandingOf(r, month) || 0) : 0),
+    0
+  ));
+}
+
+/**
+ * 新增分期时，首期默认落在本月还是下月。
+ *
+ * 扣款日已经过了就默认下月：假定本月那期已经还过，避免重复记一笔。当天不算过。
+ * 使用者可以改，这只是默认值。
+ */
+export function defaultFirstMonth(today, day) {
+  const month = today.slice(0, 7);
+  const effective = Math.min(Math.max(1, Math.round(Number(day)) || 1), lastDayOfMonth(month));
+  return Number(today.slice(8, 10)) > effective ? shiftMonth(month, 1) : month;
+}
+
+/**
+ * 这条分期还有几期没补记：编辑表单里的「还剩几期」就是它。无限期返回 null。
+ *
+ * 与 remainingTerms 不同：那个按月份算（含当月），这个按已补记的笔数算。编辑时要用
+ * 后者，因为「已还的进度」是由已经记下的记录构成的，重算总期数时不能把它抹掉。
+ */
+export function unappliedTerms(rule) {
+  return isInstallment(rule) ? Math.max(0, rule.terms - (rule.applied?.length || 0)) : null;
+}
+
+/** 这条规则在这个月已经记下的那一笔。没有就是 null：首期在下月时本来就没有。 */
+export function appliedRecordOf(state, ruleId, month) {
+  return state.records.find(r => r.ruleId === ruleId && r.date.startsWith(month)) || null;
+}
+
+/**
+ * 改一条固定收支 / 分期。**只管以后。**
+ *
+ * 已经记下的记录一笔都不碰，`from` 与 `applied` 原样保留：生效月份因此是使用者
+ * 眼睛看得见的（否则「房租九月起涨、八月底手痒去改」会静静改错八月），也不会覆盖
+ * 他手动调整过的那一笔。更重要的是**规则对记录仍然是单向的**：规则产生完记录就与
+ * 它无关，这个单向性一旦破掉就再也回不来。
+ *
+ * **币种不可改**，改了会让已产生的记录留在旧侧、以后的落在新侧，一条规则横跨两
+ * 侧，而这个 app 的整套词汇建立在「一侧各自独立、永不相加」上（ADR-0001）。要换侧
+ * 只能删了重建。
+ *
+ * `remaining` 是**还有几期没记**，不是总期数：新的总期数 = 已补记的期数 + 它，所以
+ * 3/12 改成还剩 5 期会变成 3/8 而不是 0/5。填 0 就是提前还清，留空则变回无限期。
+ */
+export function updateRule(state, id, patch) {
+  const i = state.recurring.findIndex(r => r.id === id);
+  if (i < 0) return null;
+  const next = { ...state.recurring[i] };
+
+  if (patch.currency != null && normalizeCurrency(patch.currency) !== next.currency) {
+    throw new Error('币种不能改：一条规则不能横跨两侧，要换侧请删了重建');
+  }
+  if (patch.type != null) next.type = patch.type === INCOME ? INCOME : EXPENSE;
+  if ('card' in patch) next.card = Boolean(patch.card);
+  // 改成收入就把标记删掉，而不是留一个 false：同 updateRecord，隐形的旗标会复活
+  if (next.type !== EXPENSE || !next.card) delete next.card;
+  if (patch.amount != null) next.amount = round2(patch.amount);
+  if (!(next.amount > 0)) throw new Error('金额要大于 0');
+  if (patch.day != null) next.day = Math.min(31, Math.max(1, Math.round(Number(patch.day)) || 1));
+  if (patch.cat != null) next.cat = String(patch.cat);
+  if (patch.note != null) next.note = String(patch.note);
+
+  if ('remaining' in patch) {
+    const v = patch.remaining;
+    if (v == null || v === '') {
+      delete next.terms;                                  // 变回无限期
+    } else {
+      const n = Number(v);
+      if (!Number.isInteger(n) || n < 0) throw new Error('还剩几期要填 0 以上的整数，留空表示一直重复');
+      const paid = next.applied?.length || 0;
+      // 一期都还没记时填 0 等于这条规则从没存在过：那是删除，不是编辑。悄悄留下一条
+      // terms 为 0 的规则会被 isInstallment 当成无限期，反而变成一直重复
+      if (paid + n < 1) throw new Error('这笔还没记过任何一期，要停掉请直接删除这条');
+      next.terms = paid + n;                              // 已还的进度不被抹掉
+    }
+  }
+
+  state.recurring[i] = next;
+  return next;
+}
+
+export function removeRule(state, id) {
+  const before = state.recurring.length;
+  state.recurring = state.recurring.filter(r => r.id !== id);
+  return state.recurring.length < before;
+}
+
+/**
+ * 一条规则在某个月**该记哪一天、记了没、日期到了没**。首期之前或过了最后一期
+ * 返回 null：那个月这条规则根本不该出现。
+ *
+ * 到期仍然**按月份**算（首期往后数「总期数 − 1」个月），不按已补记的笔数。
+ * 「今天」由呼叫端传入，这一层不问系统时间（同 applyRecurring、defaultFirstMonth）。
+ */
+export function dueOf(rule, month, today) {
+  if (!rule || month < rule.from) return null;
+  const last = lastTermMonth(rule);              // 分期到最后一期为止。无限期为 null
+  if (last !== null && month > last) return null;
+  const date = `${month}-${pad(Math.min(rule.day, lastDayOfMonth(month)))}`;  // 2 月没有 31 号，缩到当月最后一天
+  const applied = (rule.applied || []).includes(month);
+  const arrived = date <= today;
+  return { month, date, applied, arrived, due: !applied && arrived };
+}
+
+/**
+ * 把所有到期但还没记的固定收支补上，**各自落在它所属的那一侧**（story 25）。
+ *
+ * 每条规则自己记住已经套用过哪些月份，所以使用者手动删掉某个月的那一笔也不会被
+ * 重新补回来。跨月放着不开也能一次补齐中间的每个月，不重复、不漏。
+ *
+ * 币种不再属于任何一侧的规则整条跳过（#116）：移除第二币种只是把那一侧收起来，
+ * 规则还留着，不跳过的话它会一直往一个使用者看不见的地方塞记录。**跳过时不写
+ * `applied`**，所以币种加回来的那一刻，中间漏掉的月份会被上面的跨月补齐一次补上：
+ * 那几个月的钱确实付了，不该凭空消失。
+ */
+export function applyRecurring(state, today) {
+  const thisMonth = today.slice(0, 7);
+  const live = sides(state);
+  let added = 0;
+
+  for (const rule of state.recurring) {
+    if (!live.includes(rule.currency)) continue;
+    rule.applied ||= [];
+    const stop = lastTermMonth(rule);
+    // 走到今天为止，分期走到最后一期为止：这只是别白走几十个月，
+    // 「该不该记」的判定整个在 dueOf 手上
+    for (let m = rule.from; m <= thisMonth && (stop === null || m <= stop); m = shiftMonth(m, 1)) {
+      const slot = dueOf(rule, m, today);
+      if (!slot.due) continue;
+      const rec = {
+        id: newId(),
+        type: rule.type,
+        amount: rule.amount,
+        currency: rule.currency,
+        cat: rule.cat,
+        date: slot.date,
+        note: rule.note,
+        ruleId: rule.id
+      };
+      // 补记出来的每一笔继承规则的刷卡标记：否则订阅与卡上的分期每个月都要手动去勾
+      if (isCard(rule)) rec.card = true;
+      state.records.push(rec);
+      rule.applied.push(m);
+      added++;
+    }
+  }
+  return added;
+}
+
+// -- Apple Pay 收件箱 --------------------------------------
+//
+// 快捷指令在刷卡当下把金额、商家、卡名投进收件箱（ADR-0002），小帐本打开时拉回来、
+// 解封，交给这里。进帐的就是一笔**普通支出**：刷卡只是它身上的标记，不是新的记录类型。
+// 哪一侧、刷不刷卡看的是**卡片对应**：一张卡问一次，之后都照着记。
+
+/** 收件箱 id 留多久：比服务器保留记录的 30 天长一点，ack 失败后重拉的那几笔一定认得出来。 */
+const SEEN_DAYS = 45;
+
+/**
+ * 快捷指令给的金额 → 数字。`S$12.50`、`RM 1,234.00`、`12.5`、`12,50` 都认得。
+ * 认不得或不大于 0（退款）就回 null：宁可不记，也不要记错。
+ */
+export function parseAmount(raw) {
+  if (typeof raw === 'number') return raw > 0 ? round2(raw) : null;
+  let s = String(raw ?? '').replace(/[^\d.,-]/g, '');
+  if (!s || s.includes('-')) return null;
+  if (s.includes('.')) s = s.replace(/,/g, '');
+  else if (/,\d{1,2}$/.test(s)) s = s.replace(/,(?=\d{1,2}$)/, '.').replace(/,/g, '');
+  else s = s.replace(/,/g, '');
+  const n = Number(s);
+  return Number.isFinite(n) && n > 0 ? round2(n) : null;
+}
+
+/** 刷卡时间 → 这台手机的本地日期。认不得就退回服务器收到的时间，再不行就是今天。 */
+function localDateOf(...candidates) {
+  for (const c of candidates) {
+    if (typeof c !== 'string' || !c) continue;
+    const d = new Date(c);
+    if (!Number.isNaN(d.getTime())) return dateOf(d);
+    if (isDate(c.slice(0, 10))) return c.slice(0, 10);
+  }
+  return null;
+}
+
+/** 这张卡对应到的一侧还在不在。第二币种被移除后，对应到那一侧的卡要重新问。 */
+function mappingOf(state, cardName) {
+  const m = Object.hasOwn(state.cardMap, cardName) ? state.cardMap[cardName] : null;
+  return m && sides(state).includes(m.currency) ? m : null;
+}
+
+/**
+ * 沿用这个商家上次的分类。只看同一侧的支出：新币那侧的 7-Eleven 是早餐，
+ * 马币那侧的可能是给家里买的日用。找不到就归「其他」，由使用者之后改。
+ */
+function guessCat(state, currency, merchant) {
+  const cats = state.cats.expense;
+  const key = merchant.trim().toLowerCase();
+  if (key) {
+    for (let i = state.records.length - 1; i >= 0; i--) {
+      const r = state.records[i];
+      if (r.type === EXPENSE && r.currency === currency && (r.note || '').trim().toLowerCase() === key &&
+          cats.some(c => c.id === r.cat)) {
+        return { cat: r.cat, guessed: true };
+      }
+    }
+  }
+  const other = cats.find(c => c.id === 'other_e') || cats[cats.length - 1];
+  return { cat: other ? other.id : '', guessed: false };
+}
+
+/** 把卡已经对应好的待入帐项目记成支出。其余的留着等使用者答。 */
+function settlePending(state) {
+  // 自动进帐不能改掉使用者手动记帐时的默认值：addRecord 会顺手记下侧与刷卡
+  const { lastSide, lastCard } = state;
+  let added = 0, fallback = 0;
+  const keep = [];
+  for (const p of state.apPending) {
+    const m = mappingOf(state, p.cardName);
+    // 外币消费：邮件上的币种跟这张卡那一侧对不上。折合多少只有帐单知道，交给使用者
+    if (!m || (p.currency && p.currency !== m.currency)) { keep.push(p); continue; }
+    const { cat, guessed } = guessCat(state, m.currency, p.merchant);
+    if (!guessed) fallback++;
+    addRecord(state, {
+      type: EXPENSE, amount: p.amount, currency: m.currency, cat, date: p.date, note: p.merchant, card: m.card
+    });
+    added++;
+  }
+  state.apPending = keep;
+  state.lastSide = lastSide;
+  state.lastCard = lastCard;
+  return { added, fallback };
+}
+
+// -- 银行交易邮件（ADR-0003）-------------------------------
+//
+// 快捷指令只把邮件原文（寄件人、标题、正文）投进收件箱，怎么读由这里决定：银行改了
+// 格式，改这里、发一版，所有人一起好，快捷指令一个都不用动。
+// 认出来的消费当成一笔待入帐，卡名就是银行名，照卡片对应记。认不得的放进 apUnparsed。
+
+/**
+ * 各家银行的规则。**一家都没有也能上线**：认不得的邮件进「认不得」清单，使用者手记，
+ * 并把打码后的原文交给开发者补规则（样本放 test/moneybook/fixtures/bank-mail/）。
+ *
+ * 一条规则：`{ bank, from, parse }`
+ * - bank：显示用的银行名，也是卡片对应里的卡名（`DBS`、`Maybank`）
+ * - from：比对寄件人的正则
+ * - parse(mail)：回 `{ direction: 'out', amount, currency, merchant }`（消费）、
+ *   `{ direction: 'in' }`（入帐）、`{ direction: 'none' }`（OTP、通知这类），
+ *   是这家银行却读不懂就回 null，那封邮件会落到「认不得」清单
+ */
+export const BANK_RULES = [
+  {
+    // DBS / POSB 的「Card Transaction Alert」：Amount: SGD3.64、To: BUS/MRT。
+    // 寄件人是 ibanking.alert@dbs.com。只认 DBS 这个词（\b 挡掉 feedbacks@ 这类），
+    // 快捷指令给的是纯地址还是带显示名都认得
+    bank: 'DBS',
+    from: /\bdbs\b/i,
+    parse({ subject, body }) {
+      if (!/card transaction alert/i.test(`${subject}\n${body}`)) return null;
+      const f = dbsFields(body);
+      return f && { direction: 'out', currency: f.currency, amount: f.amount, merchant: f.to };
+    }
+  },
+  {
+    // DBS PayLah! 钱包（paylah.alert@dbs.com），格式跟刷卡那封一样，冒号后面是 tab。
+    // 单独算一张「卡」：它是钱包不是信用卡，跟 DBS 信用卡共用一个对应的话会被标成刷卡。
+    // To 是自己的钱包（充值、别人转进来）就不是花出去的钱
+    bank: 'DBS PayLah!',
+    from: /\bpaylah\b/i,
+    parse({ body }) {
+      const f = dbsFields(body);
+      if (!f) return null;
+      if (/paylah! wallet/i.test(f.to)) return { direction: 'in' };
+      return { direction: 'out', currency: f.currency, amount: f.amount, merchant: f.to };
+    }
+  },
+  {
+    // DBS 户口转出的 PayNow（也是 ibanking.alert@dbs.com）。从户口直接扣，不是刷卡，
+    // 所以跟 DBS 信用卡分开对应。只认「your PAYNOW」这种自己转出去的写法：
+    // 别人转进来的邮件还没见过样本，宁可落到「认不得」也不要记成支出
+    bank: 'DBS PayNow',
+    from: /\bdbs\b/i,
+    parse({ body }) {
+      if (!/we refer to your paynow/i.test(body)) return null;
+      const f = dbsFields(body);
+      return f && { direction: 'out', currency: f.currency, amount: f.amount, merchant: f.to };
+    }
+  }
+];
+
+/**
+ * DBS 系列邮件的 `Amount: SGD3.64` 与 `To: 商家` 两行，冒号后面可能是空格或 tab。读不到金额回 null。
+ * 商家后面的 `(UEN ending 040E)`、`(Mobile ending 1234)` 去掉：只留名字
+ */
+function dbsFields(body) {
+  const amount = /^\s*Amount:\s*([A-Z]{3})\s?([\d,]+(?:\.\d{1,2})?)\s*$/m.exec(body);
+  const to = /^\s*To:\s*(.+?)\s*$/m.exec(body);
+  const name = to ? to[1].replace(/\s*\((?:UEN|Mobile|A\/C) ending [^)]*\)$/i, '') : '';
+  return amount ? { currency: amount[1], amount: amount[2], to: name } : null;
+}
+
+/** 标题像验证码的邮件：不是交易，不进「认不得」清单。只看标题：交易邮件的正文常写着「绝不要把 OTP 告诉别人」 */
+const OTP_SUBJECT = /\b(OTP|TAC)\b|one[- ]time (password|pin)|verification code|验证码/i;
+
+/** 「认不得」清单最多留几封：每封正文最长 8000 字，没人处理的话别把手机的储存空间吃光 */
+const MAX_UNPARSED = 50;
+
+/**
+ * 读一封银行邮件。返回 `{ bank, direction, amount, currency, merchant }`，认不得回 null。
+ * 只有 direction 为 'out'（消费）时才带金额，入帐与 OTP 由呼叫端略过。
+ * `rules` 只给测试换用。
+ */
+export function parseBankMail(mail, rules = BANK_RULES) {
+  const m = {
+    from: String(mail?.from ?? ''),
+    subject: String(mail?.subject ?? ''),
+    body: String(mail?.body ?? '')
+  };
+  for (const rule of rules) {
+    if (!rule.from.test(m.from)) continue;
+    // 读不懂就让下一条试：同一个网域可能有好几种邮件（dbs.com 有刷卡也有 PayLah!）
+    const r = rule.parse(m);
+    if (!r) continue;
+    if (r.direction !== 'out') return { bank: rule.bank, direction: r.direction === 'in' ? 'in' : 'none' };
+    const amount = parseAmount(r.amount);
+    if (!amount) continue;
+    return {
+      bank: rule.bank,
+      direction: 'out',
+      amount,
+      currency: normalizeCurrency(r.currency),
+      merchant: String(r.merchant ?? '').trim()
+    };
+  }
+  return OTP_SUBJECT.test(m.subject) ? { bank: '', direction: 'none' } : null;
+}
+
+const MAIL_CUR = { 'S$': 'SGD', 'RM': 'MYR', 'US$': 'USD' };
+const CODE = '(S\\$|US\\$|RM|SGD|MYR|USD|EUR|GBP|AUD|HKD|CNY|JPY|THB|IDR)';
+const NUM = '(\\d{1,3}(?:,\\d{3})+(?:\\.\\d{1,2})?|\\d+(?:\\.\\d{1,2})?)';
+// 币种代号只认大写、前面要断开：不然 CONFIRM 1234 里的 RM 也会被当成马币。
+// 紧跟在 Amount 后面的才不分大小写
+const MAIL_AMOUNT = [
+  new RegExp(`\\bamount\\b\\s*[:：]?\\s*(?:${CODE}\\s*)?${NUM}`, 'i'),
+  new RegExp(`(?:^|[^A-Za-z])${CODE}\\s?${NUM}`),
+  new RegExp(`()${NUM}\\s?(SGD|MYR|USD)\\b`)
+];
+
+/**
+ * 认不得的邮件里猜一个金额，给手记表单预填：`RM 12.50`、`SGD12.50`、`Amount: 12.50`。
+ * 返回 `{ amount, currency }`（币种猜不到是 ''），一个都找不到回 null。只是预填，由使用者确认。
+ */
+export function guessMailAmount(text) {
+  const s = String(text ?? '');
+  for (const re of MAIL_AMOUNT) {
+    const hit = re.exec(s);
+    if (!hit) continue;
+    const [, cur1, num, cur2] = hit;
+    const amount = parseAmount(num);
+    if (!amount) continue;
+    const code = (cur1 || cur2 || '').toUpperCase();
+    return { amount, currency: MAIL_CUR[code] || code };
+  }
+  return null;
+}
+
+/**
+ * 收下从收件箱拉回来、已经解封的记录。
+ *
+ * items：刷卡是 `[{ id, receivedAt, t, amount, merchant, card }]`，银行邮件是
+ * `[{ id, receivedAt, t, mail: { from, subject, body } }]`。id 是收件箱那边的 id。
+ * 返回 `{ added, pending, bad, fallback, unparsed }`：
+ * - added：记进帐本的笔数
+ * - pending：在等使用者答的笔数（卡还没对应、或外币消费；累计，含之前留下的）
+ * - bad：金额读不懂、没法记的笔数
+ * - fallback：新记进去的笔数里，分类归到「其他」的有几笔
+ * - unparsed：「认不得」清单里有几封（累计）
+ *
+ * 同一个 id 只会被处理一次：ack 没送到服务器、下次又拉到同一笔，这里认得出来。
+ */
+export function receiveInbox(state, items, today) {
+  const seen = new Set(state.apSeen.map(s => s.id));
+  let bad = 0;
+  for (const it of items) {
+    if (!it || !isStr(it.id) || seen.has(it.id)) continue;
+    seen.add(it.id);
+    state.apSeen.push({ id: it.id, at: today });
+    const date = localDateOf(it.t, it.receivedAt) || today;
+
+    if (it.mail && typeof it.mail === 'object') {
+      const parsed = parseBankMail(it.mail);
+      if (!parsed) {
+        // 原文只留到使用者处理掉为止：手记、复制给开发者、或删掉
+        const str = v => String(v ?? '');
+        state.apUnparsed.push({ id: it.id, date, from: str(it.mail.from), subject: str(it.mail.subject), body: str(it.mail.body) });
+        continue;
+      }
+      if (parsed.direction !== 'out') continue;   // 入帐、OTP：不是花出去的钱
+      // 解析完只留金额、商家、日期，原文到此为止
+      const p = { id: it.id, date, amount: parsed.amount, merchant: parsed.merchant, cardName: parsed.bank, via: 'mail' };
+      if (parsed.currency) p.currency = parsed.currency;
+      state.apPending.push(p);
+      continue;
+    }
+
+    const amount = parseAmount(it.amount);
+    if (!amount) { bad++; continue; }
+    state.apPending.push({
+      id: it.id,
+      date,
+      amount,
+      merchant: String(it.merchant ?? '').trim(),
+      cardName: String(it.card ?? '').trim()
+    });
+  }
+  const cutoff = dateOf(new Date(new Date(today + 'T00:00:00').getTime() - SEEN_DAYS * 864e5));
+  state.apSeen = state.apSeen.filter(s => s.at >= cutoff);
+  state.apUnparsed = state.apUnparsed.slice(-MAX_UNPARSED);
+  const { added, fallback } = settlePending(state);
+  return { added, pending: state.apPending.length, bad, fallback, unparsed: state.apUnparsed.length };
+}
+
+/** 还没对应好的卡名。空卡名也算一张（快捷指令没给卡名时），界面上显示成「未知的卡」。 */
+export function unmappedCards(state) {
+  return [...new Set(state.apPending.filter(p => !mappingOf(state, p.cardName)).map(p => p.cardName))];
+}
+
+/**
+ * 外币消费：卡已经对应好了，但邮件上的币种跟那一侧对不上，在等使用者填折合的金额。
+ * 每一笔带上它对应到的侧（side）与刷卡标记（card），手记表单照着预填。
+ */
+export function foreignPending(state) {
+  return state.apPending.flatMap(p => {
+    const m = mappingOf(state, p.cardName);
+    return m && p.currency && p.currency !== m.currency ? [{ ...p, side: m.currency, card: m.card }] : [];
+  });
+}
+
+/** 使用者手记了、或删掉了一笔待入帐或一封认不得的邮件：从清单里拿掉。 */
+export function dropInboxItem(state, id) {
+  const before = state.apPending.length + state.apUnparsed.length;
+  state.apPending = state.apPending.filter(p => p.id !== id);
+  state.apUnparsed = state.apUnparsed.filter(u => u.id !== id);
+  return state.apPending.length + state.apUnparsed.length < before;
+}
+
+/** 答一次这张卡在哪一侧、是不是信用卡。在等它的那几笔随即进帐。 */
+export function mapCard(state, cardName, { currency, card }) {
+  const c = normalizeCurrency(currency);
+  if (!sides(state).includes(c)) throw new Error(`帐本里没有 ${c} 这一侧`);
+  if (cardName === '__proto__') throw new Error('这个卡名不能用');
+  state.cardMap[cardName] = { currency: c, card: Boolean(card) };
+  return settlePending(state);
+}
+
+/** 忘掉一张卡的对应。已经记进帐本的不动，下次再刷这张卡会重新问。 */
+export function unmapCard(state, cardName) {
+  delete state.cardMap[cardName];
+  return state;
+}
+
+/** 开启收件箱：记下钥匙与私钥。 */
+export function setInbox(state, { id, read, write, priv }) {
+  const inbox = sanitizeInbox({ id, read, write, priv });
+  if (!inbox) throw new Error('收件箱资料不完整');
+  state.inbox = inbox;
+  return state;
+}
+
+/** 关闭收件箱。卡片对应留着：重新开启时不必再答一遍。等着的那几笔也留着。 */
+export function clearInbox(state) {
+  state.inbox = null;
+  return state;
+}
+
+// -- 导出 ------------------------------------------------
+
+/**
+ * CSV。**每一行都带币种**（story 29）：拿去 Excel 时两种钱不会被混在一起算。
+ *
+ * 转帐在这里摊成两行（走出一行、到帐一行），因为一行只能有一个币种。
+ * 帐本里它仍然是一条记录。
+ */
+export function toCSV(state, catName = (type, id) => id) {
+  const rows = [['日期', '类型', '币种', '分类', '金额', '备注']];
+  const sorted = state.records.slice().sort((a, b) => a.date.localeCompare(b.date));
+
+  for (const r of sorted) {
+    if (isTransfer(r)) {
+      rows.push([r.date, '转出', r.currency, '转帐', r.amount, r.note || '']);
+      rows.push([r.date, '转入', r.toCurrency, '转帐', r.toAmount, r.note || '']);
+    } else {
+      rows.push([
+        r.date,
+        r.type === INCOME ? '收入' : '支出',
+        r.currency,
+        catName(r.type, r.cat),
+        r.amount,
+        r.note || ''
+      ]);
+    }
+  }
+
+  const q = v => `"${String(v).replace(/"/g, '""')}"`;
+  return rows.map(r => r.map(q).join(',')).join('\r\n');
+}
+
+/** 显示用的金额。字母代号后面加一个空格，符号型的（旧的 NT$、$）直接贴着。 */
+export function formatMoney(amount, currency) {
+  const n = round2(amount).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+  const sep = /^[A-Z]+$/.test(currency) ? ' ' : '';
+  return `${currency}${sep}${n}`;
+}

@@ -1,0 +1,196 @@
+/**
+ * 导出产物 · 中文字体子集
+ *
+ * 自托管思源黑体／宋体的子集，由 scripts/subset-fonts.mjs 生成。
+ * 源字体是 17MB / 24MB 的可变字体，**不在仓库里**，所以生成好的 woff2
+ * 必须提交进版本库，构建机没有源字体可用来重新生成。
+ *
+ * 见 docs/adr/0004-noto-cjk-self-hosted-subset.md。
+ */
+import { describe, it, expect } from "vitest";
+import { loadExport, mb } from "../helpers/export";
+
+/** 每个子集的合理体积区间（KB）。上限防止有人误把完整字体提交进来， */
+/** 下限防止子集生成失败产出一个空壳。 */
+const SUBSETS: { file: string; min: number; max: number }[] = [
+  { file: "fonts/NotoSansSC-400.woff2", min: 30, max: 130 },
+  { file: "fonts/NotoSansSC-600.woff2", min: 30, max: 130 },
+  { file: "fonts/NotoSerifSC-600.woff2", min: 40, max: 160 },
+];
+
+/**
+ * 字体总体积上限。
+ *
+ * 实测 511 字 / 3 个字重 = 230KB。票里原写的 ≤150KB 是立项时的估算，实测
+ * 做不到，CJK 每字形约 130 字节，压到 150KB 要么砍掉 600 字重（中文会被
+ * 浏览器合成粗体，很糊），要么把宋体裁成只含标题字（以后新标题用到集外的字
+ * 会在标题中间掉回黑体）。两个代价都比多 80KB 大。
+ *
+ * 真正的约束是 ADR-0008 的首屏总重 < 800KB，不含字体约 146KB，加 230KB
+ * 仍有充足余量。上限设 280KB 留一点文案增长空间。
+ */
+const MAX_FONT_BYTES = 280 * 1024;
+
+/** OFL 第 2 条：随字体分发必须附带版权声明与许可证全文。 */
+const LICENSES = [
+  "fonts/OFL-NotoSansSC.txt",
+  "fonts/OFL-NotoSerifSC.txt",
+  "fonts/LICENSES.txt",
+];
+
+describe("导出产物 · 中文字体", () => {
+  const x = loadExport();
+
+  for (const { file, min, max } of SUBSETS) {
+    it(`${file} 存在且体积在 ${min}~${max} KB`, () => {
+      expect(x.has(file), `缺少字体子集 ${file}`).toBe(true);
+      const kb = (x.sizes.get(file) ?? 0) / 1024;
+      expect(
+        kb,
+        `${file} 体积 ${kb.toFixed(1)} KB 超出预期区间：` +
+          `过大多半是误提交了完整字体，过小多半是子集生成失败`,
+      ).toBeGreaterThan(min);
+      expect(kb).toBeLessThan(max);
+    });
+  }
+
+  it(`字体总体积不超过 ${mb(MAX_FONT_BYTES)}`, () => {
+    const total = SUBSETS.reduce((s, { file }) => s + (x.sizes.get(file) ?? 0), 0);
+    expect(total, `字体合计 ${mb(total)}，超出上限`).toBeLessThanOrEqual(MAX_FONT_BYTES);
+  });
+
+  for (const file of LICENSES) {
+    it(`${file} 随字体一起分发`, () => {
+      expect(x.has(file), `缺少 ${file}: OFL 第 2 条要求许可证全文可被取得`).toBe(true);
+      const text = x.read(file);
+      expect(text, `${file} 里没有 OFL 正文`).toContain("SIL OPEN FONT LICENSE");
+      expect(text.length).toBeGreaterThan(1000);
+    });
+  }
+
+  it("页脚有指向字体许可证的链接", () => {
+    const home = x.read("index.html");
+    expect(
+      /href="\/fonts\/LICENSES\.txt"/.test(home),
+      "页脚缺少字体许可证链接，许可证文件存在但用户取不到，不算履行 OFL 第 2 条",
+    ).toBe(true);
+  });
+
+  it("样式表里三个子集都有 @font-face，且限定在中日韩区段", () => {
+    const css = x.files
+      .filter((f) => f.endsWith(".css"))
+      .map((f) => x.read(f))
+      .join("\n");
+
+    for (const { file } of SUBSETS) {
+      expect(css, `样式表里没有引用 ${file}`).toContain(file.replace("fonts/", ""));
+    }
+    // unicode-range 限定中日韩：纯英文页面不该为了几个拉丁字符去下载中文字体
+    const cjkRanges = (css.match(/unicode-range:[^;}]*4e00-9fff/gi) ?? []).length;
+    expect(cjkRanges, "@font-face 缺少中日韩 unicode-range 限定").toBeGreaterThanOrEqual(3);
+  });
+
+  /** 页面预加载了哪些字体。 */
+  function fontPreloads(page: string): string[] {
+    return [...x.read(page).matchAll(/rel="preload"[^>]*href="(\/fonts\/[^"]*)"/g)].map(
+      (m) => m[1],
+    );
+  }
+
+  it("中文首页预加载了正文字重，且只预加载它", () => {
+    const preloads = fontPreloads("zh.html");
+    expect(preloads).toContain("/fonts/NotoSansSC-400.woff2");
+    expect(
+      preloads.length,
+      `预加载了 ${preloads.length} 个字体，三个挤在首屏关键路径上会拖慢 LCP，见 ADR-0008`,
+    ).toBe(1);
+  });
+
+  /**
+   * 英文页的正文全是拉丁字符，走 Inter。@font-face 的 unicode-range 已经挡住了
+   * 按需下载，再预加载一份 CJK 子集是白花的带宽（#75 拆语言后才有这个区分）。
+   */
+  it("英文首页不预加载中文字体", () => {
+    expect(fontPreloads("index.html"), "英文页不该为了几个中文字预加载 CJK 子集").toEqual(
+      [],
+    );
+  });
+});
+
+/**
+ * 内容页与核心页用同一套字体（#94）。
+ *
+ * 静态内容页原先自己从 Google Fonts 拉 Space Grotesk + DM Sans：与核心页看起来
+ * 像两个站，多一次阻塞渲染的外部往返，中文还落回系统字体（Windows 微软雅黑、
+ * Mac 苹方、Android Noto，三个设备三种样子）：正是 ADR-0004 自托管要修的那件事。
+ *
+ * 现在两边共用 `out/css/fonts.css`：构建后由 `scripts/gen-content-fonts.mjs`
+ * 从 Next 的产物里抄出 `@font-face` 与 `--font-inter`。**字体文件名带内容哈希**，
+ * 手写路径下次构建就 404，所以这里连「引用的 woff2 确实存在」也一起断言。
+ */
+describe("导出产物 · 内容页字体", () => {
+  const x = loadExport();
+
+  /**
+   * 仍允许对外取字体的页面。
+   *
+   * - `demos/`: 11 个虚构品牌的成品演示，冻结不动（CONTEXT.md 的「样板站」词条）
+   * - `xhs.html`，小红书落地页，自带一套 editorial 排版（衬线 + 等宽 + 青色），
+   *   与全站视觉外壳不是同一套东西。它要不要并进来是一个设计决定，不是这张票的
+   *   字体统一工作，**没有票之前别顺手改**。
+   */
+  const MAY_USE_GOOGLE = (rel: string) => rel.startsWith("demos/") || rel === "xhs.html";
+
+  it("字体表在产物里，且抄全了", () => {
+    expect(x.has("css/fonts.css"), "缺 out/css/fonts.css：它由 postbuild 生成").toBe(
+      true,
+    );
+    const css = x.read("css/fonts.css");
+    expect(css, "字体表里没有 --font-inter，内容页的 --font-display 会解析成空").toContain(
+      "--font-inter:",
+    );
+    expect(css, "字体表里没有 Inter 的 @font-face").toMatch(/font-family:\s*Inter/);
+    for (const f of ["NotoSansSC-400", "NotoSansSC-600", "NotoSerifSC-600"]) {
+      expect(css, `字体表里没有 ${f}`).toContain(f);
+    }
+  });
+
+  it("字体表引用的 woff2 都真的在产物里", () => {
+    const css = x.read("css/fonts.css");
+    const missing = [...css.matchAll(/url\((\/[^)]*\.woff2)\)/g)]
+      .map((m) => m[1].slice(1))
+      .filter((rel) => !x.has(rel));
+
+    expect(
+      missing,
+      `字体表指向不存在的文件：\n  ${missing.join("\n  ")}\n` +
+        `next/font 的文件名带内容哈希，这份表必须由构建后的脚本生成，不能手写。`,
+    ).toEqual([]);
+  });
+
+  it("引了主样式表的页面都引了字体表", () => {
+    const naked = x.htmlPages.filter(
+      (rel) =>
+        !MAY_USE_GOOGLE(rel) &&
+        /(^|["'/])css\/style(\.min)?\.css/.test(x.read(rel)) &&
+        !x.read(rel).includes("/css/fonts.css"),
+    );
+
+    expect(
+      naked,
+      `这些页面用了内容页的样式表却没引字体表，中文会落回系统字体：\n  ${naked.join("\n  ")}`,
+    ).toEqual([]);
+  });
+
+  it("除样板站与小红书落地页外，没有页面对外取字体", () => {
+    const offenders = x.htmlPages.filter(
+      (rel) => !MAY_USE_GOOGLE(rel) && /fonts\.(googleapis|gstatic)\.com/.test(x.read(rel)),
+    );
+
+    expect(
+      offenders,
+      `这些页面还在从 Google Fonts 取字体：\n  ${offenders.join("\n  ")}\n` +
+        `自托管的整个理由见 ADR-0004：少一次阻塞渲染的外部往返，中文不落回系统字体。`,
+    ).toEqual([]);
+  });
+});

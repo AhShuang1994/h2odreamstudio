@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="canonical" href="https://www.h2o-dreamer-studio.com/landing-page">
+  <title>Website Design · From {{starter}} · H2ODreamer Studio</title>
+  <meta name="description" content="Conversion-focused websites with WhatsApp integration, SEO basics, and real analytics: built to bring you real enquiries. From a single landing page ({{starter}}) to a 5-page corporate site ({{standard}}).">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Website Design · H2ODreamer Studio">
+  <meta property="og:description" content="Your business deserves more than a Facebook page. Websites from {{starter}}.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:image" content="https://www.h2o-dreamer-studio.com/og/og-image.jpg">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Website Design · H2ODreamer Studio">
+  <meta name="twitter:description" content="Your business deserves more than a Facebook page.">
+
+  <!-- Theme color -->
+  <meta name="theme-color" content="#020818">
+
+  <!-- Favicon -->
+  <link rel="icon" href="assets/favicon.svg?v=43282a1f" type="image/svg+xml">
+
+  <!-- 拉丁 Inter + 中文思源黑体子集，全部自托管。这张表由构建后的
+       scripts/gen-content-fonts.mjs 生成，路径固定、内容跟着 next/font 走（#94）。 -->
+  <link rel="stylesheet" href="/css/fonts.css">
+
+  <link rel="stylesheet" href="css/style.min.css">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-45NTTZBZC4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-45NTTZBZC4');
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": "https://www.h2o-dreamer-studio.com/landing-page#service",
+  "name": "Website & Landing Page Design",
+  "serviceType": "Web design",
+  "description": "Conversion-focused websites with WhatsApp integration, SEO basics and analytics, from a single landing page ({{starter}}) to a full corporate site ({{standard}}). Built for Malaysian small businesses, delivered in 3–7 days.",
+  "url": "https://www.h2o-dreamer-studio.com/landing-page",
+  "provider": {
+    "@id": "https://www.h2o-dreamer-studio.com/#business"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "Malaysia"
+  },
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "MYR",
+    "priceSpecification": {
+      "@type": "PriceSpecification",
+      "minPrice": {{starterNum}},
+      "priceCurrency": "MYR"
+    }
+  }
+}
+  </script>
+  <script>/**
+ * 必须在首帧之前执行的那一小段。**内联进每个页面的 <head>**，不是外部脚本，
+ * 外部脚本要多一次阻塞渲染的请求，为几百个字节不值得。
+ *
+ * 一份源码，两个去处：
+ *   - 核心页：`src/components/Shell.tsx` 构建期读进来内联
+ *   - 内容页与独立静态页：`scripts/inject-motion.mjs` 构建期注入
+ * 写两份迟早会漂移，而漂移的表现是「有的页面有幕布、有的白屏硬跳」，
+ * ADR-0001 说这比完全没有更糟。
+ *
+ * 这里只做三件事，都必须早于首帧：
+ *   1. 注入幕布的样式（幕布落在 html::after 上，不往 DOM 里塞元素）
+ *   2. 上一页盖上幕布才揭幕：直达访问不盖，盖了会把最大内容绘制推后
+ *   3. 给逐行揭示上预备态
+ */
+(function () {
+  var d = document.documentElement;
+
+  var s = document.createElement("style");
+  s.textContent =
+    "html::after{content:'';position:fixed;inset:0;z-index:9999;" +
+    "background:#07080b;opacity:0;pointer-events:none;transition:opacity .42s ease}" +
+    "html.curtain-covered::after{opacity:1}";
+  document.head.appendChild(s);
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  // 幕布：只有上一页真的盖上了才揭。标记由 /js/motion.js 在离开前写下
+  try {
+    if (sessionStorage.getItem("h2od-curtain")) d.classList.add("curtain-covered");
+  } catch (e) {}
+
+  // 逐行揭示的预备态，见 globals.css 的 .reveal-armed
+  d.classList.add("reveal-armed");
+
+  // 兜底：动效脚本没能加载时，幕布与预备态都必须自己散掉。
+  // 这个站的流量全靠文字被读到，不能赌 chunk 一定加载成功。
+  setTimeout(function () {
+    d.classList.remove("curtain-covered");
+  }, 2500);
+  setTimeout(function () {
+    d.classList.remove("reveal-armed");
+  }, 4000);
+})();
+</script>
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html#services" class="nav-back" aria-label="Back to Services">←</a>
+      <a href="index.html" class="nav-logo">H2O<span>Dreamer</span> Studio</a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="nav-links" id="navLinks">
+        <li class="has-dropdown">
+          <span class="nav-parent" tabindex="0" role="button" aria-expanded="false"><span data-lang-en="Services" data-lang-cn="服务">服务</span><span class="caret" aria-hidden="true">▾</span></span>
+          <ul class="dropdown-menu">
+            <li><a href="landing-page" data-lang-en="Website Design" data-lang-cn="网站设计">网站设计</a></li>
+            <li><a href="wedding-basic" data-lang-en="Wedding E-Invitation" data-lang-cn="婚礼喜帖">婚礼喜帖</a></li>
+            <li><a href="shopify-migration" data-lang-en="Shopify Migration" data-lang-cn="Shopify 迁移">Shopify 迁移</a></li>
+            <li><a href="pricing" data-lang-en="Pricing" data-lang-cn="价格方案">价格方案</a></li>
+          </ul>
+        </li>
+        <li><a href="about" data-lang-en="About" data-lang-cn="关于">关于</a></li>
+        <li><a href="index.html#work" data-lang-en="Work" data-lang-cn="作品">作品</a></li>
+        <li><a href="blog/index.html" data-lang-en="Blog" data-lang-cn="博客">博客</a></li>
+        <li><a href="contact" data-lang-en="Contact" data-lang-cn="联系">联系</a></li>
+      </ul>
+
+      <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
+        <span class="lang-cn">中文</span> / <span class="lang-en">EN</span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ============ DETAIL HERO ============ -->
+    <section class="detail-hero" id="hero">
+      <div class="hero-bg-glow"></div>
+      <a href="index.html#services" class="back-link"
+         data-lang-en="← Back to Services"
+         data-lang-cn="← 返回服务列表">← Back to Services</a>
+      <div class="hero-inner">
+        <div class="hero-badge"
+             data-lang-en="Website Design"
+             data-lang-cn="网站设计">Website Design</div>
+        <h1 data-lang-en="Your Business Deserves More Than a Facebook Page"
+            data-lang-cn="你的生意，值得比 Facebook 专页更专业的存在">
+          你的生意，值得比 Facebook 专页更专业的存在
+        </h1>
+        <p class="hero-sub"
+           data-lang-en="A website built to convert, with WhatsApp integration, SEO basics, and real analytics. So you know exactly where your customers come from and what makes them enquire."
+           data-lang-cn="一个专为转化而打造的网站：内建 WhatsApp 集成、SEO 基础和真实数据分析。让你清楚知道客户从哪里来，什么促使他们询问。">
+          一个专为转化而打造的网站：内建 WhatsApp 集成、SEO 基础和真实数据分析。让你清楚知道客户从哪里来，什么促使他们询问。
+        </p>
+        <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20I'm%20interested%20in%20building%20a%20website%20(from%20RM%20590).%20My%20business%20is%20%5Bbusiness%20type%5D."
+           class="btn-primary" target="_blank" rel="noopener"
+           data-lang-en="💬 Build My Website, From {{starter}}"
+           data-lang-cn="💬 建立我的网站：从 {{starter}}">
+          💬 建立我的网站：从 {{starter}}
+        </a>
+        <p class="hero-price"
+           data-lang-en="Usually replies within 1 hour"
+           data-lang-cn="通常在 1 小时内回复">通常在 1 小时内回复</p>
+      </div>
+    </section>
+
+     
+    <!-- ============ PORTFOLIO SHOWCASE ============ -->
+    <section class="portfolio-showcase" id="showcase">
+      <div class="section-inner">
+        <div class="section-label"
+             data-lang-en="Built for Real Businesses Like Yours"
+             data-lang-cn="为像你一样的真实企业打造">为像你一样的真实企业打造</div>
+        <h2 class="section-title"
+            data-lang-en="Built for Real <em>Businesses</em> Like Yours"
+            data-lang-cn="为像你一样的真实<em>企业</em>打造">
+          为像你一样的真实<em>企业</em>打造
+        </h2>
+        <p class="section-body"
+           data-lang-en="From restaurants to skincare brands to service providers. I design pages that match your industry and speak to your customers."
+           data-lang-cn="从餐饮到护肤品牌到服务商：我设计符合你行业、打动你客户的页面。">
+          从餐饮到护肤品牌到服务商：我设计符合你行业、打动你客户的页面。
+        </p>
+        <p class="section-body" style="margin-top:-6px;font-size:.9em;opacity:.72;"
+           data-lang-en="Note: every example below is a concept demo, a design showcase, not a real client or a live business."
+           data-lang-cn="说明：以下每个示例都是概念示范作品，用来展示设计的样板，并非真实客户或真实营业中的商家。">
+          说明：以下每个示例都是概念示范作品，用来展示设计的样板，并非真实客户或真实营业中的商家。
+        </p>
+
+        <div class="showcase-grid">
+
+          <!-- Demo 1: F&B / Restaurant -->
+          <div class="showcase-item reveal reveal-up">
+            <div class="showcase-item-frames">
+              <div class="mockup-desktop">
+                <div class="mockup-desktop-bar">
+                  <span class="mockup-dot mockup-dot-red"></span>
+                  <span class="mockup-dot mockup-dot-yellow"></span>
+                  <span class="mockup-dot mockup-dot-green"></span>
+                </div>
+                <img src="assets/portfolio/landing-fnb-1-desktop.webp"
+                     alt="F&B Restaurant landing page - desktop view"
+                     loading="lazy" width="1440" height="900">
+              </div>
+              <div class="mockup-mobile">
+                <img src="assets/portfolio/landing-fnb-1-mobile.webp"
+                     alt="F&B Restaurant landing page - mobile view"
+                     loading="lazy" width="780" height="1688">
+              </div>
+            </div>
+            <div class="showcase-item-caption">
+              <span data-lang-en="F&B / Restaurant" data-lang-cn="餐饮 / 餐厅">餐饮 / 餐厅</span>
+              <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+                <a href="case-studies/wok-and-flame-fnb.html" class="demo-btn"
+                   data-lang-en="Read Case Study →" data-lang-cn="看设计拆解 →">
+                  看设计拆解 →
+                </a>
+                <a href="demos/landing-fnb-1/landing-fnb-1.html" class="demo-btn" target="_blank" rel="noopener"
+                   data-lang-en="View Live Demo →" data-lang-cn="查看在线演示 →">
+                  查看在线演示 →
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Demo 2: Beauty / Skincare -->
+          <div class="showcase-item reveal reveal-up">
+            <div class="showcase-item-frames">
+              <div class="mockup-desktop">
+                <div class="mockup-desktop-bar">
+                  <span class="mockup-dot mockup-dot-red"></span>
+                  <span class="mockup-dot mockup-dot-yellow"></span>
+                  <span class="mockup-dot mockup-dot-green"></span>
+                </div>
+                <img src="assets/portfolio/landing-beauty-desktop.webp"
+                     alt="Beauty Skincare landing page - desktop view"
+                     loading="lazy" width="700" height="440">
+              </div>
+              <div class="mockup-mobile">
+                <img src="assets/portfolio/landing-beauty-mobile.webp"
+                     alt="Beauty Skincare landing page - mobile view"
+                     loading="lazy" width="280" height="560">
+              </div>
+            </div>
+            <div class="showcase-item-caption">
+              <span data-lang-en="Beauty / Skincare" data-lang-cn="美容 / 护肤">美容 / 护肤</span>
+              <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+                <a href="case-studies/glow-seoul-skincare.html" class="demo-btn"
+                   data-lang-en="Read Case Study →" data-lang-cn="看设计拆解 →">
+                  看设计拆解 →
+                </a>
+                <a href="demos/glowseoul-skincare.html" class="demo-btn" target="_blank" rel="noopener"
+                   data-lang-en="View Live Demo →" data-lang-cn="查看在线演示 →">
+                  查看在线演示 →
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Demo 3: Home Services / Aircon -->
+          <div class="showcase-item reveal reveal-up">
+            <div class="showcase-item-frames">
+              <div class="mockup-desktop">
+                <div class="mockup-desktop-bar">
+                  <span class="mockup-dot mockup-dot-red"></span>
+                  <span class="mockup-dot mockup-dot-yellow"></span>
+                  <span class="mockup-dot mockup-dot-green"></span>
+                </div>
+                <img src="assets/portfolio/landing-aircon-desktop.webp"
+                     alt="Home Services Aircon landing page - desktop view"
+                     loading="lazy" width="700" height="440">
+              </div>
+              <div class="mockup-mobile">
+                <img src="assets/portfolio/landing-aircon-mobile.webp"
+                     alt="Home Services Aircon landing page - mobile view"
+                     loading="lazy" width="280" height="560">
+              </div>
+            </div>
+            <div class="showcase-item-caption">
+              <span data-lang-en="Home Services / Aircon" data-lang-cn="家居服务 / 冷气">家居服务 / 冷气</span>
+              <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+                <a href="case-studies/cooltech-aircon.html" class="demo-btn"
+                   data-lang-en="Read Case Study →" data-lang-cn="看设计拆解 →">
+                  看设计拆解 →
+                </a>
+                <a href="demos/cooltech-aircon-v2.html" class="demo-btn" target="_blank" rel="noopener"
+                   data-lang-en="View Live Demo →" data-lang-cn="查看在线演示 →">
+                  查看在线演示 →
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Demo 4: Beauty Salon / JB -->
+          <div class="showcase-item reveal reveal-up">
+            <div class="showcase-item-frames">
+              <div class="mockup-desktop">
+                <div class="mockup-desktop-bar">
+                  <span class="mockup-dot mockup-dot-red"></span>
+                  <span class="mockup-dot mockup-dot-yellow"></span>
+                  <span class="mockup-dot mockup-dot-green"></span>
+                </div>
+                <img src="assets/portfolio/landing-serai-pop-desktop.webp"
+                     alt="Beauty Salon landing page - desktop view"
+                     loading="lazy" width="700" height="440">
+              </div>
+              <div class="mockup-mobile">
+                <img src="assets/portfolio/landing-serai-pop-mobile.webp"
+                     alt="Beauty Salon landing page - mobile view"
+                     loading="lazy" width="280" height="560">
+              </div>
+            </div>
+            <div class="showcase-item-caption">
+              <span data-lang-en="Beauty Salon / Johor Bahru" data-lang-cn="美容院 / 新山">美容院 / 新山</span>
+              <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+                <a href="demos/serai-beauty-jb-pop.html" class="demo-btn" target="_blank" rel="noopener"
+                   data-lang-en="View Live Demo →" data-lang-cn="查看在线演示 →">
+                  查看在线演示 →
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WAVE DIVIDER-DOWN ============ -->
+    <div class="section-rule" aria-hidden="true"></div>
+    
+
+    <!-- ============ WHAT'S INCLUDED ============ -->
+    <section class="included-section" id="included">
+      <div class="section-inner">
+        <div class="section-label"
+             data-lang-en="What's Included"
+             data-lang-cn="包含内容">包含内容</div>
+        <h2 class="section-title"
+            data-lang-en="Everything You <em>Need</em>"
+            data-lang-cn="你需要的<em>一切</em>">
+          你需要的<em>一切</em>
+        </h2>
+
+        <div class="included-grid">
+
+          <div class="included-item reveal reveal-up">
+            <span class="item-icon">📱</span>
+            <h4 data-lang-en="Responsive Design"
+                data-lang-cn="响应式设计">响应式设计</h4>
+            <p data-lang-en="Looks great on desktop, tablet, and mobile, because your customers browse on all three."
+               data-lang-cn="电脑、平板、手机都完美呈现：因为你的客户用各种设备浏览。">
+              电脑、平板、手机都完美呈现：因为你的客户用各种设备浏览。
+            </p>
+          </div>
+
+          <div class="included-item reveal reveal-up">
+            <span class="item-icon">💬</span>
+            <h4 data-lang-en="WhatsApp Click-to-Chat"
+                data-lang-cn="WhatsApp 一键聊天">WhatsApp 一键聊天</h4>
+            <p data-lang-en="One tap and your customer is chatting with you on WhatsApp. The fastest path from interest to enquiry."
+               data-lang-cn="客户点一下就能在 WhatsApp 联系你。从感兴趣到询问的最快路径。">
+              客户点一下就能在 WhatsApp 联系你。从感兴趣到询问的最快路径。
+            </p>
+          </div>
+
+          <div class="included-item reveal reveal-up">
+            <span class="item-icon">🔍</span>
+            <h4 data-lang-en="SEO Basics"
+                data-lang-cn="SEO 基础优化">SEO 基础优化</h4>
+            <p data-lang-en="Proper meta tags, headings, and structure so Google can find you, and rank you above competitors who don't bother."
+               data-lang-cn="正确的 meta 标签、标题结构，让 Google 找到你：排名超越那些不重视 SEO 的竞争对手。">
+              正确的 meta 标签、标题结构，让 Google 找到你：排名超越那些不重视 SEO 的竞争对手。
+            </p>
+          </div>
+
+          <div class="included-item reveal reveal-up">
+            <span class="item-icon">📊</span>
+            <h4 data-lang-en="GA4 Tracking"
+                data-lang-cn="GA4 数据追踪">GA4 数据追踪</h4>
+            <p data-lang-en="Know how many people visit, where they come from, and which buttons they click. Data-driven decisions, not guesswork."
+               data-lang-cn="了解多少人访问、从哪来、点了哪些按钮。用数据做决策，不靠猜。">
+              了解多少人访问、从哪来、点了哪些按钮。用数据做决策，不靠猜。
+            </p>
+          </div>
+
+          <div class="included-item reveal reveal-up">
+            <span class="item-icon">📝</span>
+            <h4 data-lang-en="Contact Form"
+                data-lang-cn="联系表单">联系表单</h4>
+            <p data-lang-en="A simple, clean form that sends enquiries straight to your email or WhatsApp."
+               data-lang-cn="简洁的表单，询问直接发送到你的邮箱或 WhatsApp。">
+              简洁的表单，询问直接发送到你的邮箱或 WhatsApp。
+            </p>
+          </div>
+
+          <div class="included-item reveal reveal-up">
+            <span class="item-icon">🌐</span>
+            <h4 data-lang-en="Custom Domain Setup Guidance"
+                data-lang-cn="自定义域名设置指导">自定义域名设置指导</h4>
+            <p data-lang-en="I guide you through connecting your own domain (e.g. yourbusiness.com) so your page looks 100% professional."
+               data-lang-cn="我指导你连接自己的域名（如 yourbusiness.com），让页面看起来 100% 专业。">
+              我指导你连接自己的域名（如 yourbusiness.com），让页面看起来 100% 专业。
+            </p>
+          </div>
+
+          <div class="included-item reveal reveal-up">
+            <span class="item-icon">📤</span>
+            <h4 data-lang-en="Content Upload"
+                data-lang-cn="内容上传">内容上传</h4>
+            <p data-lang-en="Send me your text, photos, and logo. I handle all the formatting and placement."
+               data-lang-cn="把文字、照片和 logo 发给我：排版和放置全由我处理。">
+              把文字、照片和 logo 发给我：排版和放置全由我处理。
+            </p>
+          </div>
+
+          <div class="included-item reveal reveal-up">
+            <span class="item-icon">⚡</span>
+            <h4 data-lang-en="Speed Optimization"
+                data-lang-cn="速度优化">速度优化</h4>
+            <p data-lang-en="Fast-loading pages keep visitors around. I optimize images, code, and hosting for best performance."
+               data-lang-cn="加载快的页面留住访客。我优化图片、代码和托管，确保最佳性能。">
+              加载快的页面留住访客。我优化图片、代码和托管，确保最佳性能。
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WAVE DIVIDER (deep → mid) ============ -->
+    <div class="section-rule" aria-hidden="true"></div>
+    <!-- ============ PROCESS STEPS ============ -->
+    <section class="process-section" id="process">
+      <div class="section-inner">
+        <div class="section-label"
+             data-lang-en="How It Works"
+             data-lang-cn="制作流程">制作流程</div>
+        <h2 class="section-title"
+            data-lang-en="From <em>Brief</em> to <em>Launch</em>"
+            data-lang-cn="从<em>需求</em>到<em>上线</em>">
+          从<em>需求</em>到<em>上线</em>
+        </h2>
+
+        <div class="process-steps">
+
+          <div class="process-step reveal reveal-up">
+            <div class="step-num">1</div>
+            <h4 data-lang-en="Discovery" data-lang-cn="了解需求">了解需求</h4>
+            <p data-lang-en="I learn about your business, target customers, and goals. You tell me what success looks like."
+               data-lang-cn="我了解你的业务、目标客户和目标。你告诉我什么算成功。">
+              我了解你的业务、目标客户和目标。你告诉我什么算成功。
+            </p>
+          </div>
+
+          <div class="process-step reveal reveal-up">
+            <div class="step-num">2</div>
+            <h4 data-lang-en="Design & Build" data-lang-cn="设计 & 建设">设计 & 建设</h4>
+            <p data-lang-en="I create a design spec for your approval, then build the page with all integrations."
+               data-lang-cn="我先做设计规格让你确认，然后建设页面并集成所有功能。">
+              我先做设计规格让你确认，然后建设页面并集成所有功能。
+            </p>
+          </div>
+
+          <div class="process-step reveal reveal-up">
+            <div class="step-num">3</div>
+            <h4 data-lang-en="Review" data-lang-cn="审查">审查</h4>
+            <p data-lang-en="You get a preview link. Two rounds of revisions to fine-tune copy, layout, and details."
+               data-lang-cn="你会收到预览链接。两轮修改来微调文案、排版和细节。">
+              你会收到预览链接。两轮修改来微调文案、排版和细节。
+            </p>
+          </div>
+
+          <div class="process-step reveal reveal-up">
+            <div class="step-num">4</div>
+            <h4 data-lang-en="Launch & Track" data-lang-cn="上线 & 追踪">上线 & 追踪</h4>
+            <p data-lang-en="I take your page live, set up GA4, and show you how to read your visitor data. Total: 3 days – 2 weeks, depending on plan."
+               data-lang-cn="正式上线，设置 GA4，教你如何看懂访客数据。全程：3 天 – 2 周（视方案而定）。">
+              正式上线，设置 GA4，教你如何看懂访客数据。全程：3 天 – 2 周（视方案而定）。
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+    <!-- ============ WAVE DIVIDER-DOWN ============ -->
+    <div class="section-rule" aria-hidden="true"></div>
+    <!-- ============ PRICING / TIERS ============ -->
+    <section class="included-section" id="pricing">
+      <div class="section-inner">
+        <div class="section-label" data-lang-en="Pricing" data-lang-cn="方案与定价">方案与定价</div>
+        <h2 class="section-title"
+            data-lang-en="Pick the <em>plan</em> that fits"
+            data-lang-cn="选一个适合你的<em>方案</em>">
+          选一个适合你的<em>方案</em>
+        </h2>
+        <p class="section-body"
+           data-lang-en="From a single landing page to a full corporate site: start where you are, and upgrade when you're ready."
+           data-lang-cn="从单页着陆页到完整企业网站：从你现在的需求起步，准备好了再升级。">
+          从单页着陆页到完整企业网站：从你现在的需求起步，准备好了再升级。
+        </p>
+
+        <div class="service-grid service-grid--trio">
+
+          <article class="service-card" data-tier="basic">
+            <div class="service-tier" data-lang-en="Starter" data-lang-cn="入门版">Starter</div>
+            <h3 class="service-name" data-lang-en="1-Page Landing" data-lang-cn="单页着陆页">1-Page Landing</h3>
+            <p class="service-tagline" data-lang-en="Get your business online: the simplest way to start." data-lang-cn="先让生意上线：最简单的起步方式。">Get your business online: the simplest way to start.</p>
+            <ul class="service-features">
+              <li data-lang-en="1-page design (up to 4 sections)" data-lang-cn="1 页设计（最多 4 个区块）">1-page design (up to 4 sections)</li>
+              <li data-lang-en="Mobile responsive" data-lang-cn="手机响应式">Mobile responsive</li>
+              <li data-lang-en="Customizable template" data-lang-cn="可定制模板">Customizable template</li>
+              <li data-lang-en="1 simple contact form" data-lang-cn="1 个简易联络表单">1 simple contact form</li>
+            </ul>
+            <div class="service-meta" data-lang-en="⏱ 3–5 days · 🔄 1 revision round" data-lang-cn="⏱ 3–5 天 · 🔄 1 次修改">⏱ 3–5 days · 🔄 1 revision round</div>
+            <div class="service-price-row">
+              <div class="service-price"><span data-lang-en="From" data-lang-cn="起价">From</span> <strong>{{starter}}</strong></div>
+            </div>
+            <a class="service-cta" href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20I'm%20interested%20in%20the%20Starter%201-Page%20Landing%20(RM%20590).%20My%20business%20is%20%5Bbusiness%20type%5D.%20Can%20we%20chat?" target="_blank" rel="noopener" data-lang-en="💬 Start with Starter" data-lang-cn="💬 入门版开始" onclick="gtag('event','click',{event_category:'WhatsApp',event_label:'Starter Landing'})">💬 Start with Starter</a>
+          </article>
+
+          <article class="service-card service-card--highlighted" data-tier="premium">
+            <div class="service-badge" data-lang-en="Popular" data-lang-cn="热门">热门</div>
+            <div class="service-tier" data-lang-en="Basic" data-lang-cn="进阶版">Basic</div>
+            <h3 class="service-name" data-lang-en="1-Page Landing" data-lang-cn="单页着陆页">1-Page Landing</h3>
+            <p class="service-tagline" data-lang-en="The page that actually brings you enquiries." data-lang-cn="真正帮你带来询盘的那一页。">The page that actually brings you enquiries.</p>
+            <ul class="service-features">
+              <li data-lang-en="1-page design (up to 5 sections)" data-lang-cn="1 页设计（最多 5 个区块）">1-page design (up to 5 sections)</li>
+              <li data-lang-en="Mobile responsive" data-lang-cn="手机响应式">Mobile responsive</li>
+              <li data-lang-en="Customizable design" data-lang-cn="可定制设计">Customizable design</li>
+              <li data-lang-en="1 simple contact form" data-lang-cn="1 个简易联络表单">1 simple contact form</li>
+              <li data-lang-en="✨ Basic SEO" data-lang-cn="✨ 基础 SEO">✨ Basic SEO</li>
+              <li data-lang-en="✨ WhatsApp Live Chat" data-lang-cn="✨ WhatsApp 在线聊天">✨ WhatsApp Live Chat</li>
+              <li data-lang-en="✨ Facebook Pixel" data-lang-cn="✨ Facebook Pixel">✨ Facebook Pixel</li>
+              <li data-lang-en="✨ Google Analytics" data-lang-cn="✨ Google Analytics">✨ Google Analytics</li>
+            </ul>
+            <div class="service-meta" data-lang-en="⏱ 5–7 days · 🔄 2 revision rounds" data-lang-cn="⏱ 5–7 天 · 🔄 2 次修改">⏱ 5–7 days · 🔄 2 revision rounds</div>
+            <div class="service-price-row">
+              <div class="service-price"><span data-lang-en="From" data-lang-cn="起价">From</span> <strong>{{basic}}</strong></div>
+            </div>
+            <a class="service-cta" href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20I'm%20interested%20in%20the%20Basic%201-Page%20Landing%20(RM%201%2C000).%20My%20business%20is%20%5Bbusiness%20type%5D.%20Can%20we%20chat?" target="_blank" rel="noopener" data-lang-en="💬 Build My Landing" data-lang-cn="💬 建立我的着陆页" onclick="gtag('event','click',{event_category:'WhatsApp',event_label:'Basic Landing'})">💬 Build My Landing</a>
+          </article>
+
+          <article class="service-card" data-tier="basic">
+            <div class="service-tier" data-lang-en="Standard" data-lang-cn="企业版">Standard</div>
+            <h3 class="service-name" data-lang-en="Corporate Website" data-lang-cn="多页企业网站">Corporate Website</h3>
+            <p class="service-tagline" data-lang-en="A full website that grows with your business." data-lang-cn="一个随生意一起成长的完整网站。">A full website that grows with your business.</p>
+            <ul class="service-features">
+              <li data-lang-en="5-page design" data-lang-cn="5 页设计">5-page design</li>
+              <li data-lang-en="Mobile responsive" data-lang-cn="手机响应式">Mobile responsive</li>
+              <li data-lang-en="Customizable design" data-lang-cn="可定制设计">Customizable design</li>
+              <li data-lang-en="1 contact form" data-lang-cn="1 个联络表单">1 contact form</li>
+              <li data-lang-en="✨ Basic SEO" data-lang-cn="✨ 基础 SEO">✨ Basic SEO</li>
+              <li data-lang-en="✨ WhatsApp Live Chat" data-lang-cn="✨ WhatsApp 在线聊天">✨ WhatsApp Live Chat</li>
+              <li data-lang-en="✨ Facebook Pixel" data-lang-cn="✨ Facebook Pixel">✨ Facebook Pixel</li>
+              <li data-lang-en="✨ Google Analytics" data-lang-cn="✨ Google Analytics">✨ Google Analytics</li>
+              <li data-lang-en="✨ Auto Google Indexing" data-lang-cn="✨ 自动 Google 收录">✨ Auto Google Indexing</li>
+            </ul>
+            <div class="service-meta" data-lang-en="⏱ 1–2 weeks · 🔄 2 revision rounds" data-lang-cn="⏱ 1–2 周 · 🔄 2 次修改">⏱ 1–2 weeks · 🔄 2 revision rounds</div>
+            <div class="service-price-row">
+              <div class="service-price"><span data-lang-en="From" data-lang-cn="起价">From</span> <strong>{{standard}}</strong></div>
+            </div>
+            <a class="service-cta" href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20I'm%20interested%20in%20the%20Standard%205-Page%20Website%20(RM%202%2C500).%20My%20business%20is%20%5Bbusiness%20type%5D.%20Can%20we%20chat?" target="_blank" rel="noopener" data-lang-en="💬 Build My Website" data-lang-cn="💬 建立我的网站" onclick="gtag('event','click',{event_category:'WhatsApp',event_label:'Standard Website'})">💬 Build My Website</a>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WAVE DIVIDER (pricing deep → faq mid) ============ -->
+    <div class="section-rule" aria-hidden="true"></div>
+    <!-- ============ FAQ ============ -->
+    <section class="detail-faq" id="faq">
+      <div class="section-inner">
+        <div class="section-label"
+             data-lang-en="Questions"
+             data-lang-cn="常见问题">常见问题</div>
+        <h2 class="section-title"
+            data-lang-en="Got questions?<br>I've got answers."
+            data-lang-cn="你想知道的，<br>我都为你准备好了。">
+          你想知道的，<br>我都为你准备好了。
+        </h2>
+        <div class="faq-list">
+
+          <details class="faq-item" open>
+            <summary>
+              <span data-lang-en="Do I need to have my own domain?"
+                    data-lang-cn="需要自己的域名吗？">需要自己的域名吗？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="Not required but recommended. I can guide you to buy one (typically RM 40-80/year) or host on a subdomain if you prefer."
+                 data-lang-cn="不是必须，但建议有。我可以指导你购买（通常 RM 40-80/年），或者用子域名也可以。">
+              不是必须，但建议有。我可以指导你购买（通常 RM 40-80/年），或者用子域名也可以。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="Can I update the content myself after launch?"
+                    data-lang-cn="上线后可以自己更新内容吗？">上线后可以自己更新内容吗？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="Yes. I build with easy editing in mind and provide a handover guide. Or contact me for content update support."
+                 data-lang-cn="可以。我会考虑到方便编辑，并提供交接指南。也可以联系我协助更新内容。">
+              可以。我会考虑到方便编辑，并提供交接指南。也可以联系我协助更新内容。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="What about hosting? Is it included?"
+                    data-lang-cn="主机服务包含在内吗？">主机服务包含在内吗？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="I help you set up hosting on a reliable platform. Hosting fees (typically RM 10-30/month) are paid directly to the provider."
+                 data-lang-cn="我协助你在可靠的平台设置主机。主机费用（通常 RM 10-30/月）直接向服务商支付。">
+              我协助你在可靠的平台设置主机。主机费用（通常 RM 10-30/月）直接向服务商支付。
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span data-lang-en="How does the WhatsApp integration work?"
+                    data-lang-cn="WhatsApp 集成怎么运作？">WhatsApp 集成怎么运作？</span>
+              <span class="faq-chevron">+</span>
+            </summary>
+            <div class="faq-answer"
+                 data-lang-en="I add a floating WhatsApp button and click-to-chat links throughout your page. When visitors tap, it opens a WhatsApp chat with your number: pre-filled with a message so you know which page they came from."
+                 data-lang-cn="我在页面上加入浮动 WhatsApp 按钮和一键聊天链接。访客点击后直接打开 WhatsApp 对话：预填信息让你知道他们从哪个页面来的。">
+              我在页面上加入浮动 WhatsApp 按钮和一键聊天链接。访客点击后直接打开 WhatsApp 对话：预填信息让你知道他们从哪个页面来的。
+            </div>
+          </details>
+
+        </div>
+      </div>
+    </section>
+
+   <!-- ============ WAVE DIVIDER-DOWN ============ -->
+    <div class="section-rule" aria-hidden="true"></div>
+
+    <!-- ============ FINAL CTA ============ -->
+    <section class="detail-cta" id="cta">
+      <div class="section-inner">
+        <h2 class="section-title"
+            data-lang-en="Ready to take your <em>first step</em>?"
+            data-lang-cn="准备好迈出<em>第一步</em>了吗？">
+          准备好迈出<em>第一步</em>了吗？
+        </h2>
+        <p class="motivation"
+           data-lang-en="Every day without a proper website is a day your competitors are getting the enquiries that should be yours."
+           data-lang-cn="没有专业网站的每一天，都是竞争对手在接收本该属于你的询盘。">
+          没有专业网站的每一天，都是竞争对手在接收本该属于你的询盘。
+        </p>
+        <div class="contact-buttons">
+          <a href="https://wa.me/60175138694?text=Hi%20H2ODreamer!%20I'm%20interested%20in%20building%20a%20website%20(from%20RM%20590).%20My%20business%20is%20%5Bbusiness%20type%5D."
+             class="btn-wa" target="_blank" rel="noopener"
+             data-lang-en="💬 WhatsApp Me: Let's Build Your Page"
+             data-lang-cn="💬 WhatsApp 咨询：开始建立你的页面">
+            💬 WhatsApp 咨询：开始建立你的页面
+          </a>
+          <a href="mailto:H2Odreamer@outlook.com" class="btn-email"
+             data-lang-en="📧 Email Me"
+             data-lang-cn="📧 发送邮件">
+            📧 发送邮件
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>&copy; 2026 H2ODreamer Studio &middot; Malaysia</p>
+      <a href="privacy.html"
+         data-lang-en="Privacy Policy"
+         data-lang-cn="隐私政策">隐私政策</a>
+      <a href="terms.html" data-lang-en="Terms of Service" data-lang-cn="服务条款">服务条款</a>
+    </div>
+  </footer>
+
+  <script src="js/main.min.js" defer></script>
+  <script>
+  (function(){
+    function scaleIframes(){
+      document.querySelectorAll('.mockup-iframe-wrap').forEach(function(wrap){
+        var iframe=wrap.querySelector('iframe');
+        if(iframe) iframe.style.transform='scale('+wrap.offsetWidth/1440+')';
+      });
+      document.querySelectorAll('.mockup-iframe-wrap-mobile').forEach(function(wrap){
+        var iframe=wrap.querySelector('iframe');
+        if(iframe) iframe.style.transform='scale('+wrap.offsetWidth/390+')';
+      });
+    }
+    window.addEventListener('load',scaleIframes);
+    window.addEventListener('resize',scaleIframes);
+  })();
+  </script>
+
+  <script src="/js/lenis.min.js" defer></script>
+  <script src="/js/motion.js" defer></script>
+</body>
+</html>

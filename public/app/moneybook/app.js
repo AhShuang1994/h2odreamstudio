@@ -1,0 +1,1425 @@
+/* 小帐本：纯前端离线记帐 PWA
+   帐本全部存在浏览器 localStorage，不上传任何服务器，也不去任何地方取汇率。
+   唯一的例外是使用者自己开启的银行邮件自动记帐（ADR-0002、ADR-0003）：还没同步的邮件
+   加密后暂放在收件箱 Worker，这里拉回来解封、记进本机，服务器随即删掉。
+
+   这个文件只负责**渲染与事件接线**。状态、迁移与全部派生数字都在 ledger.js，
+   那一层是纯的，也是唯一被自动化测试盯着的地方（见 #98）。 */
+import * as L from './ledger.js';
+import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
+
+(() => {
+  'use strict';
+
+  const VERSION = '2.0.0';
+  // 储存键保持不变：改键名会让旧资料找不到，风险远大于「键名写着 v1 而资料是 v2」
+  // 这点观感问题。版本号在资料里（state.version），迁移看的是它。
+  const KEY = 'moneybook.v1';
+
+  // 收件箱（workers/moneybook-inbox）。留空 = 这个功能根本不被创建，
+  // 「更多」页不会出现那一段，跟没做过一模一样。部署 Worker 之后填上它的网址。
+  const INBOX_API = 'https://moneybook-inbox.h2odreamerstudio.workers.dev';
+  // 设置步骤里列出来的寄件人：每个地址建一个「电子邮件」自动化。
+  // 加了一家银行的规则（ledger.js 的 BANK_RULES）就在这里补上它的寄件地址
+  const MAIL_SENDERS = [
+    ['ibanking.alert@dbs.com', 'DBS 信用卡、PayNow'],
+    ['paylah.alert@dbs.com', 'DBS PayLah!']
+  ];
+
+  // 分类色定义在 CSS 的 --cat-1…--cat-10，主题要换整组就只改 CSS。
+  // 这里只吐出 var() 字串，写进 inline style 由浏览器解析。
+  const catColor = i => `var(--cat-${(i % 10) + 1})`;
+
+  const $  = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+  // ── 状态 ────────────────────────────────────────────
+  const loaded = L.loadState(localStorage.getItem(KEY));
+  let state = loaded.state;
+  // 读不懂的资料绝不回存：拿预设值覆盖掉，才是真的把使用者的帐弄丢
+  let readOnly = loaded.corrupt;
+
+  let view = 'entry';
+  let side = L.activeSide(state);   // 当前在看哪一侧
+  let entryType = 'expense';        // 记帐页：支出 / 收入 / 转帐
+  let statsType = 'expense';        // 统计页
+  const openCats = new Set();       // 统计页里点开了明细的分类。翻月、换侧都保留，没有那一格就不显示
+  let catEditType = 'expense';      // 设定页分类编辑
+  let recType = 'expense';          // 固定收支
+  let recFirstTouched = false;      // 使用者改过首期没有：改过就不再自动跳默认值
+  let editingRuleId = null;         // 正在编辑哪条固定收支。null = 表单在「新增」态
+  let picked = null;                // 已选分类 id
+  let buffer = '0';                 // 金额输入缓冲
+  let editingId = null;
+  let inboxDraft = null;            // 正在手记收件箱里的哪一笔（外币消费、认不得的邮件）。存了就从清单拿掉
+  let curMonth = L.monthOf(new Date());
+  let deferredPrompt = null;
+
+  /** 存进本机。返回有没有真的存到：收件箱要存到了才去服务器那边确认删除。 */
+  function save() {
+    if (readOnly) return false;
+    try {
+      localStorage.setItem(KEY, JSON.stringify(state));
+      return true;
+    } catch (e) {
+      toast('保存失败：装置空间不足？');
+      return false;
+    }
+  }
+
+  // ── 小工具 ──────────────────────────────────────────
+  const money = (n, cur = side) => L.formatMoney(n, cur);
+
+  function catOf(type, id) {
+    return state.cats[type]?.find(c => c.id === id) || { icon: '❔', name: '未分类' };
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+  let toastTimer;
+  /**
+   * 带动作的 toast 停久一点，也才点得到，平常的 toast 是 pointer-events:none 的，
+   * 不然它会挡住底下的东西。
+   */
+  function toast(msg, action) {
+    const el = $('#toast');
+    el.textContent = msg;
+    if (action) {
+      const b = document.createElement('button');
+      b.className = 'toast-act';
+      b.textContent = action.label;
+      b.addEventListener('click', () => { el.classList.remove('on'); action.onClick(); });
+      el.append(b);
+    }
+    el.classList.toggle('act', Boolean(action));
+    el.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('on'), action ? 6000 : 1800);
+  }
+  /** 走出的那一侧记帐时，对面是谁。只有一侧时为 null。 */
+  const otherSide = () => L.otherSide(state, side);
+
+  // ── 侧切换器 ────────────────────────────────────────
+  // 只有第二币种存在时才被创建。没有它，下面这些 innerHTML 一次都不会跑，
+  // 界面与只有一个币种时完全一致（ADR-0001：不是「模式关着」，是根本没被创建）。
+  function renderSideSwitch() {
+    const el = $('#side-switch');
+    if (!L.hasSecondary(state)) {
+      el.hidden = true;
+      el.innerHTML = '';
+      document.body.classList.remove('two-sided');
+      return;
+    }
+    document.body.classList.add('two-sided');
+    el.hidden = false;
+    el.innerHTML = L.sides(state).map(c => `
+      <button role="tab" aria-selected="${c === side}" class="${c === side ? 'on' : ''}" data-side="${esc(c)}">
+        <b>${esc(c)}</b>
+        <small>累计 ${esc(money(L.cumulative(state, c), c))}</small>
+      </button>`).join('');
+  }
+
+  $('#side-switch').addEventListener('click', e => {
+    const b = e.target.closest('button[data-side]');
+    if (!b || b.dataset.side === side) return;
+    switchSide(b.dataset.side);
+  });
+
+  function switchSide(next) {
+    side = next;
+    L.setActiveSide(state, side);
+    save();
+    // 切了侧，明细、统计、预算全部跟着换：看到的是一套自洽的数字
+    if (editingId) resetEntry(); else { picked = pickedOrFirst(); renderEntry(); }
+    renderSideSwitch();
+    if (view === 'list') renderList();
+    if (view === 'stats') renderStats();
+    if (view === 'more') renderMore();
+    toast(`已切到 ${side}`);
+  }
+
+  // ── 切换页面 ────────────────────────────────────────
+  function show(name) {
+    view = name;
+    closeKeypad();
+    ['entry', 'list', 'stats', 'more'].forEach(v => {
+      $('#view-' + v).hidden = v !== name;
+    });
+    $$('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.view === name));
+    if (name === 'list') renderList();
+    if (name === 'stats') renderStats();
+    if (name === 'more') renderMore();
+  }
+
+  $$('.tabs button').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.view === 'entry' && view !== 'entry') resetEntry();
+    show(b.dataset.view);
+  }));
+
+  // ── 记帐页 ──────────────────────────────────────────
+  const isXfer = () => entryType === L.TRANSFER;
+
+  function pickedOrFirst() {
+    if (isXfer()) return null;
+    const list = state.cats[entryType] || [];
+    return list.some(c => c.id === picked) ? picked : (list[0]?.id || null);
+  }
+
+  /** 分段控件：只有存在第二币种时才长出第三段「转帐」。 */
+  function renderTypeSeg() {
+    const seg = $('#seg-type');
+    const types = [['expense', '支出'], ['income', '收入']];
+    if (L.hasSecondary(state)) types.push([L.TRANSFER, '转帐']);
+    if (!types.some(([t]) => t === entryType)) entryType = 'expense';
+    seg.innerHTML = types.map(([t, label]) =>
+      `<button data-type="${t}" class="${t === entryType ? 'on' : ''}">${label}</button>`).join('');
+  }
+
+  function renderCats() {
+    if (isXfer()) { $('#cats').innerHTML = ''; $('#cats').hidden = true; return; }
+    $('#cats').hidden = false;
+    $('#cats').innerHTML = (state.cats[entryType] || [])
+      .map(c => `<button data-cat="${esc(c.id)}" class="${c.id === picked ? 'on' : ''}">
+                   <i>${esc(c.icon)}</i><span>${esc(c.name)}</span>
+                 </button>`).join('');
+  }
+
+  /** 转帐才出现的到帐金额栏，顺带把这次的汇率算给使用者看。 */
+  function renderXfer() {
+    const box = $('#xfer-box');
+    box.hidden = !isXfer();
+    if (!isXfer()) return;
+    const to = otherSide();
+    $('#xfer-label').textContent = `到帐 ${to}`;
+    $('#xfer-amount').placeholder = `对面实际收到多少 ${to}`;
+
+    const out = parseFloat(buffer) || 0;
+    const got = parseFloat($('#xfer-amount').value) || 0;
+    $('#xfer-rate').textContent = (out > 0 && got > 0)
+      ? `这次的汇率：1 ${side} ≈ ${(got / out).toFixed(4)} ${to}（含手续费的真实成交价）`
+      : '从转帐 app 上抄下实际到帐的数目，含手续费。app 不联网取汇率。';
+  }
+
+  function renderAmount() {
+    $('#amount').textContent = buffer;
+    $('#entry-cur').textContent = side;
+    $('#amount-hint').textContent = isXfer() ? `从 ${side} 走出` : '点一下输入金额';
+    document.body.classList.toggle('income-mode', entryType === 'income');
+    document.body.classList.toggle('xfer-mode', isXfer());
+  }
+
+  /**
+   * 刷卡勾选框**只属于支出**：收入与转帐上不出现，不必回答一个没有意义的问题。
+   *
+   * 切到收入时只是收起来、不清掉勾选：切回支出时使用者本来就期待它还在那里，
+   * 而存下去时也只在支出上读它（saveRecord）。
+   */
+  function renderCard() {
+    $('#card-box').hidden = entryType !== 'expense';
+  }
+
+  function renderEntry() {
+    renderApCards();
+    renderTypeSeg();
+    renderCats();
+    renderCard();
+    renderXfer();
+    renderAmount();
+  }
+
+  function resetEntry() {
+    editingId = null;
+    inboxDraft = null;
+    buffer = '0';
+    side = L.activeSide(state);
+    if (isXfer() && !L.hasSecondary(state)) entryType = 'expense';
+    picked = pickedOrFirst();
+    $('#date').value = L.dateOf(new Date());
+    $('#note').value = '';
+    $('#xfer-amount').value = '';
+    $('#card').checked = L.activeCard(state);   // 沿用上次，一整天刷同一张卡时不必每笔重勾
+    $('#entry-title').textContent = '记一笔';
+    $('#btn-delete').hidden = true;
+    closeKeypad();
+    renderEntry();
+    renderSideSwitch();
+  }
+
+  $('#seg-type').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    entryType = b.dataset.type;
+    picked = pickedOrFirst();
+    renderEntry();
+  });
+
+  $('#cats').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    picked = b.dataset.cat;
+    closeKeypad();
+    renderCats();
+  });
+
+  $('#xfer-amount').addEventListener('input', renderXfer);
+  $('#xfer-amount').addEventListener('focus', closeKeypad);
+
+  $('#keypad').addEventListener('click', e => {
+    const b = e.target.closest('button[data-k]');
+    if (!b) return;
+    const k = b.dataset.k;
+    if (k === 'del') {
+      buffer = buffer.length <= 1 ? '0' : buffer.slice(0, -1);
+      if (buffer === '') buffer = '0';
+    } else if (k === '.') {
+      if (!buffer.includes('.')) buffer += '.';
+    } else {
+      if (buffer === '0') buffer = k;
+      else if (buffer.replace(/\D/g, '').length < 9 && !/\.\d\d$/.test(buffer)) buffer += k;
+    }
+    renderAmount();
+    if (isXfer()) renderXfer();
+  });
+
+  // 键盘是底部抽屉：点金额才滑出。不加遮罩，让分类键与分页列保持可点，
+  // 改由「选好分类 / 保存 / 换页 / 编辑备注 / 点键盘以外任何地方」这些动作自动收起。
+  function openKeypad() {
+    $('#keypad').classList.add('open');
+    $('#amount-tap').classList.add('on');
+  }
+  function closeKeypad() {
+    $('#keypad').classList.remove('open');
+    $('#amount-tap').classList.remove('on');
+  }
+  $('#amount-tap').addEventListener('click', () => {
+    $('#keypad').classList.contains('open') ? closeKeypad() : openKeypad();
+  });
+  // 点键盘与金额框以外的地方就收起。用 pointerdown 而不是 click：iOS Safari 点在
+  // 不可点的空白上不会派发 click 到 document，空白处就收不起来。点下去的那个按钮
+  // （分类、支出/收入）照常生效，因为没有遮罩挡着。
+  document.addEventListener('pointerdown', e => {
+    if (!$('#keypad').classList.contains('open')) return;
+    if (e.target.closest('#keypad, #amount-tap')) return;
+    closeKeypad();
+  });
+  // 备注／日期就在键盘底下，要输入时先收起
+  $('#note').addEventListener('focus', closeKeypad);
+  $('#date').addEventListener('focus', closeKeypad);
+
+  function saveRecord() {
+    if (readOnly) return toast('资料读不懂，已停用写入以免覆盖。请先还原备份。');
+    const amount = parseFloat(buffer);
+    if (!amount || amount <= 0) return toast('请输入金额');
+
+    const date = $('#date').value || L.dateOf(new Date());
+    const note = $('#note').value.trim();
+    const wasEditing = !!editingId;
+    let firstCard = false;
+
+    try {
+      if (isXfer()) {
+        const toAmount = parseFloat($('#xfer-amount').value);
+        if (!toAmount || toAmount <= 0) return toast('请填到帐金额');
+        const payload = {
+          type: L.TRANSFER, amount, currency: side,
+          toAmount, toCurrency: otherSide(), date, note
+        };
+        if (wasEditing) L.updateRecord(state, editingId, payload);
+        else L.addTransfer(state, payload);
+      } else {
+        if (!picked) return toast('请先选一个分类');
+        const prev = wasEditing ? L.findRecord(state, editingId) : null;
+        const card = entryType === 'expense' && $('#card').checked;
+        // 帐本里还没有任何一笔刷卡记录 = 这是第一次勾着存下去。用推导而不是再存一个
+        // 「说明看过没」的旗标（同 rateOf、termOf 的做法）。要在写进去之前问。
+        firstCard = card && !L.hasCard(state);
+        const payload = { type: entryType, amount, currency: side, cat: picked, date, note, card };
+        if (wasEditing) L.updateRecord(state, editingId, payload);
+        else L.addRecord(state, { ...payload, ruleId: prev?.ruleId });
+      }
+    } catch (err) {
+      return toast(err.message);
+    }
+    if (inboxDraft && !wasEditing) L.dropInboxItem(state, inboxDraft);
+
+    toast(wasEditing ? '已更新' : (isXfer() ? '已记下转帐' : '已记帐 ' + money(amount)));
+    save();
+    curMonth = date.slice(0, 7);
+    resetEntry();
+    // 第一次勾刷卡时把话说清楚：这是整件事里唯一会真正弄坏资料的动作，扣款日再记
+    // 一笔「还卡」，同一笔钱就被算两次，而且记下去之后没有任何征兆（#123）。
+    if (firstCard) alert(
+      '这笔已经记成支出了。\n\n' +
+      '银行扣款那天不用再记一笔：那笔钱在你刷卡的当天就已经离开了，' +
+      '扣款日再记一次「还卡」，同一笔钱会被算两次。\n\n' +
+      '这个说明只出现这一次。'
+    );
+    if (wasEditing) show('list');
+  }
+
+  $('#btn-save').addEventListener('click', saveRecord);
+  $('#btn-save-form').addEventListener('click', saveRecord);
+
+  $('#btn-delete').addEventListener('click', () => {
+    if (!editingId) return;
+    const r = L.findRecord(state, editingId);
+    const msg = r && L.isTransfer(r)
+      ? '这是一笔转帐，删除后两侧会同时回退。确定删除？'
+      : '确定删除这笔记录？';
+    if (!confirm(msg)) return;
+    L.removeRecord(state, editingId);
+    save();
+    resetEntry();
+    toast('已删除');
+    show('list');
+  });
+
+  function editRecord(id) {
+    const r = L.findRecord(state, id);
+    if (!r) return;
+    editingId = r.id;
+    entryType = r.type;
+    side = r.currency;                     // 编辑时跟着这笔记录走出的那一侧
+    L.setActiveSide(state, side);
+    picked = L.isTransfer(r) ? null : r.cat;
+    buffer = String(r.amount);
+    $('#date').value = r.date;
+    $('#note').value = r.note || '';
+    $('#xfer-amount').value = L.isTransfer(r) ? String(r.toAmount) : '';
+    $('#card').checked = L.isCard(r);       // 编辑时看到的是这笔自己的标记，不是上次那笔的
+    $('#entry-title').textContent = L.isTransfer(r) ? '编辑转帐' : '编辑记录';
+    $('#btn-delete').hidden = false;
+    renderEntry();
+    renderSideSwitch();
+    show('entry');
+  }
+
+  // ── 月份切换 ────────────────────────────────────────
+  $$('[data-month]').forEach(b => b.addEventListener('click', () => {
+    curMonth = L.shiftMonth(curMonth, Number(b.dataset.month));
+    if (view === 'list') renderList(); else renderStats();
+  }));
+
+  const monthLabel = m => m.replace('-', ' 年 ') + ' 月';
+
+  // ── 明细页 ──────────────────────────────────────────
+  /**
+   * 一条记录在明细里要显示成几行。
+   *
+   * 转帐同时挂在两侧上，所以在当前这一侧只显示它跟这一侧有关的那一行，
+   * 「走出」或「到帐」：读起来跟脑子里的「两笔帐」一致（story 14）。
+   */
+  function linesOf(r) {
+    if (!L.isTransfer(r)) {
+      return [{
+        id: r.id, icon: catOf(r.type, r.cat).icon, title: catOf(r.type, r.cat).name,
+        note: r.note || '', sign: r.type === 'income' ? '+' : '-',
+        cls: r.type, amount: r.amount, ruleId: r.ruleId, term: L.termOf(state, r),
+        card: L.isCard(r)
+      }];
+    }
+    const out = [];
+    if (r.currency === side) {
+      out.push({
+        id: r.id, icon: '📤', title: `转出到 ${r.toCurrency}`,
+        note: r.note || `到帐 ${L.formatMoney(r.toAmount, r.toCurrency)}`,
+        sign: '−', cls: 'xfer', amount: r.amount
+      });
+    }
+    if (r.toCurrency === side) {
+      out.push({
+        id: r.id, icon: '📥', title: `从 ${r.currency} 转入`,
+        note: r.note || `走出 ${L.formatMoney(r.amount, r.currency)}`,
+        sign: '+', cls: 'xfer', amount: r.toAmount
+      });
+    }
+    return out;
+  }
+
+  function renderList() {
+    $('#list-month').textContent = monthLabel(curMonth);
+    const sum = L.monthlySummary(state, side, curMonth);
+    const rs = L.recordsOfMonth(state, side, curMonth);
+
+    // 「累计」而不是「余额」：这个数字是用本 app 以来这一侧的净流入，
+    // 不是银行户口余额：措辞必须让这一点自明（ADR-0001）。
+    $('#list-summary').innerHTML = `
+      <div><small>收入</small><b class="v income">${money(sum.income)}</b></div>
+      <div><small>支出</small><b class="v expense">${money(sum.expense)}</b></div>
+      <div><small>结余</small><b>${money(sum.net)}</b></div>
+      <div><small>累计</small><b>${money(L.cumulative(state, side))}</b></div>`;
+
+    if (!rs.length) {
+      $('#list-body').innerHTML = '<div class="empty">这个月还没有记录<br>切到「记帐」开始吧 ✏️</div>';
+      return;
+    }
+
+    const byDay = {};
+    rs.forEach(r => (byDay[r.date] ||= []).push(r));
+
+    $('#list-body').innerHTML = Object.keys(byDay).sort().reverse().map(day => {
+      const items = byDay[day].slice().reverse().flatMap(linesOf);
+      const dayExp = byDay[day].filter(r => !L.isTransfer(r) && r.type === 'expense')
+        .reduce((s, r) => s + r.amount, 0);
+      const dayInc = byDay[day].filter(r => !L.isTransfer(r) && r.type === 'income')
+        .reduce((s, r) => s + r.amount, 0);
+      const wd = ['日','一','二','三','四','五','六'][new Date(day + 'T00:00:00').getDay()];
+      const head = [dayExp ? '支出 ' + money(dayExp) : '', dayInc ? '收入 ' + money(dayInc) : '']
+        .filter(Boolean).join('　');
+      return `<div class="day">
+        <div class="day-head"><span>${day.slice(5)}　周${wd}</span><span>${head}</span></div>
+        <div class="items">${items.map(it => {
+          // 分期最重要的信息是它会停：标签直接画期次，扫一眼就知道还剩几次。
+          // 算不出期次（无限期、或规则已删）就退回一般的自动记录标签（#118）。
+          const auto = it.ruleId
+            ? `<span class="auto-tag">${it.term ? `💳 ${it.term.index}/${it.term.total}` : '🔁 固定'}</span>`
+            : '';
+          // 刷卡用**文字**徽章，期次那个 💳 不动，它已经在使用者眼睛里跑了一段时间，
+          // 而一笔刷卡的分期不该挂着两个一样的符号（#125）
+          const card = it.card ? '<span class="card-tag">卡</span>' : '';
+          return `<button class="item" data-id="${esc(it.id)}">
+            <i>${esc(it.icon)}</i>
+            <span class="t"><b>${esc(it.title)}${card}${auto}</b><small>${esc(it.note)}</small></span>
+            <span class="v ${it.cls}">${it.sign}${money(it.amount)}</span>
+          </button>`;
+        }).join('')}</div>
+      </div>`;
+    }).join('');
+  }
+
+  $('#list-body').addEventListener('click', e => {
+    const b = e.target.closest('.item');
+    if (b) editRecord(b.dataset.id);
+  });
+
+  // ── 统计页 ──────────────────────────────────────────
+  $('#seg-stats').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    statsType = b.dataset.type;
+    $$('#seg-stats button').forEach(x => x.classList.toggle('on', x === b));
+    renderStats();
+  });
+
+  $('#rank').addEventListener('click', e => {
+    const it = e.target.closest('.item');
+    if (it) return editRecord(it.dataset.id);
+    const b = e.target.closest('.rank-item');
+    if (!b) return;
+    const cat = b.dataset.cat;
+    openCats.has(cat) ? openCats.delete(cat) : openCats.add(cat);
+    renderStats();
+  });
+
+  function renderStats() {
+    $('#stats-month').textContent = monthLabel(curMonth);
+
+    // 预算进度（只在看支出时显示），只吃本侧的支出
+    const bs = statsType === 'expense' ? L.budgetStatus(state, side, curMonth) : null;
+    $('#budget-box').innerHTML = bs ? `<div class="card">
+        <div class="cat-row" style="border:none;padding:0 0 8px">
+          <span>本月预算 ${money(bs.budget)}</span>
+          <b style="color:${bs.over ? 'var(--expense)' : 'var(--income)'}">${
+            bs.over ? '超支 ' + money(-bs.left) : '剩 ' + money(bs.left)}</b>
+        </div>
+        <div class="bar-bg" style="height:6px;background:var(--hairline);border-radius:9999px;overflow:hidden">
+          <i style="display:block;height:100%;width:${bs.pct}%;background:${bs.over ? 'var(--expense)' : 'var(--accent)'}"></i>
+        </div>
+      </div>` : '';
+
+    // 本月刷卡：≈ 下个月要还的钱。整本帐从没出现过刷卡记录的人根本看不到这一行，
+    // 「有没有刷过卡」是它出现的条件，不是一个开关（比照第二币种）。
+    // 切到收入时也整块消失：收入不会刷卡，显示 0 等于暗示它可能。
+    // 有过之后，某个月一笔都没刷仍然照常显示 0：「这个月我没刷卡」是一条信息。
+    const showCard = statsType === 'expense' && L.hasCard(state);
+    $('#card-sum').innerHTML = showCard ? `<div class="card">
+        <div class="cat-row" style="border:none;padding:0">
+          <span>本月刷卡</span>
+          <b class="tnum">${money(L.cardSpentOnSide(state, side, curMonth))}</b>
+        </div>
+        <p class="muted small" style="margin-top:6px">≈ 下个月要还的钱，以银行账单为准</p>
+      </div>` : '';
+
+    // 分类占比：转帐不在其中，汇款不再盖住真实的消费结构
+    const { total, rows } = L.categoryBreakdown(state, side, curMonth, statsType);
+
+    $('#donut-label').textContent = statsType === 'expense' ? '本月支出' : '本月收入';
+    $('#donut-total').textContent = money(total);
+
+    const svg = $('#donut');
+    if (!total) {
+      // 颜色要写在 style，presentation attribute 不吃 var()
+      svg.innerHTML = '<circle cx="21" cy="21" r="15.915" fill="none" style="stroke:var(--hairline)" stroke-width="5"/>';
+      $('#rank').innerHTML = '<div class="empty">这个月没有' + (statsType === 'expense' ? '支出' : '收入') + '记录</div>';
+    } else {
+      let off = 0;
+      svg.innerHTML = rows.map((row, i) => {
+        const len = row.amount / total * 100;
+        const seg = `<circle cx="21" cy="21" r="15.915" fill="none" style="stroke:${catColor(i)}"
+          stroke-width="5" stroke-dasharray="${len.toFixed(2)} ${(100 - len).toFixed(2)}"
+          stroke-dashoffset="${(-off).toFixed(2)}"/>`;
+        off += len;
+        return seg;
+      }).join('');
+
+      // 每一格都能点开，看这个分类这个月是哪几笔组成的。明细的口径与占比同一个
+      // （recordsOfCategory），加起来一定等于那一格的数字。点明细里的一笔直接去编辑。
+      $('#rank').innerHTML = rows.map((row, i) => {
+        const c = catOf(statsType, row.cat);
+        const open = openCats.has(row.cat);
+        const detail = open ? L.recordsOfCategory(state, side, curMonth, statsType, row.cat)
+          .flatMap(linesOf).map(it => {
+            const auto = it.ruleId
+              ? `<span class="auto-tag">${it.term ? `💳 ${it.term.index}/${it.term.total}` : '🔁 固定'}</span>`
+              : '';
+            const card = it.card ? '<span class="card-tag">卡</span>' : '';
+            const rec = L.findRecord(state, it.id);
+            return `<button class="item" data-id="${esc(it.id)}">
+              <span class="d">${rec.date.slice(5)}</span>
+              <span class="t"><b>${esc(it.note || it.title)}${card}${auto}</b></span>
+              <span class="v ${it.cls}">${money(it.amount)}</span>
+            </button>`;
+          }).join('') : '';
+        return `<button class="rank-item${open ? ' open' : ''}" data-cat="${esc(row.cat)}" aria-expanded="${open}">
+          <i>${esc(c.icon)}</i>
+          <span class="t"><b>${esc(c.name)}</b>
+            <span class="bar-bg"><i style="width:${row.pct.toFixed(1)}%;background:${catColor(i)}"></i></span>
+          </span>
+          <span class="v">${money(row.amount)}<small>${row.pct.toFixed(1)}%</small></span>
+        </button>${open ? `<div class="items rank-detail">${detail}</div>` : ''}`;
+      }).join('');
+    }
+
+    // 近 6 个月趋势，仍然只属于这一侧。
+    // 支出柱染成两段：下段刷卡、上段现金。刷卡是支出的**子集**，所以画在柱子里面
+    // 而不是并排，并排会暗示两者可以相加，那会让人把钱数重（#129）。
+    // 从没刷过卡的人、以及切到收入时，分段根本不被创建，柱子与今天完全一致。
+    const data = L.trend(state, side, curMonth, 6);
+    const max = Math.max(1, ...data.map(d => Math.max(d.expense, d.income)));
+    $('#trend').innerHTML = data.map(d => {
+      // 那个月一笔都没刷时不画高度为 0 的色块，柱子就是完整的一段
+      const seg = showCard && d.card > 0
+        ? `<u style="height:${(d.card / d.expense * 100).toFixed(1)}%"></u>` : '';
+      const title = seg ? `支出 ${money(d.expense)}（刷卡 ${money(d.card)}）` : `支出 ${money(d.expense)}`;
+      return `<div class="col">
+        <span class="stack">
+          <i class="b e" style="height:${(d.expense / max * 100).toFixed(1)}%" title="${title}">${seg}</i>
+          <i class="b i" style="height:${(d.income / max * 100).toFixed(1)}%" title="收入 ${money(d.income)}"></i>
+        </span>
+        <small>${d.month.slice(5)}月</small>
+      </div>`;
+    }).join('');
+  }
+
+  // ── 每月固定收支 ────────────────────────────────────
+  /** 一条规则一行。分期多一段进度：还剩几期、还要付多少，还完了就灰化。 */
+  function recRow(r, month) {
+    const c = catOf(r.type, r.cat);
+    const left = L.remainingTerms(r, month);
+    const settled = L.isSettled(r, month);
+    let meta;
+    if (left == null) {
+      meta = `每月 ${r.day} 号 · ${esc(c.name)}`;
+    } else if (settled) {
+      meta = `已还完 ${r.terms}/${r.terms} · ${esc(c.name)}`;
+    } else {
+      const word = r.type === 'expense' ? '待还' : '待收';
+      meta = `每月 ${r.day} 号 · 还剩 ${left} 期 · ${word} ${money(L.outstandingOf(r, month), r.currency)}`;
+    }
+    // 刷卡的规则带同一个「卡」徽章：明细里那几笔继承来的记录长得跟它一样（#127）
+    const card = L.isCard(r) ? '<span class="card-tag">卡</span>' : '';
+    return `<div class="rec-row${settled ? ' done' : ''}">
+      <button class="rec-main" data-edit-rec="${esc(r.id)}">
+        <i>${esc(c.icon)}</i>
+        <span class="t"><b>${esc(r.note || c.name)}${card}</b><small>${meta}</small></span>
+        <span class="v ${r.type}">${r.type === 'expense' ? '-' : '+'}${money(r.amount, r.currency)}</span>
+      </button>
+      <button class="x" data-del-rec="${esc(r.id)}" aria-label="删除">✕</button>
+    </div>`;
+  }
+
+  function renderRecurring() {
+    const month = L.monthOf(new Date());
+
+    // 按侧分组，每一侧末尾结自己的待还小计：两侧的数字永不相加。
+    const groups = L.sides(state).map(c => ({ currency: c, rules: state.recurring.filter(r => r.currency === c) }));
+    // 币种被移除后规则仍留着但已停止补记（#116）。照样列出来，否则使用者看不到它还挂在那。
+    const live = L.sides(state);
+    const orphans = state.recurring.filter(r => !live.includes(r.currency));
+    if (orphans.length) groups.push({ currency: null, rules: orphans });
+
+    const html = groups.filter(g => g.rules.length).map(g => {
+      const rows = g.rules.map(r => recRow(r, month)).join('');
+      if (g.currency === null) return rows;
+      const due = L.outstandingOnSide(state, g.currency, month);
+      if (!(due > 0)) return rows;
+      return rows + `<div class="rec-row sub">
+        <span class="t"><small>${esc(g.currency)} 待还小计</small></span>
+        <span class="v">${money(due, g.currency)}</span>
+      </div>`;
+    }).join('');
+
+    $('#rec-list').innerHTML = html || '<p class="muted small">还没有设定固定收支。</p>';
+
+    $('#rec-cat').innerHTML = (state.cats[recType] || [])
+      .map(c => `<option value="${esc(c.id)}">${esc(c.icon)} ${esc(c.name)}</option>`).join('');
+
+    // 币种选择只在有两侧时才出现
+    const sel = $('#rec-currency');
+    sel.hidden = !L.hasSecondary(state);
+    sel.innerHTML = L.sides(state).map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    sel.value = side;
+
+    if (!$('#rec-day').options.length) {
+      $('#rec-day').innerHTML = Array.from({ length: 31 }, (_, i) =>
+        `<option value="${i + 1}">每月 ${i + 1} 号</option>`).join('');
+    }
+    // 刷卡只属于支出的规则：收入的规则不问这件事（同记帐页）
+    $('#rec-card-box').hidden = recType !== 'expense';
+    syncRecEditMode();
+    syncRecFirst();
+  }
+
+  /**
+   * 表单现在是「新增」还是「编辑」态。
+   *
+   * 编辑时**币种锁住**，改了会让已产生的记录留在旧侧、以后的落在新侧，一条规则横跨
+   * 两侧，而这个 app 的整套词汇建立在「一侧各自独立、永不相加」上（ADR-0001）。
+   */
+  function syncRecEditMode() {
+    const rule = editingRuleId ? state.recurring.find(r => r.id === editingRuleId) : null;
+    if (!rule) editingRuleId = null;
+    $('#btn-add-rec').textContent = rule ? '保存' : '新增';
+    $('#btn-cancel-rec').hidden = !rule;
+    $('#rec-edit-hint').hidden = !rule;
+    $('#rec-currency').disabled = Boolean(rule);
+    if (rule) {
+      $('#rec-currency').value = rule.currency;
+      $('#rec-cat').value = rule.cat;
+    }
+  }
+
+  /** 列表行上进入编辑，复用同一个表单，不必删了重建，也就不会重复补记本月那期。 */
+  function startEditRule(id) {
+    const rule = state.recurring.find(r => r.id === id);
+    if (!rule) return;
+    editingRuleId = id;
+    recType = rule.type;
+    $$('#seg-rec-type button').forEach(b => b.classList.toggle('on', b.dataset.type === recType));
+    renderRecurring();                      // 分类清单要换成这个类型的，币种也在这里锁上
+
+    $('#rec-amount').value = String(rule.amount);
+    $('#rec-day').value = String(rule.day);
+    $('#rec-note').value = rule.note || '';
+    $('#rec-card').checked = L.isCard(rule);
+    // 表单问的是「还剩几期」，所以带入的是还没补记的期数，不是总期数
+    const left = L.unappliedTerms(rule);
+    $('#rec-terms').value = left == null ? '' : String(left);
+    syncRecFirst();
+    $('#rec-amount').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    $('#rec-amount').focus();
+  }
+
+  function resetRecForm() {
+    editingRuleId = null;
+    $('#rec-amount').value = ''; $('#rec-note').value = ''; $('#rec-terms').value = '';
+    $('#rec-card').checked = false;
+    recFirstTouched = false;
+    renderRecurring();
+  }
+
+  /**
+   * 保存编辑。**只管以后，当月已经记下的那一笔不碰。**
+   *
+   * 改完直接说出本月那笔已经记下了，并让人跳过去看：生效月份因此是眼睛看得见的，
+   * 否则「房租九月起涨、我八月底就手痒去改了」会静静改错八月。首期设成下月的分期
+   * 本来就还没有那一笔，那就不弹。
+   */
+  function saveRuleEdit() {
+    const id = editingRuleId;
+    try {
+      L.updateRule(state, id, {
+        type: recType,
+        amount: Number($('#rec-amount').value),
+        cat: $('#rec-cat').value,
+        day: Number($('#rec-day').value),
+        note: $('#rec-note').value.trim(),
+        // 改刷卡标记同样只管以后：updateRule 一笔记录都不碰，当月已经记下的那笔保持原样
+        card: recType === 'expense' && $('#rec-card').checked,
+        remaining: $('#rec-terms').value.trim()
+      });
+    } catch (err) {
+      return toast(err.message);
+    }
+    const done = L.appliedRecordOf(state, id, L.monthOf(new Date()));
+    resetRecForm();
+    save();
+    if (done && L.sides(state).includes(done.currency)) {
+      toast('已保存。本月那笔已经记下了，改动从下个月起算', {
+        label: '去看看', onClick: () => jumpToRecord(done)
+      });
+    } else {
+      toast('已保存，只影响以后');
+    }
+  }
+
+  /** 跳到明细里的那一笔，并让它亮一下，不然到了那页还得自己找。 */
+  function jumpToRecord(rec) {
+    if (rec.currency !== side) {
+      side = rec.currency;
+      L.setActiveSide(state, side);
+      save();
+      renderSideSwitch();
+    }
+    curMonth = rec.date.slice(0, 7);
+    show('list');
+    const el = $(`#list-body .item[data-id="${rec.id}"]`);
+    if (!el) return;
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    el.classList.add('flash');
+    setTimeout(() => el.classList.remove('flash'), 1600);
+  }
+
+  /**
+   * 「首期本月 / 下月」只在填了期数之后才有意义，所以填了才展开。
+   * 默认值由今天与扣款日的先后决定，但使用者一改就不再自动跳：那之后它是他的选择。
+   */
+  function syncRecFirst() {
+    // 编辑时首期不可改，它是已还进度的锚点，动了就等于把旧记录算到别的期数上去
+    const sel = $('#rec-first');
+    sel.hidden = Boolean(editingRuleId) || !$('#rec-terms').value.trim();
+    if (sel.hidden) return;
+
+    const thisMonth = L.monthOf(new Date());
+    const nextMonth = L.shiftMonth(thisMonth, 1);
+    if (!sel.options.length) {
+      sel.innerHTML = `<option value="${thisMonth}">首期本月</option><option value="${nextMonth}">首期下月</option>`;
+    }
+    if (!recFirstTouched) sel.value = L.defaultFirstMonth(L.dateOf(new Date()), Number($('#rec-day').value));
+  }
+
+  $('#seg-rec-type').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    recType = b.dataset.type;
+    $$('#seg-rec-type button').forEach(x => x.classList.toggle('on', x === b));
+    renderRecurring();
+  });
+
+  $('#rec-terms').addEventListener('input', syncRecFirst);
+  $('#rec-day').addEventListener('change', syncRecFirst);
+  $('#rec-first').addEventListener('change', () => { recFirstTouched = true; });
+
+  $('#btn-cancel-rec').addEventListener('click', resetRecForm);
+
+  $('#btn-add-rec').addEventListener('click', () => {
+    if (editingRuleId) return saveRuleEdit();
+    const terms = $('#rec-terms').value.trim();
+    try {
+      L.addRule(state, {
+        type: recType,
+        amount: Number($('#rec-amount').value),
+        currency: L.hasSecondary(state) ? $('#rec-currency').value : state.currency,
+        cat: $('#rec-cat').value,
+        day: Number($('#rec-day').value),
+        note: $('#rec-note').value.trim(),
+        // 分期的首期由使用者定。没填期数就跟今天一样，从本月起算
+        from: terms ? $('#rec-first').value : L.monthOf(new Date()),
+        terms,
+        card: recType === 'expense' && $('#rec-card').checked
+      });
+    } catch (err) {
+      return toast(err.message);
+    }
+    $('#rec-amount').value = ''; $('#rec-note').value = ''; $('#rec-terms').value = '';
+    $('#rec-card').checked = false;
+    recFirstTouched = false;
+    const n = L.applyRecurring(state, L.dateOf(new Date()));
+    save();
+    renderRecurring();
+    renderSideSwitch();
+    toast(n ? `已新增，并补记本月 ${n} 笔` : '已新增固定收支');
+  });
+
+  $('#rec-list').addEventListener('click', e => {
+    const edit = e.target.closest('button[data-edit-rec]');
+    if (edit) return startEditRule(edit.dataset.editRec);
+
+    const b = e.target.closest('button[data-del-rec]');
+    if (!b) return;
+    if (!confirm('停止这笔固定收支？已经记下的记录会保留，之后不再自动产生。')) return;
+    L.removeRule(state, b.dataset.delRec);
+    if (editingRuleId === b.dataset.delRec) resetRecForm();
+    save(); renderRecurring(); toast('已停止');
+  });
+
+  // ── 设定页 ──────────────────────────────────────────
+  function renderMore() {
+    $('#set-currency').value = state.currency;
+    $('#set-currency2').value = state.currency2 || '';
+    $('#ver').textContent = `小帐本 v${VERSION} · 共 ${state.records.length} 笔记录`;
+    renderBudgetSettings();
+    renderRecurring();
+    renderCatEditor();
+    renderApSettings();
+    renderInstallCard();
+  }
+
+  /** 预算跟着分侧：每一侧各一行，各自设各自的。 */
+  function renderBudgetSettings() {
+    $('#budget-settings').innerHTML = L.sides(state).map(c => `
+      <div class="card row">
+        <span>${L.hasSecondary(state) ? esc(c) + ' 那侧' : '每月预算'}</span>
+        <input type="number" min="0" step="100" placeholder="0 = 不设定" class="mini wide"
+               data-budget="${esc(c)}" value="${L.budgetOf(state, c) || ''}" aria-label="${esc(c)} 每月预算" />
+      </div>`).join('');
+  }
+
+  $('#budget-settings').addEventListener('change', e => {
+    const input = e.target.closest('input[data-budget]');
+    if (!input) return;
+    const c = input.dataset.budget;
+    L.setBudget(state, c, Number(input.value) || 0);
+    save();
+    toast(L.budgetOf(state, c) ? `${c} 预算已设定` : `已取消 ${c} 预算`);
+  });
+
+  $('#set-currency').addEventListener('change', e => {
+    try {
+      L.setPrimaryCurrency(state, e.target.value);
+    } catch (err) {
+      toast(err.message);
+      e.target.value = state.currency;
+      return;
+    }
+    side = L.activeSide(state);
+    save(); renderMore(); resetEntry(); toast('已更新主币种');
+  });
+
+  $('#set-currency2').addEventListener('change', e => {
+    const raw = e.target.value.trim();
+    if (!raw) {
+      // 想删掉第二币种，先把那一侧还挂着什么说清楚，不静默弄丢资料。
+      // 记录与规则都要说：记录是死的，固定收支才是会继续生长的那个（#116）
+      if (L.hasSecondary(state)) {
+        const hanging = [];
+        const n = L.countOnSide(state, state.currency2);
+        const k = L.countRulesOnSide(state, state.currency2);
+        if (n) hanging.push(`${n} 笔记录`);
+        if (k) hanging.push(`${k} 条固定收支`);
+        const msg = hanging.length
+          ? `${state.currency2} 那侧还有${hanging.join('、')}。移除第二币种后它们会留在资料里但不再显示，` +
+            `固定收支也会停止补记。重新加回同一个币种就会再出现，中间漏掉的月份一次补上。确定移除？`
+          : '确定移除第二币种？';
+        if (!confirm(msg)) { e.target.value = state.currency2; return; }
+      }
+      L.removeSecondaryCurrency(state);
+    } else {
+      try {
+        L.setSecondaryCurrency(state, raw);
+      } catch (err) {
+        toast(err.message);
+        e.target.value = state.currency2 || '';
+        return;
+      }
+    }
+    side = L.activeSide(state);
+    save(); renderMore(); resetEntry();
+    toast(L.hasSecondary(state) ? `已加上 ${state.currency2} 那一侧` : '已移除第二币种');
+  });
+
+  $('#seg-cat-edit').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    catEditType = b.dataset.type;
+    $$('#seg-cat-edit button').forEach(x => x.classList.toggle('on', x === b));
+    renderCatEditor();
+  });
+
+  function renderCatEditor() {
+    $('#cat-editor').innerHTML = (state.cats[catEditType] || []).map(c =>
+      `<div class="cat-row"><i>${esc(c.icon)}</i><span>${esc(c.name)}</span>
+        <button data-del="${esc(c.id)}" aria-label="删除">✕</button></div>`).join('');
+  }
+
+  $('#cat-editor').addEventListener('click', e => {
+    const b = e.target.closest('button[data-del]');
+    if (!b) return;
+    const id = b.dataset.del;
+    if (state.cats[catEditType].length <= 1) return toast('至少要留一个分类');
+    // 分类两侧共用，所以这里数的是全部侧上用到它的记录
+    const used = state.records.filter(r => !L.isTransfer(r) && r.type === catEditType && r.cat === id).length;
+    if (used && !confirm(`已有 ${used} 笔记录使用这个分类，删除后它们会显示为「未分类」。确定删除？`)) return;
+    state.cats[catEditType] = state.cats[catEditType].filter(c => c.id !== id);
+    picked = pickedOrFirst();
+    save(); renderCatEditor(); renderCats(); toast('已删除分类');
+  });
+
+  $('#btn-add-cat').addEventListener('click', () => {
+    const name = $('#new-cat-name').value.trim();
+    const icon = $('#new-cat-icon').value.trim() || '🏷️';
+    if (!name) return toast('请输入分类名称');
+    state.cats[catEditType].push({ id: 'c' + Date.now().toString(36), icon, name });
+    $('#new-cat-name').value = ''; $('#new-cat-icon').value = '';
+    save(); renderCatEditor(); renderCats(); toast('已新增分类');
+  });
+
+  // ── 导出 / 导入 ─────────────────────────────────────
+  function download(filename, text, mime) {
+    const blob = new Blob([text], { type: mime + ';charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  $('#btn-export-json').addEventListener('click', () => {
+    download(`小帐本备份-${L.dateOf(new Date())}.json`, JSON.stringify(state, null, 2), 'application/json');
+    toast('已产生备份档');
+  });
+
+  $('#btn-export-csv').addEventListener('click', () => {
+    if (!state.records.length) return toast('没有资料可导出');
+    // BOM 让 Excel 正确辨识 UTF-8
+    download(`小帐本-${L.dateOf(new Date())}.csv`,
+      '﻿' + L.toCSV(state, (type, id) => catOf(type, id).name), 'text/csv');
+    toast('已导出 CSV');
+  });
+
+  $('#btn-import').addEventListener('click', () => $('#file-import').click());
+  $('#file-import').addEventListener('change', async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    try {
+      const text = await f.text();
+      const parsed = JSON.parse(text);
+      if (!Array.isArray(parsed.records)) throw new Error('格式不正确');
+      if (!confirm(`备份含 ${parsed.records.length} 笔记录。还原会覆盖目前装置上的所有资料，确定吗？`)) return;
+      state = L.migrate(parsed);
+      readOnly = false;              // 还原成功，写入解禁
+      side = L.activeSide(state);
+      save(); resetEntry(); renderMore(); toast('还原完成');
+      syncInbox();                   // 备份带着收件箱与私钥：还原后接着同步
+    } catch (err) {
+      toast('还原失败：' + err.message);
+    } finally {
+      e.target.value = '';
+    }
+  });
+
+  $('#btn-clear').addEventListener('click', () => {
+    if (!confirm('会删除这台装置上的所有记帐资料，且无法复原。确定吗？')) return;
+    if (!confirm('真的要清除全部资料吗？建议先做一次备份。')) return;
+    state = L.defaultState();
+    readOnly = false;
+    side = L.activeSide(state);
+    save(); resetEntry(); renderMore(); toast('已清除');
+  });
+
+  // ── 收件箱：银行邮件自动记帐（ADR-0002、ADR-0003）────
+  // 快捷指令在刷卡当下把这一笔投进收件箱，Worker 当场用这台手机的公钥封起来。
+  // 这里拉回来、解封、交给 ledger 记帐，存好了才请服务器删掉。
+  let syncing = false;
+  let inboxGoneWarned = false;
+
+  const connectCode = () => state.inbox ? `${INBOX_API}/i/${state.inbox.id}/${state.inbox.write}` : '';
+  const authHeader = inbox => ({ Authorization: `Bearer ${inbox.read}` });
+
+  async function syncInbox() {
+    if (!INBOX_API || !state.inbox || readOnly || syncing || !navigator.onLine) return;
+    syncing = true;
+    const inbox = state.inbox;
+    try {
+      const res = await fetch(`${INBOX_API}/i/${inbox.id}`, { headers: authHeader(inbox), cache: 'no-store' });
+      if (res.status === 404) {
+        // 180 天没打开被清掉了，或是在别台手机上关掉了
+        if (!inboxGoneWarned) toast('自动记帐的收件箱已失效，请到「设定」重新开启');
+        inboxGoneWarned = true;
+        return;
+      }
+      if (!res.ok) return;
+      const { items } = await res.json();
+      if (!Array.isArray(items) || !items.length) return;
+
+      const opened = [];
+      let broken = 0;
+      for (const it of items) {
+        try {
+          opened.push({ ...(await openSealed(inbox.priv, it)), id: it.id, receivedAt: it.receivedAt });
+        } catch {
+          broken++;   // 解不开（私钥换过、内容坏了）：照样确认删掉，不然每次打开都卡在这一笔
+        }
+      }
+      if (state.inbox !== inbox) return;   // 拉的时候被关掉了
+
+      const unparsedBefore = state.apUnparsed.length;
+      const foreignBefore = L.foreignPending(state).length;
+      const r = L.receiveInbox(state, opened, L.dateOf(new Date()));
+      if (!save()) return;
+      // 存好了才确认。确认没送到的话下次会再拉到同一批，apSeen 认得出来，不会记两次
+      fetch(`${INBOX_API}/i/${inbox.id}/ack`, {
+        method: 'POST',
+        headers: { ...authHeader(inbox), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: items.map(it => it.id) })
+      }).catch(() => {});
+
+      renderEntry();
+      renderSideSwitch();
+      if (view === 'list') renderList();
+      if (view === 'stats') renderStats();
+      const msg = [];
+      if (r.added) msg.push(`已自动记入 ${r.added} 笔` + (r.fallback ? `（${r.fallback} 笔归到「其他」）` : ''));
+      if (L.unmappedCards(state).length) msg.push('有新卡或银行要确认');
+      if (L.foreignPending(state).length > foreignBefore) msg.push('有外币消费要确认');
+      if (r.unparsed > unparsedBefore) msg.push(`${r.unparsed - unparsedBefore} 封银行邮件认不得`);
+      if (r.bad + broken) msg.push(`${r.bad + broken} 笔读不懂，已略过`);
+      if (msg.length) toast(msg.join('，'));
+    } catch {
+      // 离线、服务器没回应：什么都不做，下次打开再拉
+    } finally {
+      syncing = false;
+    }
+  }
+
+  /**
+   * 记帐页最上面、收件箱送来却还记不下去的东西，处理完就消失：
+   * - 新卡或新银行：问一次在哪一侧、是不是信用卡
+   * - 外币消费（ADR-0003）：邮件上的币种跟那一侧对不上，要使用者填折合多少
+   * - 认不得的银行邮件：手记（预填猜到的金额）、复制原文给开发者补规则、或删掉
+   */
+  function renderApCards() {
+    const el = $('#ap-cards');
+    const names = INBOX_API ? L.unmappedCards(state) : [];
+    const foreign = INBOX_API ? L.foreignPending(state) : [];
+    const unparsed = INBOX_API ? state.apUnparsed.slice().reverse() : [];
+    el.hidden = !names.length && !foreign.length && !unparsed.length;
+    if (el.hidden) { el.innerHTML = ''; return; }
+    const acts = (id, copy) => `<span class="ib-acts">
+        <button data-ib-record="${esc(id)}">记一笔</button>
+        ${copy ? `<button data-ib-copy="${esc(id)}">复制内容</button>` : ''}
+        <button class="danger" data-ib-drop="${esc(id)}">删掉</button>
+      </span>`;
+    const foreignHtml = foreign.length ? `<div class="card ap-card">
+        <b>外币消费，要你确认</b>
+        <p>邮件上的币种跟这家银行那一侧对不上。折合多少以帐单为准，点「记一笔」填进去。</p>
+        ${foreign.map(p => `<div class="ib-row">
+          <span class="t"><b>${esc(p.merchant || '未知商家')}</b>
+            <small>${esc(p.date.slice(5))} · ${esc(p.cardName)} · ${esc(L.formatMoney(p.amount, p.currency))} → 记在 ${esc(p.side)}</small></span>
+          ${acts(p.id, false)}
+        </div>`).join('')}
+      </div>` : '';
+    const unparsedHtml = unparsed.length ? `<div class="card ap-card">
+        <b>认不得的银行邮件</b>
+        <p>小帐本还不会读这几封。先手记，再点「复制内容」发给开发者（姓名、卡号、户口号改成 XXXX），补上之后同样的邮件就会自动记。</p>
+        ${unparsed.map(u => `<div class="ib-row">
+          <span class="t"><b>${esc(u.subject || '（没有标题）')}</b>
+            <small>${esc(u.date.slice(5))} · ${esc(u.from || '未知寄件人')}</small></span>
+          ${acts(u.id, true)}
+        </div>`).join('')}
+      </div>` : '';
+    const two = L.hasSecondary(state);
+    el.innerHTML = names.map(name => {
+      const items = state.apPending.filter(p => p.cardName === name);
+      const last = items[items.length - 1];
+      const mail = items.every(p => p.via === 'mail');
+      return `<div class="card ap-card" data-card="${esc(name)}">
+        <b>${mail ? `银行邮件：「${esc(name)}」` : `Apple Pay 刷了「${esc(name || '未知的卡')}」`}</b>
+        <p>${items.length} 笔等着记帐，最近一笔是 ${esc(last.merchant || '未知商家')} ${esc(last.amount)}。${
+          mail ? '这家银行记在哪里？答一次，以后这家的邮件自动记。' : '这张卡记在哪里？答一次，以后这张卡自动记。'}</p>
+        ${two ? `<div class="seg small" data-ap-side>${L.sides(state).map((c, i) =>
+          `<button data-cur="${esc(c)}" class="${i === 0 ? 'on' : ''}">${esc(c)}</button>`).join('')}</div>` : ''}
+        <label class="check compact">
+          <input type="checkbox" data-ap-credit />
+          <span class="check-t"><b>信用卡</b><small>勾了就带「卡」：下个月才从户口扣</small></span>
+        </label>
+        <button class="primary" data-ap-ok>确定</button>
+      </div>`;
+    }).join('') + foreignHtml + unparsedHtml;
+  }
+
+  /**
+   * 手记收件箱里的一笔：把表单预填好，存下去的那一刻才从清单拿掉（saveRecord）。
+   * 中途切走就当没发生，那一笔还在清单上。
+   */
+  function recordInboxItem(id) {
+    const f = L.foreignPending(state).find(p => p.id === id);
+    const u = state.apUnparsed.find(x => x.id === id);
+    if (!f && !u) return;
+    resetEntry();
+    inboxDraft = id;
+    entryType = 'expense';
+    picked = pickedOrFirst();
+    if (f) {
+      // 折合多少邮件上没有，金额留空；原本的外币金额写进备注，对帐时看得到
+      side = f.side;
+      $('#note').value = `${f.merchant} ${L.formatMoney(f.amount, f.currency)}`.trim().slice(0, 40);
+      $('#card').checked = f.card;
+      $('#date').value = f.date;
+    } else {
+      const guess = L.guessMailAmount(`${u.subject}\n${u.body}`);
+      if (guess) buffer = String(guess.amount);
+      if (guess && L.sides(state).includes(guess.currency)) side = guess.currency;
+      $('#date').value = u.date;
+    }
+    L.setActiveSide(state, side);
+    $('#entry-title').textContent = '手记这一笔';
+    renderEntry();
+    renderSideSwitch();
+    $('#amount-tap').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    toast(buffer === '0' ? '填上金额，选好分类再保存' : '金额是猜的，确认一下再保存');
+  }
+
+  async function copyInboxMail(id) {
+    const u = state.apUnparsed.find(x => x.id === id);
+    if (!u) return;
+    const text = `From: ${u.from}\nSubject: ${u.subject}\nDate: ${u.date}\n\n${u.body}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      toast('已复制。发出去之前把姓名、卡号、户口号改成 XXXX');
+    } catch {
+      toast('复制不了，这台装置不让网页用剪贴板');
+    }
+  }
+
+  $('#ap-cards').addEventListener('click', e => {
+    const rec = e.target.closest('[data-ib-record]');
+    if (rec) return recordInboxItem(rec.dataset.ibRecord);
+    const copy = e.target.closest('[data-ib-copy]');
+    if (copy) return copyInboxMail(copy.dataset.ibCopy);
+    const drop = e.target.closest('[data-ib-drop]');
+    if (drop) {
+      if (readOnly) return toast('资料读不懂，已停用写入以免覆盖。请先还原备份。');
+      if (!confirm('删掉这一笔？它不会记进帐本。')) return;
+      L.dropInboxItem(state, drop.dataset.ibDrop);
+      save(); renderEntry(); toast('已删掉');
+      return;
+    }
+
+    const box = e.target.closest('.ap-card[data-card]');
+    if (!box) return;
+    const sideBtn = e.target.closest('[data-ap-side] button');
+    if (sideBtn) {
+      $$('[data-ap-side] button', box).forEach(b => b.classList.toggle('on', b === sideBtn));
+      return;
+    }
+    if (!e.target.closest('[data-ap-ok]')) return;
+    if (readOnly) return toast('资料读不懂，已停用写入以免覆盖。请先还原备份。');
+    const currency = $('[data-ap-side] button.on', box)?.dataset.cur || state.currency;
+    const card = $('[data-ap-credit]', box).checked;
+    try {
+      const r = L.mapCard(state, box.dataset.card, { currency, card });
+      save();
+      renderEntry();
+      renderSideSwitch();
+      toast(`已记入 ${r.added} 笔` + (r.fallback ? `（${r.fallback} 笔归到「其他」，可在明细里改）` : ''));
+    } catch (err) {
+      toast(err.message);
+    }
+  });
+
+  /** 「更多」页那一段。INBOX_API 没填就整段不创建。 */
+  function renderApSettings() {
+    const wrap = $('#ap-wrap');
+    wrap.hidden = !INBOX_API;
+    if (!INBOX_API) return;
+    const el = $('#ap-settings');
+    if (!state.inbox) {
+      el.innerHTML = `<div class="card">
+        <b>银行寄来的交易邮件，自动记进小帐本</b>
+        <p>刷卡、PayNow、PayLah! 付完钱，银行会寄一封通知邮件。iPhone 收到这封邮件时，快捷指令把它交给小帐本，打开就已经记好。</p>
+        <p>还没同步的邮件会<b>加密</b>后暂放在服务器，只有这台手机解得开，同步后随即删掉。帐本本身不会离开这台手机。</p>
+        <div class="btns"><button class="primary" id="btn-ap-on">开启</button></div>
+      </div>`;
+      return;
+    }
+    const mapped = Object.entries(state.cardMap);
+    el.innerHTML = `<div class="card">
+      <b>已开启</b>
+      <p>先复制连接码，下面第 4 步要贴。它等于这个收件箱的钥匙，别贴到别处。</p>
+      <input type="text" class="code" id="ap-code" readonly value="${esc(connectCode())}" aria-label="连接码" />
+      <div class="btns"><button class="primary" id="btn-ap-copy">复制连接码</button></div>
+      <details class="ap-steps">
+        <summary>设置步骤（iPhone，只做一次）</summary>
+        <p class="muted small">要先确定：银行每笔交易都会寄邮件给你，而且这个邮箱在 iPhone 自带的「邮件（Mail）」app 里收得到。</p>
+        <ol>
+          <li>打开「快捷指令（Shortcuts）」app，点下面的「自动化（Automation）」，再点右上角「+」。</li>
+          <li>选「电子邮件（Email）」。「发件人（Sender）」填下面表里的地址，选「立即运行（Run Immediately）」，点「下一步（Next）」。</li>
+          <li>点「新建空白自动化（New Blank Automation）」→「添加操作（Add Action）」，搜「获取 URL 内容（Get Contents of URL）」，点它。</li>
+          <li>「URL」那里贴上连接码。</li>
+          <li>点这个动作的 ›「显示更多（Show More）」：「方法（Method）」选 <b>POST</b>，「请求体（Request Body）」选 <b>JSON</b>。</li>
+          <li>「添加新字段（Add new field）」→ 选「词典（Dictionary）」，键（Key）填 <code>mail</code>。</li>
+          <li>点进这个词典，加三个「文本（Text）」字段。值都是插入「快捷指令输入（Shortcut Input）」，再点它一下选：
+            <br><code>from</code> →「发件人（Sender）」
+            <br><code>subject</code> →「主题（Subject）」
+            <br><code>body</code> →「内容（Content）」</li>
+          <li>点「完成（Done）」。</li>
+        </ol>
+        <p class="muted small"><b>每个发件人建一个自动化</b>，第 2 步换地址，其余一模一样：</p>
+        ${MAIL_SENDERS.map(([addr, what]) => `<div class="cat-row"><i>✉️</i><span><code>${esc(addr)}</code><br><small class="muted">${esc(what)}</small></span></div>`).join('')}
+        <p class="muted small">之后每家银行、每种付款第一次出现时，记帐页会问一次记在哪一侧、是不是信用卡。</p>
+        <p class="muted small">接不到的：只推送通知、不寄邮件的付款（TNG eWallet 之类），还是要手记。小帐本还不会读的邮件会出现在记帐页的「认不得的银行邮件」，点「复制内容」发给开发者就能补上。</p>
+      </details>
+      ${mapped.length ? `<p class="muted small" style="margin-top:12px">已对应的卡</p>
+        ${mapped.map(([name, m]) => `<div class="cat-row"><i>💳</i>
+          <span>${esc(name || '未知的卡')} · ${esc(m.currency)}${m.card ? ' · 信用卡' : ''}</span>
+          <button data-ap-forget="${esc(name)}" aria-label="忘掉这张卡">✕</button></div>`).join('')}` : ''}
+      <p class="muted small" style="margin-top:12px">⚠️ 私钥存在帐本里，「备份 JSON」会带着它：备份档请像密码一样保管。</p>
+      <div class="btns"><button class="danger" id="btn-ap-off">关闭</button></div>
+    </div>`;
+  }
+
+  $('#ap-settings').addEventListener('click', async e => {
+    const t = e.target;
+    if (t.closest('#btn-ap-on')) return enableInbox(t.closest('button'));
+    if (t.closest('#btn-ap-off')) return disableInbox();
+    if (t.closest('#btn-ap-copy')) {
+      try {
+        await navigator.clipboard.writeText(connectCode());
+        toast('已复制连接码');
+      } catch {
+        $('#ap-code').select();
+        toast('复制不了，请长按连接码手动复制');
+      }
+      return;
+    }
+    const forget = t.closest('[data-ap-forget]');
+    if (forget) {
+      L.unmapCard(state, forget.dataset.apForget);
+      save(); renderApSettings(); toast('已忘掉，下次刷这张卡会再问');
+    }
+  });
+
+  async function enableInbox(btn) {
+    if (readOnly) return toast('资料读不懂，已停用写入以免覆盖。请先还原备份。');
+    if (!navigator.onLine) return toast('要联网才能开启');
+    btn.disabled = true;
+    try {
+      const kp = await generateKeyPair();
+      const res = await fetch(`${INBOX_API}/inbox`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pubkey: kp.pub })
+      });
+      if (res.status === 429) throw new Error('这个网络刚开过太多次，一小时后再试');
+      if (!res.ok) throw new Error('服务器没有回应');
+      const { id, read, write } = await res.json();
+      L.setInbox(state, { id, read, write, priv: kp.priv });
+      inboxGoneWarned = false;
+      save(); renderApSettings(); toast('已开启，下一步：复制连接码');
+    } catch (err) {
+      toast('开启失败：' + err.message);
+      btn.disabled = false;
+    }
+  }
+
+  async function disableInbox() {
+    if (!confirm('关闭后收件箱会被删掉，快捷指令随之失效。还没同步的邮件会先拉回来。确定关闭？')) return;
+    await syncInbox();
+    const inbox = state.inbox;
+    if (!inbox) return;
+    try {
+      const res = await fetch(`${INBOX_API}/i/${inbox.id}`, { method: 'DELETE', headers: authHeader(inbox) });
+      if (!res.ok && res.status !== 404) throw new Error();
+    } catch {
+      if (!confirm('连不上服务器。只在这台手机上关闭吗？服务器上的收件箱 180 天没人读取就会自动清掉。')) return;
+    }
+    L.clearInbox(state);
+    save(); renderApSettings(); toast('已关闭自动记帐');
+  }
+
+  // ── 安装提示 ────────────────────────────────────────
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (view === 'more') renderInstallCard();
+  });
+
+  function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  }
+
+  function renderInstallCard() {
+    const card = $('#install-card'), btn = $('#btn-install'), txt = $('#install-text');
+    if (isStandalone()) {
+      card.hidden = false; btn.hidden = true;
+      txt.textContent = '已安装完成 ✅ 你现在正从主屏幕打开，没有网络也能记帐。';
+      return;
+    }
+    card.hidden = false;
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (deferredPrompt) {
+      btn.hidden = false;
+      txt.textContent = '按下按钮即可安装，不需要经过 App Store。';
+    } else {
+      btn.hidden = true;
+      txt.textContent = iOS
+        ? 'iPhone / iPad：用 Safari 打开本页 → 点下方「分享」⬆️ → 选「添加到主屏幕」。'
+        : 'Android Chrome：右上角 ⋮ →「安装应用」或「添加到主屏幕」。电脑请点地址栏右侧的安装图标。';
+    }
+  }
+
+  $('#btn-install').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    renderInstallCard();
+    if (outcome === 'accepted') toast('安装中…');
+  });
+
+  // ── Service Worker ─────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    // 新版 SW 接管时重整一次。否则这一页还挂着旧的 CSS/JS，使用者会觉得
+    // 「明明部署了却没变」：页面本身不会因为背后换了 SW 就重新套用样式。
+    // hadController 用来区分「首次安装」与「版本更新」：首次安装不需要重整。
+    // refreshing 旗标防止重整循环。
+    const hadController = !!navigator.serviceWorker.controller;
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || refreshing) return;
+      refreshing = true;
+      location.reload();
+    });
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        // 主动检查更新。浏览器「导览时自动检查」的时机并不保证（实测重整多次
+        // 都不会去抓新的 sw.js），只靠它的话改版会卡在使用者的旧快取里出不来。
+        reg.update().catch(() => {});
+        // 装到主屏幕的人常常几天不关 App，回到前台时再查一次。
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') reg.update().catch(() => {});
+        });
+      }).catch(err => console.warn('SW 注册失败', err));
+    });
+  }
+
+  // ── 启动 ────────────────────────────────────────────
+  resetEntry();
+  show('entry');
+
+  if (readOnly) {
+    toast('装置上的资料读不懂，已停用写入以免覆盖。请用「还原备份」救回。');
+  } else {
+    const autoAdded = L.applyRecurring(state, L.dateOf(new Date()));
+    if (autoAdded) { save(); renderSideSwitch(); toast(`已自动记入 ${autoAdded} 笔固定收支`); }
+    syncInbox();
+  }
+
+  // App 长时间放在背景、跨月后再打开时，回前景也要补记
+  // 刷完卡回到 App 时，收件箱里的也拉回来。断网后重新连上也拉一次
+  window.addEventListener('online', syncInbox);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || readOnly) return;
+    syncInbox();
+    const n = L.applyRecurring(state, L.dateOf(new Date()));
+    if (!n) return;
+    save();
+    toast(`已自动记入 ${n} 笔固定收支`);
+    renderSideSwitch();
+    if (view === 'list') renderList();
+    if (view === 'stats') renderStats();
+    if (view === 'more') renderRecurring();
+  });
+})();

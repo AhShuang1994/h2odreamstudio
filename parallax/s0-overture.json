@@ -1,0 +1,99 @@
+{
+  "parent": [
+    "project.json",
+    "s0-overture.motion.json"
+  ],
+  "section": "s0-overture",
+  "styleDelta": {
+    "palette-shift": "全黑起步，只有洞里那颗球有色 —— 全站明度最低的一屏",
+    "fog-density": "0（洞外是纯黑，不是雾）"
+  },
+  "kDefinition": "layer scroll speed / page scroll speed; 1=follows content, 0=pinned to viewport",
+  "driver": "time",
+  "timeline": {
+    "total": 900,
+    "unit": "ms",
+    "easing": "cubic-bezier(0.6, 0, 0, 1)",
+    "easingNote": "专供穿透的曲线，极端后段爆发：前半段几乎不动，最后一下猛冲。别拿它做别的动效。",
+    "keyframes": [
+      {
+        "t": 0,
+        "dropW": "startW",
+        "orbScale": 0.75,
+        "label": "静止，只见一个小水滴轮廓"
+      },
+      {
+        "t": 260,
+        "dropW": "peekW",
+        "orbScale": 0.82,
+        "label": "缓缓张开，看清洞里是那颗球"
+      },
+      {
+        "t": 900,
+        "dropW": "finalW",
+        "orbScale": 1,
+        "label": "猛冲穿过，遮罩越过视口边界"
+      }
+    ],
+    "concurrent": "洞放大的同时，洞里的球体 scale 0.75 → 1 迎上来。「前景放大 + 后景 0.75→1 同步」是 ERA 四次穿透的通用配方 —— 少了后景那一半，穿过去会像撞墙。"
+  },
+  "breakpoints": {
+    "desktop": {
+      "startW": 162,
+      "peekW": 234,
+      "finalW": 1872,
+      "finalWvw": 130,
+      "coversViewport": true,
+      "viewport": {
+        "vw": 1440,
+        "vh": 900,
+        "heroH": 828,
+        "pageH": 6373
+      }
+    },
+    "mobile": {
+      "startW": 77,
+      "peekW": 112,
+      "finalW": 909,
+      "finalWvw": 211,
+      "coversViewport": true,
+      "viewport": {
+        "vw": 430,
+        "vh": 932,
+        "heroH": 857,
+        "pageH": 8119
+      }
+    }
+  },
+  "gates": [
+    "首访才播：sessionStorage 记住",
+    "减弱动态偏好下整段不执行",
+    "hero 文字必须在遮罩下方照常绘制，不能 opacity:0 —— 见 project.json 的 opening.gates"
+  ],
+  "art": [
+    {
+      "id": "s0-mask-drop",
+      "sharedAcross": [
+        "desktop",
+        "mobile"
+      ],
+      "content": "水滴轮廓，**单个 SVG path，不出位图**。宽高比 3:4，顶端收尖、底部饱满，左右对称。它只当遮罩用，本身没有颜色也没有描边。",
+      "asset": "svg-path",
+      "file": "public/assets/parallax/drop-mask.svg",
+      "generate": false,
+      "why": "遮罩主体是矢量轮廓不是图片 —— ERA 的拱门穿透便宜就便宜在这里。"
+    },
+    {
+      "id": "s0-orb-reveal",
+      "sharedAcross": [
+        "desktop",
+        "mobile"
+      ],
+      "content": "洞里透出的球体。**复用 s1-L2-orb 那一张，不另出图。**",
+      "asset": "reuse",
+      "reuseOf": "s1-L2-orb",
+      "generate": false,
+      "why": "序幕和首屏看到的必须是同一颗球，否则穿过去等于换了个东西。"
+    }
+  ]
+}

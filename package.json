@@ -1,0 +1,37 @@
+{
+  "name": "h2odreamer-studio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "prebuild": "node scripts/vendor-lenis.mjs && node scripts/clean-legacy-output.mjs",
+    "postbuild": "node scripts/fix-dir-index.mjs && node scripts/gen-content-fonts.mjs && node scripts/gen-sitemap.mjs && node scripts/gen-llms.mjs",
+    "build": "next build",
+    "start": "next start",
+    "preview": "npx -y wrangler pages dev out --port 8099",
+    "check:links": "node scripts/check-links.mjs",
+    "checklist": "node scripts/gen-checklist.mjs",
+    "lint": "next lint",
+    "fonts": "node scripts/subset-fonts.mjs",
+    "test": "npm run build && vitest run",
+    "test:only": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.1",
+    "gsap": "^3.13.0",
+    "lenis": "^1.3.25",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.10"
+  }
+}

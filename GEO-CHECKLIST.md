@@ -12,17 +12,23 @@
 - Private media stays under `Disallow: /assets/`. Anything meant to be **seen / cited** goes in a crawlable folder:
   - `/og/` — OG images, logo, author avatar (referenced by schema).
   - `/assets/blog/` — blog illustrations (`Allow: /assets/blog/` is set in **both** UA groups).
-- Add every new URL to **`sitemap.xml`** (loc must equal the canonical; service pages extensionless, blog `.html`, blog index `/blog/`).
-- Add every new page/post to **`llms.txt`** — the AI sitemap. One bullet: absolute URL + one-line description. *Treat it like sitemap.xml: stale = useless.*
+- **`sitemap.xml` and `llms.txt` are build artifacts** — `scripts/gen-sitemap.mjs` and `scripts/gen-llms.mjs` write them straight into `out/` after `next build` (#77). They are not in `public/` and not in git; run `npm run build` to see them.
+  - The sitemap is derived by scanning `out/` and reading each page's own `<link rel="canonical">`, so **a new page enters the sitemap automatically**. Nothing to add by hand. Just make sure the new page declares a canonical.
+  - `llms.txt` = `src/content/llms.template.txt` (hand-written English entries + descriptions) + prices from `src/content/prices.json` (`{{starter}}`-style tokens) + a generated Chinese list of every `/zh` page. **A new English page must get a bullet in the template** — the build fails if an exported page has no entry, or if an entry points at a page that doesn't exist.
+  - Exclusions live in `scripts/lib/exported-pages.mjs`: any `404.html` (root **and** `/zh`, see #93), `demos/**` and `app/**` (both Disallowed in robots.txt), `xhs.html`.
 
 ## 2 · Page meta — every page
 - Unique `<title>`, unique meta `description`, `<link rel="canonical">`.
 - Open Graph + Twitter card; `og:image` / `twitter:image` → a crawlable `/og/*` image.
-- `<html lang>` set; every text node carries `data-lang-en` + `data-lang-cn` (zh is the default rendered text).
+- `<html lang>` set, and it must match the language actually rendered on the page.
+- **One language per URL.** English is the primary language and lives at the root; Chinese is the additional language under `/zh`. A page never ships both languages — declare the counterpart with `hreflang` (`en`, `zh-CN`, `x-default`), bidirectionally, and make sure both addresses exist. See ADR-0002.
+  - **The only exception is the 404 page** (`/404` and `/zh/404`, #93): it ships both languages, visibly. Any unmatched address falls back to the root `404.html`, so that one page has to catch a Chinese visitor too. It is `noindex` and has no canonical, so neither the duplicate-content nor the hreflang rule applies to it.
+  - Core pages (Next-rendered) and content pages (blog, case studies) already work this way. Content pages are **generated** — edit the bilingual source in `src/content/pages/`, never `public/blog/**`, `public/case-studies/**` or `public/zh/**`; `scripts/split-content-lang.mjs` writes both languages at build time.
+  - The four hand-written service pages (`landing-page`, `shopify-migration`, `wedding-basic`, `wedding-premium`) still carry the old `data-lang-en` / `data-lang-cn` pairs and a runtime toggle. Keep both attributes in step when editing them, until they get split too.
 
 ## 3 · Structured data (JSON-LD) — must `JSON.parse` cleanly + pass Google Rich Results Test
 - **Homepage**: `@graph` = `ProfessionalService` (`#business`) + `WebSite` (`#website`). Keep `sameAs` filled (Xiaohongshu + any new socials), plus `priceRange`, `contactPoint`.
-- **Blog post**: a `BlogPosting` block **and** a second `FAQPage` block.
+- **Blog post**: a `BlogPosting` block **and** a second `FAQPage` block — the latter is generated at build time from the visible FAQ section, see §4.
 - **Author = `Person`** — never `Organization`. Hui Huang Ong, `jobTitle: Founder`, `worksFor`, crawlable `image` (`/og/founder-avatar.webp`), `description`, `sameAs`. Keep the same Person across all posts → builds a recognised author entity.
 - **Blog index**: `Blog` with a `blogPost[]` list of all posts.
 
@@ -31,7 +37,7 @@
 - **Question-shaped headings.** Phrase H2s the way a real person asks an AI; put a direct answer in the first sentence under each heading.
 - **Citable specifics.** Concrete numbers, prices (RM …), dates (2026), named places (Malaysia). AI cites specifics, not vague claims.
 - **Comparisons as HTML** (tables / lists) — **never** baked into an image. AI cannot read text inside images.
-- **FAQ mirrors the page.** Every Q&A in the `FAQPage` schema must be substantively answered in visible content (Quick Answer box + body). Don't invent FAQ that isn't on the page.
+- **FAQ is generated from the page, never written into the schema alone.** Google forbids `FAQPage` markup for content a visitor cannot see. On content pages the Q&A lives in a visible `<details class="faq-item">` block and `scripts/split-content-lang.mjs` builds the `FAQPage` node from it at build time — so add the questions to the source page, not to a JSON-LD block. `test/export/geo.test.ts` fails the build if any page's schema carries a question or answer that isn't on the page.
 - **Internal links.** Link to ≥1 related post (topical authority + crawl path).
 - Bottom **summary box** restating the takeaway.
 
@@ -44,7 +50,10 @@
 - Concept illustrations: on-brand (deep navy `#030B1A`/`#071428` + cyan `#00E5FF` / teal `#06D6A0` / violet `#7B61FF` glow), **no text inside the image**, descriptive `alt` + bilingual `<figcaption>` (captions get cited).
 - Image pipeline: **Nano Banana (Gemini)** generates → raw drops in `assets/blog/` → `sharp` → WebP, ~1440px wide, q82 → **cover/inpaint the bottom-right Gemini watermark with the surrounding background** (clone a clean adjacent same-row patch over the sparkle; keep the FULL composition + 16:9). **Do NOT asymmetrically crop** — it changes the aspect ratio and unbalances the image. A "no watermark" prompt line is unreliable. **Keep the original PNG until the processed image is approved** (covering needs the source pixels). → semantic kebab filename.
 - Every `<img>`: `loading="lazy"` + explicit `width`/`height` (no layout shift).
-- Perf budget: critical CSS stays inlined; infinite animations off on mobile ≤768px. Run `node build.js` after any CSS/JS/relative-referenced-image change.
+- Perf budget: critical CSS stays inlined; infinite animations off on mobile ≤768px.
+- **After editing `public/css/style.css`, regenerate the minified copy** — content pages link `style.min.css`, not the source:
+  `npx clean-css-cli -o public/css/style.min.css public/css/style.css`
+  (The old `node build.js` still says `css/style.css` at the repo root; #81 moved those into `public/`, so that script no longer runs. Don't reach for it.)
 
 ## 7 · Per-post deliverable — what every new blog post ships with
 1. The post HTML, passing §1–6.
@@ -54,13 +63,14 @@
 
 ## 8 · Pre-commit gate
 - [ ] All JSON-LD parses + Google Rich Results Test passes
-- [ ] `sitemap.xml` + `llms.txt` updated; `dateModified`/`lastmod` bumped if content changed
+- [ ] New page declares a canonical (that's what puts it in the sitemap) and has a bullet in `src/content/llms.template.txt`; `dateModified` bumped if content changed (`lastmod` is read from it)
 - [ ] Person author + visible bio card (blog)
 - [ ] Quick Answer box and FAQ schema say the same thing
 - [ ] Images: crawlable dir, WebP, lazy + dimensions, no text baked in, Gemini watermark removed
-- [ ] Bilingual `data-lang-*` on every new text node
+- [ ] One language per URL, `<html lang>` matches it, `hreflang` pair declared both ways (legacy `public/` pages: keep `data-lang-*` in step until #76)
 - [ ] Canonical + meta + OG present
-- [ ] `node build.js` run if assets / CSS / JS changed
+- [ ] `public/css/style.min.css` regenerated if `public/css/style.css` changed (see §6)
+- [ ] Content pages link `/css/fonts.css` — no page outside `demos/` and `xhs.html` may reach for Google Fonts (#94)
 
 ## 9 · Measuring GEO impact — is it working?
 GEO is not instant: AI engines must re-crawl and re-index (days to a few weeks), and citations grow as authority signals accumulate. **Verify in layers — each layer is a prerequisite for the next.** Run layer 1 after every change, layers 2–3 every 2 weeks with the *same* question set (log results — trends, not vibes), layer 4 monthly.

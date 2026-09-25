@@ -1,17 +1,60 @@
 node_modules/
-docs/
+docs/*
+!docs/adr/
+!docs/agents/
 
 # Keep local Claude Code state out of the repo, but track the skills symlinks
 # so installed skills survive a fresh clone.
 .claude/*
 !.claude/skills/
 
-# Xiaohongshu (小红书) post working images — deliverables for the XHS
-# platform, not referenced by the website
-assets/blog/xiaohongshu/
+# ── 原图不进仓库（#71）──────────────────────────────────────────────
+# 原则：只有**实际被页面引用的** webp 进版本库；jpg/png 原图一律留在本地。
+# 2026-07-27 的资产瘦身实测：out/ 里 75 张 jpg/png 中只有 og-image.jpg 被引用，
+# 其余 74 张（511MB）纯属死重量。已备份后删除，见 ADR-0006。
+# 新增原图前先想清楚：它会被页面引用吗？不会就别提交。
 
-# Raw Gemini PNG sources for blog illustrations (converted to .webp; keep local, do not commit)
-assets/blog/*.png
+# 小红书发帖工作图 —— 交付给平台的，不上网站
+public/assets/blog/xiaohongshu/
 
-# Raw PNG sources for demo mockup photos (converted to .webp; keep local, do not commit)
-assets/demos/**/*.png
+# blog 概念插画的 Gemini 出图源（上线用的是同名 .webp）
+public/assets/blog/*.png
+
+# demo 样板站照片的出图源（上线用的是同名 .webp）
+public/assets/demos/**/*.png
+
+# 摄影师原图（上线用的是同名 .webp 与 crops/ 下的裁切版）
+public/assets/wedding/*.jpg
+
+# Landing 出图源（上线用的是 hero-fnb.webp）
+public/assets/Landing/*.png
+
+# 截图工作文件，从不上线
+public/assets/screenshot/
+
+# 借自 ember-scroll 的占位帧序列 —— 方案已否决，见 ADR-0001
+scrub-frames/
+scrub-frames-desktop/
+
+# Next.js / build output
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# ── 内容页的语言拆分产物（#76）────────────────────────────────────
+# 由 scripts/split-content-lang.mjs 从 src/content/pages/ 的双语原稿生成，
+# prebuild 每次构建都会重跑，Cloudflare 那边也一样。**改原稿，别改这里。**
+# 不进版本库是因为它们是原稿的派生物：36 份、近 1MB，每次构建都会重写，
+# 留在 git 里只会让每个提交都带一堆噪音 diff（#64 的瘦身同一个道理）。
+public/blog/
+public/case-studies/
+public/zh/
+public/js/lenis.min.js
+docs/parallax/*.source.png
+
+# 过页清单（npm run checklist 生成，只在本机看）
+checklist.html
+
+# wrangler pages dev 的本机状态（npm run preview 生成，4MB+）
+.wrangler/

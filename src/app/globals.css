@@ -1,0 +1,245 @@
+/* 层叠层的顺序：**必须在 @import "tailwindcss" 之前声明**，因为顺序由第一次
+   出现决定。
+
+   `legacy` 装的是内容页正文那套老样式表（src/styles/legacy-content.css）。它要
+   排在 Tailwind 的 `utilities` **之前**：
+
+   未分层的 CSS 会整体压过任何分层的 CSS，**跟优先级无关**。老样式表里那句
+   `* { margin: 0; padding: 0 }` 如果不分层，就会把 Nav / Footer 上所有 Tailwind
+   的 padding、margin、max-width 全部吃掉：导航栏会贴到屏幕左边缘。
+   放进 `legacy` 层之后：它仍然压得过 Tailwind 的 preflight（base 在它之前），
+   但压不过工具类（utilities 在它之后）。这正是要的分工。 */
+@layer theme, base, components, legacy, utilities;
+
+@import "tailwindcss";
+
+/* 矮屏（笔电 768 / 720 高）。钉住的整屏要塞进一个视口，这里收紧边距。 */
+@custom-variant short (@media (max-height: 820px));
+
+/* ── 中文字体 ────────────────────────────────────────────────────────────
+   自托管的思源黑体／宋体子集，由 scripts/subset-fonts.mjs 在构建期生成，
+   只包含全站实际用到的 571 个字符，完整字体是 10MB 级。
+   授权 SIL OFL 1.1，许可证全文随字体分发在 /fonts/ 下（OFL 第 2 条要求）。
+   见 docs/adr/0004-noto-cjk-self-hosted-subset.md。
+
+   unicode-range 限定在中日韩区段：拉丁字符永远走 Inter，浏览器不会为了
+   一段纯英文去下载中文字体。 */
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("/fonts/NotoSansSC-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2E80-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FF00-FFEF;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("/fonts/NotoSansSC-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2E80-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FF00-FFEF;
+}
+
+@font-face {
+  font-family: "Noto Serif SC";
+  src: url("/fonts/NotoSerifSC-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2E80-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FF00-FFEF;
+}
+
+@theme {
+  /* ── 表面阶梯 ────────────────────────────────────────────────────
+     Linear 的深度不靠阴影，靠「底色 → 一级 → 二级 → 三级」这四阶加发丝描边。
+     暗色上的投影一律不用。#90 重画时按这个阶梯排层级，不要跳级。 */
+  --color-bg: #07080b;
+  --color-surface-1: #0e1015;
+  --color-surface-2: #14161d;
+  --color-surface-3: #191b23;
+
+  /* 单一靛紫，见 ADR-0007。**只准出现在**：品牌字、主行动按钮、焦点环、
+     链接强调。不做区块底色、不做卡片填充、不做光晕。 */
+  --color-accent: #7c82f0;
+  --color-accent-hover: #9aa0ff;
+  --color-accent-press: #666cd8;
+
+  /* 文字四阶。muted 与 subtle 比重画前提亮了一档：原先 #a2a9b6 / #6c7382
+     在近黑底上与正文拉不开层级，段落与脚注糊成一片。 */
+  --color-ink: #f3f5f9;
+  --color-ink-muted: #c2c9d6;
+  --color-ink-subtle: #868d9c;
+  --color-ink-faint: #5f6673;
+
+  /* 描边用实色不用半透明白：同一条 rgba 描边压在底色与 surface-2 上会
+     显出两种深浅，卡片叠卡片时边界就乱了。 */
+  --color-hairline: #1c1f27;
+  --color-hairline-strong: #2b2f3a;
+
+  /* 拉丁走 Inter，中文落到思源黑体子集：Inter 没有汉字字形，会自然穿透。
+     子集之外的字（罕见）再落到系统字体，不会出现豆腐块。 */
+  --font-sans: var(--font-inter), "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+
+  /* 标题栈：拉丁 Inter，中文思源宋体（中文没有 Didone 对应物，宋体最接近
+     参考站那种 editorial 质感，见 ADR-0004）。
+
+     ⚠️ 这个栈是**暂定**的，问题还开着：见 #95。拉丁曾短暂换成
+     Instrument Serif，但高对比衬线（竖粗横细）在近黑底上会发虚：浅色字向外
+     发光把细笔画吃掉。ERA 的 Didone 成立是因为它是米白底。Linear 在暗底上
+     从不用衬线。同样的问题也悬在中文的宋体上，只是还没定论。 */
+  --font-serif: var(--font-inter), "Noto Serif SC", ui-serif, Georgia, serif;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+/* scroll-padding-top 让锚点停在固定导航下方。这里**没有** scroll-behavior:
+   smooth，它与 Lenis 的平滑滚动互相打架，见 ADR-0001 与 #85。惯性由
+   src/lib/motion.ts 那条链路提供，且只在桌面、非减弱动态偏好时启用。 */
+html {
+  scroll-padding-top: 80px;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 极淡的噪点。近黑大平面在低端屏上会起色带，噪点一压就没了，也是 hero
+   视频要叠的同一层（ADR-0001：比换编码器省得多）。
+   用 SVG data URI 而不是图片：零请求。fixed + 不参与命中测试，滚动时不重绘。 */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* 标题走标题栈。只对 h1/h2 生效：h3 及以下是卡片小标题，用黑体更清爽。
+
+   字重 600：思源宋体子集只打了这一档，用别的字重会让浏览器对中文做合成
+   粗体，很糊。负字距是 Linear 那套显示字的做法，与字体选型无关，留着。 */
+h1,
+h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* 逐行揭示的预备态。这个类由 Shell 里的内联脚本在 <head> 中加上，
+   放在首帧之前，标题才不会先亮一下再被藏起来。脚本自己已经排除了减弱动态
+   偏好，所以这里不用再写一遍媒体查询。
+
+   兜底：那段内联脚本 4 秒后会把类摘掉。正常情况下 Reveal 早就给每个元素写了
+   行内 opacity，摘不摘都无所谓。但万一动效 chunk 加载失败，文字最迟 4 秒后
+   也一定会出现：这个站的流量全靠文字被读到，不能赌。 */
+.reveal-armed [data-reveal] {
+  opacity: 0;
+}
+
+/* 首屏滚动提示的箭头，一下一下往下点。
+
+   写成 CSS 关键帧而不是交给 gsap：它是一个不看滚动位置的常驻循环，扔给合成器
+   就行，没必要每帧过一遍 JS。淡出才归 HeroScrub 管。
+
+   ⚠️ 无限动画在手机上关掉，GEO 清单 §6 的性能条款，低端安卓上一个常驻
+   合成层就够把滚动帧率拖下来。减弱动态偏好由下面那条全局规则接管。 */
+@keyframes hero-hint-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(5px);
+    opacity: 1;
+  }
+}
+
+@media (min-width: 769px) {
+  [data-hero-hint] svg {
+    animation: hero-hint-bob 1.8s ease-in-out infinite;
+  }
+}
+
+/* 服务档位切换时，左边整块详情淡入一次。位移很小（6px）：大了会读成
+   「页面在跳」，而不是「内容换了」。减弱动态偏好由下面那条全局规则接管。 */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 背景偶尔划过的流星，给内容稀的页面一点活气。
+   每颗一个长周期，只有开头约 1 秒在飞，其余时间透明：几颗错开周期，
+   看起来就是「时不时」一颗，而不是一直在下雨。纯 CSS，交给合成器。
+   ⚠️ 手机不渲染（GEO 清单 §6 / 无限动画一律桌面才开）；减弱动态偏好由
+   下面那条全局规则接管：动画一轮就停在末帧，末帧是透明的。 */
+.meteors {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .meteors {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .meteors span {
+    position: absolute;
+    width: 160px;
+    height: 1px;
+    opacity: 0;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.7));
+    transform-origin: left center;
+    animation: meteor var(--d) linear var(--delay) infinite;
+  }
+}
+
+/* rotate(145deg) 让 +x 朝左下（CSS 旋转是顺时针）；亮的一头在右端，所以是头在前、尾在后。 */
+@keyframes meteor {
+  0% {
+    opacity: 0;
+    transform: rotate(145deg) translateX(0);
+  }
+  1% {
+    opacity: 1;
+  }
+  7% {
+    opacity: 0;
+    transform: rotate(145deg) translateX(700px);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(145deg) translateX(700px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

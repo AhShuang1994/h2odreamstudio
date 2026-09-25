@@ -1,0 +1,14 @@
+{
+  "mail": {
+    "from": "ibanking.alert@dbs.com",
+    "subject": "",
+    "body": "Dear Customer,\n\nWe refer to your PAYNOW dated 10 Sep. We are pleased to confirm that the transaction was completed.\n\nDate & Time:\t10 Sep 12:31 (SGT)\nAmount:\tSGD6.00\nFrom:\tXXXX A/C ending XXXX\nTo:\tTECK SENG (F&B) PTE. LTD. (UEN ending 040E)\n\nIf unauthorised, please call our DBS hotline. To view transaction details, please login to digibank.\n\nThank you for banking with us.\n\nYours faithfully\nDBS Bank Ltd"
+  },
+  "expect": {
+    "bank": "DBS PayNow",
+    "direction": "out",
+    "amount": 6,
+    "currency": "SGD",
+    "merchant": "TECK SENG (F&B) PTE. LTD."
+  }
+}

@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>联络表单 · 寄信 + WhatsApp 双通道 · H2ODreamer Studio</title>
+
+<!--
+  ════════════════════════════════════════════════════════════════════
+  这是一个**能力样板**，不是客户站。
+
+  要回答的问题：一个纯静态的网站（这个站是 `output: "export"`，扔在
+  Cloudflare Pages 上，没有后端在跑），表单填完之后怎么真的送到人手上。
+
+  两条通道，各有各的性格：
+
+    【WhatsApp】不需要任何服务器。把表单内容拼成文字，塞进
+      `https://wa.me/<号码>?text=<转码后的文字>`，访客的 WhatsApp 会带着
+      打好的字弹出来。
+      ⚠️ 致命前提：**访客还得自己按发送**。不按，你什么都收不到。
+
+    【Email】必须有东西替你寄。静态档案做不到。这里用 Web3Forms：
+      一个第三方表单端点，前端 POST 过去，它替你寄到信箱。
+      免费、不用注册帐号 —— 去 web3forms.com 填一次你的信箱，
+      access key 会寄给你，贴到下面的设定框里就能测。
+
+  真正稳的做法是**两条一起上**：WhatsApp 当主力（客人本来就用它找你），
+  Email 当备胎 —— 万一客人没按发送，信箱里还留着一份，不会白丢单。
+
+  换成自家后端的话，把 `sendEmail()` 里的 endpoint 改掉就行，
+  表单其余部分一个字都不用动。
+  ════════════════════════════════════════════════════════════════════
+-->
+
+<style>
+  :root {
+    --bg: #090a0e;
+    --surface-1: #0e1015;
+    --surface-2: #14161d;
+    --accent: #7c82f0;
+    --accent-hover: #9aa0ff;
+    --ink: #f3f5f9;
+    --ink-muted: #c2c9d6;
+    --ink-subtle: #868d9c;
+    --hairline: #1c1f27;
+    --hairline-strong: #2b2f3a;
+    --ok: #3ecf8e;
+    --warn: #e5a94f;
+    --err: #ef6b6b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.6 ui-sans-serif, system-ui, "Segoe UI", "PingFang SC",
+          "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 48px 20px 96px; }
+  h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.15; letter-spacing: -0.02em; margin: 8px 0 0; }
+  h2 { font-size: 17px; letter-spacing: -0.01em; margin: 0 0 4px; }
+  .eyebrow { color: var(--accent); font-size: 13px; letter-spacing: 0.03em; font-weight: 500; margin: 0; }
+  .lede { color: var(--ink-muted); max-width: 62ch; margin: 16px 0 0; }
+
+  .cols { display: grid; gap: 20px; margin-top: 36px; }
+  @media (min-width: 900px) { .cols { grid-template-columns: 1fr 1fr; align-items: start; } }
+
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--hairline-strong);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .card + .card { margin-top: 20px; }
+  .card .hint { color: var(--ink-subtle); font-size: 13px; margin: 0 0 18px; }
+
+  label { display: block; margin-top: 16px; font-size: 13px; color: var(--ink-muted); }
+  label:first-of-type { margin-top: 0; }
+  .req { color: var(--accent); }
+  input, select, textarea {
+    width: 100%;
+    margin-top: 6px;
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--hairline-strong);
+    border-radius: 8px;
+    color: var(--ink);
+    font: inherit;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: transparent;
+  }
+  textarea { min-height: 96px; resize: vertical; }
+  .err-msg { color: var(--err); font-size: 12px; margin-top: 5px; display: none; }
+  .bad input, .bad select, .bad textarea { border-color: var(--err); }
+  .bad .err-msg { display: block; }
+
+  /* 蜜罐：给机器人填的。真人看不见，也读不到（读屏靠 aria-hidden 跳过）。
+     Web3Forms 认 `botcheck` 这个名字，填了就直接丢弃。 */
+  .hp { position: absolute; left: -9999px; opacity: 0; height: 0; overflow: hidden; }
+
+  .row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+  button {
+    font: inherit; font-weight: 500; cursor: pointer;
+    border-radius: 8px; padding: 11px 18px; border: 1px solid transparent;
+    transition: background-color .15s, color .15s, border-color .15s;
+  }
+  .primary { background: var(--accent); color: #fff; }
+  .primary:hover { background: var(--accent-hover); }
+  .ghost { background: var(--surface-2); color: var(--ink); border-color: var(--hairline-strong); }
+  .ghost:hover { background: var(--surface-1); }
+  button[disabled] { opacity: .55; cursor: not-allowed; }
+
+  .status { margin-top: 18px; font-size: 14px; display: none; }
+  .status.on { display: block; }
+  .status .line { display: flex; gap: 8px; align-items: flex-start; padding: 7px 0; }
+  .status .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; background: var(--ink-subtle); }
+  .status .ok   .dot { background: var(--ok); }
+  .status .warn .dot { background: var(--warn); }
+  .status .err  .dot { background: var(--err); }
+  .status .ok   { color: var(--ink); }
+  .status .warn { color: var(--warn); }
+  .status .err  { color: var(--err); }
+
+  pre {
+    background: var(--surface-2);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 14px;
+    overflow-x: auto;
+    font: 12.5px/1.7 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--ink-muted);
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+  }
+  .banner {
+    border-radius: 8px; padding: 12px 14px; font-size: 13px;
+    border: 1px solid var(--hairline-strong); background: var(--surface-2);
+    color: var(--ink-muted); margin-bottom: 18px;
+  }
+  .banner.warn { border-color: #4a3a1c; background: #1d170c; color: #e9c785; }
+  .banner a { color: var(--accent-hover); }
+  .steps { margin: 0; padding-left: 20px; color: var(--ink-muted); font-size: 14px; }
+  .steps li { margin: 7px 0; }
+  code.inline {
+    background: var(--surface-2); border: 1px solid var(--hairline);
+    border-radius: 4px; padding: 1px 5px;
+    font: 12.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--ink);
+  }
+  .foot { margin-top: 48px; color: var(--ink-subtle); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">能力样板</p>
+  <h1>表单填完，寄信 / 弹 WhatsApp</h1>
+  <p class="lede">
+    这个站是纯静态的，没有后端。下面演示的就是在这个前提下，怎么让客人填完表单之后，
+    你的信箱收到一封信，或者客人的 WhatsApp 弹出一条打好字的信息。
+    <strong>两条通道各自一颗按钮</strong> —— 混在一起出了事分不清是哪一半坏的。
+  </p>
+
+  <div class="cols">
+
+    <!-- ── 左：表单本体 ────────────────────────────────────────── -->
+    <div>
+      <div class="card">
+        <h2>联络表单</h2>
+        <p class="hint">带 <span class="req">*</span> 的是必填。</p>
+
+        <form id="f" novalidate>
+          <!-- 蜜罐。名字必须是 botcheck，Web3Forms 认这个。 -->
+          <div class="hp" aria-hidden="true">
+            <label>别填这一栏<input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off"></label>
+          </div>
+
+          <div class="field">
+            <label for="name">你的名字 <span class="req">*</span>
+              <input id="name" name="name" autocomplete="name" placeholder="陈小明">
+            </label>
+            <p class="err-msg">请填名字。</p>
+          </div>
+
+          <div class="field">
+            <label for="phone">WhatsApp 号码 <span class="req">*</span>
+              <input id="phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="012-345 6789">
+            </label>
+            <p class="err-msg">请填一个能联络到你的号码（至少 8 位数字）。</p>
+          </div>
+
+          <div class="field">
+            <label for="email">Email<span style="color:var(--ink-subtle)"> — 选填，方便回你报价</span>
+              <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com">
+            </label>
+            <p class="err-msg">这个 email 看起来不对。</p>
+          </div>
+
+          <div class="field">
+            <label for="service">想做什么 <span class="req">*</span>
+              <select id="service" name="service">
+                <option value="">请选择…</option>
+                <option>一页式落地页</option>
+                <option>多页企业官网</option>
+                <option>Shopify 迁移</option>
+                <option>婚礼电子请柬</option>
+                <option>还不确定，想先聊聊</option>
+              </select>
+            </label>
+            <p class="err-msg">选一个吧。</p>
+          </div>
+
+          <div class="field">
+            <label for="msg">想说的话
+              <textarea id="msg" name="message" placeholder="例如：我开一间冷气维修，想要一页能让人直接 WhatsApp 我的落地页。"></textarea>
+            </label>
+          </div>
+
+          <div class="row">
+            <button type="submit" class="primary" id="both">送出（只寄信）</button>
+            <button type="button" class="ghost" id="waOnly">只用 WhatsApp 传</button>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <button type="button" class="ghost" id="native">寄信被挡？用原生表单送（不受 CORS 管）</button>
+          </div>
+        </form>
+
+        <div class="status" id="status" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <!-- ── 右：设定 + 原理 ─────────────────────────────────────── -->
+    <div>
+      <div class="card">
+        <h2>设定</h2>
+        <p class="hint">存在这台机器的浏览器里，不会上传，也不会进 git。</p>
+
+        <div class="banner warn" id="keyWarn" hidden>
+          还没填 access key —— <strong>寄信那一半不会动</strong>，WhatsApp 那一半照常可以试。
+          去 <a href="https://web3forms.com" target="_blank" rel="noopener noreferrer">web3forms.com</a>
+          填一次你的信箱，key 会寄给你，不用注册帐号。
+        </div>
+
+        <label for="key">Web3Forms access key
+          <input id="key" placeholder="贴在这里，例如 a1b2c3d4-…" autocomplete="off">
+        </label>
+
+        <label for="wa">收件的 WhatsApp 号码
+          <input id="wa" placeholder="60175138694（国码 + 号码，不要 + 不要空格）" autocomplete="off">
+        </label>
+      </div>
+
+      <div class="card">
+        <h2>会送出去的 WhatsApp 内容</h2>
+        <p class="hint">边填边变。这就是客人按下发送时，你会收到的那条信息。</p>
+        <pre id="preview">（先把表单填一填）</pre>
+      </div>
+
+      <div class="card">
+        <h2>它到底怎么运作</h2>
+        <ol class="steps">
+          <li><strong>寄信</strong>：前端 <code class="inline">fetch</code> 把表单 POST 到
+              Web3Forms 的端点，它替你寄到信箱。静态站自己寄不了信 —— 没有东西在跑。</li>
+          <li><strong>WhatsApp</strong>：把内容转码拼成
+              <code class="inline">wa.me/&lt;号码&gt;?text=…</code>，打开它，客人的 WhatsApp
+              就带着打好的字弹出来。</li>
+          <li><strong>那一下「发送」是客人按的</strong>，不是你。所以寄信那一半必须留着
+              —— 他半路跑掉，你信箱里至少还有一份。</li>
+          <li><strong>防机器人</strong>：一个看不见的 <code class="inline">botcheck</code>
+              栏位，真人永远不会填，机器人会。填了就丢掉。</li>
+          <li><strong>寄信被挡住怎么办</strong>：浏览器只对
+              <code class="inline">fetch</code> 这类脚本发的跨站请求做 CORS 检查。
+              实测在 <code class="inline">localhost</code> 上 Web3Forms 不回
+              <code class="inline">Access-Control-Allow-Origin</code>，请求发不出去。
+              第三颗按钮走的是 <strong>原生 <code class="inline">&lt;form&gt;</code> POST</strong>
+              —— 那是导航，不走 CORS，任何地方都送得到，代价是页面会跳一下。</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <p class="foot">
+    这一页在 <code class="inline">robots.txt</code> 里是 Disallow 的，也不进 sitemap —— 样板不参与收录。
+  </p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var EMAIL_ENDPOINT = "https://api.web3forms.com/submit";
+  var LS = "h2od-form-demo";
+
+  var f = document.getElementById("f");
+  var statusEl = document.getElementById("status");
+  var preview = document.getElementById("preview");
+  var keyEl = document.getElementById("key");
+  var waEl = document.getElementById("wa");
+  var keyWarn = document.getElementById("keyWarn");
+  var btnBoth = document.getElementById("both");
+  var btnWa = document.getElementById("waOnly");
+  var btnNative = document.getElementById("native");
+
+  // ── 设定存在 localStorage，省得每次重贴 ──────────────────────────
+  try {
+    var saved = JSON.parse(localStorage.getItem(LS) || "{}");
+    keyEl.value = saved.key || "";
+    waEl.value = saved.wa || "60175138694";
+  } catch (e) {
+    waEl.value = "60175138694";
+  }
+  function saveSettings() {
+    try {
+      localStorage.setItem(LS, JSON.stringify({ key: keyEl.value.trim(), wa: waEl.value.trim() }));
+    } catch (e) {}
+    keyWarn.hidden = !!keyEl.value.trim();
+  }
+  keyEl.addEventListener("input", saveSettings);
+  waEl.addEventListener("input", saveSettings);
+  keyWarn.hidden = !!keyEl.value.trim();
+
+  // ── 读表单 ──────────────────────────────────────────────────────
+  /**
+   * ⚠️ 一律走 `f.elements.xxx`，不要写 `f.xxx`。
+   * `HTMLFormElement` 自己就有 `name`（还有 action / method / target / length …），
+   * 这些名字会**盖掉**同名栏位的具名取值 —— `f.name` 拿到的是表单的 name 属性
+   * （一个字符串），不是那个输入框，接着 `.value.trim()` 当场抛错。
+   * `f.elements` 没有这层遮蔽。
+   */
+  var el = f.elements;
+  function vals() {
+    return {
+      name: el.name.value.trim(),
+      phone: el.phone.value.trim(),
+      email: el.email.value.trim(),
+      service: el.service.value,
+      message: el.message.value.trim()
+    };
+  }
+
+  /**
+   * 校验。必填 + 号码至少 8 位数字 + email 填了才验格式。
+   * 逐栏标红，不用 alert —— alert 在手机上挡住整个画面，看不到是哪一栏错。
+   */
+  function validate() {
+    var v = vals();
+    var fields = f.querySelectorAll(".field");
+    var ok = [
+      !!v.name,
+      v.phone.replace(/\D/g, "").length >= 8,
+      !v.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email),
+      !!v.service,
+      true
+    ];
+    var firstBad = -1;
+    for (var i = 0; i < fields.length; i++) {
+      fields[i].classList.toggle("bad", !ok[i]);
+      if (!ok[i] && firstBad < 0) firstBad = i;
+    }
+    if (firstBad >= 0) {
+      var input = fields[firstBad].querySelector("input, select, textarea");
+      if (input) input.focus();
+      return false;
+    }
+    return true;
+  }
+
+  // ── 拼 WhatsApp 那条文字 ────────────────────────────────────────
+  function waText() {
+    var v = vals();
+    var lines = [
+      "新的网站询问",
+      "",
+      "名字：" + (v.name || "—"),
+      "WhatsApp：" + (v.phone || "—"),
+      "Email：" + (v.email || "—"),
+      "想做：" + (v.service || "—")
+    ];
+    if (v.message) {
+      lines.push("");
+      lines.push("想说的话：");
+      lines.push(v.message);
+    }
+    return lines.join("\n");
+  }
+
+  function waUrl() {
+    var num = waEl.value.replace(/\D/g, "");
+    return "https://wa.me/" + num + "?text=" + encodeURIComponent(waText());
+  }
+
+  function renderPreview() {
+    var v = vals();
+    var empty = !v.name && !v.phone && !v.email && !v.service && !v.message;
+    preview.textContent = empty ? "（先把表单填一填）" : waText();
+  }
+  f.addEventListener("input", renderPreview);
+  f.addEventListener("change", renderPreview);
+  renderPreview();
+
+  // ── 状态条 ──────────────────────────────────────────────────────
+  function say(lines) {
+    statusEl.innerHTML = "";
+    lines.forEach(function (l) {
+      var div = document.createElement("div");
+      div.className = "line " + (l[0] || "");
+      var dot = document.createElement("span");
+      dot.className = "dot";
+      var txt = document.createElement("span");
+      txt.textContent = l[1];
+      div.appendChild(dot);
+      div.appendChild(txt);
+      statusEl.appendChild(div);
+    });
+    statusEl.classList.add("on");
+  }
+
+  // ── 寄信 ────────────────────────────────────────────────────────
+  function sendEmail() {
+    var key = keyEl.value.trim();
+    if (!key) return Promise.resolve({ skipped: true });
+
+    var v = vals();
+    return fetch(EMAIL_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        access_key: key,
+        subject: "网站询问 · " + (v.service || "未选") + " · " + (v.name || "匿名"),
+        from_name: "H2ODreamer 网站表单",
+        // replyTo 设成客人的 email：你在信箱里直接按「回复」就回到他那里
+        replyto: v.email || undefined,
+        botcheck: el.botcheck.checked,
+        名字: v.name,
+        WhatsApp: v.phone,
+        Email: v.email || "（没留）",
+        想做: v.service,
+        想说的话: v.message || "（没写）"
+      })
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) {
+        return { ok: r.ok && j.success !== false, msg: j.message || ("HTTP " + r.status) };
+      }); })
+      // `fetch` 抛错 = 请求**根本没发出去**（多半是 CORS 被浏览器挡在门口），
+      // 跟「发出去了但被拒绝」是两回事，提示得分开写，不然只看到一句
+      // 「Failed to fetch」，没人知道该去修什么。
+      .catch(function (e) { return { ok: false, blocked: true, msg: String(e.message || e) }; });
+  }
+
+  /**
+   * 原生表单直送 —— 不受 CORS 管的那条路。
+   *
+   * 浏览器只对 `fetch` / XHR 这类脚本发起的跨站请求做 CORS 检查；
+   * `<form>` 自己 POST 出去是**导航**，不走那一套，所以永远送得到。
+   *
+   * 代价：页面会跳走。用 `redirect` 让它跳回这一页并带上 `?sent=1`，
+   * 回来就能看到「寄出了」的横幅。
+   */
+  function sendNative() {
+    var key = keyEl.value.trim();
+    var v = vals();
+    var back = location.origin + location.pathname + "?sent=1";
+    var fields = {
+      access_key: key,
+      subject: "网站询问 · " + (v.service || "未选") + " · " + (v.name || "匿名"),
+      from_name: "H2ODreamer 网站表单",
+      replyto: v.email || "",
+      redirect: back,
+      "名字": v.name,
+      "WhatsApp": v.phone,
+      "Email": v.email || "（没留）",
+      "想做": v.service,
+      "想说的话": v.message || "（没写）"
+    };
+    var form = document.createElement("form");
+    form.method = "POST";
+    form.action = EMAIL_ENDPOINT;
+    form.style.display = "none";
+    Object.keys(fields).forEach(function (k) {
+      var i = document.createElement("input");
+      i.type = "hidden";
+      i.name = k;
+      i.value = fields[k];
+      form.appendChild(i);
+    });
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  // ── 送出：只寄信 ───────────────────────────────────────────────
+  // WhatsApp 不在这颗按钮里。两件事混在一颗按钮上，出问题时分不清是哪一半
+  // 坏了；要走 WhatsApp，按旁边那颗。
+  f.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!validate()) return;
+
+    btnBoth.disabled = btnWa.disabled = btnNative.disabled = true;
+    say([["", "正在寄信…"]]);
+
+    sendEmail().then(function (r) {
+      var lines = [];
+      if (r.skipped) {
+        lines.push(["warn", "没填 access key —— 先在右边「设定」贴上，不然没东西可寄。"]);
+      } else if (r.ok) {
+        lines.push(["ok", "信已寄出，去信箱看看（顺便看一眼垃圾邮件匣）。"]);
+      } else if (r.blocked) {
+        lines.push(["err", "请求被浏览器挡在门口了（CORS）—— 信根本没发出去，不是你的 key 有问题。"]);
+        lines.push(["warn", "按下面那颗「用原生表单送」就会通：表单自己 POST 是导航，不走 CORS 那一套。"]);
+      } else {
+        lines.push(["err", "对方拒绝了：" + r.msg]);
+      }
+      say(lines);
+      btnBoth.disabled = btnWa.disabled = btnNative.disabled = false;
+    });
+  });
+
+  // ── 原生表单直送（不受 CORS 管）────────────────────────────────
+  btnNative.addEventListener("click", function () {
+    if (!validate()) return;
+    if (!keyEl.value.trim()) {
+      say([["err", "先在右边「设定」贴上 access key，不然没东西可寄。"]]);
+      keyEl.focus();
+      return;
+    }
+    say([["", "送出中…页面会跳去 Web3Forms，寄完自动跳回来。"]]);
+    sendNative();
+  });
+
+  // 从 Web3Forms 跳回来时带着 ?sent=1
+  if (/[?&]sent=1/.test(location.search)) {
+    say([["ok", "寄出去了 —— 去信箱看看（顺便看一眼垃圾邮件匣）。这条路不受 CORS 管，所以在 localhost 也通。"]]);
+  }
+
+  // ── 只走 WhatsApp ───────────────────────────────────────────────
+  btnWa.addEventListener("click", function () {
+    if (!validate()) return;
+    window.open(waUrl(), "_blank", "noopener");
+    say([["ok", "WhatsApp 开了，内容已经打好字。⚠️ 发送要客人自己按 —— 他没按，你就收不到，这正是要留一条寄信通道的原因。"]]);
+  });
+})();
+</script>
+</body>
+</html>
