@@ -48,6 +48,38 @@ describe("导出产物 · 收录入口", () => {
     expect(naked, `这些页面没有 canonical，收录入口无从引用：${naked.join(", ")}`).toEqual([]);
   });
 
+  /**
+   * 分享卡片：WhatsApp / Facebook 读 og:image，X 读 twitter:image。
+   *
+   * 核心页丢过一次 og:image：页面的 `openGraph` 把 layout 那份整个换掉了，
+   * 见 `src/lib/meta.ts`。图片还得在 robots.txt 放行的目录里（/og/ 或
+   * /assets/blog/），爬虫读不到的分享图等于没有。
+   */
+  it("每个该收录的页面都有分享卡片，图片真实存在且爬虫读得到", () => {
+    const CRAWLABLE = /^\/(og|assets\/blog)\//;
+    const problems: string[] = [];
+    for (const file of canonical.keys()) {
+      const head = x.read(file).split("</head>")[0];
+      for (const [label, re] of [
+        ["og:image", /<meta property="og:image" content="([^"]+)"/],
+        ["twitter:image", /<meta name="twitter:image" content="([^"]+)"/],
+      ] as const) {
+        const url = head.match(re)?.[1];
+        if (!url) problems.push(`${file}: 缺 ${label}`);
+        else if (!url.startsWith(`${DOMAIN}/`)) problems.push(`${file}: ${label} 不是本站完整网址 ${url}`);
+        else {
+          const path = url.slice(DOMAIN.length);
+          if (!CRAWLABLE.test(path)) problems.push(`${file}: ${label} 在爬虫读不到的目录 ${path}`);
+          else if (!x.has(path.slice(1))) problems.push(`${file}: ${label} 指向不存在的文件 ${path}`);
+        }
+      }
+      if (!/<meta property="og:site_name" content="H2ODreamer Studio"/.test(head)) {
+        problems.push(`${file}: 缺 og:site_name`);
+      }
+    }
+    expect(problems, problems.join("\n")).toEqual([]);
+  });
+
   describe("sitemap", () => {
     const xml = x.read("sitemap.xml");
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);

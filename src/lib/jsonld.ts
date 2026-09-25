@@ -20,7 +20,7 @@ export function businessNode() {
     name: "H2ODreamer Studio",
     url: `${site.domain}/`,
     logo: `${site.domain}/og/logo.svg`,
-    image: `${site.domain}/og/og-image.jpg`,
+    image: `${site.domain}/og/og-hero.jpg`,
     description:
       "Web design studio in Malaysia: landing pages, multi-page corporate websites, wedding e-invitations and Shopify migration. Bilingual service in English and Chinese.",
     areaServed: "MY",

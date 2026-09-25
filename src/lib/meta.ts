@@ -3,6 +3,15 @@ import { pathsFor, t, type Lang } from "./i18n";
 import type { Bilingual } from "@/content/site";
 
 /**
+ * 全站默认分享图。与 `app/(en|zh)/layout.tsx` 里那份是同一张。
+ *
+ * 这里必须再给一次：Next 合并 metadata 只合并到第一层，页面一旦给了
+ * `openGraph`，layout 的 `openGraph` 就被**整个**换掉，images 与 siteName
+ * 一起没了。核心页（首页 / about / pricing / contact）就这样丢过 og:image。
+ */
+const DEFAULT_OG_IMAGE = { url: "/og/og-hero.jpg", width: 1200, height: 630 };
+
+/**
  * 页面的 metadata。
  *
  * canonical 指向自己那一份。hreflang 中英**双向互指**，另加 x-default 指向
@@ -53,9 +62,11 @@ export function pageMetadata({
       title: heading,
       description: summary,
       url: self,
+      siteName: "H2ODreamer Studio",
       type: og?.type ?? "website",
       locale: lang === "zh" ? "zh_CN" : "en_US",
-      ...(og?.image ? { images: [{ url: og.image }] } : {}),
+      alternateLocale: lang === "zh" ? "en_US" : "zh_CN",
+      images: [og?.image ? { url: og.image } : DEFAULT_OG_IMAGE],
       ...(og?.type === "article"
         ? {
             ...(og.publishedTime ? { publishedTime: og.publishedTime } : {}),
