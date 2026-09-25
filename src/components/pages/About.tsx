@@ -1,4 +1,5 @@
 import { localize, pathsFor, t, type Lang } from "@/lib/i18n";
+import { assetUrl } from "@/lib/asset-url.mjs";
 import { Button, Container } from "@/components/ui";
 import {
   CtaPanel,
@@ -60,7 +61,7 @@ export function AboutPage({ lang }: { lang: Lang }) {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={aboutFounder.avatar}
+                src={assetUrl(aboutFounder.avatar)}
                 alt={t(aboutFounder.name, lang)}
                 width={220}
                 height={275}

@@ -42,6 +42,9 @@ out/
 next-env.d.ts
 *.tsbuildinfo
 
+# 静态资源的版本号表（scripts/gen-asset-versions.mjs 每次构建前重算）
+src/generated/
+
 # ── 内容页的语言拆分产物（#76）────────────────────────────────────
 # 由 scripts/split-content-lang.mjs 从 src/content/pages/ 的双语原稿生成，
 # prebuild 每次构建都会重跑，Cloudflare 那边也一样。**改原稿，别改这里。**

@@ -45,8 +45,19 @@ const PIN_QUERY = "(min-width: 768px)";
 const smooth = (x: number) => x * x * (3 - 2 * x);
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 
-export function WorkShowcase({ lang, header }: { lang: Lang; header: ReactNode }) {
-  const items = selectedWork.items;
+/**
+ * `items` 由服务端的 SelectedWork 传进来，图片地址已经接上内容指纹
+ * （`lib/asset-url.mjs`）。不在这里算：号码表会整张打进客户端 JS 包。
+ */
+export function WorkShowcase({
+  lang,
+  header,
+  items,
+}: {
+  lang: Lang;
+  header: ReactNode;
+  items: typeof selectedWork.items;
+}) {
   const labels = selectedWork.labels;
   const n = items.length;
 

@@ -10,6 +10,7 @@ import { Reveal } from "@/components/Reveal";
 import { Parallax } from "@/components/Parallax";
 import { Overture } from "@/components/Overture";
 import type { Lang } from "@/lib/i18n";
+import { assetUrl } from "@/lib/asset-url.mjs";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -68,8 +69,8 @@ export function Shell({ lang, children }: { lang: Lang; children: ReactNode }) {
         <WhatsAppFab lang={lang} />
         {/* 平滑滚动与幕布走这一份原生脚本，核心页与静态内容页共用。
             defer 保序，Lenis 必须排在前面。见 public/js/motion.js。 */}
-        <script src="/js/lenis.min.js" defer />
-        <script src="/js/motion.js" defer />
+        <script src={assetUrl("/js/lenis.min.js")} defer />
+        <script src={assetUrl("/js/motion.js")} defer />
       </body>
     </html>
   );
