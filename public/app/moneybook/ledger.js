@@ -1038,13 +1038,47 @@ export const BANK_RULES = [
     from: /\bdbs\b/i,
     parse({ subject, body }) {
       if (!/card transaction alert/i.test(`${subject}\n${body}`)) return null;
-      const amount = /^\s*Amount:\s*([A-Z]{3})\s?([\d,]+(?:\.\d{1,2})?)\s*$/m.exec(body);
-      const to = /^\s*To:\s*(.+?)\s*$/m.exec(body);
-      if (!amount) return null;
-      return { direction: 'out', currency: amount[1], amount: amount[2], merchant: to ? to[1] : '' };
+      const f = dbsFields(body);
+      return f && { direction: 'out', currency: f.currency, amount: f.amount, merchant: f.to };
+    }
+  },
+  {
+    // DBS PayLah! 钱包（paylah.alert@dbs.com），格式跟刷卡那封一样，冒号后面是 tab。
+    // 单独算一张「卡」：它是钱包不是信用卡，跟 DBS 信用卡共用一个对应的话会被标成刷卡。
+    // To 是自己的钱包（充值、别人转进来）就不是花出去的钱
+    bank: 'DBS PayLah!',
+    from: /\bpaylah\b/i,
+    parse({ body }) {
+      const f = dbsFields(body);
+      if (!f) return null;
+      if (/paylah! wallet/i.test(f.to)) return { direction: 'in' };
+      return { direction: 'out', currency: f.currency, amount: f.amount, merchant: f.to };
+    }
+  },
+  {
+    // DBS 户口转出的 PayNow（也是 ibanking.alert@dbs.com）。从户口直接扣，不是刷卡，
+    // 所以跟 DBS 信用卡分开对应。只认「your PAYNOW」这种自己转出去的写法：
+    // 别人转进来的邮件还没见过样本，宁可落到「认不得」也不要记成支出
+    bank: 'DBS PayNow',
+    from: /\bdbs\b/i,
+    parse({ body }) {
+      if (!/we refer to your paynow/i.test(body)) return null;
+      const f = dbsFields(body);
+      return f && { direction: 'out', currency: f.currency, amount: f.amount, merchant: f.to };
     }
   }
 ];
+
+/**
+ * DBS 系列邮件的 `Amount: SGD3.64` 与 `To: 商家` 两行，冒号后面可能是空格或 tab。读不到金额回 null。
+ * 商家后面的 `(UEN ending 040E)`、`(Mobile ending 1234)` 去掉：只留名字
+ */
+function dbsFields(body) {
+  const amount = /^\s*Amount:\s*([A-Z]{3})\s?([\d,]+(?:\.\d{1,2})?)\s*$/m.exec(body);
+  const to = /^\s*To:\s*(.+?)\s*$/m.exec(body);
+  const name = to ? to[1].replace(/\s*\((?:UEN|Mobile|A\/C) ending [^)]*\)$/i, '') : '';
+  return amount ? { currency: amount[1], amount: amount[2], to: name } : null;
+}
 
 /** 标题像验证码的邮件：不是交易，不进「认不得」清单。只看标题：交易邮件的正文常写着「绝不要把 OTP 告诉别人」 */
 const OTP_SUBJECT = /\b(OTP|TAC)\b|one[- ]time (password|pin)|verification code|验证码/i;
@@ -1065,11 +1099,12 @@ export function parseBankMail(mail, rules = BANK_RULES) {
   };
   for (const rule of rules) {
     if (!rule.from.test(m.from)) continue;
+    // 读不懂就让下一条试：同一个网域可能有好几种邮件（dbs.com 有刷卡也有 PayLah!）
     const r = rule.parse(m);
-    if (!r) break;
+    if (!r) continue;
     if (r.direction !== 'out') return { bank: rule.bank, direction: r.direction === 'in' ? 'in' : 'none' };
     const amount = parseAmount(r.amount);
-    if (!amount) break;
+    if (!amount) continue;
     return {
       bank: rule.bank,
       direction: 'out',
