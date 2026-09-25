@@ -1029,7 +1029,22 @@ function settlePending(state) {
  *   `{ direction: 'in' }`（入帐）、`{ direction: 'none' }`（OTP、通知这类），
  *   是这家银行却读不懂就回 null，那封邮件会落到「认不得」清单
  */
-export const BANK_RULES = [];
+export const BANK_RULES = [
+  {
+    // DBS / POSB 的「Card Transaction Alert」：Amount: SGD3.64、To: BUS/MRT。
+    // 寄件人是 ibanking.alert@dbs.com。只认 DBS 这个词（\b 挡掉 feedbacks@ 这类），
+    // 快捷指令给的是纯地址还是带显示名都认得
+    bank: 'DBS',
+    from: /\bdbs\b/i,
+    parse({ subject, body }) {
+      if (!/card transaction alert/i.test(`${subject}\n${body}`)) return null;
+      const amount = /^\s*Amount:\s*([A-Z]{3})\s?([\d,]+(?:\.\d{1,2})?)\s*$/m.exec(body);
+      const to = /^\s*To:\s*(.+?)\s*$/m.exec(body);
+      if (!amount) return null;
+      return { direction: 'out', currency: amount[1], amount: amount[2], merchant: to ? to[1] : '' };
+    }
+  }
+];
 
 /** 标题像验证码的邮件：不是交易，不进「认不得」清单。只看标题：交易邮件的正文常写着「绝不要把 OTP 告诉别人」 */
 const OTP_SUBJECT = /\b(OTP|TAC)\b|one[- ]time (password|pin)|verification code|验证码/i;

@@ -1263,7 +1263,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
           <li>在银行 app 里打开「每笔交易寄电邮通知」，各家叫法不同。</li>
           <li>这个邮箱要加进 iPhone 自带的「邮件（Mail）」app。平常只用 Gmail app 的话：「设置（Settings）」→「邮件（Mail）」→「账户（Accounts）」→「添加账户（Add Account）」。</li>
           <li>「快捷指令（Shortcuts）」app → 右上角「+」新建快捷指令，取名「小帐本邮件」。「添加操作（Add Action）」→「获取 URL 内容（Get Contents of URL）」：网址贴上连接码，点 ›「显示更多（Show More）」，「方法（Method）」选 POST，「请求体（Request Body）」选 JSON。</li>
-          <li>「添加新字段（Add new field）」→「词典（Dictionary）」，键填 <code>mail</code>。在它里面加三个「文本（Text）」：<code>from</code> 填「快捷指令输入（Shortcut Input）」的「发件人（Sender）」、<code>subject</code> 填「主题（Subject）」、<code>body</code> 直接填「快捷指令输入」（就是正文）。属性名称以 iOS 实际显示为准。</li>
+          <li>「添加新字段（Add new field）」→「词典（Dictionary）」，键填 <code>mail</code>。在它里面加三个「文本（Text）」：<code>from</code> 填「快捷指令输入（Shortcut Input）」的「发件人（Sender）」、<code>subject</code> 填「主题（Subject）」、<code>body</code> 填「内容（Content）」。变量列表里找不到「快捷指令输入」的话，先点下方 ⓘ「详细信息（Details）」，打开「在共享表单中显示（Show in Share Sheet）」。只看到「类型（Type）」没有「发件人」时，先把类型改成「电子邮件（Email）」。</li>
           <li>「自动化（Automation）」→「+」→「电子邮件（Email）」→「发件人（Sender）」填银行寄通知的那个地址，选「立即运行（Run Immediately）」→ 动作选「运行快捷指令（Run Shortcut）：小帐本邮件」，输入用「快捷指令输入（Shortcut Input）」。<b>每家银行各建一个。</b></li>
         </ol>
         <p class="muted small">⚠️ <b>同一张卡只能二选一。</b>走邮件的卡，别在上面的钱包自动化里勾它，不然一笔会记两次。</p>
