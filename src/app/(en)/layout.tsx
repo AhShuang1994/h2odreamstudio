@@ -20,11 +20,11 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     alternateLocale: "zh_CN",
-    images: [{ url: "/og/og-image.jpg", width: 1200, height: 630 }],
+    images: [{ url: "/og/og-hero.jpg", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/og/og-image.jpg"],
+    images: ["/og/og-hero.jpg"],
   },
   icons: { icon: "/favicon.svg" },
 };
