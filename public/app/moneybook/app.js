@@ -1,6 +1,6 @@
 /* 小帐本：纯前端离线记帐 PWA
    帐本全部存在浏览器 localStorage，不上传任何服务器，也不去任何地方取汇率。
-   唯一的例外是使用者自己开启的 Apple Pay 自动记帐（ADR-0002）：还没同步的刷卡记录
+   唯一的例外是使用者自己开启的银行邮件自动记帐（ADR-0002、ADR-0003）：还没同步的邮件
    加密后暂放在收件箱 Worker，这里拉回来解封、记进本机，服务器随即删掉。
 
    这个文件只负责**渲染与事件接线**。状态、迁移与全部派生数字都在 ledger.js，
@@ -16,11 +16,15 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
   // 这点观感问题。版本号在资料里（state.version），迁移看的是它。
   const KEY = 'moneybook.v1';
 
-  // Apple Pay 收件箱（workers/moneybook-inbox）。留空 = 这个功能根本不被创建，
+  // 收件箱（workers/moneybook-inbox）。留空 = 这个功能根本不被创建，
   // 「更多」页不会出现那一段，跟没做过一模一样。部署 Worker 之后填上它的网址。
   const INBOX_API = 'https://moneybook-inbox.h2odreamerstudio.workers.dev';
-  // 「小帐本记帐」快捷指令的 iCloud 分享链接。留空就只显示手动建的步骤。
-  const SHORTCUT_URL = '';
+  // 设置步骤里列出来的寄件人：每个地址建一个「电子邮件」自动化。
+  // 加了一家银行的规则（ledger.js 的 BANK_RULES）就在这里补上它的寄件地址
+  const MAIL_SENDERS = [
+    ['ibanking.alert@dbs.com', 'DBS 信用卡、PayNow'],
+    ['paylah.alert@dbs.com', 'DBS PayLah!']
+  ];
 
   // 分类色定义在 CSS 的 --cat-1…--cat-10，主题要换整组就只改 CSS。
   // 这里只吐出 var() 字串，写进 inline style 由浏览器解析。
@@ -1013,7 +1017,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     save(); resetEntry(); renderMore(); toast('已清除');
   });
 
-  // ── Apple Pay 收件箱（ADR-0002）────────────────────
+  // ── 收件箱：银行邮件自动记帐（ADR-0002、ADR-0003）────
   // 快捷指令在刷卡当下把这一笔投进收件箱，Worker 当场用这台手机的公钥封起来。
   // 这里拉回来、解封、交给 ledger 记帐，存好了才请服务器删掉。
   let syncing = false;
@@ -1030,7 +1034,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       const res = await fetch(`${INBOX_API}/i/${inbox.id}`, { headers: authHeader(inbox), cache: 'no-store' });
       if (res.status === 404) {
         // 180 天没打开被清掉了，或是在别台手机上关掉了
-        if (!inboxGoneWarned) toast('Apple Pay 收件箱已失效，请到「更多」重新开启');
+        if (!inboxGoneWarned) toast('自动记帐的收件箱已失效，请到「设定」重新开启');
         inboxGoneWarned = true;
         return;
       }
@@ -1222,10 +1226,9 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     const el = $('#ap-settings');
     if (!state.inbox) {
       el.innerHTML = `<div class="card">
-        <b>刷完 Apple Pay，打开小帐本就已经记好</b>
-        <p>iPhone 的快捷指令会在你<b>实体店感应刷卡</b>时把金额、商家、卡名交给小帐本。网购与 app 内付款触发不了，那几笔可以改用银行寄来的交易邮件记（开启后看设置步骤）。</p>
-        <p><b>需要 iOS 18 以上。</b>旧版 iOS 的快捷指令没有钱包刷卡自动化，开了也收不到。</p>
-        <p>还没同步的刷卡记录会<b>加密</b>后暂放在服务器，只有这台手机解得开，同步后随即删掉。帐本本身不会离开这台手机。</p>
+        <b>银行寄来的交易邮件，自动记进小帐本</b>
+        <p>刷卡、PayNow、PayLah! 付完钱，银行会寄一封通知邮件。iPhone 收到这封邮件时，快捷指令把它交给小帐本，打开就已经记好。</p>
+        <p>还没同步的邮件会<b>加密</b>后暂放在服务器，只有这台手机解得开，同步后随即删掉。帐本本身不会离开这台手机。</p>
         <div class="btns"><button class="primary" id="btn-ap-on">开启</button></div>
       </div>`;
       return;
@@ -1233,41 +1236,29 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     const mapped = Object.entries(state.cardMap);
     el.innerHTML = `<div class="card">
       <b>已开启</b>
-      <p>第 1 步：复制连接码。它等于这个收件箱的钥匙，别贴到别处。</p>
+      <p>先复制连接码，下面第 4 步要贴。它等于这个收件箱的钥匙，别贴到别处。</p>
       <input type="text" class="code" id="ap-code" readonly value="${esc(connectCode())}" aria-label="连接码" />
-      <div class="btns">
-        <button class="primary" id="btn-ap-copy">复制连接码</button>
-        ${SHORTCUT_URL ? `<a class="btn" href="${esc(SHORTCUT_URL)}" target="_blank" rel="noopener">安装快捷指令</a>` : ''}
-      </div>
+      <div class="btns"><button class="primary" id="btn-ap-copy">复制连接码</button></div>
       <details class="ap-steps">
-        <summary>设置步骤</summary>
-        <p class="muted small">需要 iOS 18 以上。</p>
+        <summary>设置步骤（iPhone，只做一次）</summary>
+        <p class="muted small">要先确定：银行每笔交易都会寄邮件给你，而且这个邮箱在 iPhone 自带的「邮件（Mail）」app 里收得到。</p>
         <ol>
-          ${SHORTCUT_URL
-            ? `<li>点「安装快捷指令」，加入时贴上连接码。</li>
-               <li>「快捷指令（Shortcuts）」app →「自动化（Automation）」→「+」→「钱包（Wallet）」，勾选要记的卡，选「立即运行（Run Immediately）」并关掉「运行时通知（Notify When Run）」。</li>
-               <li>动作选「运行快捷指令（Run Shortcut）：小帐本记帐」，输入用「快捷指令输入（Shortcut Input）」。</li>`
-            : `<li>「快捷指令（Shortcuts）」app →「自动化（Automation）」→「+」→「钱包（Wallet）」，勾选要记的卡，选「立即运行（Run Immediately）」并关掉「运行时通知（Notify When Run）」，再选「新建空白自动化（New Blank Automation）」。</li>
-               <li>「添加操作（Add Action）」→「获取 URL 内容（Get Contents of URL）」：网址贴上连接码，点动作右边的 ›「显示更多（Show More）」，「方法（Method）」选 POST，「请求体（Request Body）」选 JSON。</li>
-               <li>「添加新字段（Add new field）」→「文本（Text）」，加三个：<code>amount</code> 填「快捷指令输入（Shortcut Input）」的「金额（Amount）」、<code>merchant</code> 填「商家（Merchant）」、<code>card</code> 填「卡片或票证（Card or Pass）」。插入「快捷指令输入」后再点它一下，就能选属性。键盘上方找不到它的话，长按输入栏，选「选取变量（Select Variable）」。</li>`}
+          <li>打开「快捷指令（Shortcuts）」app，点下面的「自动化（Automation）」，再点右上角「+」。</li>
+          <li>选「电子邮件（Email）」。「发件人（Sender）」填下面表里的地址，选「立即运行（Run Immediately）」，点「下一步（Next）」。</li>
+          <li>点「新建空白自动化（New Blank Automation）」→「添加操作（Add Action）」，搜「获取 URL 内容（Get Contents of URL）」，点它。</li>
+          <li>「URL」那里贴上连接码。</li>
+          <li>点这个动作的 ›「显示更多（Show More）」：「方法（Method）」选 <b>POST</b>，「请求体（Request Body）」选 <b>JSON</b>。</li>
+          <li>「添加新字段（Add new field）」→ 选「词典（Dictionary）」，键（Key）填 <code>mail</code>。</li>
+          <li>点进这个词典，加三个「文本（Text）」字段。值都是插入「快捷指令输入（Shortcut Input）」，再点它一下选：
+            <br><code>from</code> →「发件人（Sender）」
+            <br><code>subject</code> →「主题（Subject）」
+            <br><code>body</code> →「内容（Content）」</li>
+          <li>点「完成（Done）」。</li>
         </ol>
-        <p class="muted small">之后每张卡第一次出现时，记帐页会问一次它在哪一侧、是不是信用卡。</p>
-      </details>
-      <details class="ap-steps">
-        <summary>用银行邮件记帐</summary>
-        <p class="muted small">网购、app 内付款、PayNow / DuitNow 转帐这些刷卡自动化接不到的，靠银行每笔寄来的交易通知邮件补上。需要 iOS 17 以上。</p>
-        <p class="muted small">目前认得的银行：${L.BANK_RULES.length
-          ? esc(L.BANK_RULES.map(r => r.bank).join('、'))
-          : '还没有。每家银行都要一封真邮件来教：第一封会出现在记帐页的「认不得的银行邮件」，点「复制内容」发给开发者。'}</p>
-        <ol>
-          <li>在银行 app 里打开「每笔交易寄电邮通知」，各家叫法不同。</li>
-          <li>这个邮箱要加进 iPhone 自带的「邮件（Mail）」app。平常只用 Gmail app 的话：「设置（Settings）」→「邮件（Mail）」→「账户（Accounts）」→「添加账户（Add Account）」。</li>
-          <li>「快捷指令（Shortcuts）」app → 右上角「+」新建快捷指令，取名「小帐本邮件」。「添加操作（Add Action）」→「获取 URL 内容（Get Contents of URL）」：网址贴上连接码，点 ›「显示更多（Show More）」，「方法（Method）」选 POST，「请求体（Request Body）」选 JSON。</li>
-          <li>「添加新字段（Add new field）」→「词典（Dictionary）」，键填 <code>mail</code>。在它里面加三个「文本（Text）」：<code>from</code> 填「快捷指令输入（Shortcut Input）」的「发件人（Sender）」、<code>subject</code> 填「主题（Subject）」、<code>body</code> 填「内容（Content）」。变量列表里找不到「快捷指令输入」的话，先点下方 ⓘ「详细信息（Details）」，打开「在共享表单中显示（Show in Share Sheet）」。只看到「类型（Type）」没有「发件人」时，先把类型改成「电子邮件（Email）」。</li>
-          <li>「自动化（Automation）」→「+」→「电子邮件（Email）」→「发件人（Sender）」填银行寄通知的那个地址，选「立即运行（Run Immediately）」→ 动作选「运行快捷指令（Run Shortcut）：小帐本邮件」，输入用「快捷指令输入（Shortcut Input）」。<b>每家银行各建一个。</b></li>
-        </ol>
-        <p class="muted small">⚠️ <b>同一张卡只能二选一。</b>走邮件的卡，别在上面的钱包自动化里勾它，不然一笔会记两次。</p>
-        <p class="muted small">限制：邮件寄到了才会进帐。只推送通知、不寄邮件的付款（TNG eWallet 之类）接不到，还是要手记。银行改了邮件格式，那一家会暂时落到「认不得」清单，补上新规则之后恢复。</p>
+        <p class="muted small"><b>每个发件人建一个自动化</b>，第 2 步换地址，其余一模一样：</p>
+        ${MAIL_SENDERS.map(([addr, what]) => `<div class="cat-row"><i>✉️</i><span><code>${esc(addr)}</code><br><small class="muted">${esc(what)}</small></span></div>`).join('')}
+        <p class="muted small">之后每家银行、每种付款第一次出现时，记帐页会问一次记在哪一侧、是不是信用卡。</p>
+        <p class="muted small">接不到的：只推送通知、不寄邮件的付款（TNG eWallet 之类），还是要手记。小帐本还不会读的邮件会出现在记帐页的「认不得的银行邮件」，点「复制内容」发给开发者就能补上。</p>
       </details>
       ${mapped.length ? `<p class="muted small" style="margin-top:12px">已对应的卡</p>
         ${mapped.map(([name, m]) => `<div class="cat-row"><i>💳</i>
@@ -1323,7 +1314,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
   }
 
   async function disableInbox() {
-    if (!confirm('关闭后收件箱会被删掉，快捷指令随之失效。还没同步的刷卡记录会先拉回来。确定关闭？')) return;
+    if (!confirm('关闭后收件箱会被删掉，快捷指令随之失效。还没同步的邮件会先拉回来。确定关闭？')) return;
     await syncInbox();
     const inbox = state.inbox;
     if (!inbox) return;
@@ -1334,7 +1325,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       if (!confirm('连不上服务器。只在这台手机上关闭吗？服务器上的收件箱 180 天没人读取就会自动清掉。')) return;
     }
     L.clearInbox(state);
-    save(); renderApSettings(); toast('已关闭 Apple Pay 自动记帐');
+    save(); renderApSettings(); toast('已关闭自动记帐');
   }
 
   // ── 安装提示 ────────────────────────────────────────
