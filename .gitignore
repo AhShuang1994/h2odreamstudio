@@ -2,7 +2,11 @@ node_modules/
 docs/*
 !docs/adr/
 !docs/agents/
-.claude/
+
+# Keep local Claude Code state out of the repo, but track the skills symlinks
+# so installed skills survive a fresh clone.
+.claude/*
+!.claude/skills/
 
 # ── 原图不进仓库（#71）──────────────────────────────────────────────
 # 原则：只有**实际被页面引用的** webp 进版本库；jpg/png 原图一律留在本地。
