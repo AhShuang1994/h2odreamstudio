@@ -47,8 +47,8 @@
 - **Copywriter rule:** blog copy must carry the author's first-person voice and lived experience ("我跟很多小生意主聊下来发现…"). When `/copywriter` Blog Mode runs for this project, the **person element is mandatory** — that lived voice is what makes content E-E-A-T / GEO-compliant, not the byline alone.
 
 ## 6 · Visuals & performance
-- Concept illustrations: on-brand (deep navy `#030B1A`/`#071428` + cyan `#00E5FF` / teal `#06D6A0` / violet `#7B61FF` glow), **no text inside the image**, descriptive `alt` + bilingual `<figcaption>` (captions get cited).
-- Image pipeline: **Nano Banana (Gemini)** generates → raw drops in `assets/blog/` → `sharp` → WebP, ~1440px wide, q82 → **cover/inpaint the bottom-right Gemini watermark with the surrounding background** (clone a clean adjacent same-row patch over the sparkle; keep the FULL composition + 16:9). **Do NOT asymmetrically crop** — it changes the aspect ratio and unbalances the image. A "no watermark" prompt line is unreliable. **Keep the original PNG until the processed image is approved** (covering needs the source pixels). → semantic kebab filename.
+- Concept illustrations: one series in the **3D miniature-diorama** style (clay-like figurines, night scene). Palette follows the site theme: near-black `#07080B`/`#0E1015`/`#14161D`, graphite `#191B23`/`#2B2F3A`, off-white `#F3F5F9`, and **one accent only: indigo `#7C82F0`** (soft, contained light — no neon, no teal/cyan). **No text, numbers or brand logos inside the image**, descriptive `alt` + bilingual `<figcaption>` (captions get cited). Full style bible + per-post prompts: `assets/blog-3d/SPEC.md`.
+- Image pipeline: **Codex** (`codex exec` + built-in image tool, style reference via `--image`) generates from the SPEC → raw `.raw.png` kept in `assets/blog-3d/` → `sharp` cover/centre → WebP **1440×804**, q82 → copy into `public/assets/blog/` under the same semantic kebab filename. No watermark to remove.
 - Every `<img>`: `loading="lazy"` + explicit `width`/`height` (no layout shift).
 - Perf budget: critical CSS stays inlined; infinite animations off on mobile ≤768px.
 - **After editing `public/css/style.css`, regenerate the minified copy** — content pages link `style.min.css`, not the source:
@@ -66,7 +66,7 @@
 - [ ] New page declares a canonical (that's what puts it in the sitemap) and has a bullet in `src/content/llms.template.txt`; `dateModified` bumped if content changed (`lastmod` is read from it)
 - [ ] Person author + visible bio card (blog)
 - [ ] Quick Answer box and FAQ schema say the same thing
-- [ ] Images: crawlable dir, WebP, lazy + dimensions, no text baked in, Gemini watermark removed
+- [ ] Images: crawlable dir, WebP, lazy + dimensions, no text baked in, matches the SPEC palette
 - [ ] One language per URL, `<html lang>` matches it, `hreflang` pair declared both ways (legacy `public/` pages: keep `data-lang-*` in step until #76)
 - [ ] Canonical + meta + OG present
 - [ ] `public/css/style.min.css` regenerated if `public/css/style.css` changed (see §6)
