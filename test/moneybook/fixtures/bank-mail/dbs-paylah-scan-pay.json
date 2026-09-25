@@ -1,0 +1,14 @@
+{
+  "mail": {
+    "from": "paylah.alert@dbs.com",
+    "subject": "",
+    "body": "Transaction Ref: XXXX\n\nDear Sir / Madam,\nWe refer to your PayLah! Scan & Pay Transfer dated 24 Sep. We are pleased to confirm that the transaction was completed.\n\nDate & Time:\t24 Sep 12:48 (SGT)\nAmount:\tSGD5.70\nFrom:\tPayLah! Wallet (Mobile ending XXXX)\nTo:\tSOON SOON CHICKEN RICE\n\nTo view your transactions, login to your PayLah! Wallet and select “History” at the bottom bar of the Home page. To manage your PayLah! notifications, select “Settings” then “Manage Notifications”.\n\nPlease call DBS hotline immediately if this was an unauthorised transaction.\n\nThank you for banking with us.\n\nYours faithfully\nDBS Bank Ltd"
+  },
+  "expect": {
+    "bank": "DBS PayLah!",
+    "direction": "out",
+    "amount": 5.7,
+    "currency": "SGD",
+    "merchant": "SOON SOON CHICKEN RICE"
+  }
+}

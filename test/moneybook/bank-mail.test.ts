@@ -225,6 +225,14 @@ describe("小帐本 · 银行交易邮件", () => {
       }
     });
 
+    it("PayLah! 转进自己的钱包（充值、别人转来）不是花出去的钱", () => {
+      const paylah = samples.find(s => s.expect?.bank === "DBS PayLah!");
+      const body = paylah.mail.body
+        .replace("From:\tPayLah! Wallet (Mobile ending XXXX)", "From:\tDBS Account XXXX")
+        .replace("To:\tSOON SOON CHICKEN RICE", "To:\tPayLah! Wallet (Mobile ending XXXX)");
+      expect(L.parseBankMail({ ...paylah.mail, body })).toEqual({ bank: "DBS PayLah!", direction: "in" });
+    });
+
     it("每家银行的规则都至少有一封消费样本", () => {
       for (const rule of L.BANK_RULES) {
         const has = samples.some(s => s.expect?.bank === rule.bank && s.expect.direction === "out");
