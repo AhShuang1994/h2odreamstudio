@@ -376,6 +376,18 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .ap-card .seg{margin-top:var(--sp-3)}
 .ap-card .check{margin-top:var(--sp-2)}
 .ap-card .primary{width:100%;margin-top:var(--sp-2)}
+/* 外币消费与认不得的银行邮件（ADR-0003）：一行一笔，三个动作排在下面 */
+.ib-row{padding:var(--sp-3) 0;border-bottom:1px solid var(--hairline)}
+.ib-row:last-child{border-bottom:none;padding-bottom:0}
+.ib-row .t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ib-row .t b{font-size:var(--t-sm);font-weight:500;overflow-wrap:anywhere}
+.ib-row .t small{color:var(--ink-subtle);font-size:var(--t-xs);overflow-wrap:anywhere}
+.ib-acts{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-top:var(--sp-2)}
+.ib-acts button{
+  background:var(--s2);border:1px solid var(--hairline);border-radius:var(--r-md);
+  padding:6px 12px;font-size:var(--t-xs);font-weight:500;
+}
+.ib-acts button:active{background:var(--s3)}
 .card p+p{margin-top:var(--sp-2)}
 .code{
   display:block;width:100%;margin-top:var(--sp-2);padding:10px 12px;
