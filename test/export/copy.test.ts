@@ -34,6 +34,7 @@ const CORE_PAGES = [
 /** 四个服务页，中英各一份，迁进 Next 路由之后才有了中文对偶版（ADR-0002）。 */
 const SERVICE_SLUGS = [
   "landing-page",
+  "web-design-johor-bahru",
   "shopify-migration",
   "wedding-basic",
   "wedding-premium",
@@ -148,6 +149,7 @@ describe("导出产物 · 文案口径", () => {
      */
     const SERVICE_PRICES: [string, string[]][] = [
       ["landing-page", [prices.starter, prices.basic, prices.standard]],
+      ["web-design-johor-bahru", [prices.starter, prices.basic, prices.standard]],
       ["shopify-migration", [prices.shopify]],
       ["wedding-basic", [prices.weddingStandard]],
       ["wedding-premium", [prices.weddingPremium]],
