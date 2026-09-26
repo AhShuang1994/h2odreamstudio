@@ -168,9 +168,13 @@ export function Founder({ lang }: { lang: Lang }) {
   return (
     <Section id="founder" className="border-y border-hairline bg-surface-1">
       <Container>
-        <div className="grid items-start gap-10 md:grid-cols-[260px_1fr] md:gap-16">
+        {/* 手机：小头像 + 名字并排（作者栏），简介在下占满全宽。桌面：大照片左栏，跨两行。 */}
+        <div className="grid grid-cols-[88px_1fr] items-center gap-x-5 gap-y-7 md:grid-cols-[260px_1fr] md:grid-rows-[auto_1fr] md:items-start md:gap-x-16">
           {/* 真实照片是这一屏的锚点，不用抽象示意图。遮罩视差也挂在这。 */}
-          <div data-mask-parallax className="overflow-hidden rounded-xl border border-hairline">
+          <div
+            data-mask-parallax
+            className="overflow-hidden rounded-lg border border-hairline md:row-span-2 md:rounded-xl"
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={assetUrl(founder.avatar)}
@@ -178,22 +182,22 @@ export function Founder({ lang }: { lang: Lang }) {
               width={260}
               height={325}
               loading="lazy"
-              className="aspect-[4/5] w-full object-cover"
+              className="aspect-square w-full object-cover md:aspect-[4/5]"
             />
           </div>
           <div>
             <Eyebrow>{t(founder.eyebrow, lang)}</Eyebrow>
-            <div className="mt-4 text-xl tracking-[-0.01em] text-ink">
+            <div className="mt-2 text-lg tracking-[-0.01em] text-ink md:mt-4 md:text-xl">
               {t(founder.name, lang)}
             </div>
-            <div className="mt-1.5 text-sm text-ink-subtle">{t(founder.role, lang)}</div>
-            <p
-              data-reveal
-              className="mt-7 max-w-[58ch] text-[1.0625rem] leading-[1.7] text-ink-muted"
-            >
-              {t(founder.bio, lang)}
-            </p>
+            <div className="mt-1 text-sm text-ink-subtle md:mt-1.5">{t(founder.role, lang)}</div>
           </div>
+          <p
+            data-reveal
+            className="col-span-2 max-w-[58ch] text-[1.0625rem] leading-[1.7] text-ink-muted md:col-span-1 md:col-start-2"
+          >
+            {t(founder.bio, lang)}
+          </p>
         </div>
       </Container>
     </Section>
