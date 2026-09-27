@@ -2,6 +2,9 @@ node_modules/
 docs/*
 !docs/adr/
 !docs/agents/
+# SEO 规则与待办要跟着仓库走（CLAUDE.md 指向它们）
+!docs/seo-lessons.md
+!docs/seo-action-plan.md
 
 # Keep local Claude Code state out of the repo, but track the skills symlinks
 # so installed skills survive a fresh clone.
