@@ -154,7 +154,7 @@ function Hero() {
       <div className="hero-strip">
         <div className="strip-item"><Icon.Pin /> 22 Jalan Telawi 3 · Bangsar Baru</div>
         <div className="strip-item"><Icon.Clock /> Tue – Sun · 11:30 – 22:00</div>
-        <div className="strip-item"><Icon.Phone /> +60 3-2284 5577</div>
+        <div className="strip-item"><Icon.Phone /> +60 17-513 8694</div>
         <div className="strip-item">★ 4.9 on Google · 412 reviews</div>
       </div>
     </header>
@@ -308,7 +308,7 @@ function Location() {
             <div>
               <div className="info-label">Reservations</div>
               <div className="info-value">
-                <strong>+60 3-2284 5577</strong><br/>
+                <strong>+60 17-513 8694</strong><br/>
                 <span style={{ color: "var(--ink-dim)", fontSize: 14 }}>Or message us on WhatsApp — usually a reply within 10 minutes.</span>
               </div>
             </div>
@@ -432,7 +432,7 @@ function WhatsappFab() {
   return (
     <a
       className="wa-fab"
-      href="https://wa.me/60322845577?text=Hi%20Wok%20%26%20Flame%2C%20I%27d%20like%20to%20book%20a%20table"
+      href="https://wa.me/60175138694?text=Hi%20Ah%20Shuang!%20I%20saw%20your%20Wok%20%26%20Flame%20demo%20website.%20I'd%20like%20a%20website%20like%20this%20for%20my%20business."
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Book a table on WhatsApp"
