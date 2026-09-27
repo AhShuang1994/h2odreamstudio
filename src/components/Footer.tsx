@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SiteLink } from "./SiteLink";
-import { localize, t, type Lang } from "@/lib/i18n";
+import { localize, pathsFor, t, type Lang } from "@/lib/i18n";
 import { site, nav } from "@/content/site";
 
 export function Footer({ lang }: { lang: Lang }) {
@@ -43,6 +43,16 @@ export function Footer({ lang }: { lang: Lang }) {
                     </Link>
                   </li>
                 ))}
+                {/* 本地搜索的落地页，不进导航下拉，只在页脚给全站一个站内入口。
+                    用 pathsFor 而不是 localize：后者还不认服务页的 /zh 版本 */}
+                <li>
+                  <Link
+                    href={pathsFor("/web-design-johor-bahru")[lang]}
+                    className="text-sm text-ink-muted hover:text-ink"
+                  >
+                    {t({ cn: "新山网站设计", en: "Web Design Johor Bahru" }, lang)}
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>

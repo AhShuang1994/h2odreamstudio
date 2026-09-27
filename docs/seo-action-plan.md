@@ -67,7 +67,7 @@
 
 1. [ ] **Google Business Profile（最重要）**：搜"web design Johor Bahru"或"新山 网站设计"时，排最前的通常是地图结果。先确认有没有登记商家资料，没有就立刻做，免费。
 2. [ ] **让老客户留 Google 评论**：本地排名看评论数和质量，先找 3～5 位做过网站的客户。
-3. [ ] **做一个新山专页**：首页标题是"Web Design Malaysia"，范围太大、竞争激烈。一个人做的工作室，更容易在"Johor Bahru / 新山"这类本地词上排上去。
+3. [x] **做一个新山专页**（2026-09-27，PR #167：`/web-design-johor-bahru` + `/zh/web-design-johor-bahru`，上线后两条都去 GSC 请求编入索引）：首页标题是"Web Design Malaysia"，范围太大、竞争激烈。一个人做的工作室，更容易在"Johor Bahru / 新山"这类本地词上排上去。
 4. [ ] **Bing Webmaster Tools**：ChatGPT 的搜索有一部分依赖 Bing 的索引，对 GEO 策略很重要。开好后台后，用仓库里的 `scripts/indexnow-submit.js` 提交全站地址（先跑 `npm run build`）。
 5. [ ] **补真实客户案例**：现在的案例拆解大多是样板站的设计解说。有真实客户的成果（数据、评价）后，Google 的信任度（E-E-A-T）会高很多。
 

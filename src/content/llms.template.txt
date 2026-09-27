@@ -6,6 +6,7 @@ H2ODreamer Studio (https://www.h2o-dreamer-studio.com) is a one-person web desig
 
 ## Services
 - [Landing Page Design](https://www.h2o-dreamer-studio.com/landing-page): Single-page, conversion-focused landing pages in two tiers ({{starter}} (Starter) and {{basic}} (Basic, with SEO + analytics)) delivered in 3–7 days, with WhatsApp and Google tracking built in.
+- [Affordable Website Design in Johor Bahru](https://www.h2o-dreamer-studio.com/web-design-johor-bahru): Low-cost website design for Johor Bahru (JB) small businesses by a one-person studio based in Johor. 1-page landing page from {{starter}} (3–5 days), with SEO + WhatsApp chat + Google Analytics from {{basic}} (5–7 days), 5-page company website from {{standard}} (1–2 weeks). One-time price, no compulsory monthly fee (domain and hosting paid directly to the provider). Also covers which plan fits which JB business type, and what a JB business website should have: RM and SGD prices for Singapore customers, Waze + Google Maps, directions from the CIQ checkpoint, one-tap WhatsApp.
 - [Shopify Migration](https://www.h2o-dreamer-studio.com/shopify-migration): Migrating an existing online store onto Shopify, from {{shopify}}.
 - [Wedding E-Invitation: Basic](https://www.h2o-dreamer-studio.com/wedding-basic): Digital wedding invitation websites, {{weddingStandard}}.
 - [Wedding E-Invitation: Premium](https://www.h2o-dreamer-studio.com/wedding-premium): Premium, animated wedding invitation websites, {{weddingPremium}}.
