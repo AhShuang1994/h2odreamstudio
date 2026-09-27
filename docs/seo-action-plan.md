@@ -9,30 +9,32 @@
 
 ## 1. Google Search Console：重新提交（修复当天）
 
-- [ ] **Sitemaps** → 提交 `sitemap.xml`
+- [x] **Sitemaps** → 提交 `sitemap.xml`（2026-09-27）
 - [ ] 按下面的顺序对内容页点 **"请求编入索引"**（网址检查 → 贴完整网址 → 请求编入索引）
 
 每天有配额（大约十条，以后台为准），分三天做。越靠前的页面，搜索的人离下单越近。
 
-### 第 1 天：英文版最重要的 10 页
+### 第 1 天：英文版最重要的 10 页（2026-09-27 晚上 8 点多做完）
 
 | | 网址 | 为什么优先 |
 |---|---|---|
-| [ ] | `https://www.h2o-dreamer-studio.com/blog/website-cost-malaysia` | "网站多少钱"是最接近下单的搜索 |
-| [ ] | `https://www.h2o-dreamer-studio.com/blog/which-website-for-your-business` | 老板在挑选方案，意图明确 |
-| [ ] | `https://www.h2o-dreamer-studio.com/blog/wix-vs-hire-designer` | 正在"自己做还是请人做"之间做决定 |
-| [ ] | `https://www.h2o-dreamer-studio.com/case-studies/serai-beauty-salon` | 唯一明确写了新山（JB）的页面，吃本地搜索 |
-| [ ] | `https://www.h2o-dreamer-studio.com/blog/seo-vs-geo-ai-search` | GEO 招牌文章，AI 最容易引用 |
-| [ ] | `https://www.h2o-dreamer-studio.com/blog/whatsapp-vs-website` | 打中"只用 WhatsApp 够不够"的疑问 |
-| [ ] | `https://www.h2o-dreamer-studio.com/blog/social-media-vs-website` | 针对只用 FB/IG 的老板 |
-| [ ] | `https://www.h2o-dreamer-studio.com/case-studies/cooltech-aircon` | 上门服务类行业，客户群大 |
-| [ ] | `https://www.h2o-dreamer-studio.com/blog/website-no-traffic-loop` | 有网站但没流量的老板 |
-| [ ] | `https://www.h2o-dreamer-studio.com/blog/website-process-what-to-expect` | 快决定前会看"流程怎么走" |
+| [x] | `https://www.h2o-dreamer-studio.com/blog/website-cost-malaysia` | "网站多少钱"是最接近下单的搜索 |
+| [x] | `https://www.h2o-dreamer-studio.com/blog/which-website-for-your-business` | 老板在挑选方案，意图明确 |
+| [x] | `https://www.h2o-dreamer-studio.com/blog/wix-vs-hire-designer` | 正在"自己做还是请人做"之间做决定 |
+| [x] | `https://www.h2o-dreamer-studio.com/case-studies/serai-beauty-salon` | 唯一明确写了新山（JB）的页面，吃本地搜索 |
+| [x] | `https://www.h2o-dreamer-studio.com/blog/seo-vs-geo-ai-search` | GEO 招牌文章，AI 最容易引用 |
+| [x] | `https://www.h2o-dreamer-studio.com/blog/whatsapp-vs-website` | 打中"只用 WhatsApp 够不够"的疑问 |
+| [x] | `https://www.h2o-dreamer-studio.com/blog/social-media-vs-website` | 针对只用 FB/IG 的老板 |
+| [x] | `https://www.h2o-dreamer-studio.com/case-studies/cooltech-aircon` | 上门服务类行业，客户群大 |
+| [x] | `https://www.h2o-dreamer-studio.com/blog/website-no-traffic-loop` | 有网站但没流量的老板 |
+| [x] | `https://www.h2o-dreamer-studio.com/blog/website-process-what-to-expect` | 快决定前会看"流程怎么走" |
 
-### 第 2 天：中文版最重要的 8 页 + 两个目录页
+### 第 2 天：新山专页 + 中文版最重要的 8 页
 
-马来西亚华人老板是核心客户，中文版一样重要。
+新山页 2026-09-27 晚上 10 点才上线，第 1 天提交时它还不存在，所以排在最前面。马来西亚华人老板是核心客户，中文版一样重要。
 
+- [ ] `https://www.h2o-dreamer-studio.com/web-design-johor-bahru`
+- [ ] `https://www.h2o-dreamer-studio.com/zh/web-design-johor-bahru`
 - [ ] `https://www.h2o-dreamer-studio.com/zh/blog/website-cost-malaysia`
 - [ ] `https://www.h2o-dreamer-studio.com/zh/blog/which-website-for-your-business`
 - [ ] `https://www.h2o-dreamer-studio.com/zh/blog/wix-vs-hire-designer`
@@ -41,11 +43,11 @@
 - [ ] `https://www.h2o-dreamer-studio.com/zh/blog/whatsapp-vs-website`
 - [ ] `https://www.h2o-dreamer-studio.com/zh/blog/social-media-vs-website`
 - [ ] `https://www.h2o-dreamer-studio.com/zh/case-studies/cooltech-aircon`
+
+### 第 3 天：两个目录页 + 其余案例拆解（英文优先，中文有余额再做）
+
 - [ ] `https://www.h2o-dreamer-studio.com/blog/`
 - [ ] `https://www.h2o-dreamer-studio.com/zh/blog/`
-
-### 第 3 天：其余案例拆解（英文优先，中文有余额再做）
-
 - [ ] `/case-studies/wok-and-flame-fnb`
 - [ ] `/case-studies/glow-seoul-skincare`
 - [ ] `/case-studies/muse-apparel-shopify`
@@ -79,3 +81,47 @@
 - [ ] Cloudflare API token 加上 Zone → Analytics → Read 与 Zone → DNS → Read（只选 `h2o-dreamer-studio.com` 这个域名）
 
 接好之后，每两周检查一次收录、排名和 WhatsApp 点击，结果更新到这份文件。
+
+## 5. 外部平台登记（第一批 backlink）
+
+每个平台都放上网站网址，就是一条别人指向我们的链接（backlink）。Google 也会比对各平台上的资料，**名称、电话、地区必须跟 Google 商家资料一字不差**。
+
+⚠️ 不买链接（"RM 50 送 1000 个 backlink"那种会被降权）。小红书照旧不放任何站外链接。
+
+### 统一填写的资料
+
+| 项目 | 填什么 |
+|---|---|
+| 名称 | `H2ODreamer Studio`（不加任何关键词，加了违反 Google 规定） |
+| 类别 | Website designer / Web design |
+| 电话 / WhatsApp | `+60 17-513 8694` |
+| 电邮 | `hello@h2o-dreamer-studio.com` |
+| 网站 | `https://www.h2o-dreamer-studio.com` |
+| 地区 | Johor Bahru, Johor, Malaysia（服务区，不公开地址，跟 Google 商家资料一致） |
+| 营业时间 | 周一至周六 9:00–19:00 |
+| 语言 | English / 中文 |
+| Logo | `Documents/HuiHuang-Agent/gbp-photos/logo-720.png` |
+| 封面 / 作品图 | `Documents/HuiHuang-Agent/gbp-photos/` 里的 00–06 |
+| 短描述 | Affordable websites for Malaysian small businesses, designed and built by one designer in Johor. Landing pages from RM 590, no monthly fee. |
+| 长描述 | 跟 Google 商家资料那段一样 |
+
+价格以 `src/content/prices.json` 为准，改价时这里和各平台要一起改。
+
+### 要登记的平台（照顺序）
+
+| | 平台 | 网址 | 为什么 |
+|---|---|---|---|
+| [ ] | Bing Places | https://www.bingplaces.com | 可以直接从 Google 商家资料导入，5 分钟。Bing 地图，ChatGPT 搜索也用 Bing |
+| [ ] | Apple Business Connect | https://businessconnect.apple.com | iPhone 地图和 Siri 用它 |
+| [ ] | Facebook 专页 | https://www.facebook.com/pages/create | 很多马来西亚老板在 FB 上找人 |
+| [ ] | Instagram | 已有 `@h2odreamer.studio` | 确认 bio 链接是网站首页 |
+| [ ] | Threads | 跟 IG 同一个账号 | 个人资料放网站网址 |
+| [ ] | LinkedIn 公司页 | https://www.linkedin.com/company/setup/new/ | 个人档案的"工作经历"也挂到这个公司页 |
+| [ ] | Clutch | https://clutch.co | 客户找设计公司的名录，找 "Get Listed"，免费 |
+| [ ] | GoodFirms | https://www.goodfirms.co | 同上，找 "Get Listed" |
+| [ ] | DesignRush | https://www.designrush.com | 同上，找 "List your agency" |
+
+### 每登记完一个
+
+1. 在上表打勾，写日期。
+2. 把该平台的**个人资料网址**记下来，交给 Claude 加进网站结构化数据的 `sameAs`（`src/lib/jsonld.ts`，目前只有 Instagram）。`sameAs` 告诉 Google 和 AI "这些账号都是同一家工作室"，见 `GEO-CHECKLIST.md` §3。
