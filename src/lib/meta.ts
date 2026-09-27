@@ -19,9 +19,9 @@ const DEFAULT_OG_IMAGE = { url: "/og/og-hero.jpg", width: 1200, height: 630 };
  *
  * 地址有两种给法：
  * · 核心页给 `path`（英文路径），中文版由 `pathsFor()` 推出来
- * · 内容页给 `urls`，它们的**已收录形态**推不出来：文章页带 `.html`
- *   （`/blog/x.html`），索引页带尾斜杠（`/blog/`）。一个字都不能动，
- *   所以直接给，不推。
+ * · 内容页给 `urls`，形态推不出来：文章页不带扩展名（`/blog/x`），索引页
+ *   带尾斜杠（`/blog/`）。由 `src/lib/content/html.mjs` 的 `urlsFor()` 算好
+ *   直接给，不推。
  */
 export function pageMetadata({
   lang,
