@@ -19,6 +19,7 @@
 
 ## 2 · Page meta — every page
 - Unique `<title>`, unique meta `description`, `<link rel="canonical">`.
+- **Canonical, hreflang, og:url, sitemap and internal links must use the address that returns 200 with no redirect** — `/about`, `/blog/x` (no `.html`: Cloudflare Pages 308s it), `/blog/`. See `docs/seo-lessons.md` §1; `test/export/urls.test.ts` enforces it.
 - Open Graph + Twitter card; `og:image` / `twitter:image` → a crawlable `/og/*` image.
 - `<html lang>` set, and it must match the language actually rendered on the page.
 - **One language per URL.** English is the primary language and lives at the root; Chinese is the additional language under `/zh`. A page never ships both languages — declare the counterpart with `hreflang` (`en`, `zh-CN`, `x-default`), bidirectionally, and make sure both addresses exist. See ADR-0002.

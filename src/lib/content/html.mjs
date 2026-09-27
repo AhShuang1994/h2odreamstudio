@@ -160,6 +160,21 @@ export function normalizePath(path) {
   return path.endsWith("/index.html") ? path.slice(0, -"index.html".length) : path;
 }
 
+/**
+ * 页面地址的规范形态：在 `normalizePath` 之上再剥掉 `.html`。
+ *
+ * Cloudflare Pages 会把 `/blog/x.html` 308 到 `/blog/x`，平台内建、关不掉
+ * （ADR-0003 的更正）。链接、canonical、hreflang 若还写 `.html`，每一处都
+ * 指向一条重定向地址，而 canonical 指向重定向会让搜索引擎无所适从。
+ *
+ * 只用于**页面之间**的地址（`<a href>`、canonical）。`<iframe src>` 这类嵌入
+ * 的静态文件不走这里：`next dev` 不会替 `public/` 下的文件补扩展名。
+ */
+export function pageUrl(path) {
+  const p = normalizePath(path);
+  return p.endsWith(".html") ? p.slice(0, -".html".length) : p;
+}
+
 /** 原稿里的相对地址 → 站点根绝对地址。原稿都在 <dir>/x.html 这一层。 */
 export function toAbsolute(href, dir) {
   if (/^([a-z][a-z0-9+.-]*:|\/\/|#)/i.test(href)) return href;
@@ -170,8 +185,16 @@ export function toAbsolute(href, dir) {
   return hash === undefined ? abs : `${abs}#${hash}`;
 }
 
+/** 站内绝对地址剥 `.html`，保留 query 与 hash。外链与锚点原样返回。 */
+function pageHref(href) {
+  if (!href.startsWith("/")) return href;
+  const [, path, tail] = /^([^?#]*)(.*)$/.exec(href);
+  return pageUrl(path) + tail;
+}
+
 /**
- * 改写 href / src / poster 里的站内地址。
+ * 改写 href / src / poster 里的站内地址。`href` 顺便归成页面规范地址
+ * （见 `pageUrl`），`src` / `poster` 指向的是文件，原样。
  *
  * `localize` 由调用方给：英文版传恒等函数，中文版传把站内地址挪进 `/zh` 的那个。
  * 之所以是参数而不是写死，是因为脚本（纯 Node）与 Next 侧（TypeScript）各自持有
@@ -180,18 +203,23 @@ export function toAbsolute(href, dir) {
 export function rewriteUrls(html, dir, localize) {
   return html.replace(
     /\b(href|src|poster)="([^"]*)"/g,
-    (whole, attrName, value) => `${attrName}="${localize(toAbsolute(value, dir))}"`,
+    (whole, attrName, value) => {
+      const abs = toAbsolute(value, dir);
+      const url = attrName === "href" ? pageHref(abs) : abs;
+      return `${attrName}="${localize(url)}"`;
+    },
   );
 }
 
 /**
  * 每页两种语言的地址。
  *
- * 文章页带 `.html`、索引页是目录形态：这两种都是**已收录的原样**，
- * 一个字都不能动，llms.txt 给 AI 的引文地址也是它们。
+ * 文章页不带扩展名（`/blog/x`）、索引页是目录形态（`/blog/`）：都是
+ * Cloudflare Pages 直接返回 200 的形态。canonical、hreflang、sitemap、
+ * llms.txt 全部从这里取，所以它们天然一致。
  */
 export function urlsFor(rel) {
-  const path = normalizePath(`/${rel}`);
+  const path = pageUrl(`/${rel}`);
   return { en: path, zh: `/zh${path}` };
 }
 

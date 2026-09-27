@@ -108,7 +108,7 @@ function jsonLdBlocks(head) {
   return blocks;
 }
 
-/** 地址的目录部分，去掉首尾斜杠，`/blog/x.html` → `blog`，`/landing-page` → ``。 */
+/** 地址的目录部分，去掉首尾斜杠，`/blog/x` → `blog`，`/landing-page` → ``。 */
 function dirOf(url) {
   return url.replace(/^\//, "").replace(/[^/]*$/, "").replace(/\/$/, "");
 }
@@ -133,9 +133,9 @@ function load(section, file) {
   const raw = mainInner(source);
 
   /**
-   * 两种语言的**已收录地址**，一个字都不能动。
+   * 两种语言的规范地址，canonical / hreflang / sitemap 都取它。
    *
-   * 默认从相对路径推（文章页带 `.html`、索引页是目录形态）。服务页的地址不带
+   * 默认从相对路径推（文章页剥掉 `.html`、索引页是目录形态，见 `urlsFor`）。服务页的地址不带
    * 分区名（`/landing-page` 而不是 `/services/landing-page`），推不出来，
    * 由 manifest 显式给。
    */
@@ -154,7 +154,7 @@ function load(section, file) {
      * 相对链接的基准目录：取自**地址**，不是分区名。
      *
      * 原稿里的图片写成 `assets/portfolio/x.webp` 这种相对路径。文章页住在
-     * `/blog/x.html`，基准是 `blog/`，两者恰好同名。服务页住在根上的
+     * `/blog/x`，基准是 `blog/`，两者恰好同名。服务页住在根上的
      * `/landing-page`，基准是空，拿分区名会解析成 `/services/assets/...`，
      * 32 张图全部 404（`assets.test.ts` 抓到过）。
      */
