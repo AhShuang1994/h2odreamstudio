@@ -57,12 +57,12 @@ export function localize(href: string, lang: Lang): string {
 const CONTENT_PATH = /^(\/zh)?\/(blog|case-studies)(\/.*)?$/;
 
 /**
- * 内容页地址的**规范形态**：索引页带尾斜杠（`/blog/`），文章页带扩展名
- * （`/blog/x.html`）。都是已收录的原样，一个字不能动。
+ * 内容页地址的**规范形态**：索引页带尾斜杠（`/blog/`），文章页不带扩展名
+ * （`/blog/x`）。与 canonical 一致，见 `src/lib/content/html.mjs` 的 `pageUrl`。
  *
  * 需要这一步是因为进来的路径形态不统一：Next 路由给的是 `/blog`，浏览器地址栏
- * 可能是 `/blog/`，而 Cloudflare 会把 `/blog/x.html` 剥成 `/blog/x`。三种都要
- * 归到同一个答案上，否则语言切换会指向一条需要跳转的地址。
+ * 可能是 `/blog/`，旧书签可能还带 `.html`（Cloudflare 会 308 到无扩展名）。
+ * 几种都要归到同一个答案上，否则语言切换会指向一条需要跳转的地址。
  *
  * 不是内容页就返回 null。
  */
@@ -74,7 +74,7 @@ function canonicalContent(pathname: string): string | null {
     .replace(/^\//, "")
     .replace(/\/+$/, "")
     .replace(/\.html$/, "");
-  return slug ? `${zh}/${section}/${slug}.html` : `${zh}/${section}/`;
+  return slug ? `${zh}/${section}/${slug}` : `${zh}/${section}/`;
 }
 
 /**

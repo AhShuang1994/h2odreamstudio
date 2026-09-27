@@ -29,3 +29,7 @@
 - **但生成物必须跟着改**：构建期生成的 `sitemap.xml` 与 `llms.txt` 要用**无扩展名**形式，否则 sitemap 里全是重定向地址、AI 拿到的引文链接每次都要多跳一次（见 ADR-0002 与相关票）。
 - **canonical 与 og:url 要改成无扩展名形式。** 实测现有内容页的 canonical 指向 `…/blog/seo-vs-geo-ai-search.html` —— 切换托管后它会指向一个 308 地址，而 canonical 指向重定向不是好实践。
 - 站内约 124 处 `href="…index.html"` 每次点击都会多一跳，功能正常但可顺手清理。
+
+## 落实（2026-09-27）
+
+上面「生成物必须跟着改」那几条直到 2026-09 才真正做完：此前线上 36 个内容页的 sitemap、canonical、hreflang、og:url 全部指向 308 地址。现在内容页地址统一由 `src/lib/content/html.mjs` 的 `pageUrl()` 生成（无扩展名），`test/export/urls.test.ts` 守住不再回退。教训记在 [`docs/seo-lessons.md`](../seo-lessons.md)。

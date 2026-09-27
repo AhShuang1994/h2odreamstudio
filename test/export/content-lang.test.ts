@@ -65,16 +65,19 @@ function headLinks(html: string, rel: string): Record<string, string> {
   return out;
 }
 
-/** 绝对地址 → out/ 下的文件。目录形态取索引页。 */
+/** 绝对地址 → out/ 下的文件。目录形态取索引页，无扩展名的补 `.html`。 */
 function fileFor(url: string): string {
   const path = url.replace(/^https?:\/\/[^/]+/, "");
   const rel = path.slice(1);
-  return rel.endsWith("/") ? `${rel}index.html` : rel;
+  return rel.endsWith("/") ? `${rel}index.html` : `${rel}.html`;
 }
 
 /** 一个原稿对应的两份产物与它们的规范地址。 */
 function pair(rel: string) {
-  const path = rel.endsWith("/index.html") ? rel.slice(0, -"index.html".length) : rel;
+  // 规范地址：索引页是目录形态，文章页不带扩展名（Cloudflare 会把 .html 308 掉）
+  const path = rel.endsWith("/index.html")
+    ? rel.slice(0, -"index.html".length)
+    : rel.replace(/\.html$/, "");
   return {
     en: { file: rel, url: `https://www.h2o-dreamer-studio.com/${path}` },
     zh: { file: `zh/${rel}`, url: `https://www.h2o-dreamer-studio.com/zh/${path}` },
@@ -195,7 +198,7 @@ describe("导出产物 · 内容页语言拆分", () => {
        * `LangToggle.tsx` 渲染的 `<Link>`，带一串 Tailwind 类。两种都该通过，
        * 这条守的是「切到同一篇的另一语言」，不是切换器长什么样。
        *
-       * 地址必须**逐字等于 canonical**（索引页带尾斜杠、文章页带 .html），
+       * 地址必须**逐字等于 canonical**（索引页带尾斜杠、文章页不带扩展名），
        * 不能是需要 Cloudflare 跳一次才到的形态。
        */
       it("语言切换指向对应语言的同一篇，不是回首页", () => {

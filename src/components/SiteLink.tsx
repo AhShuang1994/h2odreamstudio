@@ -9,9 +9,10 @@ import type { ReactNode } from "react";
  *
  * · **尾斜杠**（`/blog/`），索引页的规范地址**带**尾斜杠，sitemap 与
  *   canonical 都是那个形态。`<Link>` 会把它规范掉，点一下多一次跳转。
- * · **`.html` 结尾**（`/blog/website-cost-malaysia.html`）：文章页的已收录地址
- *   带扩展名。客户端路由匹配不到字面 `.html` 的路径，`<Link>` 会预取一个 miss
- *   然后照样整页跳。
+ * · **内容页文章**（`/blog/website-cost-malaysia`）与 **`.html` 结尾**的静态页：
+ *   正文是整页 HTML 注入，一直是整页跳转。文章地址已不带扩展名（与 canonical
+ *   一致，见 `src/lib/content/html.mjs` 的 `pageUrl`），所以按路径识别，不再按
+ *   扩展名。
  *
  * 整页跳转本来就是这些地址今天的行为，`src/motion/head-inline.js` 的幕布覆盖
  * 跨文档导航，所以没有回归。
@@ -19,6 +20,8 @@ import type { ReactNode } from "react";
  * 原先这段逻辑叫 `NavLink`，住在 `Nav.tsx` 里。内容页迁进 Next 路由之后
  * 页脚和正文里也要用，才提出来。
  */
+const CONTENT_ARTICLE = /^(\/zh)?\/(blog|case-studies)\/[^/?#]+/;
+
 export function SiteLink({
   href,
   className,
@@ -34,7 +37,11 @@ export function SiteLink({
   hrefLang?: string;
   "aria-label"?: string;
 }) {
-  if ((href !== "/" && href.endsWith("/")) || href.endsWith(".html")) {
+  if (
+    (href !== "/" && href.endsWith("/")) ||
+    href.endsWith(".html") ||
+    CONTENT_ARTICLE.test(href)
+  ) {
     return (
       <a href={href} className={className} onClick={onClick} {...rest}>
         {children}
