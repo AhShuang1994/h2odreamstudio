@@ -6,8 +6,8 @@ export const contactMeta = {
     en: "Contact · H2ODreamer Studio",
   } as Bilingual,
   description: {
-    cn: "联系 H2ODreamer Studio: WhatsApp +60 17-513 8694，通常 1 小时内回复，或电邮 H2Odreamer@outlook.com。服务全马来西亚，中英双语，每个项目从免费 30 分钟咨询开始。",
-    en: "Reach H2ODreamer Studio: WhatsApp +60 17-513 8694, usually a reply within 1 hour, or email H2Odreamer@outlook.com. Serving all of Malaysia in English and 中文; every project starts with a free 30-minute consultation.",
+    cn: "联系 H2ODreamer Studio: WhatsApp +60 17-513 8694，通常 1 小时内回复，或电邮 hello@h2o-dreamer-studio.com。服务全马来西亚，中英双语，每个项目从免费 30 分钟咨询开始。",
+    en: "Reach H2ODreamer Studio: WhatsApp +60 17-513 8694, usually a reply within 1 hour, or email hello@h2o-dreamer-studio.com. Serving all of Malaysia in English and 中文; every project starts with a free 30-minute consultation.",
   } as Bilingual,
 };
 
@@ -24,8 +24,8 @@ export const contactHeader = {
 };
 
 export const contactQuickAnswer = {
-  cn: "联系 H2ODreamer Studio 最快的方式是 WhatsApp +60 17-513 8694，我通常在 1 小时内回复。也可以电邮 H2Odreamer@outlook.com。这是我（阿爽）在马来西亚一个人经营的网站设计工作室，提供中英双语服务，每个项目都从免费 30 分钟 WhatsApp 咨询开始。",
-  en: "The fastest way to reach H2ODreamer Studio is WhatsApp at +60 17-513 8694. I usually reply within 1 hour. You can also email H2Odreamer@outlook.com. It is a one-person web design studio I run in Malaysia, working in English and Chinese, and every project starts with a free 30-minute WhatsApp consultation.",
+  cn: "联系 H2ODreamer Studio 最快的方式是 WhatsApp +60 17-513 8694，我通常在 1 小时内回复。也可以电邮 hello@h2o-dreamer-studio.com。这是我（阿爽）在马来西亚一个人经营的网站设计工作室，提供中英双语服务，每个项目都从免费 30 分钟 WhatsApp 咨询开始。",
+  en: "The fastest way to reach H2ODreamer Studio is WhatsApp at +60 17-513 8694. I usually reply within 1 hour. You can also email hello@h2o-dreamer-studio.com. It is a one-person web design studio I run in Malaysia, working in English and Chinese, and every project starts with a free 30-minute WhatsApp consultation.",
 } as Bilingual;
 
 export const contactMethods = [
@@ -40,8 +40,8 @@ export const contactMethods = [
   },
   {
     name: { cn: "电邮", en: "Email" } as Bilingual,
-    value: "H2Odreamer@outlook.com",
-    href: "mailto:H2Odreamer@outlook.com",
+    value: "hello@h2o-dreamer-studio.com",
+    href: "mailto:hello@h2o-dreamer-studio.com",
     note: {
       cn: "适合详细需求和文件",
       en: "For detailed briefs & documents",
@@ -131,8 +131,8 @@ export const contactFaq = {
         en: "How do I contact H2ODreamer Studio?",
       } as Bilingual,
       a: {
-        cn: "最快的方式是 WhatsApp +60 17-513 8694，营业时间内我通常 1 小时内回复。也可以电邮 H2Odreamer@outlook.com，或在小红书和 Instagram（@h2odreamer.studio）上找我。",
-        en: "The fastest way is WhatsApp at +60 17-513 8694. I usually reply within 1 hour during business hours. You can also email H2Odreamer@outlook.com or reach me on Xiaohongshu and Instagram (@h2odreamer.studio).",
+        cn: "最快的方式是 WhatsApp +60 17-513 8694，营业时间内我通常 1 小时内回复。也可以电邮 hello@h2o-dreamer-studio.com，或在小红书和 Instagram（@h2odreamer.studio）上找我。",
+        en: "The fastest way is WhatsApp at +60 17-513 8694. I usually reply within 1 hour during business hours. You can also email hello@h2o-dreamer-studio.com or reach me on Xiaohongshu and Instagram (@h2odreamer.studio).",
       } as Bilingual,
     },
     {
