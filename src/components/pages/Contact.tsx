@@ -103,7 +103,7 @@ export function ContactPage({ lang }: { lang: Lang }) {
           <Button href={site.waLink(t(contactCtaBlock.whatsappMessage, lang))} external>
             {t(contactCtaBlock.whatsapp, lang)}
           </Button>
-          <Button href="mailto:H2Odreamer@outlook.com" variant="secondary" external>
+          <Button href="mailto:hello@h2o-dreamer-studio.com" variant="secondary" external>
             {t(contactCtaBlock.email, lang)}
           </Button>
         </CtaPanel>
