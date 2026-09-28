@@ -513,6 +513,24 @@ export function cumulative(state, currency, month) {
   ));
 }
 
+/**
+ * 累计是怎么来的：从这一侧第一笔帐那个月起，到 `month` 为止，每个月一行结余。
+ * 中间没帐的月份也列出来（结余 0），这样一行行加下去一定等于 cumulative(…, month)。
+ * 旧的在前。那个月之前还没开始记帐就是空的。
+ */
+export function monthlyNets(state, currency, month) {
+  let first = null;
+  for (const r of state.records) {
+    const m = r.date.slice(0, 7);
+    if (touchesSide(r, currency) && m <= month && (!first || m < first)) first = m;
+  }
+  const out = [];
+  for (let m = first; m && m <= month; m = shiftMonth(m, 1)) {
+    out.push({ month: m, net: monthlySummary(state, currency, m).net });
+  }
+  return out;
+}
+
 /** 分类占比。转帐不在其中：汇款不再盖住真实的消费结构。 */
 export function categoryBreakdown(state, currency, month, type) {
   const byCat = new Map();

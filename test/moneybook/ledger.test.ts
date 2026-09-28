@@ -295,6 +295,20 @@ describe("小帐本 · ledger 核心", () => {
       expect(L.cumulative(s, "SGD"), "不给月份就是全部").toBe(700);
     });
 
+    it("累计的明细：从第一笔那个月起逐月列出结余，没帐的月份写 0，加起来等于累计", () => {
+      const { s } = withTransfer();
+      L.addRecord(s, { type: "expense", amount: 300, currency: "SGD", cat: "food", date: "2026-05-02" });
+      const rows = L.monthlyNets(s, "SGD", "2026-05");
+      expect(rows).toEqual([
+        { month: "2026-03", net: 1000 },
+        { month: "2026-04", net: 0 },
+        { month: "2026-05", net: -300 },
+      ]);
+      expect(L.round2(rows.reduce((n: number, r: any) => n + r.net, 0))).toBe(L.cumulative(s, "SGD", "2026-05"));
+      expect(L.monthlyNets(s, "SGD", "2026-04").map((r: any) => r.month), "只列到正在看的那个月").toEqual(["2026-03", "2026-04"]);
+      expect(L.monthlyNets(s, "SGD", "2026-02"), "那个月之前还没开始记帐").toEqual([]);
+    });
+
     it("统计页的支出排行里没有汇款这根柱子", () => {
       const { s } = withTransfer();
       const sgd = L.categoryBreakdown(s, "SGD", "2026-03", "expense");

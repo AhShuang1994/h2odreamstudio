@@ -634,6 +634,27 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
         <small>${d.month.slice(5)}月</small>
       </div>`;
     }).join('');
+
+    // 累计：明细与顶上都只给一个数，这里交代它是怎么来的。每个月一行结余，
+    // 一行行加下去就是上面那个数。展开与否在重画之间保留（翻月份时不会自己收起来）
+    const wasOpen = $('#cum-box details')?.open;
+    const nets = L.monthlyNets(state, side, curMonth);
+    const signed = n => (n > 0 ? '+' : n < 0 ? '−' : '') + money(Math.abs(n));
+    $('#cum-box').innerHTML = `<div class="card">
+        <div class="cat-row" style="border:none;padding:0">
+          <span>${cumLabel()}</span>
+          <b class="tnum">${money(L.cumulative(state, side, curMonth))}</b>
+        </div>
+        <p class="muted small" style="margin-top:6px">从开始记帐那个月起，把每个月的结余加起来。
+          结余 = 收入 − 支出 − 转出 + 转入。这不是银行户口余额：开始记帐之前就有的钱不在里面。</p>
+        ${nets.length ? `<details class="cum-months"${wasOpen ? ' open' : ''}>
+          <summary>每个月的结余（${nets.length} 个月）</summary>
+          ${nets.slice().reverse().map(r => `<div class="cat-row">
+            <span>${monthLabel(r.month)}</span>
+            <b class="tnum v ${r.net > 0 ? 'income' : r.net < 0 ? 'expense' : ''}">${signed(r.net)}</b>
+          </div>`).join('')}
+        </details>` : ''}
+      </div>`;
   }
 
   // ── 每月固定收支 ────────────────────────────────────
