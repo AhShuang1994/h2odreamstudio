@@ -453,14 +453,27 @@ export function recordsOfMonth(state, currency, month) {
  *
  * **转帐不进收入也不进支出**（story 15）：把钱搬到马币那侧不是花掉，
  * 记成支出的话月结余会长期失真，这正是这张票要修的问题。
+ *
+ * 但转帐也不能凭空消失：`transferOut` / `transferIn` 是这一侧这个月搬走 / 搬进的钱，
+ * 界面拿它交代「结余」与「累计」之间差的那一块，否则明细里明明有一笔转出，
+ * 上面几个数字却怎么加都对不上。
  */
 export function monthlySummary(state, currency, month) {
-  let income = 0, expense = 0;
+  let income = 0, expense = 0, transferOut = 0, transferIn = 0;
   for (const r of state.records) {
-    if (!r.date.startsWith(month) || r.currency !== currency || isTransfer(r)) continue;
+    if (!r.date.startsWith(month)) continue;
+    if (isTransfer(r)) {
+      if (r.currency === currency) transferOut += r.amount;
+      if (r.toCurrency === currency) transferIn += r.toAmount;
+      continue;
+    }
+    if (r.currency !== currency) continue;
     if (r.type === INCOME) income += r.amount; else expense += r.amount;
   }
-  return { currency, income: round2(income), expense: round2(expense), net: round2(income - expense) };
+  return {
+    currency, income: round2(income), expense: round2(expense), net: round2(income - expense),
+    transferOut: round2(transferOut), transferIn: round2(transferIn)
+  };
 }
 
 /**
@@ -488,9 +501,14 @@ export function cardSpentOnSide(state, currency, month) {
 /**
  * 这一侧还剩多少，定义是**使用本 app 以来这一侧的净流入**，不是银行户口余额。
  * 不引入期初余额（ADR-0001）。界面上的措辞必须让这一点自明。
+ *
+ * 给了 `month` 就只算到那个月底：翻回三月看明细时，累计不该被四月以后的帐带着跑。
  */
-export function cumulative(state, currency) {
-  return round2(state.records.reduce((s, r) => s + signedDelta(r, currency), 0));
+export function cumulative(state, currency, month) {
+  return round2(state.records.reduce(
+    (s, r) => (month && r.date.slice(0, 7) > month ? s : s + signedDelta(r, currency)),
+    0
+  ));
 }
 
 /** 分类占比。转帐不在其中：汇款不再盖住真实的消费结构。 */

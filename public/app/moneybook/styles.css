@@ -255,6 +255,10 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
 .summary div+div{border-left:1px solid var(--hairline)}
 .summary small{display:block;color:var(--ink-subtle);font-size:var(--t-xs);margin-bottom:2px}
 .summary b{font-size:var(--t-base);font-weight:600;letter-spacing:-.3px}
+.xfer-note:empty{display:none}
+.xfer-note{background:var(--canvas);border-bottom:1px solid var(--hairline);padding:var(--sp-2) var(--sp-4)}
+.xfer-note p{color:var(--ink-subtle);font-size:var(--t-xs);line-height:1.5}
+.xfer-note p::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--xfer);margin-right:6px;vertical-align:middle}
 .day{margin-bottom:var(--sp-4)}
 .day-head{
   display:flex;justify-content:space-between;gap:var(--sp-2);

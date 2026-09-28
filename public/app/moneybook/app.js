@@ -69,6 +69,8 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
 
   // ── 小工具 ──────────────────────────────────────────
   const money = (n, cur = side) => L.formatMoney(n, cur);
+  /** 累计只算到正在看的那个月底。翻到别的月份时标签要说清楚截到哪里。 */
+  const cumLabel = () => curMonth === L.monthOf(new Date()) ? '累计' : `${Number(curMonth.slice(5))}月底累计`;
 
   function catOf(type, id) {
     return state.cats[type]?.find(c => c.id === id) || { icon: '❔', name: '未分类' };
@@ -115,7 +117,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     el.innerHTML = L.sides(state).map(c => `
       <button role="tab" aria-selected="${c === side}" class="${c === side ? 'on' : ''}" data-side="${esc(c)}">
         <b>${esc(c)}</b>
-        <small>累计 ${esc(money(L.cumulative(state, c), c))}</small>
+        <small>${cumLabel()} ${esc(money(L.cumulative(state, c, curMonth), c))}</small>
       </button>`).join('');
   }
 
@@ -397,6 +399,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
   // ── 月份切换 ────────────────────────────────────────
   $$('[data-month]').forEach(b => b.addEventListener('click', () => {
     curMonth = L.shiftMonth(curMonth, Number(b.dataset.month));
+    renderSideSwitch();   // 顶上的累计也只算到这个月底，跟明细对得上
     if (view === 'list') renderList(); else renderStats();
   }));
 
@@ -447,7 +450,15 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       <div><small>收入</small><b class="v income">${money(sum.income)}</b></div>
       <div><small>支出</small><b class="v expense">${money(sum.expense)}</b></div>
       <div><small>结余</small><b>${money(sum.net)}</b></div>
-      <div><small>累计</small><b>${money(L.cumulative(state, side))}</b></div>`;
+      <div><small>${cumLabel()}</small><b>${money(L.cumulative(state, side, curMonth))}</b></div>`;
+
+    // 转帐不进收支，但不能凭空消失：明细里有一笔转出，上面的结余却没少，
+    // 就得在这里交代它去了哪（它只动累计）。这个月没转帐时整行不出现。
+    const other = otherSide();
+    $('#list-xfer').innerHTML = [
+      sum.transferOut ? `本月转出 ${money(sum.transferOut)} 到 ${esc(other || '')}：不算支出，累计已扣掉` : '',
+      sum.transferIn ? `本月从 ${esc(other || '')} 转入 ${money(sum.transferIn)}：不算收入，累计已加上` : ''
+    ].filter(Boolean).map(t => `<p>${t}</p>`).join('');
 
     if (!rs.length) {
       $('#list-body').innerHTML = '<div class="empty">这个月还没有记录<br>切到「记帐」开始吧 ✏️</div>';
@@ -538,6 +549,20 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
           <b class="tnum">${money(L.cardSpentOnSide(state, side, curMonth))}</b>
         </div>
         <p class="muted small" style="margin-top:6px">≈ 下个月要还的钱，以银行账单为准</p>
+      </div>` : '';
+
+    // 本月转帐：不在分类占比里（汇款不该盖住真实的消费结构），但要说出来，
+    // 否则明细里看得到的那笔钱，在统计页上找不到。看支出时说转出，看收入时说转入。
+    const sum = L.monthlySummary(state, side, curMonth);
+    const xfer = statsType === 'expense' ? sum.transferOut : sum.transferIn;
+    $('#xfer-sum').innerHTML = xfer ? `<div class="card">
+        <div class="cat-row" style="border:none;padding:0">
+          <span>${statsType === 'expense' ? `本月转出到 ${esc(otherSide() || '')}` : `本月从 ${esc(otherSide() || '')} 转入`}</span>
+          <b class="tnum v xfer">${money(xfer)}</b>
+        </div>
+        <p class="muted small" style="margin-top:6px">${statsType === 'expense'
+          ? '钱搬到另一侧，还是你的，所以不算在下面的支出里'
+          : '从另一侧搬过来的钱，所以不算在下面的收入里'}</p>
       </div>` : '';
 
     // 分类占比：转帐不在其中，汇款不再盖住真实的消费结构

@@ -267,6 +267,25 @@ describe("小帐本 · ledger 核心", () => {
       expect(myr.expense).toBe(0);
     });
 
+    it("月摘要另外交代转出与转入：结余与累计之间差的就是它", () => {
+      const { s } = withTransfer();
+      const sgd = L.monthlySummary(s, "SGD", "2026-03");
+      expect(sgd).toMatchObject({ transferOut: 2000, transferIn: 0, net: 3000 });
+      expect(L.round2(sgd.net - sgd.transferOut + sgd.transferIn)).toBe(L.cumulative(s, "SGD"));
+
+      const myr = L.monthlySummary(s, "MYR", "2026-03");
+      expect(myr).toMatchObject({ transferOut: 0, transferIn: 6800 });
+    });
+
+    it("累计可以只算到某个月底：看旧月份时不被之后的帐带着跑", () => {
+      const { s } = withTransfer();
+      L.addRecord(s, { type: "expense", amount: 300, currency: "SGD", cat: "food", date: "2026-04-02" });
+      expect(L.cumulative(s, "SGD", "2026-02")).toBe(0);
+      expect(L.cumulative(s, "SGD", "2026-03")).toBe(1000);
+      expect(L.cumulative(s, "SGD", "2026-04")).toBe(700);
+      expect(L.cumulative(s, "SGD"), "不给月份就是全部").toBe(700);
+    });
+
     it("统计页的支出排行里没有汇款这根柱子", () => {
       const { s } = withTransfer();
       const sgd = L.categoryBreakdown(s, "SGD", "2026-03", "expense");
