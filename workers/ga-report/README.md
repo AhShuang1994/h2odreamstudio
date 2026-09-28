@@ -30,6 +30,16 @@ Google（GA4 + GSC） ──每天 06:30──▶  Worker ga-report ──▶ D1
 | POST | `/app/report/api/suggestions/:id` | `{status: "done" \| "skipped" \| "open"}` |
 | POST | `/app/report/api/sync` | 立刻同步一次，测试用 |
 
+## D1 免费额度够不够
+
+| 额度 | 用量 |
+|---|---|
+| 每个库 500 MB | 一天最多约 400 行，一年约 30 MB |
+| 每天写 10 万行 | 平常约 1.6 万；头两周补历史时约 6 万 |
+| 每天读 500 万行 | 开一次页面几千行（画图那次请求用 `daily=only`，不扫一年份的排行） |
+
+超了也不会坏：那天的同步失败、页面显示红色提示，第二天自动再试。
+
 ## 第一次设定
 
 照顺序做。**全部免费**；只有 Cloudflare Zero Trust 开通时会要你填付款方式，选 Free 方案不会扣钱。
