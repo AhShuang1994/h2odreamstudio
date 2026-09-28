@@ -71,6 +71,8 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
   const money = (n, cur = side) => L.formatMoney(n, cur);
   /** 累计只算到正在看的那个月底。翻到别的月份时标签要说清楚截到哪里。 */
   const cumLabel = () => curMonth === L.monthOf(new Date()) ? '累计' : `${Number(curMonth.slice(5))}月底累计`;
+  /** 顶上切换器显示的是正在看的那个月的结余：这个月到现在还剩多少。累计留给明细与统计页。 */
+  const netLabel = () => curMonth === L.monthOf(new Date()) ? '本月结余' : `${Number(curMonth.slice(5))}月结余`;
 
   function catOf(type, id) {
     return state.cats[type]?.find(c => c.id === id) || { icon: '❔', name: '未分类' };
@@ -117,7 +119,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     el.innerHTML = L.sides(state).map(c => `
       <button role="tab" aria-selected="${c === side}" class="${c === side ? 'on' : ''}" data-side="${esc(c)}">
         <b>${esc(c)}</b>
-        <small>${cumLabel()} ${esc(money(L.cumulative(state, c, curMonth), c))}</small>
+        <small>${netLabel()} ${esc(money(L.monthlySummary(state, c, curMonth).net, c))}</small>
       </button>`).join('');
   }
 
@@ -399,7 +401,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
   // ── 月份切换 ────────────────────────────────────────
   $$('[data-month]').forEach(b => b.addEventListener('click', () => {
     curMonth = L.shiftMonth(curMonth, Number(b.dataset.month));
-    renderSideSwitch();   // 顶上的累计也只算到这个月底，跟明细对得上
+    renderSideSwitch();   // 顶上显示的是这个月的结余，翻月份要跟着换
     if (view === 'list') renderList(); else renderStats();
   }));
 
