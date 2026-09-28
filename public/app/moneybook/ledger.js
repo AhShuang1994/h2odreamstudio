@@ -454,9 +454,10 @@ export function recordsOfMonth(state, currency, month) {
  * **转帐不进收入也不进支出**（story 15）：把钱搬到马币那侧不是花掉，
  * 记成支出的话月结余会长期失真，这正是这张票要修的问题。
  *
- * 但转帐也不能凭空消失：`transferOut` / `transferIn` 是这一侧这个月搬走 / 搬进的钱，
- * 界面拿它交代「结余」与「累计」之间差的那一块，否则明细里明明有一笔转出，
- * 上面几个数字却怎么加都对不上。
+ * 但转帐也不能凭空消失：`transferOut` / `transferIn` 是这一侧这个月搬走 / 搬进的钱。
+ * **结余把它算进去**（收入 − 支出 − 转出 + 转入），所以结余是这一侧这个月净多了多少钱，
+ * 每个月的结余加起来就是累计。只算收支的话，明细里明明有一笔转出，结余却没少，
+ * 跟累计怎么加都对不上。
  */
 export function monthlySummary(state, currency, month) {
   let income = 0, expense = 0, transferOut = 0, transferIn = 0;
@@ -471,7 +472,8 @@ export function monthlySummary(state, currency, month) {
     if (r.type === INCOME) income += r.amount; else expense += r.amount;
   }
   return {
-    currency, income: round2(income), expense: round2(expense), net: round2(income - expense),
+    currency, income: round2(income), expense: round2(expense),
+    net: round2(income - expense - transferOut + transferIn),
     transferOut: round2(transferOut), transferIn: round2(transferIn)
   };
 }
@@ -509,6 +511,24 @@ export function cumulative(state, currency, month) {
     (s, r) => (month && r.date.slice(0, 7) > month ? s : s + signedDelta(r, currency)),
     0
   ));
+}
+
+/**
+ * 累计是怎么来的：从这一侧第一笔帐那个月起，到 `month` 为止，每个月一行结余。
+ * 中间没帐的月份也列出来（结余 0），这样一行行加下去一定等于 cumulative(…, month)。
+ * 旧的在前。那个月之前还没开始记帐就是空的。
+ */
+export function monthlyNets(state, currency, month) {
+  let first = null;
+  for (const r of state.records) {
+    const m = r.date.slice(0, 7);
+    if (touchesSide(r, currency) && m <= month && (!first || m < first)) first = m;
+  }
+  const out = [];
+  for (let m = first; m && m <= month; m = shiftMonth(m, 1)) {
+    out.push({ month: m, net: monthlySummary(state, currency, m).net });
+  }
+  return out;
 }
 
 /** 分类占比。转帐不在其中：汇款不再盖住真实的消费结构。 */

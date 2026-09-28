@@ -452,12 +452,12 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       <div><small>结余</small><b>${money(sum.net)}</b></div>
       <div><small>${cumLabel()}</small><b>${money(L.cumulative(state, side, curMonth))}</b></div>`;
 
-    // 转帐不进收支，但不能凭空消失：明细里有一笔转出，上面的结余却没少，
-    // 就得在这里交代它去了哪（它只动累计）。这个月没转帐时整行不出现。
+    // 转帐不进收支，但结余算它（结余 = 收入 − 支出 − 转出 + 转入）：
+    // 在这里交代，不然结余看起来跟收入、支出对不上。这个月没转帐时整行不出现。
     const other = otherSide();
     $('#list-xfer').innerHTML = [
-      sum.transferOut ? `本月转出 ${money(sum.transferOut)} 到 ${esc(other || '')}：不算支出，累计已扣掉` : '',
-      sum.transferIn ? `本月从 ${esc(other || '')} 转入 ${money(sum.transferIn)}：不算收入，累计已加上` : ''
+      sum.transferOut ? `本月转出 ${money(sum.transferOut)} 到 ${esc(other || '')}：不算支出，结余已扣掉` : '',
+      sum.transferIn ? `本月从 ${esc(other || '')} 转入 ${money(sum.transferIn)}：不算收入，结余已加上` : ''
     ].filter(Boolean).map(t => `<p>${t}</p>`).join('');
 
     if (!rs.length) {
@@ -634,6 +634,27 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
         <small>${d.month.slice(5)}月</small>
       </div>`;
     }).join('');
+
+    // 累计：明细与顶上都只给一个数，这里交代它是怎么来的。每个月一行结余，
+    // 一行行加下去就是上面那个数。展开与否在重画之间保留（翻月份时不会自己收起来）
+    const wasOpen = $('#cum-box details')?.open;
+    const nets = L.monthlyNets(state, side, curMonth);
+    const signed = n => (n > 0 ? '+' : n < 0 ? '−' : '') + money(Math.abs(n));
+    $('#cum-box').innerHTML = `<div class="card">
+        <div class="cat-row" style="border:none;padding:0">
+          <span>${cumLabel()}</span>
+          <b class="tnum">${money(L.cumulative(state, side, curMonth))}</b>
+        </div>
+        <p class="muted small" style="margin-top:6px">从开始记帐那个月起，把每个月的结余加起来。
+          结余 = 收入 − 支出 − 转出 + 转入。这不是银行户口余额：开始记帐之前就有的钱不在里面。</p>
+        ${nets.length ? `<details class="cum-months"${wasOpen ? ' open' : ''}>
+          <summary>每个月的结余（${nets.length} 个月）</summary>
+          ${nets.slice().reverse().map(r => `<div class="cat-row">
+            <span>${monthLabel(r.month)}</span>
+            <b class="tnum v ${r.net > 0 ? 'income' : r.net < 0 ? 'expense' : ''}">${signed(r.net)}</b>
+          </div>`).join('')}
+        </details>` : ''}
+      </div>`;
   }
 
   // ── 每月固定收支 ────────────────────────────────────
