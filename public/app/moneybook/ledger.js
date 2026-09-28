@@ -454,9 +454,10 @@ export function recordsOfMonth(state, currency, month) {
  * **转帐不进收入也不进支出**（story 15）：把钱搬到马币那侧不是花掉，
  * 记成支出的话月结余会长期失真，这正是这张票要修的问题。
  *
- * 但转帐也不能凭空消失：`transferOut` / `transferIn` 是这一侧这个月搬走 / 搬进的钱，
- * 界面拿它交代「结余」与「累计」之间差的那一块，否则明细里明明有一笔转出，
- * 上面几个数字却怎么加都对不上。
+ * 但转帐也不能凭空消失：`transferOut` / `transferIn` 是这一侧这个月搬走 / 搬进的钱。
+ * **结余把它算进去**（收入 − 支出 − 转出 + 转入），所以结余是这一侧这个月净多了多少钱，
+ * 每个月的结余加起来就是累计。只算收支的话，明细里明明有一笔转出，结余却没少，
+ * 跟累计怎么加都对不上。
  */
 export function monthlySummary(state, currency, month) {
   let income = 0, expense = 0, transferOut = 0, transferIn = 0;
@@ -471,7 +472,8 @@ export function monthlySummary(state, currency, month) {
     if (r.type === INCOME) income += r.amount; else expense += r.amount;
   }
   return {
-    currency, income: round2(income), expense: round2(expense), net: round2(income - expense),
+    currency, income: round2(income), expense: round2(expense),
+    net: round2(income - expense - transferOut + transferIn),
     transferOut: round2(transferOut), transferIn: round2(transferIn)
   };
 }

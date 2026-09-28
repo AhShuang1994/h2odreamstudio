@@ -452,12 +452,12 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       <div><small>结余</small><b>${money(sum.net)}</b></div>
       <div><small>${cumLabel()}</small><b>${money(L.cumulative(state, side, curMonth))}</b></div>`;
 
-    // 转帐不进收支，但不能凭空消失：明细里有一笔转出，上面的结余却没少，
-    // 就得在这里交代它去了哪（它只动累计）。这个月没转帐时整行不出现。
+    // 转帐不进收支，但结余算它（结余 = 收入 − 支出 − 转出 + 转入）：
+    // 在这里交代，不然结余看起来跟收入、支出对不上。这个月没转帐时整行不出现。
     const other = otherSide();
     $('#list-xfer').innerHTML = [
-      sum.transferOut ? `本月转出 ${money(sum.transferOut)} 到 ${esc(other || '')}：不算支出，累计已扣掉` : '',
-      sum.transferIn ? `本月从 ${esc(other || '')} 转入 ${money(sum.transferIn)}：不算收入，累计已加上` : ''
+      sum.transferOut ? `本月转出 ${money(sum.transferOut)} 到 ${esc(other || '')}：不算支出，结余已扣掉` : '',
+      sum.transferIn ? `本月从 ${esc(other || '')} 转入 ${money(sum.transferIn)}：不算收入，结余已加上` : ''
     ].filter(Boolean).map(t => `<p>${t}</p>`).join('');
 
     if (!rs.length) {

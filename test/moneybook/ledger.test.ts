@@ -267,14 +267,23 @@ describe("小帐本 · ledger 核心", () => {
       expect(myr.expense).toBe(0);
     });
 
-    it("月摘要另外交代转出与转入：结余与累计之间差的就是它", () => {
+    it("结余把转出扣掉、转入加上：它是这一侧这个月净多了多少钱", () => {
       const { s } = withTransfer();
       const sgd = L.monthlySummary(s, "SGD", "2026-03");
-      expect(sgd).toMatchObject({ transferOut: 2000, transferIn: 0, net: 3000 });
-      expect(L.round2(sgd.net - sgd.transferOut + sgd.transferIn)).toBe(L.cumulative(s, "SGD"));
+      expect(sgd, "支出仍然不含转帐").toMatchObject({ income: 3000, expense: 0, transferOut: 2000, transferIn: 0, net: 1000 });
 
       const myr = L.monthlySummary(s, "MYR", "2026-03");
-      expect(myr).toMatchObject({ transferOut: 0, transferIn: 6800 });
+      expect(myr).toMatchObject({ income: 0, transferOut: 0, transferIn: 6800, net: 6800 });
+    });
+
+    it("每个月的结余加起来就是累计", () => {
+      const { s } = withTransfer();
+      L.addRecord(s, { type: "expense", amount: 300, currency: "SGD", cat: "food", date: "2026-04-02" });
+      L.addTransfer(s, { amount: 100, currency: "SGD", toAmount: 330, toCurrency: "MYR", date: "2026-04-05" });
+      for (const c of ["SGD", "MYR"]) {
+        const sum = ["2026-03", "2026-04"].reduce((n, m) => n + L.monthlySummary(s, c, m).net, 0);
+        expect(L.round2(sum), c).toBe(L.cumulative(s, c, "2026-04"));
+      }
     });
 
     it("累计可以只算到某个月底：看旧月份时不被之后的帐带着跑", () => {
