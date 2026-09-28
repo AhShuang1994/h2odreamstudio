@@ -24,7 +24,7 @@ Google（GA4 + GSC） ──每天 06:30──▶  Worker ga-report ──▶ D1
 | 方法 | 路径 | 作用 |
 |---|---|---|
 | GET | `/app/report/api/status` | 同步状态、GA / GSC 最新日期、收录状态 |
-| GET | `/app/report/api/data?from=&to=` | 逐日数字 + 这段期间的排行 |
+| GET | `/app/report/api/data?from=&to=` | 逐日数字 + 这段期间的排行。加 `&daily=only` 只给逐日数字 |
 | GET | `/app/report/api/reports?limit=` | 报告与建议 |
 | POST | `/app/report/api/reports` | Claude 交报告（格式见 `ROUTINE.md`） |
 | POST | `/app/report/api/suggestions/:id` | `{status: "done" \| "skipped" \| "open"}` |

@@ -43,7 +43,7 @@ async function route(request, env, ctx) {
     const from = url.searchParams.get("from");
     const to = url.searchParams.get("to");
     if (!DATE.test(from ?? "") || !DATE.test(to ?? "") || from > to) return bad("要 from 与 to，格式 YYYY-MM-DD");
-    return json(await rangeData(env.DB, from, to));
+    return json(await rangeData(env.DB, from, to, { dailyOnly: url.searchParams.get("daily") === "only" }));
   }
 
   if (method === "GET" && path === "/status") {

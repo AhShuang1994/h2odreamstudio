@@ -88,9 +88,15 @@ export function saveInspections(db, list) {
 
 // ── 页面与 Claude 读的数据 ───────────────────────────────────────────
 
-/** from..to 之间的一切数字：逐日序列 + 这段期间的排行 */
-export async function rangeData(db, from, to) {
+/**
+ * from..to 之间的一切数字：逐日序列 + 这段期间的排行。
+ *
+ * dailyOnly：只要逐日序列。页面画一整年的图时用这个：排行要扫过一年份的
+ * 每个搜索词（十几万行），D1 免费版一天只给读 500 万行，每次开页面都扫太浪费。
+ */
+export async function rangeData(db, from, to, { dailyOnly = false } = {}) {
   const q = (sql) => db.prepare(sql).bind(from, to).all().then((r) => r.results);
+  const list = async (sql) => (dailyOnly ? [] : q(sql));
 
   const [ga, organic, gsc, channels, pages, queries, gscPages] = await Promise.all([
     q("SELECT * FROM ga_daily WHERE date BETWEEN ? AND ? ORDER BY date"),
@@ -99,23 +105,23 @@ export async function rangeData(db, from, to) {
        WHERE date BETWEEN ? AND ? AND channel = 'Organic Search'`,
     ),
     q("SELECT * FROM gsc_daily WHERE date BETWEEN ? AND ? ORDER BY date"),
-    q(
+    list(
       `SELECT channel, SUM(sessions) AS sessions FROM ga_channels
        WHERE date BETWEEN ? AND ? GROUP BY channel ORDER BY sessions DESC`,
     ),
-    q(
+    list(
       `SELECT path, SUM(views) AS views, SUM(wa_clicks) AS wa_clicks FROM ga_pages
        WHERE date BETWEEN ? AND ? GROUP BY path
        ORDER BY wa_clicks DESC, views DESC LIMIT 30`,
     ),
     // 平均排名按曝光加权：曝光 1 次排第 3 与曝光 100 次排第 30，不能直接平均
-    q(
+    list(
       `SELECT query, SUM(clicks) AS clicks, SUM(impressions) AS impressions,
               SUM(position * impressions) / SUM(impressions) AS position
        FROM gsc_queries WHERE date BETWEEN ? AND ? GROUP BY query
        ORDER BY impressions DESC LIMIT 50`,
     ),
-    q(
+    list(
       `SELECT page, SUM(clicks) AS clicks, SUM(impressions) AS impressions,
               SUM(position * impressions) / SUM(impressions) AS position
        FROM gsc_pages WHERE date BETWEEN ? AND ? GROUP BY page

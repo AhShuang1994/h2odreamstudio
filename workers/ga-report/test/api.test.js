@@ -154,3 +154,16 @@ test("/data 要合法的日期范围", async () => {
   assert.equal((await call(db, "GET", "/data?from=2026-09-27&to=2026-09-01")).status, 400);
   assert.equal((await call(db, "GET", "/data?from=x&to=y")).status, 400);
 });
+
+test("/data?daily=only 只给逐日数字，不扫排行（省 D1 的每日读取额度）", async () => {
+  const db = freshDb();
+  db.sqlite.exec(`
+    INSERT INTO ga_daily VALUES ('2026-09-27', 10, 12, 30, 1);
+    INSERT INTO gsc_queries VALUES ('2026-09-27', 'web design', 1, 10, 5);
+  `);
+  const full = await (await call(db, "GET", "/data?from=2026-09-01&to=2026-09-27")).json();
+  const daily = await (await call(db, "GET", "/data?from=2026-09-01&to=2026-09-27&daily=only")).json();
+  assert.equal(full.queries.length, 1);
+  assert.equal(daily.ga_daily.length, 1);
+  assert.deepEqual([daily.queries, daily.pages, daily.channels, daily.gsc_pages], [[], [], [], []]);
+});

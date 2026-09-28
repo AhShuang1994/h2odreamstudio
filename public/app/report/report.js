@@ -457,10 +457,9 @@ async function main() {
   state.gscEnd = state.status.gsc_latest;
   if (!state.gaEnd) return;
 
-  // 图最长要 12 段 × 30 天，一次拿齐
+  // 图最长要 12 段 × 30 天，一次拿齐。只要逐日数字，不要排行（排行要扫一整年的搜索词）
   const ends = [state.gaEnd, state.gscEnd].filter(Boolean).sort();
-  const from = addDays(ends[0], -359);
-  const data = await listsFor(from, state.gaEnd > (state.gscEnd ?? "") ? state.gaEnd : state.gscEnd);
+  const data = await api(`/data?from=${addDays(ends[0], -359)}&to=${ends.at(-1)}&daily=only`);
   for (const r of data.ga_daily) state.ga.set(r.date, r);
   for (const r of data.gsc_daily) state.gsc.set(r.date, r);
   renderPeriod();
