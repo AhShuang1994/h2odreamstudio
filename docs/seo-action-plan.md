@@ -33,29 +33,33 @@
 
 新山页 2026-09-27 晚上 10 点才上线，第 1 天提交时它还不存在，所以排在最前面。马来西亚华人老板是核心客户，中文版一样重要。
 
-- [ ] `https://www.h2o-dreamer-studio.com/web-design-johor-bahru`
-- [ ] `https://www.h2o-dreamer-studio.com/zh/web-design-johor-bahru`
-- [ ] `https://www.h2o-dreamer-studio.com/zh/blog/website-cost-malaysia`
-- [ ] `https://www.h2o-dreamer-studio.com/zh/blog/which-website-for-your-business`
-- [ ] `https://www.h2o-dreamer-studio.com/zh/blog/wix-vs-hire-designer`
-- [ ] `https://www.h2o-dreamer-studio.com/zh/case-studies/serai-beauty-salon`
-- [ ] `https://www.h2o-dreamer-studio.com/zh/blog/seo-vs-geo-ai-search`
-- [ ] `https://www.h2o-dreamer-studio.com/zh/blog/whatsapp-vs-website`
-- [ ] `https://www.h2o-dreamer-studio.com/zh/blog/social-media-vs-website`
-- [ ] `https://www.h2o-dreamer-studio.com/zh/case-studies/cooltech-aircon`
+**2026-09-28 检查：10 条全部已经显示「已编入索引」，不用再请求。**
+
+- [x] `https://www.h2o-dreamer-studio.com/web-design-johor-bahru`
+- [x] `https://www.h2o-dreamer-studio.com/zh/web-design-johor-bahru`
+- [x] `https://www.h2o-dreamer-studio.com/zh/blog/website-cost-malaysia`
+- [x] `https://www.h2o-dreamer-studio.com/zh/blog/which-website-for-your-business`
+- [x] `https://www.h2o-dreamer-studio.com/zh/blog/wix-vs-hire-designer`
+- [x] `https://www.h2o-dreamer-studio.com/zh/case-studies/serai-beauty-salon`
+- [x] `https://www.h2o-dreamer-studio.com/zh/blog/seo-vs-geo-ai-search`
+- [x] `https://www.h2o-dreamer-studio.com/zh/blog/whatsapp-vs-website`
+- [x] `https://www.h2o-dreamer-studio.com/zh/blog/social-media-vs-website`
+- [x] `https://www.h2o-dreamer-studio.com/zh/case-studies/cooltech-aircon`
 
 ### 第 3 天：两个目录页 + 其余案例拆解（英文优先，中文有余额再做）
 
-- [ ] `https://www.h2o-dreamer-studio.com/blog/`
-- [ ] `https://www.h2o-dreamer-studio.com/zh/blog/`
-- [ ] `/case-studies/wok-and-flame-fnb`
-- [ ] `/case-studies/glow-seoul-skincare`
-- [ ] `/case-studies/muse-apparel-shopify`
-- [ ] `/case-studies/wedding-premium-elegant`
-- [ ] `/case-studies/wedding-premium-cinematic`
-- [ ] `/case-studies/wedding-basic-minimal`
-- [ ] `/case-studies/wedding-basic-outdoor`
-- [ ] `/case-studies/`
+**2026-09-28 检查：4 条已编入索引。另外 6 条是「已发现 - 尚未编入索引」（Google 知道有这页，还没来读），当天都按了请求编入索引。上线检查全部 200、canonical 正确、没有 noindex，不是技术问题。一周后再看，如果变成「已抓取 - 尚未编入索引」才要改内容。**
+
+- [x] `https://www.h2o-dreamer-studio.com/blog/`
+- [x] `https://www.h2o-dreamer-studio.com/zh/blog/`
+- [x] `/case-studies/wok-and-flame-fnb`
+- [x] `/case-studies/glow-seoul-skincare`
+- [x] `/case-studies/muse-apparel-shopify`
+- [x] `/case-studies/wedding-premium-elegant`
+- [x] `/case-studies/wedding-premium-cinematic`
+- [x] `/case-studies/wedding-basic-minimal`
+- [x] `/case-studies/wedding-basic-outdoor`
+- [x] `/case-studies/`
 
 首页、pricing、about、contact 这次没有改动，本来就正常，不用提交。
 
