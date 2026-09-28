@@ -1,0 +1,37 @@
+name = "ga-report"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+# 不开 *.workers.dev 网址：那个网址前面没有 Cloudflare Access 挡着
+workers_dev = false
+
+# 只接报告页的接口。页面本身（public/app/report/）照旧由 Cloudflare Pages 出
+routes = [
+  { pattern = "www.h2o-dreamer-studio.com/app/report/api/*", zone_name = "h2o-dreamer-studio.com" },
+]
+
+# 每天马来西亚时间 06:30 拉一次（UTC 22:30）。GA 昨天的数字那时差不多算好了
+[triggers]
+crons = ["30 22 * * *"]
+
+# 请求日志关掉：里面会有流量数字，这个仓库是公开的，日志也别留
+[observability]
+enabled = false
+
+[vars]
+GA_PROPERTY_ID = ""        # GA 后台 → 管理 → 资源设置 → 资源 ID（纯数字，不是 G-45NTTZBZC4）
+GSC_SITE = ""              # GSC 左上角的资源名：网域资源写 sc-domain:h2o-dreamer-studio.com
+SITEMAP_URL = "https://www.h2o-dreamer-studio.com/sitemap.xml"
+HISTORY_DAYS = "400"       # 往回补多少天。月报要跟去年同月比，所以超过一年
+INSPECT_PER_RUN = "15"     # 每天查几条地址的收录状态。免费版一次最多 50 个对外请求，要留给 GA 与 GSC
+ACCESS_TEAM_DOMAIN = ""    # Zero Trust 的团队网域，例如 h2odreamer.cloudflareaccess.com
+ACCESS_AUD = ""            # Access 应用的 Application Audience (AUD) Tag
+
+# 建库：npx wrangler d1 create ga-report
+# 把输出的 database_id 贴到下面，再跑 migration（--local 和 --remote 各一次）
+[[d1_databases]]
+binding = "DB"
+database_name = "ga-report"
+database_id = "REPLACE_ME"
+
+# 用 `wrangler secret put GOOGLE_SA_KEY` 设（贴整份服务账号 JSON），别写进这个文件
