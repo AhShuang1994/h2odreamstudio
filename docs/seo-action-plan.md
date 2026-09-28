@@ -77,10 +77,11 @@
 
 - [ ] 建 Google 服务账号，启用 Search Console API 和 Analytics Data API
 - [ ] 服务账号邮箱加进 GSC（权限"受限"）和 GA4（角色"查看者"）
-- [ ] JSON 密钥放进云端环境变量 `GOOGLE_SA_KEY`（不要贴进聊天），并在 Allowed domains 加上 `oauth2.googleapis.com`、`searchconsole.googleapis.com`、`www.googleapis.com`、`analyticsdata.googleapis.com`
+- [ ] JSON 密钥放进 Worker `ga-report` 的 secret `GOOGLE_SA_KEY`（不要贴进聊天），步骤见 `workers/ga-report/README.md`
+- [ ] 设好 Cloudflare Access 与 Claude 云端任务（同一份 README 的 D～F）
 - [ ] Cloudflare API token 加上 Zone → Analytics → Read 与 Zone → DNS → Read（只选 `h2o-dreamer-studio.com` 这个域名）
 
-接好之后，每两周检查一次收录、排名和 WhatsApp 点击，结果更新到这份文件。
+接好之后，数字与 Claude 的周报、月报都在 `/app/report/`（要登录，见 ADR-0009）。仓库是公开的，**真实数字不要写回这份文件**。
 
 ## 5. 外部平台登记（第一批 backlink）
 

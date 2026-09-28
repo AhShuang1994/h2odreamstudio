@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>网站报告</title>
+  <!-- 只给阿爽自己看，前面有 Cloudflare Access 挡着。不收录、不装 GA（自己的浏览别算进流量） -->
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#07080b" />
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="stylesheet" href="report.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <h1>网站报告</h1>
+      <p class="sync" id="sync">载入中…</p>
+    </header>
+
+    <div class="alert" id="alert" hidden></div>
+
+    <section class="card" id="latest" aria-labelledby="latest-h">
+      <h2 id="latest-h">Claude 的最新建议</h2>
+      <div id="latest-body"><p class="muted">载入中…</p></div>
+    </section>
+
+    <nav class="tabs" role="tablist" aria-label="时间范围">
+      <button role="tab" data-days="1">日</button>
+      <button role="tab" data-days="7" aria-selected="true">周</button>
+      <button role="tab" data-days="30">月</button>
+    </nav>
+    <p class="muted range" id="range"></p>
+
+    <section class="kpis" id="kpis" aria-label="主要数字"></section>
+
+    <section class="charts">
+      <figure class="card chart" id="chart-wa"></figure>
+      <figure class="card chart" id="chart-users"></figure>
+      <figure class="card chart" id="chart-impr"></figure>
+    </section>
+
+    <section class="card" aria-labelledby="q-h">
+      <h2 id="q-h">Google 搜索词</h2>
+      <p class="muted" id="q-note"></p>
+      <div class="table-wrap"><table id="t-queries"></table></div>
+    </section>
+
+    <section class="grid2">
+      <section class="card" aria-labelledby="p-h">
+        <h2 id="p-h">页面</h2>
+        <div class="table-wrap"><table id="t-pages"></table></div>
+      </section>
+      <section class="card" aria-labelledby="c-h">
+        <h2 id="c-h">访客从哪里来</h2>
+        <div class="table-wrap"><table id="t-channels"></table></div>
+      </section>
+    </section>
+
+    <section class="card" aria-labelledby="i-h">
+      <h2 id="i-h">Google 收录</h2>
+      <div id="index"></div>
+    </section>
+
+    <section class="card" aria-labelledby="h-h">
+      <h2 id="h-h">以前的报告</h2>
+      <div id="history"><p class="muted">载入中…</p></div>
+    </section>
+  </main>
+
+  <div class="tip" id="tip" role="status" hidden></div>
+  <script type="module" src="report.js"></script>
+</body>
+</html>
