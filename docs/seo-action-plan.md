@@ -100,7 +100,7 @@
 | 名称 | `H2ODreamer Studio`（不加任何关键词，加了违反 Google 规定） |
 | 类别 | Website designer / Web design |
 | 电话 / WhatsApp | `+60 17-513 8694` |
-| 电邮 | `hello@h2o-dreamer-studio.com` |
+| 电邮 | `huihuang@h2o-dreamer-studio.com` |
 | 网站 | `https://www.h2o-dreamer-studio.com` |
 | 地区 | Johor Bahru, Johor, Malaysia（服务区，不公开地址，跟 Google 商家资料一致） |
 | 营业时间 | 周一至周六 9:00–19:00 |
