@@ -61,6 +61,8 @@ Google（GA4 + GSC） ──每天 06:30──▶  Worker ga-report ──▶ D1
 
 ### C. Cloudflare：部署 Worker
 
+> 电脑里若设了 `CLOUDFLARE_API_TOKEN`（发布网站用的那把，权限不够建 D1 / 部署 Worker），`wrangler login` 会报错。先在同一个 PowerShell 视窗跑 `$env:CLOUDFLARE_API_TOKEN = $null`，下面的指令都在这个视窗里跑。
+
 ```bash
 cd workers/ga-report
 npm install

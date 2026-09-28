@@ -25,7 +25,8 @@ function pemToPkcs8(pem) {
 
 /** 服务账号的 JSON 密钥 → 一小时有效的 access token（GA 与 GSC 共用一张） */
 export async function accessToken(saKeyJson, fetchFn = fetch) {
-  const sa = JSON.parse(saKeyJson);
+  // Windows PowerShell 用管道 secret put 时会在开头塞一个 BOM，JSON.parse 不认
+  const sa = JSON.parse(saKeyJson.replace(/^﻿/, ""));
   const now = Math.floor(Date.now() / 1000);
   const unsigned =
     b64urlJson({ alg: "RS256", typ: "JWT" }) +

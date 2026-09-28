@@ -19,19 +19,19 @@ crons = ["30 22 * * *"]
 enabled = false
 
 [vars]
-GA_PROPERTY_ID = ""        # GA 后台 → 管理 → 资源设置 → 资源 ID（纯数字，不是 G-45NTTZBZC4）
-GSC_SITE = ""              # GSC 左上角的资源名：网域资源写 sc-domain:h2o-dreamer-studio.com
+GA_PROPERTY_ID = "536918135" # GA 后台 → 管理 → 资源设置 → 资源 ID（纯数字，不是 G-45NTTZBZC4）
+GSC_SITE = "sc-domain:h2o-dreamer-studio.com" # GSC 左上角的资源名：网域资源写 sc-domain:h2o-dreamer-studio.com
 SITEMAP_URL = "https://www.h2o-dreamer-studio.com/sitemap.xml"
 HISTORY_DAYS = "400"       # 往回补多少天。月报要跟去年同月比，所以超过一年
 INSPECT_PER_RUN = "15"     # 每天查几条地址的收录状态。免费版一次最多 50 个对外请求，要留给 GA 与 GSC
-ACCESS_TEAM_DOMAIN = ""    # Zero Trust 的团队网域，例如 h2odreamer.cloudflareaccess.com
-ACCESS_AUD = ""            # Access 应用的 Application Audience (AUD) Tag
+ACCESS_TEAM_DOMAIN = "asetsbot.cloudflareaccess.com" # Zero Trust 的团队网域，例如 h2odreamer.cloudflareaccess.com
+ACCESS_AUD = "8caddce8f1a9488b008160cd4eba5466c380f4e68f0991efae0d16ff50f3055b" # Access 应用的 Application Audience (AUD) Tag
 
 # 建库：npx wrangler d1 create ga-report
 # 把输出的 database_id 贴到下面，再跑 migration（--local 和 --remote 各一次）
 [[d1_databases]]
 binding = "DB"
 database_name = "ga-report"
-database_id = "REPLACE_ME"
+database_id = "26e56676-1164-4b29-bed5-b31fb697051e"
 
 # 用 `wrangler secret put GOOGLE_SA_KEY` 设（贴整份服务账号 JSON），别写进这个文件

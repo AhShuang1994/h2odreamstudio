@@ -79,10 +79,11 @@
 
 ## 4. 数据接入（让 Claude 能直接看数据）
 
-- [ ] 建 Google 服务账号，启用 Search Console API 和 Analytics Data API
-- [ ] 服务账号邮箱加进 GSC（权限"受限"）和 GA4（角色"查看者"）
-- [ ] JSON 密钥放进 Worker `ga-report` 的 secret `GOOGLE_SA_KEY`（不要贴进聊天），步骤见 `workers/ga-report/README.md`
-- [ ] 设好 Cloudflare Access 与 Claude 云端任务（同一份 README 的 D～F）
+- [x] 建 Google 服务账号，启用 Search Console API 和 Analytics Data API（2026-09-28，项目 `h2o-report`）
+- [x] 服务账号邮箱加进 GSC（权限"受限"）和 GA4（角色"查看者"）（2026-09-28）
+- [x] JSON 密钥放进 Worker `ga-report` 的 secret `GOOGLE_SA_KEY`（不要贴进聊天），步骤见 `workers/ga-report/README.md`（2026-09-28，Worker 已部署，第一次同步 GA / GSC / 收录都成功）
+- [x] 设好 Cloudflare Access（Policy `me` + Service Auth `claude`）与 Claude 云端环境 `ga-report`（2026-09-28，README 的 D～F.1）
+- [ ] 建 Claude routines「网站周报」「网站月报」（README 的 F.2），建好先按 Run now 测一次，报告页最上面要出现建议
 - [ ] Cloudflare API token 加上 Zone → Analytics → Read 与 Zone → DNS → Read（只选 `h2o-dreamer-studio.com` 这个域名）
 
 接好之后，数字与 Claude 的周报、月报都在 `/app/report/`（要登录，见 ADR-0009）。仓库是公开的，**真实数字不要写回这份文件**。
