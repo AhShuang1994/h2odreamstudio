@@ -43,8 +43,8 @@ npx wrangler deploy
 3. 「新建空白自动化（New Blank Automation）」→「添加操作（Add Action）」→「获取 URL 内容（Get Contents of URL）」。
 4. 「URL」贴上小帐本给的连接码。
 5. ›「显示更多（Show More）」：「方法（Method）」POST，「请求体（Request Body）」JSON。
-6. 「添加新字段（Add new field）」→「词典（Dictionary）」，键 `mail`。
-7. 词典里加三个「文本（Text）」，值都是「快捷指令输入（Shortcut Input）」，插入后再点它一下选属性：
+6. 「添加新字段（Add new field）」→「词典（Dictionary）」，键 `mail`。它右边会写「0 项（0 items）」。
+7. **点「0 项（0 items）」**，进到 `mail` 的**里面**（会换一个画面），在那里加三个「文本（Text）」，值都是「快捷指令输入（Shortcut Input）」，插入后再点它一下选属性：
 
    | Key | 属性 |
    |---|---|
@@ -52,7 +52,19 @@ npx wrangler deploy
    | `subject` | 主题（Subject） |
    | `body` | 内容（Content） |
 
-8. 「完成（Done）」。
+   ⚠️ 在外层按「添加新字段」加的话，这三个会跟 `mail` 并排，送出去的是 `{"mail":{}, "from":…}`，Worker 回 400。
+8. 回上一个画面检查：「请求体」下面**只有 `mail` 一行**，右边写「3 项（3 items）」。
+9. 「完成（Done）」。
+
+送出去的应该长这样：
+
+```json
+{ "mail": { "from": "…", "subject": "…", "body": "…" } }
+```
+
+**别按 ▶ 测试**：手动运行时「快捷指令输入」是空的，Worker 一定回 400。要等银行真的寄一封邮件来。
+
+**第一次真的跑时像卡住了**：iOS 在问要不要允许把邮件内容传给 Worker，自动化在后台跑，看不到那个问题。打开「快捷指令」app 选「始终允许（Always Allow）」；也可以先打开「设置 → App → 快捷指令 → 高级 → 允许共享大量数据（Allow Sharing Large Amounts of Data）」。
 
 **每个发件人建一个自动化**，只有第 2 步不同：
 
