@@ -1294,13 +1294,17 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
           <li>点「新建空白自动化（New Blank Automation）」→「添加操作（Add Action）」，搜「获取 URL 内容（Get Contents of URL）」，点它。</li>
           <li>「URL」那里贴上连接码。</li>
           <li>点这个动作的 ›「显示更多（Show More）」：「方法（Method）」选 <b>POST</b>，「请求体（Request Body）」选 <b>JSON</b>。</li>
-          <li>「添加新字段（Add new field）」→ 选「词典（Dictionary）」，键（Key）填 <code>mail</code>。</li>
-          <li>点进这个词典，加三个「文本（Text）」字段。值都是插入「快捷指令输入（Shortcut Input）」，再点它一下选：
+          <li>「添加新字段（Add new field）」→ 选「词典（Dictionary）」，键（Key）填 <code>mail</code>。它右边会写「0 项（0 items）」。</li>
+          <li><b>点「0 项（0 items）」</b>，会换到一个新画面，那是 <code>mail</code> 的<b>里面</b>。在这个画面加三个「文本（Text）」字段，值都是插入「快捷指令输入（Shortcut Input）」，再点它一下选：
             <br><code>from</code> →「发件人（Sender）」
             <br><code>subject</code> →「主题（Subject）」
-            <br><code>body</code> →「内容（Content）」</li>
+            <br><code>body</code> →「内容（Content）」
+            <br>⚠️ 这三个要加在 <code>mail</code> 里面。在外面按「添加新字段」加的话，它们会跟 <code>mail</code> 并排，银行邮件就送不进来。</li>
+          <li>回到上一个画面检查：「请求体」下面<b>只有 <code>mail</code> 一行</b>，右边写「3 项（3 items）」。如果看到 <code>from</code>、<code>subject</code>、<code>body</code> 跟 <code>mail</code> 排在一起，就是加错地方了，删掉，回到第 7 步重加。</li>
           <li>点「完成（Done）」。</li>
         </ol>
+        <p class="muted small"><b>别按 ▶ 测试。</b>手动运行时没有邮件，送出去的是空的，一定显示失败。要等银行真的寄一封邮件来才算数。</p>
+        <p class="muted small"><b>第一次真的跑时像卡住了？</b>iOS 在问你要不要允许把邮件内容传出去，可是自动化在后台跑，你看不到那个问题。打开「快捷指令」app，选「始终允许（Always Allow）」。也可以先到「设置 → App → 快捷指令 → 高级（Advanced）」打开「允许共享大量数据（Allow Sharing Large Amounts of Data）」。</p>
         <p class="muted small"><b>每个发件人建一个自动化</b>，第 2 步换地址，其余一模一样：</p>
         ${MAIL_SENDERS.map(([addr, what]) => `<div class="cat-row"><i>✉️</i><span><code>${esc(addr)}</code><br><small class="muted">${esc(what)}</small></span></div>`).join('')}
         <p class="muted small">之后每家银行、每种付款第一次出现时，记帐页会问一次记在哪一侧、是不是信用卡。</p>
