@@ -83,7 +83,8 @@
 - [x] 服务账号邮箱加进 GSC（权限"受限"）和 GA4（角色"查看者"）（2026-09-28）
 - [x] JSON 密钥放进 Worker `ga-report` 的 secret `GOOGLE_SA_KEY`（不要贴进聊天），步骤见 `workers/ga-report/README.md`（2026-09-28，Worker 已部署，第一次同步 GA / GSC / 收录都成功）
 - [x] 设好 Cloudflare Access（Policy `me` + Service Auth `claude`）与 Claude 云端环境 `ga-report`（2026-09-28，README 的 D～F.1）
-- [ ] 建 Claude routines「网站周报」「网站月报」（README 的 F.2），建好先按 Run now 测一次，报告页最上面要出现建议
+- [x] 建 Claude routines「网站周报」「网站月报」（README 的 F.2），建好先按 Run now 测一次，报告页最上面要出现建议（2026-09-29，Opus 5.5，周一 / 每月 1 号 09:07；测试成功）
+- [x] 新版网站（Next.js）装回 GA4（2026-09-29）：9 月 25 日上线时漏掉了，第一份周报发现的。**9/25 到装回之间的 GA 数字不完整**，别拿来比
 - [ ] Cloudflare API token 加上 Zone → Analytics → Read 与 Zone → DNS → Read（只选 `h2o-dreamer-studio.com` 这个域名）
 
 接好之后，数字与 Claude 的周报、月报都在 `/app/report/`（要登录，见 ADR-0009）。仓库是公开的，**真实数字不要写回这份文件**。

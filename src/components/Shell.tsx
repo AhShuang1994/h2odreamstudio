@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { CSSProperties, ReactNode } from "react";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { WhatsAppFab } from "@/components/WhatsAppFab";
@@ -26,6 +27,13 @@ const headInline = readFileSync(
   join(process.cwd(), "src/motion/head-inline.js"),
   "utf8",
 );
+
+/**
+ * GA4。旧静态站每页 head 里各有一份，迁进 Next 时内容页只搬 `<main>`，
+ * 这份就跟着外壳一起丢了（2026-09-25 上线到补回之间没有数据）。
+ * WhatsApp 点击靠 GA 的「出站点击」自动记（ADR-0009），这里不用另外埋点。
+ */
+const GA_ID = "G-45NTTZBZC4";
 
 /**
  * `<html>` 外壳。中英各有一个 root layout（`app/(en)` 与 `app/(zh)`），
@@ -71,6 +79,10 @@ export function Shell({ lang, children }: { lang: Lang; children: ReactNode }) {
             defer 保序，Lenis 必须排在前面。见 public/js/motion.js。 */}
         <script src={assetUrl("/js/lenis.min.js")} defer />
         <script src={assetUrl("/js/motion.js")} defer />
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+        <Script id="ga-init" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${GA_ID}');`}
+        </Script>
       </body>
     </html>
   );
