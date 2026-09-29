@@ -28,6 +28,8 @@ export function MobileMenu({ lang }: { lang: Lang }) {
   }, [open]);
 
   const item = "block rounded-lg px-3 py-2.5 text-[15px] text-ink-muted transition-colors hover:bg-surface-3 hover:text-ink";
+  // 只有图标没有字，点击区域给足 44px
+  const social = "flex h-11 w-11 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-surface-3 hover:text-ink";
 
   return (
     <div className="md:hidden">
@@ -61,21 +63,35 @@ export function MobileMenu({ lang }: { lang: Lang }) {
 
             <div className="my-2 h-px bg-hairline" />
 
-            <div className="flex items-center justify-between px-3 py-1.5">
-              <a
-                href={site.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={close}
-                className="flex items-center gap-2 py-1 text-[15px] text-ink-muted transition-colors hover:text-ink"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                  <rect x="3" y="3" width="18" height="18" rx="5" />
-                  <circle cx="12" cy="12" r="4" />
-                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-                </svg>
-                Instagram
-              </a>
+            <div className="flex items-center justify-between py-1 pl-1.5 pr-3">
+              <div className="flex items-center">
+                <a
+                  href={site.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={close}
+                  aria-label="Instagram"
+                  className={social}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+                  </svg>
+                </a>
+                <a
+                  href={site.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={close}
+                  aria-label="Facebook"
+                  className={social}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                  </svg>
+                </a>
+              </div>
               <LangToggle lang={lang} className="text-sm" />
             </div>
           </div>

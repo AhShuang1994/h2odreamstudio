@@ -98,6 +98,16 @@ export function Footer({ lang }: { lang: Lang }) {
                     Instagram
                   </a>
                 </li>
+                <li>
+                  <a
+                    href={site.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-ink-muted hover:text-ink"
+                  >
+                    Facebook
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
