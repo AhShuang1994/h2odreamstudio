@@ -192,6 +192,20 @@ describe("小帐本 · Apple Pay 收件箱", () => {
       expect(back.apSeen).toEqual(s.apSeen);
     });
 
+    it("转寄地址重开 app 之后还在；地址坏掉只丢地址，收件箱留着（ADR-0004）", async () => {
+      const s = L.defaultState();
+      const kp = await generateKeyPair();
+      L.setInbox(s, { id: "box", read: "r", write: "w", priv: kp.priv });
+      L.setMailAddress(s, "mb+abcdefghijklmnopqrst@h2o-dreamer-studio.com");
+      expect(L.migrate(JSON.parse(JSON.stringify(s))).inbox.mail).toBe("mb+abcdefghijklmnopqrst@h2o-dreamer-studio.com");
+
+      const broken = L.migrate({ currency: "SGD", inbox: { ...s.inbox, mail: 42 } });
+      expect(broken.inbox.id).toBe("box");
+      expect(broken.inbox).not.toHaveProperty("mail");
+
+      expect(() => L.setMailAddress(s, "not an address")).toThrow();
+    });
+
     it("旧资料没有这些字段：一律是空的，不开启", () => {
       const s = L.migrate({ currency: "SGD", records: [] });
       expect(s).toMatchObject({ inbox: null, cardMap: {}, apPending: [], apSeen: [] });

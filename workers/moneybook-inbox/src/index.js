@@ -8,6 +8,7 @@
  */
 
 import * as db from "./db.js";
+import { readMail } from "./mail.js";
 import { b64url, importPublicKey, seal } from "./seal.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -29,9 +30,22 @@ const limits = (env) => ({
 /** 银行邮件正文截到这么多字（ADR-0003）：交易资料都在开头，后面是免责声明 */
 const MAIL_BODY_CHARS = 8000;
 
+/**
+ * 转寄地址（ADR-0004）：`mb+<别名>@MAIL_DOMAIN`。Email Routing 开了子地址，`mb@` 这条规则
+ * 就接得到所有 `mb+…@`。别名 20 个 base32 小写字（100 bit），只用小写：邮件地址在路上可能被转大小写。
+ */
+const MAIL_LOCAL = "mb";
+const ALIAS_RE = /^mb\+([a-z2-7]{20})@/;
+/** 一封转寄进来的信原文最大多少。银行通知都很小，大的多半是图片附件或垃圾 */
+const MAX_RAW_MAIL = 256 * 1024;
+
 /* ---------- 小工具 ---------- */
 
 const randomToken = (n) => b64url(crypto.getRandomValues(new Uint8Array(n)));
+
+const BASE32 = "abcdefghijklmnopqrstuvwxyz234567";
+/** 20 个 base32 字：每个字取一个随机 byte 的低 5 bit，32 整除 256，没有偏差 */
+const randomAlias = () => [...crypto.getRandomValues(new Uint8Array(20))].map((b) => BASE32[b & 31]).join("");
 
 async function sha256(text) {
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
@@ -91,6 +105,22 @@ function parseJson(text) {
     return null;
   }
 }
+
+/**
+ * 一笔明文进库：先过待同步与每日上限，再当场封起来。快捷指令投的与转寄进来的都走这里，
+ * 两条路的限制才会一模一样。超过上限返回错误代码，放进去了返回 null。
+ */
+async function store(env, inbox, plain, iso) {
+  const L = limits(env);
+  if ((await db.countPending(env.DB, inbox.id)) >= L.pending) return "inbox_full";
+  if (!(await db.takeDayQuota(env.DB, inbox.id, iso.slice(0, 10), L.perDay))) return "too_many";
+  const sealed = await seal(JSON.parse(inbox.pubkey), plain);
+  await db.insertItem(env.DB, { id: randomToken(12), inboxId: inbox.id, now: iso, ...sealed });
+  return null;
+}
+
+/** 邮件的三个字段一律截短，快捷指令投的与转寄进来的截法相同 */
+const clipMail = (m) => ({ from: clip(m.from, 200), subject: clip(m.subject, 300), body: clip(m.body, MAIL_BODY_CHARS) });
 
 /** 读钥匙对不对。收件箱不存在与钥匙不对回同一个 404：不让人拿来探测哪些 id 存在。 */
 async function authRead(env, id, request) {
@@ -152,7 +182,7 @@ export async function handle(request, env, now = new Date()) {
   const id = parts[1];
 
   // 投递：快捷指令用。写钥匙在路径里，所以连接码就是一整条网址，贴一次就好
-  if (request.method === "POST" && parts.length === 3 && parts[2] !== "ack") {
+  if (request.method === "POST" && parts.length === 3 && parts[2] !== "ack" && parts[2] !== "mail") {
     const inbox = await db.getInbox(env.DB, id);
     if (!inbox || !sameHash(await sha256(parts[2]), inbox.write_hash)) {
       return json({ error: "not_found" }, 404);
@@ -167,10 +197,7 @@ export async function handle(request, env, now = new Date()) {
 
     let plain;
     if (mail) {
-      plain = {
-        t: clip(body.t, 40) || iso,
-        mail: { from: clip(mail.from, 200), subject: clip(mail.subject, 300), body: clip(mail.body, MAIL_BODY_CHARS) },
-      };
+      plain = { t: clip(body.t, 40) || iso, mail: clipMail(mail) };
       if (!plain.mail.subject && !plain.mail.body) return json({ error: "bad_request" }, 400);
     } else {
       const amount = clip(body?.amount, 40);
@@ -178,14 +205,8 @@ export async function handle(request, env, now = new Date()) {
       plain = { t: clip(body.t, 40) || iso, amount, merchant: clip(body.merchant, 80), card: clip(body.card, 80) };
     }
 
-    if ((await db.countPending(env.DB, id)) >= L.pending) return json({ error: "inbox_full" }, 429);
-    if (!(await db.takeDayQuota(env.DB, id, iso.slice(0, 10), L.perDay))) {
-      return json({ error: "too_many" }, 429);
-    }
-
-    const sealed = await seal(JSON.parse(inbox.pubkey), plain);
-    await db.insertItem(env.DB, { id: randomToken(12), inboxId: id, now: iso, ...sealed });
-    return json({ ok: true }, 200);
+    const full = await store(env, inbox, plain, iso);
+    return full ? json({ error: full }, 429) : json({ ok: true }, 200);
   }
 
   // 以下都要读钥匙：只有那台手机上的小帐本拿得到
@@ -210,12 +231,42 @@ export async function handle(request, env, now = new Date()) {
     return json({ deleted }, 200, cors);
   }
 
+  // 要一个转寄地址（ADR-0004）。再要一次就换新的，旧的随即失效：地址外流时的补救办法
+  if (request.method === "POST" && parts[2] === "mail" && parts.length === 3) {
+    const domain = String(env.MAIL_DOMAIN ?? "").trim();
+    if (!domain) return json({ error: "not_found" }, 404, cors);
+    const alias = randomAlias();
+    await db.setMailHash(env.DB, id, await sha256(alias));
+    return json({ address: `${MAIL_LOCAL}+${alias}@${domain}` }, 200, cors);
+  }
+
   if (request.method === "DELETE" && parts.length === 2) {
     await db.deleteInbox(env.DB, id);
     return json(null, 204, cors);
   }
 
   return json({ error: "not_found" }, 404, cors);
+}
+
+/**
+ * Email Routing 交来的一封信（ADR-0004）：认出是哪个收件箱，读成文字，跟快捷指令投的一样封起来。
+ *
+ * 认不得的地址、太大的信、收件箱满了都退信（setReject）：Gmail 会收到退信通知，
+ * 使用者才知道这条路断了，而不是银行邮件静静消失。
+ */
+export async function receiveMail(message, env, now = new Date()) {
+  const iso = now.toISOString();
+  const hit = ALIAS_RE.exec(String(message.to ?? "").toLowerCase());
+  const inbox = hit && (await db.getInboxByMail(env.DB, await sha256(hit[1])));
+  if (!inbox) return message.setReject("Unknown address");
+  if (message.rawSize > MAX_RAW_MAIL) return message.setReject("Message too large");
+
+  const m = await readMail(message.raw);
+  const plain = { t: clip(m.t, 40) || iso, mail: clipMail(m) };
+  if (!plain.mail.subject && !plain.mail.body) return message.setReject("Empty message");
+
+  const full = await store(env, inbox, plain, iso);
+  if (full) message.setReject("Inbox full");
 }
 
 export async function runSweep(env, now = new Date()) {
@@ -235,6 +286,16 @@ export default {
       // 只记错误本身，绝不记请求内容
       console.error(`moneybook-inbox 挂了：${err.message}`);
       return json({ error: "internal" }, 500, allowedOrigin(request, env));
+    }
+  },
+
+  async email(message, env) {
+    try {
+      await receiveMail(message, env);
+    } catch (err) {
+      // 同 fetch：只记错误本身，绝不记信的内容
+      console.error(`moneybook-inbox 收信挂了：${err.message}`);
+      message.setReject("Temporary failure");
     }
   },
 
