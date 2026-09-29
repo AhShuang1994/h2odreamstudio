@@ -6,10 +6,12 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
-import { handle, runSweep } from "../src/index.js";
+import { handle, receiveMail, runSweep } from "../src/index.js";
 import { freshDb, rows, dump } from "./helpers/d1.js";
 import { generateKeyPair, open } from "../../../public/app/moneybook/inbox-crypto.js";
+import { parseBankMail } from "../../../public/app/moneybook/ledger.js";
 
 const ORIGIN = "https://www.h2o-dreamer-studio.com";
 const BASE = "https://inbox.test";
@@ -22,6 +24,7 @@ const env = (DB, extra = {}) => ({
   MAX_ITEMS_PER_DAY: "300",
   MAX_PENDING: "500",
   MAX_BODY_BYTES: "1024",
+  MAIL_DOMAIN: "h2o-dreamer-studio.com",
   ...extra,
 });
 
@@ -224,6 +227,139 @@ test("银行邮件的上限不放宽刷卡投递：刷卡仍然只收 1 KB", asy
   const e = env(DB, { MAX_MAIL_BYTES: "16384" });
   const box = await openInbox(e);
   assert.equal((await post(e, box, { ...swipe, merchant: "x".repeat(2000) })).status, 413);
+});
+
+/* ---------- 转寄地址：Gmail 过滤器把银行邮件转进来（ADR-0004） ---------- */
+
+const DBS_BODY = JSON.parse(readFileSync(new URL("../../../test/moneybook/fixtures/bank-mail/dbs-card-spend.json", import.meta.url), "utf8")).mail.body;
+
+/** 一封 MIME 原文。html 为真时只有 HTML 部分：很多银行只寄 HTML */
+function mime({ subject = "Card Transaction Alert", body = DBS_BODY, html = false, from = "DBS Alerts <ibanking.alert@dbs.com>" } = {}) {
+  return [
+    `From: ${from}`,
+    "To: someone@gmail.com",
+    `Subject: ${subject}`,
+    "Date: Tue, 29 Sep 2026 09:05:00 +0800",
+    "MIME-Version: 1.0",
+    `Content-Type: text/${html ? "html" : "plain"}; charset=utf-8`,
+    "",
+    body,
+  ].join("\r\n");
+}
+
+/** 冒充 Cloudflare 交给 email() 的那封信。rejected 记下被退信的原因 */
+function inbound(to, raw) {
+  const rejected = [];
+  return {
+    to,
+    from: "bounces+srs@gmail.com",
+    rawSize: new TextEncoder().encode(raw).length,
+    raw: new Blob([raw]).stream(),
+    headers: new Headers(),
+    setReject: (why) => rejected.push(why),
+    rejected,
+  };
+}
+
+async function mailAddress(e, box, token = box.read) {
+  return handle(req("POST", `/i/${box.id}/mail`, { token }), e, NOW);
+}
+
+test("转寄地址：只有读钥匙拿得到，库里只存哈希，再要一次就换新的", async () => {
+  const DB = freshDb();
+  const e = env(DB);
+  const box = await openInbox(e);
+
+  assert.equal((await mailAddress(e, box, box.write)).status, 404, "写钥匙拿不到");
+  const res = await mailAddress(e, box);
+  assert.equal(res.status, 200);
+  const { address } = await res.json();
+  assert.match(address, /^mb\+[a-z2-7]{20}@h2o-dreamer-studio\.com$/);
+  const alias = address.slice(3, 23);
+  assert.ok(!dump(DB).includes(alias), "地址原文不该落库");
+
+  const again = (await (await mailAddress(e, box)).json()).address;
+  assert.notEqual(again, address);
+  const old = inbound(address, mime());
+  await receiveMail(old, e, NOW);
+  assert.equal(old.rejected.length, 1, "换过之后旧地址退信");
+  assert.equal(rows(DB, "SELECT * FROM items").length, 0);
+});
+
+test("转寄地址：没设 MAIL_DOMAIN 就不发地址", async () => {
+  const DB = freshDb();
+  const e = env(DB, { MAIL_DOMAIN: "" });
+  const box = await openInbox(e);
+  assert.equal((await mailAddress(e, box)).status, 404);
+});
+
+test("转寄进来的邮件：封起来落库，解封后跟快捷指令投的一样，而且小帐本读得懂", async () => {
+  const DB = freshDb();
+  const e = env(DB);
+  const box = await openInbox(e);
+  const { address } = await (await mailAddress(e, box)).json();
+
+  const msg = inbound(address, mime());
+  await receiveMail(msg, e, NOW);
+  assert.deepEqual(msg.rejected, []);
+
+  const all = dump(DB);
+  for (const plain of ["BUS/MRT", "SGD3.64", "dbs.com", "Card Transaction"]) {
+    assert.ok(!all.includes(plain), `库里不该出现明文：${plain}`);
+  }
+  const [item] = await pull(e, box);
+  const got = await open(box.priv, item);
+  assert.equal(got.t, "2026-09-29T01:05:00.000Z", "用邮件自己的时间");
+  assert.equal(got.mail.from, "DBS Alerts <ibanking.alert@dbs.com>", "用信头的寄件人，不是 Gmail 转寄时的信封地址");
+  assert.equal(got.mail.subject, "Card Transaction Alert");
+  assert.deepEqual(parseBankMail(got.mail), { bank: "DBS", direction: "out", amount: 3.64, currency: "SGD", merchant: "BUS/MRT" });
+});
+
+test("转寄进来的邮件：只有 HTML 也读得出一行一行的文字", async () => {
+  const DB = freshDb();
+  const e = env(DB);
+  const box = await openInbox(e);
+  const { address } = await (await mailAddress(e, box)).json();
+
+  const html = `<html><head><style>td{color:red}</style></head><body>
+    <p>Card Transaction Alert</p>
+    <table><tr><td>Amount:</td><td>SGD3.64</td></tr>
+    <tr><td>To:</td><td>BUS&#47;MRT &amp; more</td></tr></table>
+    <p>Dear&nbsp;Sir<br>Thank you</p></body></html>`;
+  await receiveMail(inbound(address, mime({ html: true, body: html })), e, NOW);
+  const [item] = await pull(e, box);
+  const { body } = (await open(box.priv, item)).mail;
+  assert.match(body, /^Amount: SGD3\.64$/m);
+  assert.match(body, /^To: BUS\/MRT & more$/m);
+  assert.ok(!body.includes("<") && !body.includes("color:red"), "标签与样式都去掉");
+});
+
+test("转寄进来的邮件：不认得的地址、太大的信一律退信，库里什么都没有", async () => {
+  const DB = freshDb();
+  const e = env(DB);
+  const box = await openInbox(e);
+  const { address } = await (await mailAddress(e, box)).json();
+
+  for (const to of ["mb@h2o-dreamer-studio.com", "mb+aaaaaaaaaaaaaaaaaaaa@h2o-dreamer-studio.com", "huihuang@h2o-dreamer-studio.com"]) {
+    const m = inbound(to, mime());
+    await receiveMail(m, e, NOW);
+    assert.equal(m.rejected.length, 1, to);
+  }
+  const big = inbound(address, mime({ body: "x".repeat(300 * 1024) }));
+  await receiveMail(big, e, NOW);
+  assert.equal(big.rejected.length, 1, "超过上限");
+  assert.equal(rows(DB, "SELECT * FROM items").length, 0);
+});
+
+test("转寄进来的邮件：地址大小写不同也认得（有的寄件端会把它转成大写）", async () => {
+  const DB = freshDb();
+  const e = env(DB);
+  const box = await openInbox(e);
+  const { address } = await (await mailAddress(e, box)).json();
+  const m = inbound(address.toUpperCase(), mime());
+  await receiveMail(m, e, NOW);
+  assert.deepEqual(m.rejected, []);
+  assert.equal(rows(DB, "SELECT * FROM items").length, 1);
 });
 
 test("投递：每天上限与待同步上限", async () => {

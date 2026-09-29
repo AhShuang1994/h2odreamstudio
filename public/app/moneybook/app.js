@@ -1065,13 +1065,12 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     save(); resetEntry(); renderMore(); toast('已清除');
   });
 
-  // ── 收件箱：银行邮件自动记帐（ADR-0002、ADR-0003）────
-  // 快捷指令在刷卡当下把这一笔投进收件箱，Worker 当场用这台手机的公钥封起来。
+  // ── 收件箱：银行邮件自动记帐（ADR-0002、ADR-0003、ADR-0004）────
+  // Gmail 把银行邮件转到这个收件箱的转寄地址，Worker 当场用这台手机的公钥封起来。
   // 这里拉回来、解封、交给 ledger 记帐，存好了才请服务器删掉。
   let syncing = false;
   let inboxGoneWarned = false;
 
-  const connectCode = () => state.inbox ? `${INBOX_API}/i/${state.inbox.id}/${state.inbox.write}` : '';
   const authHeader = inbox => ({ Authorization: `Bearer ${inbox.read}` });
 
   async function syncInbox() {
@@ -1275,7 +1274,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     if (!state.inbox) {
       el.innerHTML = `<div class="card">
         <b>银行寄来的交易邮件，自动记进小帐本</b>
-        <p>刷卡、PayNow、PayLah! 付完钱，银行会寄一封通知邮件。iPhone 收到这封邮件时，快捷指令把它交给小帐本，打开就已经记好。</p>
+        <p>刷卡、PayNow、PayLah! 付完钱，银行会寄一封通知邮件。Gmail 收到时自动转给小帐本，打开就已经记好。</p>
         <p>还没同步的邮件会<b>加密</b>后暂放在服务器，只有这台手机解得开，同步后随即删掉。帐本本身不会离开这台手机。</p>
         <div class="btns"><button class="primary" id="btn-ap-on">开启</button></div>
       </div>`;
@@ -1284,34 +1283,28 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     const mapped = Object.entries(state.cardMap);
     el.innerHTML = `<div class="card">
       <b>已开启</b>
-      <p>先复制连接码，下面第 4 步要贴。它等于这个收件箱的钥匙，别贴到别处。</p>
-      <input type="text" class="code" id="ap-code" readonly value="${esc(connectCode())}" aria-label="连接码" />
-      <div class="btns"><button class="primary" id="btn-ap-copy">复制连接码</button></div>
+      ${state.inbox.mail ? `<p>这是你的转寄地址，下面第 1 步要贴。别人拿到它就能往帐里塞假记录，别贴到别处。</p>
+      <input type="text" class="code" id="ap-mail" readonly value="${esc(state.inbox.mail)}" aria-label="转寄地址" />
+      <div class="btns"><button class="primary" id="btn-ap-copy">复制转寄地址</button></div>
       <details class="ap-steps">
-        <summary>设置步骤（iPhone，只做一次）</summary>
-        <p class="muted small">要先确定：银行每笔交易都会寄邮件给你，而且这个邮箱在 iPhone 自带的「邮件（Mail）」app 里收得到。</p>
+        <summary>设置步骤（Gmail，只做一次）</summary>
+        <p class="muted small">要用<b>电脑</b>打开 gmail.com 来设，Gmail 手机 app 做不了过滤器。</p>
         <ol>
-          <li>打开「快捷指令（Shortcuts）」app，点下面的「自动化（Automation）」，再点右上角「+」。</li>
-          <li>选「电子邮件（Email）」。「发件人（Sender）」填下面表里的地址，选「立即运行（Run Immediately）」，点「下一步（Next）」。</li>
-          <li>点「新建空白自动化（New Blank Automation）」→「添加操作（Add Action）」，搜「获取 URL 内容（Get Contents of URL）」，点它。</li>
-          <li>「URL」那里贴上连接码。</li>
-          <li>点这个动作的 ›「显示更多（Show More）」：「方法（Method）」选 <b>POST</b>，「请求体（Request Body）」选 <b>JSON</b>。</li>
-          <li>「添加新字段（Add new field）」→ 选「词典（Dictionary）」，键（Key）填 <code>mail</code>。它右边会写「0 项（0 items）」。</li>
-          <li><b>点「0 项（0 items）」</b>，会换到一个新画面，那是 <code>mail</code> 的<b>里面</b>。在这个画面加三个「文本（Text）」字段，值都是插入「快捷指令输入（Shortcut Input）」，再点它一下选：
-            <br><code>from</code> →「发件人（Sender）」
-            <br><code>subject</code> →「主题（Subject）」
-            <br><code>body</code> →「内容（Content）」
-            <br>⚠️ 这三个要加在 <code>mail</code> 里面。在外面按「添加新字段」加的话，它们会跟 <code>mail</code> 并排，银行邮件就送不进来。</li>
-          <li>回到上一个画面检查：「请求体」下面<b>只有 <code>mail</code> 一行</b>，右边写「3 项（3 items）」。如果看到 <code>from</code>、<code>subject</code>、<code>body</code> 跟 <code>mail</code> 排在一起，就是加错地方了，删掉，回到第 7 步重加。</li>
-          <li>点「完成（Done）」。</li>
+          <li>右上角齿轮 →「查看所有设置（See all settings）」→「转发和 POP/IMAP（Forwarding and POP/IMAP）」→「添加转发地址（Add a forwarding address）」，贴上转寄地址，一路按「下一步」「继续」。</li>
+          <li>Gmail 会寄一封确认信到这个地址。等一两分钟，打开小帐本：它会出现在记帐页的「认不得的银行邮件」，标题开头括号里那串数字就是<b>确认码（confirmation code）</b>。</li>
+          <li>回到 Gmail 那一页，把确认码填进去，按「验证（Verify）」。<b>上面那个选项保持「停用转发（Disable forwarding）」</b>：我们只转银行的邮件，不是全部。然后按最下面「保存更改（Save Changes）」。</li>
+          <li>回到收件箱，搜索框右边的「显示搜索选项」图示。「发件人（From）」填：
+            <br><code>${esc(MAIL_SENDERS.map(([addr]) => addr).join(" OR "))}</code>
+            <br>按「创建过滤器（Create filter）」，勾「转发至（Forward it to）」，选你的转寄地址，再按「创建过滤器」。</li>
         </ol>
-        <p class="muted small"><b>别按 ▶ 测试。</b>手动运行时没有邮件，送出去的是空的，一定显示失败。要等银行真的寄一封邮件来才算数。</p>
-        <p class="muted small"><b>第一次真的跑时像卡住了？</b>iOS 在问你要不要允许把邮件内容传出去，可是自动化在后台跑，你看不到那个问题。打开「快捷指令」app，选「始终允许（Always Allow）」。也可以先到「设置 → App → 快捷指令 → 高级（Advanced）」打开「允许共享大量数据（Allow Sharing Large Amounts of Data）」。</p>
-        <p class="muted small"><b>每个发件人建一个自动化</b>，第 2 步换地址，其余一模一样：</p>
-        ${MAIL_SENDERS.map(([addr, what]) => `<div class="cat-row"><i>✉️</i><span><code>${esc(addr)}</code><br><small class="muted">${esc(what)}</small></span></div>`).join('')}
+        <p class="muted small">回到小帐本，那封确认信可以按「删掉」。之后银行每寄一封交易邮件，Gmail 就会自动转过来，打开小帐本就已经记好。</p>
+        <p class="muted small"><b>以前在 iPhone 建过「电子邮件」自动化的，删掉它。</b>那条路拿不到邮件正文，而且两条都开着，同一封信会进来两次。</p>
+        <p class="muted small">过滤器会转的寄件人：</p>
+        ${MAIL_SENDERS.map(([addr, what]) => `<div class="cat-row"><i>✉️</i><span><code>${esc(addr)}</code><br><small class="muted">${esc(what)}</small></span></div>`).join("")}
         <p class="muted small">之后每家银行、每种付款第一次出现时，记帐页会问一次记在哪一侧、是不是信用卡。</p>
         <p class="muted small">接不到的：只推送通知、不寄邮件的付款（TNG eWallet 之类），还是要手记。小帐本还不会读的邮件会出现在记帐页的「认不得的银行邮件」，点「复制内容」发给开发者就能补上。</p>
-      </details>
+      </details>` : `<p>下一步：拿一个转寄地址。Gmail 会把银行的交易邮件自动转到这个地址，再进小帐本。</p>
+      <div class="btns"><button class="primary" id="btn-ap-mail">取得转寄地址</button></div>`}
       ${mapped.length ? `<p class="muted small" style="margin-top:12px">已对应的卡</p>
         ${mapped.map(([name, m]) => `<div class="cat-row"><i>💳</i>
           <span>${esc(name || '未知的卡')} · ${esc(m.currency)}${m.card ? ' · 信用卡' : ''}</span>
@@ -1325,13 +1318,14 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     const t = e.target;
     if (t.closest('#btn-ap-on')) return enableInbox(t.closest('button'));
     if (t.closest('#btn-ap-off')) return disableInbox();
+    if (t.closest('#btn-ap-mail')) return requestMailAddress(t.closest('button'));
     if (t.closest('#btn-ap-copy')) {
       try {
-        await navigator.clipboard.writeText(connectCode());
-        toast('已复制连接码');
+        await navigator.clipboard.writeText(state.inbox.mail);
+        toast('已复制转寄地址');
       } catch {
-        $('#ap-code').select();
-        toast('复制不了，请长按连接码手动复制');
+        $('#ap-mail').select();
+        toast('复制不了，请长按转寄地址手动复制');
       }
       return;
     }
@@ -1358,15 +1352,35 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       const { id, read, write } = await res.json();
       L.setInbox(state, { id, read, write, priv: kp.priv });
       inboxGoneWarned = false;
-      save(); renderApSettings(); toast('已开启，下一步：复制连接码');
+      save(); renderApSettings();
     } catch (err) {
       toast('开启失败：' + err.message);
       btn.disabled = false;
+      return;
+    }
+    // 开完顺手要地址，使用者少按一次。失败的话画面上还有「取得转寄地址」可以再按
+    await requestMailAddress();
+  }
+
+  /** 跟 Worker 要一个转寄地址（ADR-0004）。老使用者的收件箱开的时候还没有这回事，也从这里补 */
+  async function requestMailAddress(btn) {
+    const inbox = state.inbox;
+    if (!inbox) return;
+    if (!navigator.onLine) return toast('要联网才能取得转寄地址');
+    if (btn) btn.disabled = true;
+    try {
+      const res = await fetch(`${INBOX_API}/i/${inbox.id}/mail`, { method: 'POST', headers: authHeader(inbox) });
+      if (!res.ok) throw new Error('服务器没有回应');
+      L.setMailAddress(state, (await res.json()).address);
+      save(); renderApSettings(); toast('下一步：复制转寄地址，照着步骤设 Gmail');
+    } catch (err) {
+      toast('取得转寄地址失败：' + err.message);
+      if (btn) btn.disabled = false;
     }
   }
 
   async function disableInbox() {
-    if (!confirm('关闭后收件箱会被删掉，快捷指令随之失效。还没同步的邮件会先拉回来。确定关闭？')) return;
+    if (!confirm('关闭后收件箱会被删掉，转寄地址随之失效。还没同步的邮件会先拉回来。确定关闭？')) return;
     await syncInbox();
     const inbox = state.inbox;
     if (!inbox) return;

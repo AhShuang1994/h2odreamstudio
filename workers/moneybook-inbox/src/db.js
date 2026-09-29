@@ -34,6 +34,15 @@ export async function getInbox(db, id) {
   return db.prepare("SELECT * FROM inboxes WHERE id = ?").bind(id).first();
 }
 
+/** 换一个转寄地址：写进新别名的哈希，旧的那个随即失效。 */
+export async function setMailHash(db, id, hash) {
+  await db.prepare("UPDATE inboxes SET mail_hash = ? WHERE id = ?").bind(hash, id).run();
+}
+
+export async function getInboxByMail(db, hash) {
+  return db.prepare("SELECT * FROM inboxes WHERE mail_hash = ?").bind(hash).first();
+}
+
 /**
  * 今天还能不能再投一笔。能的话计数 +1。
  * 换日就从 1 重新算：一条 UPDATE 做完判断与计数，两个请求同时到也不会多放一笔。

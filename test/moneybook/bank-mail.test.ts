@@ -233,6 +233,22 @@ describe("小帐本 · 银行交易邮件", () => {
       expect(L.parseBankMail({ ...paylah.mail, body })).toEqual({ bank: "DBS PayLah!", direction: "in" });
     });
 
+    it("Gmail 的转发确认信进认不得清单，不被当成验证码略过：使用者要从这里抄确认码（ADR-0004）", () => {
+      const s = L.defaultState();
+      L.receiveInbox(s, [{
+        id: "g1",
+        receivedAt: "2026-09-29T02:00:00.000Z",
+        mail: {
+          from: "Gmail Team <forwarding-noreply@google.com>",
+          subject: "(#123456789) Gmail Forwarding Confirmation - Receive Mail from someone@gmail.com",
+          body: "someone@gmail.com has requested to automatically forward mail to your email address.\nConfirmation code: 123456789",
+        },
+      }], "2026-09-29");
+      expect(s.apUnparsed).toHaveLength(1);
+      expect(s.apUnparsed[0].subject).toContain("123456789");
+      expect(s.apUnparsed[0].body).toContain("Confirmation code: 123456789");
+    });
+
     it("每家银行的规则都至少有一封消费样本", () => {
       for (const rule of L.BANK_RULES) {
         const has = samples.some(s => s.expect?.bank === rule.bank && s.expect.direction === "out");

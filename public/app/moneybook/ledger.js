@@ -193,8 +193,14 @@ function sanitizeInbox(raw) {
   const p = raw.priv;
   if (![raw.id, raw.read, raw.write].every(isStr)) return null;
   if (!p || p.kty !== 'EC' || p.crv !== 'P-256' || ![p.x, p.y, p.d].every(isStr)) return null;
-  return { id: raw.id, read: raw.read, write: raw.write, priv: { kty: 'EC', crv: 'P-256', x: p.x, y: p.y, d: p.d } };
+  const inbox = { id: raw.id, read: raw.read, write: raw.write, priv: { kty: 'EC', crv: 'P-256', x: p.x, y: p.y, d: p.d } };
+  // 转寄地址（ADR-0004）同样要显式救援，不然重开 app 就不见了。它坏掉只丢它自己：
+  // 钥匙还在，再要一个地址就好，犯不着把整个收件箱赔进去
+  if (isMailAddress(raw.mail)) inbox.mail = raw.mail;
+  return inbox;
 }
+
+const isMailAddress = v => typeof v === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 function sanitizeCardMap(raw) {
   const out = {};
@@ -1283,6 +1289,14 @@ export function setInbox(state, { id, read, write, priv }) {
   const inbox = sanitizeInbox({ id, read, write, priv });
   if (!inbox) throw new Error('收件箱资料不完整');
   state.inbox = inbox;
+  return state;
+}
+
+/** 记下 Worker 发的转寄地址（ADR-0004）：Gmail 过滤器把银行邮件转到这里。 */
+export function setMailAddress(state, address) {
+  if (!state.inbox) throw new Error('收件箱还没开启');
+  if (!isMailAddress(address)) throw new Error('转寄地址格式不对');
+  state.inbox.mail = address;
   return state;
 }
 
