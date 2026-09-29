@@ -81,14 +81,17 @@ const call = (db, method, path, body, headers = { "Content-Type": "application/j
     {},
   );
 
+// 每条建议都是实验，栏位细节见 experiments.test.js
+const exp = { hypothesis: "h", metric: "m", baseline: "b", check_weeks: 4 };
+
 const report = {
   kind: "weekly",
   period_start: "2026-09-21",
   period_end: "2026-09-27",
   body: "上周 WhatsApp 点击 3 次。",
   suggestions: [
-    { title: "登记 Google 商家资料", detail: "本地搜索排最前的是地图结果。" },
-    { title: "请 3 位老客户留评论", detail: "" },
+    { title: "登记 Google 商家资料", detail: "本地搜索排最前的是地图结果。", ...exp },
+    { title: "请 3 位老客户留评论", detail: "", ...exp },
   ],
 };
 

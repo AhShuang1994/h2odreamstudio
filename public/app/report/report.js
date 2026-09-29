@@ -35,6 +35,9 @@ function el(tag, attrs = {}, ...children) {
   return node;
 }
 
+/** node.append(null) 会印出 "null"，没有内容的那格要先滤掉 */
+const appendAll = (node, ...children) => node.append(...children.filter((c) => c != null));
+
 async function api(path, init) {
   const res = await fetch(`${API}${path}`, { credentials: "same-origin", ...init });
   if (res.status === 403) throw new Error("登录过期了，重新整理页面再登录一次。");
@@ -352,6 +355,19 @@ function reportBody(text) {
 
 const STATUS_TEXT = { done: "✓ 做了", skipped: "✕ 不做", open: "" };
 
+/** 实验的四样：猜想、看哪个数字、做之前、几周后检查。旧建议没有，就不显示 */
+function experimentMeta(s) {
+  if (!s.hypothesis) return null;
+  return el(
+    "div",
+    { class: "exp" },
+    el("p", {}, `猜想：${s.hypothesis}`),
+    el("p", {}, `看：${s.metric} · 做之前：${s.baseline} · 做了 ${s.check_weeks} 周后检查`),
+  );
+}
+
+const ownerTag = (s) => (s.source === "owner" ? el("span", { class: "tag" }, "你自己做的") : null);
+
 function suggestion(s) {
   const li = el("li", { "data-status": s.status });
   const badge = el("span", { class: "badge" }, STATUS_TEXT[s.status]);
@@ -366,6 +382,7 @@ function suggestion(s) {
       });
       s.status = status;
       li.replaceWith(suggestion(s));
+      loadExperiments(); // 按了「做了」就开始计时，实验记录要跟着变
     } catch (err) {
       showAlert(err.message);
       buttons.forEach((b) => (b.disabled = false));
@@ -375,12 +392,76 @@ function suggestion(s) {
     s.status === "open"
       ? [el("button", { onclick: set("done") }, "做了"), el("button", { onclick: set("skipped") }, "不做")]
       : [badge, el("button", { onclick: set("open") }, "撤销")];
-  li.append(
-    el("div", { class: "title" }, s.title),
+  appendAll(
+    li,
+    el("div", { class: "title" }, s.title, ownerTag(s)),
     s.detail ? el("div", { class: "detail" }, s.detail) : null,
+    experimentMeta(s),
     el("div", { class: "actions" }, actions),
   );
   return li;
+}
+
+// ── 实验记录 ─────────────────────────────────────────────────────────
+
+const RESULT_TEXT = {
+  effective: "▲ 有效",
+  ineffective: "▼ 无效",
+  unclear: "— 看不出",
+  due: "到期了，等 Claude 下次报告判",
+  running: "进行中",
+};
+
+function experimentItem(e) {
+  const state = e.result ?? (e.due ? "due" : "running");
+  const li = el("li");
+  // Claude 判的，阿爽不同意可以改判
+  const judge = (result) => async () => {
+    li.querySelectorAll("button").forEach((b) => (b.disabled = true));
+    try {
+      await api(`/suggestions/${e.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ result, note: e.result_note ?? undefined }),
+      });
+      loadExperiments();
+    } catch (err) {
+      showAlert(err.message);
+      li.querySelectorAll("button").forEach((b) => (b.disabled = false));
+    }
+  };
+  appendAll(
+    li,
+    el("div", { class: "title" }, e.title, ownerTag(e)),
+    el("div", { class: "exp" }, el("p", {}, `开始 ${e.started_on} · 检查 ${e.check_on}`)),
+    experimentMeta(e),
+    el("div", { class: "actions" }, el("span", { class: "result", "data-result": state }, RESULT_TEXT[state])),
+    e.result_note ? el("div", { class: "detail" }, e.result_note) : null,
+    e.result
+      ? el(
+          "div",
+          { class: "actions" },
+          el("span", { class: "badge" }, "改判："),
+          ["effective", "ineffective", "unclear"].map((r) =>
+            el("button", { "aria-pressed": String(r === e.result), onclick: judge(r) }, RESULT_TEXT[r]),
+          ),
+        )
+      : null,
+  );
+  return li;
+}
+
+function renderExperiments({ summary, items }) {
+  const judged = summary.effective + summary.ineffective + summary.unclear;
+  $("exp-summary").textContent = items.length
+    ? `有效 ${summary.effective} · 无效 ${summary.ineffective} · 看不出 ${summary.unclear} · 进行中 ${summary.running}` +
+      (judged ? ` · 有效率 ${Math.round((summary.effective / judged) * 100)}%（${judged} 个里）` : "")
+    : "还没有实验。在上面的建议按「做了」，就开始计时。";
+  $("exp-list").replaceChildren(...items.map(experimentItem));
+}
+
+function loadExperiments() {
+  api("/experiments").then(renderExperiments).catch((err) => showAlert(err.message));
 }
 
 const KIND = { weekly: "周报", monthly: "月报" };
@@ -449,6 +530,7 @@ async function main() {
   }
 
   api("/reports").then(renderReports).catch((err) => showAlert(err.message));
+  loadExperiments();
 
   state.status = await api("/status");
   renderStatus();
