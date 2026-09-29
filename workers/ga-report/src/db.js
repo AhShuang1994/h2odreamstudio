@@ -206,10 +206,18 @@ export async function saveReport(db, { kind, period_start, period_end, body, sug
     .run();
   const id = meta.last_row_id;
   if (suggestions.length) {
+    // 阿爽自己做的事（owner）进来就是「做了」，开始日由 Claude 从清单或 git log 找出来
     await db
       .prepare(
-        `INSERT INTO suggestions (report_id, position, title, detail)
-         SELECT ?, key, json_extract(value, '$.title'), json_extract(value, '$.detail')
+        `INSERT INTO suggestions (report_id, position, title, detail, source, hypothesis, metric,
+                                  baseline, check_weeks, started_on, status, status_at)
+         SELECT ?, key, json_extract(value, '$.title'), json_extract(value, '$.detail'),
+                COALESCE(json_extract(value, '$.source'), 'claude'),
+                json_extract(value, '$.hypothesis'), json_extract(value, '$.metric'),
+                json_extract(value, '$.baseline'), json_extract(value, '$.check_weeks'),
+                json_extract(value, '$.started_on'),
+                CASE json_extract(value, '$.source') WHEN 'owner' THEN 'done' ELSE 'open' END,
+                CASE json_extract(value, '$.source') WHEN 'owner' THEN datetime('now') END
          FROM json_each(?)`,
       )
       .bind(id, JSON.stringify(suggestions))
@@ -218,10 +226,56 @@ export async function saveReport(db, { kind, period_start, period_end, body, sug
   return id;
 }
 
-export async function setSuggestionStatus(db, id, status) {
+/** 按「做了」那天就是实验开始日；撤销或不做，开始日和结果一起清掉 */
+export async function setSuggestionStatus(db, id, status, today) {
   const { meta } = await db
-    .prepare("UPDATE suggestions SET status = ?, status_at = datetime('now') WHERE id = ?")
-    .bind(status, id)
+    .prepare(
+      `UPDATE suggestions SET status = ?1, status_at = datetime('now'),
+         started_on = CASE WHEN ?1 = 'done' THEN COALESCE(started_on, ?2) END,
+         result = CASE WHEN ?1 = 'done' THEN result END,
+         result_note = CASE WHEN ?1 = 'done' THEN result_note END,
+         result_at = CASE WHEN ?1 = 'done' THEN result_at END
+       WHERE id = ?3`,
+    )
+    .bind(status, today, id)
     .run();
   return meta.changes > 0;
+}
+
+// ── 实验 ─────────────────────────────────────────────────────────────
+
+/** 有检查期、而且已经开始的建议才是实验。旧建议没有 check_weeks，不算 */
+const EXPERIMENT = "status = 'done' AND started_on IS NOT NULL AND check_weeks IS NOT NULL";
+
+/** 判结果（Claude 到期判，阿爽不同意也用这个改判）。还没开始的不能判 */
+export async function setSuggestionResult(db, id, result, note) {
+  const { meta } = await db
+    .prepare(
+      `UPDATE suggestions SET result = ?, result_note = ?, result_at = datetime('now')
+       WHERE id = ? AND ${EXPERIMENT}`,
+    )
+    .bind(result, note ?? null, id)
+    .run();
+  if (meta.changes > 0) return "ok";
+  const exists = await db.prepare("SELECT 1 FROM suggestions WHERE id = ?").bind(id).first();
+  return exists ? "not-started" : "missing";
+}
+
+/** 全部实验，新开始的在前；到期 = 开始日 + 检查周数 ≤ 今天，而且还没判 */
+export async function listExperiments(db, today) {
+  const { results } = await db
+    .prepare(
+      `SELECT s.*, r.kind AS report_kind, r.period_start AS report_period_start,
+              date(s.started_on, '+' || (s.check_weeks * 7) || ' days') AS check_on
+       FROM suggestions s JOIN reports r ON r.id = s.report_id
+       WHERE s.status = 'done' AND s.started_on IS NOT NULL AND s.check_weeks IS NOT NULL
+       ORDER BY s.started_on DESC, s.id DESC`,
+    )
+    .all();
+  const items = results.map((e) => ({ ...e, due: !e.result && e.check_on <= today }));
+  const count = (result) => items.filter((e) => e.result === result).length;
+  return {
+    summary: { effective: count("effective"), ineffective: count("ineffective"), unclear: count("unclear"), running: count(null) },
+    items,
+  };
 }

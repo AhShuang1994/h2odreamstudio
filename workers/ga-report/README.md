@@ -27,7 +27,8 @@ Google（GA4 + GSC） ──每天 06:30──▶  Worker ga-report ──▶ D1
 | GET | `/app/report/api/data?from=&to=` | 逐日数字 + 这段期间的排行。加 `&daily=only` 只给逐日数字 |
 | GET | `/app/report/api/reports?limit=` | 报告与建议 |
 | POST | `/app/report/api/reports` | Claude 交报告（格式见 `ROUTINE.md`） |
-| POST | `/app/report/api/suggestions/:id` | `{status: "done" \| "skipped" \| "open"}` |
+| GET | `/app/report/api/experiments` | 已开始的实验、到期没有、成绩（ADR-0010） |
+| POST | `/app/report/api/suggestions/:id` | `{status: "done" \| "skipped" \| "open"}`，或判实验 `{result: "effective" \| "ineffective" \| "unclear", note}` |
 | POST | `/app/report/api/sync` | 立刻同步一次，测试用 |
 
 ## D1 免费额度够不够

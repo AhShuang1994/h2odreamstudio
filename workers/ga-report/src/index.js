@@ -7,10 +7,23 @@
 
 import { verifyAccess } from "./access.js";
 import { runSync } from "./sync.js";
-import { rangeData, status, listReports, saveReport, setSuggestionStatus } from "./db.js";
+import {
+  rangeData,
+  status,
+  listReports,
+  saveReport,
+  setSuggestionStatus,
+  setSuggestionResult,
+  listExperiments,
+} from "./db.js";
 
 const API = "/app/report/api";
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** 马来西亚时间的今天。实验开始日、到期日都用它，跟报告期间同一套 */
+const todayMyt = () => new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+
+const text = (v, max) => typeof v === "string" && v.trim() && v.length <= max;
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -30,6 +43,13 @@ function checkReport(r) {
   for (const s of r.suggestions) {
     if (typeof s?.title !== "string" || !s.title.trim() || s.title.length > 200) return "每条建议的 title 要 1～200 字";
     if (typeof s.detail !== "string" || s.detail.length > 2000) return "每条建议的 detail 最多 2000 字";
+    // 每条建议都是实验（ADR-0010）：少一样就没办法事后验证
+    if (!text(s.hypothesis, 500) || !text(s.metric, 200) || !text(s.baseline, 200)) {
+      return "每条建议都要 hypothesis（≤500 字）、metric、baseline（≤200 字）";
+    }
+    if (!Number.isInteger(s.check_weeks) || s.check_weeks < 1 || s.check_weeks > 26) return "check_weeks 是 1～26 的整数";
+    if (s.source !== undefined && !["claude", "owner"].includes(s.source)) return "source 只能是 claude 或 owner";
+    if (s.source === "owner" && !DATE.test(s.started_on ?? "")) return "owner 的实验要 started_on（YYYY-MM-DD）";
   }
   return null;
 }
@@ -55,6 +75,10 @@ async function route(request, env, ctx) {
     return json(await listReports(env.DB, limit));
   }
 
+  if (method === "GET" && path === "/experiments") {
+    return json(await listExperiments(env.DB, todayMyt()));
+  }
+
   // 下面都是写入。只收 JSON：跨站的表单送不出这种请求，顺带挡掉 CSRF
   if (method === "POST" && !request.headers.get("Content-Type")?.startsWith("application/json")) {
     return json({ error: "只收 application/json" }, 415);
@@ -70,8 +94,20 @@ async function route(request, env, ctx) {
   const m = /^\/suggestions\/(\d+)$/.exec(path);
   if (method === "POST" && m) {
     const body = await request.json().catch(() => null);
+    const id = Number(m[1]);
+
+    // 判实验结果：{ result, note }
+    if (body?.result !== undefined) {
+      if (!["effective", "ineffective", "unclear"].includes(body.result)) return bad("result 只能是 effective / ineffective / unclear");
+      if (body.note !== undefined && (typeof body.note !== "string" || body.note.length > 1000)) return bad("note 最多 1000 字");
+      const outcome = await setSuggestionResult(env.DB, id, body.result, body.note);
+      if (outcome === "missing") return json({ error: "没有这条建议" }, 404);
+      if (outcome === "not-started") return bad("这条还没开始（没按「做了」，或不是实验），不能判");
+      return json({ ok: true });
+    }
+
     if (!["open", "done", "skipped"].includes(body?.status)) return bad("status 只能是 open / done / skipped");
-    const found = await setSuggestionStatus(env.DB, Number(m[1]), body.status);
+    const found = await setSuggestionStatus(env.DB, id, body.status, todayMyt());
     return found ? json({ ok: true }) : json({ error: "没有这条建议" }, 404);
   }
 

@@ -48,6 +48,12 @@ _Avoid_: 摘要、简介、TL;DR
 内容页末尾那段展开式的常见问答（`<details class="faq-item">`）。它是 FAQPage 结构化数据的**唯一来源** —— 标记由 [`scripts/split-content-lang.mjs`](./scripts/split-content-lang.mjs) 在构建期从它生成，中英各一份。Google 禁止用页面上看不到的内容做 FAQ 标记，所以问答只写在页面上，不写进 JSON-LD。
 _Avoid_: FAQ 标记、FAQPage（那是产物）
 
+### 网站报告
+
+**实验**：
+网站报告里的每一条建议，连同阿爽自己去做的 SEO 动作。带猜想、只看一个数字、做之前的数字、几周后检查；按「做了」那天开始计时，到期由 Claude 判有效 / 无效 / 看不出。它们的成绩是决定开不开 SEO 服务的依据，见 [ADR-0010](./docs/adr/0010-report-experiments.md)。
+_Avoid_: 任务、待办、action item
+
 ### 视觉语言
 
 **液态球体**：
