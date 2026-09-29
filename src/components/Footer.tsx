@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { SiteLink } from "./SiteLink";
+import { SocialLinks } from "./SocialLinks";
 import { localize, pathsFor, t, type Lang } from "@/lib/i18n";
-import { site, nav } from "@/content/site";
+import { nav } from "@/content/site";
 
 export function Footer({ lang }: { lang: Lang }) {
   // 页脚踩底色而不是 surface-1：页脚是页面最沉的一层，抬起来反而像又一张卡片。
@@ -77,38 +78,8 @@ export function Footer({ lang }: { lang: Lang }) {
               <div className="mb-3 text-xs font-medium tracking-wide text-ink-subtle">
                 {t({ cn: "联系", en: "Contact" }, lang)}
               </div>
-              <ul className="space-y-2">
-                <li>
-                  <a
-                    href={site.waLink()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-ink-muted hover:text-ink"
-                  >
-                    WhatsApp {site.whatsappDisplay}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={site.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-ink-muted hover:text-ink"
-                  >
-                    Instagram
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={site.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-ink-muted hover:text-ink"
-                  >
-                    Facebook
-                  </a>
-                </li>
-              </ul>
+              {/* 负边距把图标的点击区往左拉，图标本身才跟上面的栏目标题对齐 */}
+              <SocialLinks whatsapp className="-ml-3 -mt-2.5" />
             </div>
           </div>
         </div>
