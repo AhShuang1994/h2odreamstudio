@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { localize, t, type Lang } from "@/lib/i18n";
-import { nav, site } from "@/content/site";
+import { nav } from "@/content/site";
 import { LangToggle } from "./LangToggle";
 import { SiteLink } from "./SiteLink";
+import { SocialLinks } from "./SocialLinks";
 
 /**
  * 手机上的浮动菜单，叠在 WhatsAppFab 正上方。
@@ -61,21 +62,8 @@ export function MobileMenu({ lang }: { lang: Lang }) {
 
             <div className="my-2 h-px bg-hairline" />
 
-            <div className="flex items-center justify-between px-3 py-1.5">
-              <a
-                href={site.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={close}
-                className="flex items-center gap-2 py-1 text-[15px] text-ink-muted transition-colors hover:text-ink"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                  <rect x="3" y="3" width="18" height="18" rx="5" />
-                  <circle cx="12" cy="12" r="4" />
-                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-                </svg>
-                Instagram
-              </a>
+            <div className="flex items-center justify-between py-1 pl-1.5 pr-3">
+              <SocialLinks onClick={close} />
               <LangToggle lang={lang} className="text-sm" />
             </div>
           </div>
