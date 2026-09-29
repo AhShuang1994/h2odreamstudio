@@ -45,7 +45,7 @@ npx wrangler deploy
 步骤写在小帐本「设定」页（`public/app/moneybook/app.js` 的 `renderApSettings`），这里只记重点：
 
 1. 小帐本「设定」→ 开启收件箱 → 自动拿到转寄地址（旧收件箱按「取得转寄地址」）。
-2. 电脑版 gmail.com →「转发和 POP/IMAP」→ 添加转发地址。Gmail 寄来的确认信会走同一条路，出现在小帐本的「认不得的银行邮件」，标题里有确认码。
+2. 电脑版 gmail.com →「转发和 POP/IMAP」→ 添加转发地址。Gmail 寄来的确认信会走同一条路，出现在小帐本的「认不得的银行邮件」，**不在 Gmail 里**。新版 Gmail 没有填确认码的地方，只能点信里的链接：点 `mail-settings.google.com/mail/vf-…`（同意），别点 `mail.google.com/mail/uf-…`（取消）。实机设置时真的点错过一次，所以设定页把两条都列出来了。
 3. 转发保持「停用」，改用过滤器：发件人 `ibanking.alert@dbs.com OR paylah.alert@dbs.com` → 转发至转寄地址。
 
 过滤器要转的寄件人就是 `app.js` 的 `MAIL_SENDERS`：
