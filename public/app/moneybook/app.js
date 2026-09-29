@@ -1288,16 +1288,33 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       <div class="btns"><button class="primary" id="btn-ap-copy">复制转寄地址</button></div>
       <details class="ap-steps">
         <summary>设置步骤（Gmail，只做一次）</summary>
-        <p class="muted small">要用<b>电脑</b>打开 gmail.com 来设，Gmail 手机 app 做不了过滤器。</p>
+        <p class="muted small">全程大约 5 分钟，分三段。要用<b>电脑</b>打开 gmail.com，Gmail 手机 app 做不了。按钮名称写成「English（中文）」，英文、中文的 Gmail 都能照着点。</p>
+        <p class="small"><b>一、在 Gmail 加转发地址</b></p>
         <ol>
-          <li>右上角齿轮 →「查看所有设置（See all settings）」→「转发和 POP/IMAP（Forwarding and POP/IMAP）」→「添加转发地址（Add a forwarding address）」，贴上转寄地址，一路按「下一步」「继续」。</li>
-          <li>Gmail 会寄一封确认信到这个地址。等一两分钟，打开小帐本：它会出现在记帐页的「认不得的银行邮件」，标题开头括号里那串数字就是<b>确认码（confirmation code）</b>。</li>
-          <li>回到 Gmail 那一页，把确认码填进去，按「验证（Verify）」。<b>上面那个选项保持「停用转发（Disable forwarding）」</b>：我们只转银行的邮件，不是全部。然后按最下面「保存更改（Save Changes）」。</li>
-          <li>回到收件箱，搜索框右边的「显示搜索选项」图示。「发件人（From）」填：
-            <br><code>${esc(MAIL_SENDERS.map(([addr]) => addr).join(" OR "))}</code>
-            <br>按「创建过滤器（Create filter）」，勾「转发至（Forward it to）」，选你的转寄地址，再按「创建过滤器」。</li>
+          <li>右上角齿轮 →「See all settings（查看所有设置）」→ 上面的分页「Forwarding and POP/IMAP（转发和 POP/IMAP）」。</li>
+          <li>按「Add a forwarding address（添加转发地址）」，贴上转寄地址 →「Next」→「Proceed」→「OK」。</li>
+          <li>这时那一行会写「Verify mb+…」。<b>这个画面先别关</b>，也不用找地方填码：新版 Gmail 只能点确认信里的链接。</li>
         </ol>
-        <p class="muted small">回到小帐本，那封确认信可以按「删掉」。之后银行每寄一封交易邮件，Gmail 就会自动转过来，打开小帐本就已经记好。</p>
+        <p class="small"><b>二、在小帐本点确认链接</b></p>
+        <ol start="4">
+          <li>确认信<b>不会出现在 Gmail</b>：它是寄到转寄地址的，所以会出现在<b>小帐本</b>记帐页最上面的「认不得的银行邮件」，标题是「Gmail Forwarding Confirmation」。等一两分钟再打开小帐本。</li>
+          <li>按那封信的「复制内容」，贴到备忘录或传给自己。里面有两条链接，<b>只点第一条</b>：
+            <br>✅ <code>https://mail-settings.google.com/mail/vf-…</code>（同意转发）
+            <br>❌ <code>https://mail.google.com/mail/uf-…</code>（取消，别点）</li>
+          <li>在<b>登录着这个 Gmail 的浏览器</b>打开它。看到「… <b>may now forward</b> emails to …」才算成功。
+            <br>看到「will <b>not</b> be allowed」就是点到取消那条了：回 Gmail 那一行按「Re-send email」，从第 4 步重来。</li>
+          <li>回小帐本，把确认信按「删掉」。</li>
+        </ol>
+        <p class="small"><b>三、建过滤器：只转银行的邮件</b></p>
+        <ol start="8">
+          <li>回到 Gmail「Forwarding and POP/IMAP」那一页，<b>保持「Disable forwarding（停用转发）」</b>，不用改。这里一开，你所有的邮件都会转过来。</li>
+          <li>回收件箱，按搜索框右边的滑杆图示「Show search options（显示搜索选项）」。</li>
+          <li>「From（发件人）」填下面这一整行，按「Create filter（创建过滤器）」：
+            <br><code>${esc(MAIL_SENDERS.map(([addr]) => addr).join(" OR "))}</code></li>
+          <li>勾「Forward it to（转发至）」，选你的转寄地址，再按「Create filter」。完成。</li>
+        </ol>
+        <p class="muted small">之后银行每寄一封交易邮件，Gmail 就转过来，打开小帐本就已经记好。过滤器只管以后的邮件，以前的不会补转。</p>
+        <p class="muted small">邮件在服务器上<b>只停留到小帐本打开的那一刻</b>：拉回这台手机之后一秒内就删掉，而且停留期间也是加密的，只有这台手机解得开。</p>
         <p class="muted small"><b>以前在 iPhone 建过「电子邮件」自动化的，删掉它。</b>那条路拿不到邮件正文，而且两条都开着，同一封信会进来两次。</p>
         <p class="muted small">过滤器会转的寄件人：</p>
         ${MAIL_SENDERS.map(([addr, what]) => `<div class="cat-row"><i>✉️</i><span><code>${esc(addr)}</code><br><small class="muted">${esc(what)}</small></span></div>`).join("")}
