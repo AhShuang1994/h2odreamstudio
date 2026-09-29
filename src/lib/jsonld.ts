@@ -51,7 +51,7 @@ export function businessNode() {
       contactType: "sales",
       availableLanguage: ["English", "Chinese"],
     },
-    sameAs: [site.instagram],
+    sameAs: [site.instagram, site.facebook],
   };
 }
 

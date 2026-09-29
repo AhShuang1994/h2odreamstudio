@@ -6,6 +6,7 @@ export const site = {
   whatsapp: "60175138694",
   whatsappDisplay: "017-513 8694",
   instagram: "https://www.instagram.com/h2odreamer.studio/",
+  facebook: "https://www.facebook.com/h2odreamer.studio/",
   waLink(message?: string) {
     const base = "https://wa.me/60175138694";
     return message ? `${base}?text=${encodeURIComponent(message)}` : base;
