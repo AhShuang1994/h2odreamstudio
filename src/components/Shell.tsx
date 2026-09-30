@@ -42,7 +42,9 @@ const GA_ID = "G-45NTTZBZC4";
  */
 export function Shell({ lang, children }: { lang: Lang; children: ReactNode }) {
   return (
-    <html lang={lang === "zh" ? "zh" : "en"} className={inter.variable}>
+    // suppressHydrationWarning：head-inline.js 抢在 React 之前往 <html> 加
+    // reveal-armed / curtain-covered，Lenis 再加 lenis。是故意的，只对这一层生效
+    <html lang={lang === "zh" ? "zh" : "en"} className={inter.variable} suppressHydrationWarning>
       <head>
         {/* 只有中文页预加载中文正文字重：它是中文首屏立刻要用的。英文页
             正文全是拉丁字符走 Inter，预加载一份 CJK 子集纯属浪费带宽。
