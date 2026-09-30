@@ -1,18 +1,21 @@
 /**
- * 每天一次：拉 GA 与 GSC 的数字进 D1，再轮查一小批地址的收录状态。
+ * 每天一次：拉 GA、GSC 与 Cloudflare（打开速度）的数字进 D1，再轮查一小批地址的收录状态。
  *
  * 每个来源每次做两件事：
  * 1. 重拉最近几天（GA 与 GSC 都会回头修正刚过去几天的数字）
  * 2. 往回补一段历史，直到补满 HISTORY_DAYS
  * 第一次跑只拉最近 31 天，之后每天多补 31 天。一次全拉会超过免费版的 CPU 时间。
  *
- * 三个来源各自 try：GA 挂了不影响 GSC。错误写进 sync_state，页面顶部会显示。
+ * 每个来源各自 try：GA 挂了不影响 GSC。错误写进 sync_state，页面顶部会显示。
+ * 打开速度走 Cloudflare 自己的 token，Google 的钥匙坏了它照样同步。
  */
 
 import { accessToken, fetchGa, fetchGsc, inspectUrl } from "./google.js";
+import { fetchSpeed } from "./cloudflare.js";
 import { getState, saveState, replaceRange, nextUrlsToInspect, saveInspections } from "./db.js";
 
-const RECENT_DAYS = { ga: 7, gsc: 10 }; // GSC 晚 2～3 天才有数，多拉几天
+const RECENT_DAYS = { ga: 7, gsc: 10, speed: 3 }; // GSC 晚 2～3 天才有数，多拉几天
+const SPEED_HISTORY_DAYS = 180; // Cloudflare Web Analytics 只留约 6 个月，再往前拉也是空的
 const BACKFILL_CHUNK = 31;
 
 /** 马来西亚的今天。Worker 跑在 UTC，直接取 UTC 日期会在早上 8 点前差一天 */
@@ -42,12 +45,12 @@ export function plan(state, { today, recentDays, historyDays }) {
   return { ranges, oldest: start };
 }
 
-async function syncSource(env, source, fetchRange, tables, now) {
+async function syncSource(env, source, fetchRange, tables, now, historyDays = Number(env.HISTORY_DAYS)) {
   const state = await getState(env.DB, source);
   const { ranges, oldest } = plan(state, {
     today: todayMyt(now),
     recentDays: RECENT_DAYS[source],
-    historyDays: Number(env.HISTORY_DAYS),
+    historyDays,
   });
   try {
     const statements = [];
@@ -85,7 +88,23 @@ async function syncIndex(env, token, fetchFn) {
   }
 }
 
+function syncSpeed(env, fetchFn, now) {
+  const speed = async (start, end) => {
+    if (!env.CF_API_TOKEN) throw new Error("还没设 CF_API_TOKEN（wrangler secret put CF_API_TOKEN）");
+    return fetchSpeed(
+      { token: env.CF_API_TOKEN, accountId: env.CF_ACCOUNT_ID, siteTag: env.CF_SITE_TAG, start, end },
+      fetchFn,
+    );
+  };
+  const days = Math.min(Number(env.HISTORY_DAYS), SPEED_HISTORY_DAYS);
+  return syncSource(env, "speed", speed, [["speed", "rows"]], now, days);
+}
+
 export async function runSync(env, { fetchFn = fetch, now = Date.now() } = {}) {
+  return [...(await syncGoogle(env, fetchFn, now)), await syncSpeed(env, fetchFn, now)];
+}
+
+async function syncGoogle(env, fetchFn, now) {
   let token;
   try {
     if (!env.GOOGLE_SA_KEY) throw new Error("还没设 GOOGLE_SA_KEY（wrangler secret put GOOGLE_SA_KEY）");

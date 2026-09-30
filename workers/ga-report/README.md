@@ -1,11 +1,12 @@
 # ga-report
 
-阿爽自己看的网站报告。每天把 GA4 与 Search Console 的数字拉进 D1；报告页 `/app/report/` 画图；Claude 的云端任务每周、每月读数字写建议，页面上按「做了 / 不做」，下次 Claude 追踪结果。
+阿爽自己看的网站报告。每天把 GA4、Search Console 与 Cloudflare Web Analytics（真实访客打开有多快）的数字拉进 D1；报告页 `/app/report/` 画图；Claude 的云端任务每周、每月读数字写建议，页面上按「做了 / 不做」，下次 Claude 追踪结果。
 
 为什么这样搭，见 `docs/adr/0009-ga-report.md`。
 
 ```
-Google（GA4 + GSC） ──每天 06:30──▶  Worker ga-report ──▶ D1
+Google（GA4 + GSC）             ──每天 06:30──▶  Worker ga-report ──▶ D1
+Cloudflare Web Analytics（速度） ──┘
                                           ▲
    报告页 /app/report/（Pages） ──────────┤  /app/report/api/*
    Claude 云端任务（每周一、每月 1 号） ────┘  全部在 Cloudflare Access 后面
@@ -17,6 +18,23 @@ Google（GA4 + GSC） ──每天 06:30──▶  Worker ga-report ──▶ D1
 
 页面上手写的 `gtag('event','click',{event_category:'WhatsApp'})` 没用上：`event_category` 要先在 GA 注册成自定义维度才查得到，而且注册之前的历史查不回来。
 
+## 打开速度怎么算
+
+Cloudflare 后台开了 Web Analytics，网站每一页会被自动插一段 beacon，量真实访客的 Core Web Vitals：
+
+- **LCP 主画面出现**：2.5 秒内算快，4 秒以上算慢
+- **INP 按了有反应**：0.2 秒内算快，0.5 秒以上算慢
+- **CLS 画面不乱跳**：0.1 以下算快，0.25 以上算慢
+
+75% 的访客算快，Google 就算这项合格。表 `speed` 一行 = 一天 × 一种装置 × 一页，存次数（快 / 慢 / 全部）与 p75。
+
+几个实测出来的坑（`src/cloudflare.js`）：
+
+- 一次问超过约 10 天，Cloudflare 会换更粗的抽样，同一天的次数少掉一大半。所以一次只问 7 天。
+- Cloudflare 只留约 6 个月，历史只补 180 天。
+- 查询用的 site tag 跟网页 beacon 里的 token **不一样**。
+- `/app/`（报告页、记账页）与 `/cdn-cgi/`（Access 登录跳转）是自己在用，不算。
+
 ## API
 
 全部要过 Cloudflare Access。Worker 自己也会再验一次 Access 的 JWT（`src/access.js`）。
@@ -24,7 +42,7 @@ Google（GA4 + GSC） ──每天 06:30──▶  Worker ga-report ──▶ D1
 | 方法 | 路径 | 作用 |
 |---|---|---|
 | GET | `/app/report/api/status` | 同步状态、GA / GSC 最新日期、收录状态 |
-| GET | `/app/report/api/data?from=&to=` | 逐日数字 + 这段期间的排行。加 `&daily=only` 只给逐日数字 |
+| GET | `/app/report/api/data?from=&to=` | 逐日数字 + 这段期间的排行与打开速度（`speed` 按装置、`speed_pages` 按页面）。加 `&daily=only` 只给逐日数字 |
 | GET | `/app/report/api/reports?limit=` | 报告与建议 |
 | POST | `/app/report/api/reports` | Claude 交报告（格式见 `ROUTINE.md`） |
 | GET | `/app/report/api/experiments` | 已开始的实验、到期没有、成绩（ADR-0010） |
@@ -121,6 +139,23 @@ npx wrangler secret put GOOGLE_SA_KEY     # 贴整份 JSON 密钥的内容
 
    Connectors 全部移掉，用不到。
 3. 在「网站周报」按 **Run now** 测一次。跑完打开报告页，最上面应该出现 Claude 的建议。
+
+### G. 打开速度（Cloudflare Web Analytics）
+
+1. Cloudflare 后台右上角头像 → **My Profile → API Tokens → Create Token → Create Custom Token**：
+   - Token name：`ga-report-speed`
+   - Permissions：**Account → Account Analytics → Read**（只要这一项）
+   - Account Resources：Include → 你的账号
+   - 按 Continue → Create Token，复制那串 token（只显示一次）
+2. 在 `workers/ga-report` 里（跟 C 同一个 PowerShell 视窗，先清 `CLOUDFLARE_API_TOKEN`）：
+
+   ```bash
+   npx wrangler d1 migrations apply ga-report --remote
+   npx wrangler secret put CF_API_TOKEN      # 贴上一步的 token
+   npx wrangler deploy
+   ```
+
+3. 照 E.4 手动同步一次，`speed` 要 `ok: true`。报告页「打开速度」那块会出现数字。第一次拉最近 31 天，之后每天往回补，补满 180 天。
 
 ## 本机开发
 

@@ -100,6 +100,11 @@ function fakeGoogle({ gaFails = false } = {}) {
       return ok({ rows: [{ keys: ["2026-09-25", "https://www.h2o-dreamer-studio.com/"], clicks: 3, impressions: 100, position: 12 }] });
     }
 
+    // 打开速度的测试在 speed.test.js，这里给空的
+    if (u.includes("api.cloudflare.com/client/v4/graphql")) {
+      return ok({ data: { viewer: { accounts: [{ rumWebVitalsEventsAdaptiveGroups: [] }] } } });
+    }
+
     if (u.endsWith("sitemap.xml")) {
       return new Response(
         "<urlset><url><loc>https://www.h2o-dreamer-studio.com/</loc></url>" +
@@ -131,6 +136,9 @@ const env = (DB) => ({
   SITEMAP_URL: "https://www.h2o-dreamer-studio.com/sitemap.xml",
   HISTORY_DAYS: "400",
   INSPECT_PER_RUN: "15",
+  CF_API_TOKEN: "cf-token",
+  CF_ACCOUNT_ID: "acc",
+  CF_SITE_TAG: "site",
 });
 
 const NOW = Date.parse("2026-09-28T01:00:00Z");
@@ -139,7 +147,7 @@ test("跑一次：GA、GSC、收录状态都进库", async () => {
   const db = freshDb();
   const { fetchFn } = fakeGoogle();
   const results = await runSync(env(db), { fetchFn, now: NOW });
-  assert.deepEqual(results.map((r) => r.ok), [true, true, true]);
+  assert.deepEqual(results.map((r) => r.ok), [true, true, true, true]);
 
   const data = await rangeData(db, "2026-09-01", "2026-09-27");
   assert.deepEqual(data.ga_daily, [
@@ -169,6 +177,7 @@ test("跑一次：GA、GSC、收录状态都进库", async () => {
       { source: "ga", oldest: "2026-08-28", last_error: null },
       { source: "gsc", oldest: "2026-08-28", last_error: null },
       { source: "index", oldest: null, last_error: null },
+      { source: "speed", oldest: "2026-08-28", last_error: null },
     ],
   );
 });
@@ -187,7 +196,7 @@ test("GA 挂了：错误记下来，GSC 照样进库，GA 的旧数据不被清�
   await runSync(env(db), { fetchFn: fakeGoogle().fetchFn, now: NOW });
   const results = await runSync(env(db), { fetchFn: fakeGoogle({ gaFails: true }).fetchFn, now: NOW });
 
-  assert.deepEqual(results.map((r) => [r.source, r.ok]), [["ga", false], ["gsc", true], ["index", true]]);
+  assert.deepEqual(results.map((r) => [r.source, r.ok]), [["ga", false], ["gsc", true], ["index", true], ["speed", true]]);
   assert.match(rows(db, "SELECT last_error FROM sync_state WHERE source = 'ga'")[0].last_error, /403/);
   assert.equal(rows(db, "SELECT COUNT(*) AS n FROM ga_daily")[0].n, 1);
   // 失败那次不能把 oldest 往回推，不然那段历史就永远不补了

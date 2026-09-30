@@ -20,6 +20,12 @@ class Statement {
   bind(...params) {
     const s = new Statement(this.sqlite, this.sql);
     s.params = params.map((p) => (p === undefined ? null : p));
+    // 真 D1 认 ?1 ?2 这种编号参数；Node 22 的 sqlite 按位置绑会报 "column index out of range"。
+    // 换成具名参数 :p1 :p2 再绑，行为跟 D1 一样
+    if (/\?\d/.test(this.sql)) {
+      s.sql = this.sql.replace(/\?(\d+)/g, ":p$1");
+      s.params = [Object.fromEntries(s.params.map((p, i) => [`p${i + 1}`, p]))];
+    }
     return s;
   }
 
