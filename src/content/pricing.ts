@@ -14,12 +14,12 @@ export { prices };
 
 export const pricingMeta = {
   title: {
-    cn: "价格方案 · H2ODreamer Studio",
-    en: "Pricing · H2ODreamer Studio",
+    cn: "价格方案 | H2ODreamer Studio",
+    en: `Website Packages & Prices, From ${prices.starter} | H2ODreamer Studio`,
   } as Bilingual,
   description: {
     cn: `H2ODreamer Studio 网站设计价格（马来西亚）：落地页 ${prices.starter} 起、5 页企业网站 ${prices.standard}、Shopify 迁移 ${prices.shopify} 起。电子喜帖 ${prices.weddingStandard} / ${prices.weddingPremium}。没有强制月费。`,
-    en: `H2ODreamer Studio web design pricing (Malaysia): landing pages from ${prices.starter}, 5-page corporate sites from ${prices.standard}, Shopify migration from ${prices.shopify}; wedding e-invitations ${prices.weddingStandard} / ${prices.weddingPremium}. No compulsory monthly fee.`,
+    en: `Every price on one page, no "PM for price": landing pages from ${prices.starter}, 5-page sites ${prices.standard}, Shopify from ${prices.shopify}. No compulsory monthly fee.`,
   } as Bilingual,
 };
 

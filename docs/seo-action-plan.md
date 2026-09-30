@@ -71,8 +71,8 @@
 
 ## 2b. 技术 SEO 修复之后（2026-09-30 修：sitemap 去掉 noindex 页、robots.txt 放行 CSS/JS、文章页加面包屑）
 
-- [ ] 部署后跑一遍 `seo-lessons.md` 的"上线后自检"
-- [ ] 用 [Rich Results Test](https://search.google.com/test/rich-results) 抽查一篇文章：要看到 `BreadcrumbList`、`BlogPosting`、`FAQPage`，没有错误
+- [x] 部署后跑一遍 `seo-lessons.md` 的"上线后自检"（2026-09-30：56 条全 200，sitemap 没有 privacy / terms，跳转都一步到位，404 正常）
+- [x] 用 [Rich Results Test](https://search.google.com/test/rich-results) 抽查一篇文章：要看到 `BreadcrumbList`、`BlogPosting`、`FAQPage`，没有错误（2026-09-30，`/blog/seo-vs-geo-ai-search`：文章、面包屑都有效，0 错误。FAQ 不列出是正常的，见 2c。有 4 条可选警告：`datePublished` / `dateModified` 只写了日期、没写时区，不影响资格）
 - [ ] 1～2 周后：GSC → 增强功能 → **面包屑**出现，没有错误；"已提交的网址标记为 noindex"归零
 
 ## 2c. 缩短标题与描述（计划 2026-09-30 晚上做）
@@ -81,7 +81,9 @@
 
 **这次不动网址**，只改 `<title>` 和 meta description，所以不算 `seo-lessons.md` §4 说的「迁移」，风险小。
 
-**长度上限**（含结尾的 ` · H2ODreamer Studio`，大约 20 个字元）：
+**长度上限**（含结尾的 ` | H2ODreamer Studio`，大约 20 个字元）：
+
+**站名分隔符用 `|`**（2026-09-30 起）：Google 文档列的品牌分隔符是 `|`、`-`、`:`，没有 `·`。Google 已经把 About 页显示成 "About - H2ODreamer Studio"，等于在替我们改写。全站 `<title>` 已换成 `|`；中文首页与中文博客目录页的站名夹在中间，第 3 批重写时一起处理。
 
 | | 标题 | 描述 |
 |---|---|---|
@@ -90,11 +92,18 @@
 
 ### 第 0 步：先让 Claude 做好「另写标题」的功能（约 15 分钟）
 
-- [ ] **问题**：博客、案例、服务页的英文 `<title>` 直接取页面上的 `<h1>`（`src/lib/content/html.mjs` 的 `titleFromH1`），英文描述取正文第一段再截到 160 字（`descriptionFromBody`）。直接改 H1 会动到页面上看得到的文案（#65 冻结）。
-- [ ] **做法**：原稿 `<head>` 里可以另写一组短标题和描述，有写就用它，没写就照旧取 H1 和第一段。页面上看到的 H1 一个字都不动。
-- [ ] **加测试**：`test/export/seo.test.ts` 加长度检查，先用「棘轮」写法（超长页数不能比现在多，见 `test/README.md`）。全部改完后改成硬性上限。
+- [x] **问题**：博客、案例、服务页的英文 `<title>` 直接取页面上的 `<h1>`（`src/lib/content/html.mjs` 的 `titleFromH1`），英文描述取正文第一段再截到 160 字（`descriptionFromBody`）。直接改 H1 会动到页面上看得到的文案（#65 冻结）。
+- [x] **做法**：原稿 `<head>` 里可以另写一组短标题和描述，有写就用它，没写就照旧取 H1 和第一段。页面上看到的 H1 一个字都不动。
+- [x] **加测试**：`test/export/seo.test.ts` 加长度检查，先用「棘轮」写法（超长页数不能比现在多，见 `test/README.md`）。全部改完后改成硬性上限。
 
-跟 Claude 说：「照 `docs/seo-action-plan.md` 2c 第 0 步做」。
+2026-09-30 做完。**写法**：在原稿 `<head>` 加
+
+```html
+<meta name="en:title" content="Website Cost in Malaysia 2026">
+<meta name="en:description" content="…">
+```
+
+`en:title` **不写站名**，会自动补上 ` | H2ODreamer Studio`（算长度时要算进去）。JSON-LD 的 headline 也会跟着换。测试基线：一开始标题 34、描述 39，第 1 批后标题 25、描述 31，每改完一批就把 `test/export/seo.test.ts` 里的 `BASELINE` 调低。
 
 ### 第 1～3 步：写新标题与描述
 
@@ -111,22 +120,22 @@
 
 加粗 = 超过上限。
 
-**第 1 批：英文、最接近下单的 12 页**
+**第 1 批：英文、最接近下单的 12 页**（2026-09-30 写好并改进去：`/copywriter` SEO Mode，先查 google.com.my 前几名，每页 A / B / C 三组，用了推荐那组。只改超长的项；`/pricing`、`/contact`、`/about` 的标题虽没超长，但原本是 "Pricing" 这种空词，也一起换了）
 
 | | 地址 | 类型 | 标题长度 | 描述长度 |
 |---|---|---|---|---|
-| [ ] | `/` | 核心页 | **80** | **264** |
-| [ ] | `/pricing` | 核心页 | 27 | **215** |
-| [ ] | `/contact` | 核心页 | 27 | **223** |
-| [ ] | `/about` | 核心页 | 25 | **191** |
-| [ ] | `/web-design-johor-bahru` | 服务页 | **73** | 145 |
-| [ ] | `/landing-page` | 服务页 | **68** | **158** |
-| [ ] | `/blog/website-cost-malaysia` | 博客 | **118** | 153 |
-| [ ] | `/blog/which-website-for-your-business` | 博客 | **114** | 152 |
-| [ ] | `/blog/wix-vs-hire-designer` | 博客 | **71** | **156** |
-| [ ] | `/blog/whatsapp-vs-website` | 博客 | **138** | 102 |
-| [ ] | `/blog/seo-vs-geo-ai-search` | 博客 | **88** | **158** |
-| [ ] | `/case-studies/serai-beauty-salon` | 案例 | **105** | **156** |
+| [x] | `/` | 核心页 | **80** | **264** |
+| [x] | `/pricing` | 核心页 | 27 | **215** |
+| [x] | `/contact` | 核心页 | 27 | **223** |
+| [x] | `/about` | 核心页 | 25 | **191** |
+| [x] | `/web-design-johor-bahru` | 服务页 | **73** | 145 |
+| [x] | `/landing-page` | 服务页 | **68** | **158** |
+| [x] | `/blog/website-cost-malaysia` | 博客 | **118** | 153 |
+| [x] | `/blog/which-website-for-your-business` | 博客 | **114** | 152 |
+| [x] | `/blog/wix-vs-hire-designer` | 博客 | **71** | **156** |
+| [x] | `/blog/whatsapp-vs-website` | 博客 | **138** | 102 |
+| [x] | `/blog/seo-vs-geo-ai-search` | 博客 | **88** | **158** |
+| [x] | `/case-studies/serai-beauty-salon` | 案例 | **105** | **156** |
 
 **第 2 批：英文其余 15 页**
 

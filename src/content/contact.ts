@@ -2,12 +2,12 @@ import type { Bilingual } from "./site";
 
 export const contactMeta = {
   title: {
-    cn: "联系我 · H2ODreamer Studio",
-    en: "Contact · H2ODreamer Studio",
+    cn: "联系我 | H2ODreamer Studio",
+    en: "Free 30-Min Website Consultation | H2ODreamer Studio",
   } as Bilingual,
   description: {
     cn: "联系 H2ODreamer Studio: WhatsApp +60 17-513 8694，通常 1 小时内回复，或电邮 huihuang@h2o-dreamer-studio.com。服务全马来西亚，中英双语，每个项目从免费 30 分钟咨询开始。",
-    en: "Reach H2ODreamer Studio: WhatsApp +60 17-513 8694, usually a reply within 1 hour, or email huihuang@h2o-dreamer-studio.com. Serving all of Malaysia in English and 中文; every project starts with a free 30-minute consultation.",
+    en: "Not sure what website you need? Start with a free 30-minute consultation. WhatsApp +60 17-513 8694 or email me; I usually reply within 1 hour.",
   } as Bilingual,
 };
 

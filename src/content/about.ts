@@ -2,12 +2,12 @@ import type { Bilingual } from "./site";
 
 export const aboutMeta = {
   title: {
-    cn: "关于我 · H2ODreamer Studio",
-    en: "About · H2ODreamer Studio",
+    cn: "关于我 | H2ODreamer Studio",
+    en: "About Ah Shuang, Web Designer in Johor | H2ODreamer Studio",
   } as Bilingual,
   description: {
     cn: "认识阿爽 · H2ODreamer Studio 创办人，超过 5 年网站设计经验，专为马来西亚的小公司搭建第一个网站，让每个梦想都有一个家。",
-    en: "Meet Ah Shuang, founder of H2ODreamer Studio: a Malaysia-based web designer with 5+ years of experience who builds first websites for small businesses, so every dream has a home to grow from.",
+    en: "I'm Ah Shuang (Hui Huang Ong), a Johor web designer with 5+ years of experience. I build first websites for Malaysian small businesses, one to one.",
   } as Bilingual,
 };
 

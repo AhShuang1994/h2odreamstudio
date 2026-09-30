@@ -10,8 +10,8 @@ import { Shell } from "@/components/Shell";
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.h2o-dreamer-studio.com"),
   title: {
-    default: "H2ODreamer Studio · Web Design Malaysia",
-    template: "%s · H2ODreamer Studio",
+    default: "H2ODreamer Studio | Web Design Malaysia",
+    template: "%s | H2ODreamer Studio",
   },
   description:
     "H2ODreamer Studio: helping dreamers take their first step online. Web design, Shopify migration and wedding e-invitations, from a one-person studio in Johor, Malaysia.",

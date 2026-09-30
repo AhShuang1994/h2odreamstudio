@@ -282,7 +282,7 @@ export function titleFromH1(source, lang) {
   for (const tag of annotatedTags(source)) {
     if (tag.name !== "h1") continue;
     const v = attrOf(tag.raw, LANG_ATTR[lang]);
-    if (v) return `${textOf(decodeAttr(v))} · H2ODreamer Studio`;
+    if (v) return `${textOf(decodeAttr(v))} | H2ODreamer Studio`;
   }
   throw new Error(`找不到带 ${LANG_ATTR[lang]} 标注的 <h1>`);
 }

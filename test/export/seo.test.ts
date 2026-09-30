@@ -67,6 +67,32 @@ describe("导出产物 · 技术 SEO", () => {
     expect(problems, problems.join("\n")).toEqual([]);
   });
 
+  /**
+   * 太长的标题与描述，Google 会截断或自己改写，搜索结果里那一行就不是我们写的了。
+   * 上限含结尾的站名，见 docs/seo-action-plan.md 2c。noindex 的页不进搜索结果，不算。
+   *
+   * 棘轮：2c 改完之前做不到 0。超长的页数只许降不许升，改完一批就把基线调低。
+   * 2c 第 4 步归 0 后改成硬约束。
+   */
+  it("标题与描述不超过搜索结果的显示长度（棘轮）", () => {
+    const LIMITS = { en: { title: 60, description: 155 }, zh: { title: 50, description: 80 } };
+    const BASELINE = { title: 25, description: 31 };
+    const over = { title: [] as string[], description: [] as string[] };
+    for (const [file, head] of heads) {
+      if (/<meta name="robots" content="[^"]*noindex/.test(head)) continue;
+      const limit = LIMITS[file === "zh.html" || file.startsWith("zh/") ? "zh" : "en"];
+      const values = {
+        title: decode(head.match(/<title>([^<]*)<\/title>/)?.[1] ?? ""),
+        description: decode(head.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? ""),
+      };
+      for (const key of ["title", "description"] as const) {
+        if (values[key].length > limit[key]) over[key].push(`${file}: ${key} ${values[key].length} > ${limit[key]}`);
+      }
+    }
+    expect(over.title.length, over.title.join("\n")).toBeLessThanOrEqual(BASELINE.title);
+    expect(over.description.length, over.description.join("\n")).toBeLessThanOrEqual(BASELINE.description);
+  });
+
   it("每页恰好一个 <h1>", () => {
     const problems = check((_, html) => {
       const n = (html.split("</head>")[1]?.match(/<h1\b/gi) ?? []).length;

@@ -121,13 +121,20 @@ function load(section, file) {
   const head = source.split("</head>")[0] ?? source;
   const zh = chineseMeta(source);
 
-  // 英文一直从 <h1> 的标注取（原稿的 <title> 是中文）。中文优先用原稿 head 上
-  // 那份手写的，它是已收录的中文标题。但服务页那四份 head 只有英文（历史上
-  // 它们只有一个英文地址），那时退回同样从 <h1> 的中文标注取。
+  // 英文默认从 <h1> 的标注取（原稿的 <title> 是中文）。H1 太长时，在 head 里写
+  // `<meta name="en:title">`（不含站名，会自动补）与 `<meta name="en:description">`
+  // 另给搜索结果一份短的，页面上的 H1 不动（docs/seo-action-plan.md 2c）。
+  // 中文优先用原稿 head 上那份手写的，它是已收录的中文标题。但服务页那四份 head
+  // 只有英文（历史上它们只有一个英文地址），那时退回同样从 <h1> 的中文标注取。
   const zhHead = hasCJK(zh.title);
-  const title = { en: titleFromH1(source, "en"), zh: zhHead ? zh.title : titleFromH1(source, "zh") };
+  const enTitle = metaOf(head, "en:title");
+  const title = {
+    en: enTitle ? `${textOf(enTitle)} | H2ODreamer Studio` : titleFromH1(source, "en"),
+    zh: zhHead ? zh.title : titleFromH1(source, "zh"),
+  };
+  const enDescription = metaOf(head, "en:description");
   const description = {
-    en: descriptionFromBody(source, "en"),
+    en: enDescription ? textOf(enDescription) : descriptionFromBody(source, "en"),
     zh: hasCJK(zh.description) ? zh.description : descriptionFromBody(source, "zh"),
   };
   const raw = mainInner(source);
