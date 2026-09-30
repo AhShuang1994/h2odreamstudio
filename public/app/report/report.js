@@ -580,12 +580,31 @@ function renderReports(reports) {
 
 const SOURCE = { ga: "GA", gsc: "Search Console", index: "收录检查", speed: "打开速度（Cloudflare）" };
 
+/** D1 的 datetime('now') 是 UTC（"2026-09-29 22:32:10"），换成马来西亚时间 "9/30 06:32" */
+const toMyt = (utc) => {
+  const d = new Date(Date.parse(`${utc.replace(" ", "T")}Z`) + 8 * 3600000).toISOString();
+  return `${short(d.slice(0, 10))} ${d.slice(11, 16)}`;
+};
+
+// cron 每天 06:30 跑一次，多给 2 小时余裕。超过就是 Worker 整个没跑，不会有错误可记
+const STALE_MS = 26 * 3600000;
+
 function renderStatus() {
-  const { sync, ga_latest, gsc_latest } = state.status;
+  const { sync, ga_latest, gsc_latest, speed_latest } = state.status;
   const lastRun = sync.map((s) => s.last_run).filter(Boolean).sort().at(-1);
   $("sync").textContent = lastRun
-    ? `上次更新 ${lastRun.slice(0, 16)} UTC · GA 到 ${ga_latest ?? "—"} · Google 搜索到 ${gsc_latest ?? "—"}`
+    ? `上次更新 ${toMyt(lastRun)}（马来西亚时间）· GA 到 ${ga_latest ?? "—"} · Google 搜索到 ${gsc_latest ?? "—"} · 速度到 ${speed_latest ?? "—"}`
     : "还没同步过数据。";
+
+  // 每个来源各看各的：Worker 跑到一半被停掉，后面的来源就不会更新
+  const stale = sync.filter((s) => !s.last_run || Date.now() - Date.parse(`${s.last_run.replace(" ", "T")}Z`) > STALE_MS);
+  if (stale.length) {
+    showAlert(
+      `${stale.map((s) => SOURCE[s.source] ?? s.source).join("、")} 超过一天没同步了` +
+        `（上次 ${stale.map((s) => (s.last_run ? toMyt(s.last_run) : "从没跑过")).join("、")}）。` +
+        "去 Cloudflare 后台 Workers → ga-report → Settings → Triggers 看每天 06:30 有没有跑。",
+    );
+  }
   // 同一个原因（例如 Google 钥匙没设）三个来源都会挂，合成一条
   const byError = new Map();
   for (const s of sync.filter((s) => s.last_error)) {

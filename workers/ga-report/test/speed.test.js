@@ -67,6 +67,12 @@ test("一次只问 7 天（问太长 Cloudflare 会少给），不算机器人�
   assert.equal(calls[0].auth, "Bearer t");
 });
 
+test("token 前面的 BOM、后面的空白换行都去掉（PowerShell 贴进 secret 会带进来）", async () => {
+  const { fetchFn, calls } = fakeCloudflare([]);
+  await fetchSpeed({ token: "\uFEFFt \r\n", accountId: "acc", siteTag: "site", start: "2026-09-27", end: "2026-09-27" }, fetchFn);
+  assert.equal(calls[0].auth, "Bearer t");
+});
+
 const NOW = Date.parse("2026-09-28T01:00:00Z");
 
 test("Google 的钥匙没设：打开速度照样同步", async () => {
