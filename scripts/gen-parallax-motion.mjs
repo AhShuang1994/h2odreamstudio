@@ -93,24 +93,30 @@ function withGen(canvas, strategy = "transparent") {
 
 // ── s0 序幕：时间驱动，不是滚动驱动 ──────────────────────────────────
 //
-// 水滴遮罩要长到完全盖过视口才算「穿过去」。终值必须由视口反算，
+// 洞是 logo 剪影（月牙、太阳、浪三块，中间有缝）。镜头以太阳里最大内切圆
+// 的圆心为轴放大，最后由太阳盖满视口才算「穿过去」。终值必须由视口反算，
 // 写死 vw 会在竖屏上不够（LESSONS #1：与运动量相互作用的几何都要反算）。
 //
-//   finalW = max(vw, vh × 水滴宽高比) × 1.3
+//   太阳内切圆半径（放大后）≥ 视口半条对角线 × 1.1
+//   finalW（logo 宽）= 半对角线 × 1.1 ÷ (内切圆半径 / logo 宽)
 //
-// 再配一个像素兜底：视口高被报成 0 时（这个环境真的出现过），vh 项归零，
-// max 仍能落到 vw 上，不会算出 0 而让穿透永远完不成。
-const DROP_ASPECT = 3 / 4; // 水滴：宽 3 高 4
+// 以 logo 中心为轴不行：中心落在缝里，放得再大也有一道黑带横过屏幕。
+// 剪影与几何常量在 src/content/parallax.ts 的 LOGO_SILHOUETTE。
+const SUN_RADIUS_RATIO = 9 / 100; // 太阳内切圆半径 ÷ logo 宽（实测 9.16，留描边误差）
+
+function overtureFinalW(vw, vh) {
+  return Math.round(((Math.hypot(vw, vh) / 2) * 1.1) / SUN_RADIUS_RATIO);
+}
 
 function overtureFor(bp) {
   const { vw, vh } = MEASURED[bp];
-  const finalW = Math.round(Math.max(vw, vh * DROP_ASPECT, 320) * 1.3);
+  const finalW = overtureFinalW(vw, vh);
   return {
-    startW: Math.round(Math.min(vw, vh) * 0.18),
-    peekW: Math.round(Math.min(vw, vh) * 0.26),
+    startW: Math.round(Math.min(vw, vh) * 0.24),
+    peekW: Math.round(Math.min(vw, vh) * 0.32),
     finalW,
     finalWvw: +((finalW / vw) * 100).toFixed(0),
-    coversViewport: finalW >= vw && finalW / DROP_ASPECT >= vh,
+    coversViewport: finalW * SUN_RADIUS_RATIO >= Math.hypot(vw, vh) / 2,
   };
 }
 
@@ -129,9 +135,9 @@ const s0 = {
     easingNote:
       "专供穿透的曲线，极端后段爆发：前半段几乎不动，最后一下猛冲。别拿它做别的动效。",
     keyframes: [
-      { t: 0, dropW: "startW", orbScale: 0.75, label: "静止，只见一个小水滴轮廓" },
-      { t: 260, dropW: "peekW", orbScale: 0.82, label: "缓缓张开，看清洞里是那颗球" },
-      { t: 900, dropW: "finalW", orbScale: 1.0, label: "猛冲穿过，遮罩越过视口边界" },
+      { t: 0, logoW: "startW", orbScale: 0.75, label: "静止，屏幕正中一个小小的 logo 剪影" },
+      { t: 260, logoW: "peekW", orbScale: 0.82, label: "缓缓张开，看清是 logo、洞里是那颗球" },
+      { t: 900, logoW: "finalW", orbScale: 1.0, label: "一边猛冲一边把太阳拉到正中，从太阳里穿过去" },
     ],
     concurrent:
       "洞放大的同时，洞里的球体 scale 0.75 → 1 迎上来。" +
@@ -313,7 +319,7 @@ console.log("=== s0-overture（时间驱动，900ms）===");
 for (const bp of ["desktop", "mobile"]) {
   const o = s0.breakpoints[bp];
   console.log(
-    `  ${bp.padEnd(8)} 视口 ${o.viewport.vw}×${o.viewport.vh}  水滴宽 ${o.startW} → ${o.peekW} → ${o.finalW}px (${o.finalWvw}vw)  完全盖过视口: ${o.coversViewport ? "✓" : "✗"}`,
+    `  ${bp.padEnd(8)} 视口 ${o.viewport.vw}×${o.viewport.vh}  logo 宽 ${o.startW} → ${o.peekW} → ${o.finalW}px (${o.finalWvw}vw)  完全盖过视口: ${o.coversViewport ? "✓" : "✗"}`,
   );
 }
 
@@ -337,8 +343,8 @@ for (const bp of ["desktop", "mobile"]) {
 // ── 多分辨率验收（LESSONS #3）────────────────────────────────────────
 console.log("\n=== 多分辨率验收：序幕终值是否仍能盖过视口 ===");
 for (const [w, h] of [[1280, 800], [1440, 900], [1920, 1080], [2560, 1440], [3440, 1440], [430, 932], [375, 667]]) {
-  const finalW = Math.round(Math.max(w, h * DROP_ASPECT, 320) * 1.3);
-  const ok = finalW >= w && finalW / DROP_ASPECT >= h;
+  const finalW = overtureFinalW(w, h);
+  const ok = finalW * SUN_RADIUS_RATIO >= Math.hypot(w, h) / 2;
   console.log(`  ${String(w).padStart(4)}×${String(h).padStart(4)}  finalW ${String(finalW).padStart(5)}px  ${ok ? "✓" : "✗ 盖不住"}`);
 }
 
