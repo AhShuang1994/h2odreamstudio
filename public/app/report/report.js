@@ -53,7 +53,7 @@ function showAlert(msg) {
 
 // ── 数字 ─────────────────────────────────────────────────────────────
 
-const state = { status: null, gaEnd: null, gscEnd: null, ga: new Map(), gsc: new Map(), days: 7, lists: new Map() };
+const state = { status: null, gaEnd: null, gscEnd: null, speedEnd: null, ga: new Map(), gsc: new Map(), days: 7, lists: new Map() };
 
 function sumGa(from, to) {
   const t = { users: 0, sessions: 0, wa_clicks: 0, organic_sessions: 0, days: 0 };
@@ -312,6 +312,93 @@ async function renderTables() {
   );
 }
 
+// ── 打开速度 ─────────────────────────────────────────────────────────
+
+/**
+ * Cloudflare Web Analytics 量的真实访客。三个数字都是 Google 的 Core Web Vitals：
+ * 「快」「慢」的线 Google 定、Cloudflare 算好。75% 的访客算快，Google 就算这项合格。
+ */
+const VITALS = [
+  { key: "lcp", label: "主画面出现（LCP）", value: (v) => `约 ${(v / 1000).toFixed(1)} 秒`, rule: "2.5 秒内算快" },
+  { key: "inp", label: "按了有反应（INP）", value: (v) => `约 ${fmt(v)} 毫秒`, rule: "0.2 秒内算快" },
+  { key: "cls", label: "画面不乱跳（CLS）", value: (v) => `约 ${v.toFixed(2)}`, rule: "0.1 以下算快" },
+];
+const DEVICE = { mobile: "手机", desktop: "电脑", tablet: "平板" };
+const FEW = 20; // 少于这么多次，比例跳来跳去，不要太当真
+
+const share = (r, m) => (r?.[`${m}_n`] ? r[`${m}_good`] / r[`${m}_n`] : null);
+
+/** 合格 / 要改善 / 慢：跟 Google 一样看 75% 那个访客落在哪一段。颜色之外都带符号与文字 */
+function grade(r, m) {
+  const n = r[`${m}_n`];
+  if (!n) return el("span", { class: "grade" }, "还没量到");
+  const good = r[`${m}_good`] / n;
+  const notPoor = (n - r[`${m}_poor`]) / n;
+  const [cls, word] = good >= 0.75 ? ["good", "✓ 合格"] : notPoor >= 0.75 ? ["", "△ 要改善"] : ["poor", "✕ 慢"];
+  return el("span", { class: `grade ${cls}` }, `${word} · ${Math.round(good * 100)}% 算快（${fmt(n)} 次${n < FEW ? "，次数少" : ""}）`);
+}
+
+/** 快的比例变了几个百分点。▲/▼ + 文字 */
+function shareDelta(cur, prev) {
+  if (cur == null || prev == null) return el("span", { class: "delta" }, "没有可比的数据");
+  const diff = Math.round((cur - prev) * 100);
+  if (!diff) return el("span", { class: "delta" }, "快的比例持平");
+  return el("span", { class: `delta ${diff > 0 ? "up" : "down"}` }, `${diff > 0 ? "▲ +" : "▼ "}${diff} 个百分点 ${diff > 0 ? "变好" : "变差"}`);
+}
+
+async function renderSpeed() {
+  if (!state.speedEnd) {
+    $("s-note").textContent = "还没有数据。Worker 要先设好 CF_API_TOKEN（见 workers/ga-report/README.md）。";
+    return;
+  }
+  const n = state.days;
+  const w = windows(state.speedEnd, n);
+  const [cur, prev] = await Promise.all([listsFor(...w.cur), listsFor(...w.prev)]);
+  if (n !== state.days) return;
+
+  $("s-note").textContent =
+    `${span(...w.cur)}，比 ${span(...w.prev)}。秒数是「75% 的访客在这之内」，Google 用这个判快慢。Cloudflare 有抽样，次数是估的。`;
+  const before = new Map(prev.speed.map((r) => [r.device, r]));
+  const devices = Object.keys(DEVICE).filter((d) => cur.speed.some((r) => r.device === d));
+  $("speed").replaceChildren(
+    ...(devices.length
+      ? devices.map((d) => {
+          const r = cur.speed.find((x) => x.device === d);
+          return el(
+            "div",
+            { class: "speed-device" },
+            el("h3", {}, `${DEVICE[d]} · ${fmt(r.visits)} 次访问`),
+            el(
+              "div",
+              { class: "kpis" },
+              VITALS.map((v) =>
+                kpi(
+                  `${v.label}　${v.rule}`,
+                  r[`${v.key}_p75`] == null ? "—" : v.value(r[`${v.key}_p75`]),
+                  el("div", {}, grade(r, v.key), shareDelta(share(r, v.key), share(before.get(d), v.key))),
+                ),
+              ),
+            ),
+          );
+        })
+      : [el("p", { class: "muted" }, "这段期间没有量到。")]),
+  );
+
+  table(
+    $("t-speed"),
+    [["页面"], ["次数", "num"], ["主画面出现", "num"], ["算快", "num"], ["慢", "num"]],
+    cur.speed_pages
+      .filter((p) => p.lcp_n)
+      .map((p) => [
+        [p.path, "text"],
+        [fmt(p.lcp_n), "num"],
+        [p.lcp_p75 == null ? "—" : `${(p.lcp_p75 / 1000).toFixed(1)} 秒`, "num"],
+        [`${Math.round(share(p, "lcp") * 100)}%`, "num"],
+        [fmt(p.lcp_poor), "num"],
+      ]),
+  );
+}
+
 // ── 收录 ─────────────────────────────────────────────────────────────
 
 function renderIndex() {
@@ -491,7 +578,7 @@ function renderReports(reports) {
 
 // ── 顶部状态 ─────────────────────────────────────────────────────────
 
-const SOURCE = { ga: "GA", gsc: "Search Console", index: "收录检查" };
+const SOURCE = { ga: "GA", gsc: "Search Console", index: "收录检查", speed: "打开速度（Cloudflare）" };
 
 function renderStatus() {
   const { sync, ga_latest, gsc_latest } = state.status;
@@ -514,6 +601,7 @@ function renderPeriod() {
   renderKpis();
   renderCharts();
   renderTables().catch((err) => showAlert(err.message));
+  renderSpeed().catch((err) => showAlert(err.message));
 }
 
 function selectTab(days) {
@@ -537,7 +625,8 @@ async function main() {
   renderIndex();
   state.gaEnd = state.status.ga_latest;
   state.gscEnd = state.status.gsc_latest;
-  if (!state.gaEnd) return;
+  state.speedEnd = state.status.speed_latest;
+  if (!state.gaEnd) return renderSpeed().catch((err) => showAlert(err.message));
 
   // 图最长要 12 段 × 30 天，一次拿齐。只要逐日数字，不要排行（排行要扫一整年的搜索词）
   const ends = [state.gaEnd, state.gscEnd].filter(Boolean).sort();

@@ -26,6 +26,8 @@ HISTORY_DAYS = "400"       # 往回补多少天。月报要跟去年同月比，
 INSPECT_PER_RUN = "15"     # 每天查几条地址的收录状态。免费版一次最多 50 个对外请求，要留给 GA 与 GSC
 ACCESS_TEAM_DOMAIN = "asetsbot.cloudflareaccess.com" # Zero Trust 的团队网域，例如 h2odreamer.cloudflareaccess.com
 ACCESS_AUD = "8caddce8f1a9488b008160cd4eba5466c380f4e68f0991efae0d16ff50f3055b" # Access 应用的 Application Audience (AUD) Tag
+CF_ACCOUNT_ID = "c8784a1144274169ce75e5a24e9947f0" # Cloudflare 账号 ID（后台右边栏的 Account ID），不是秘密
+CF_SITE_TAG = "c2b7592711994bfc9827d7fc7de0bbec" # Web Analytics 的 site tag。不是 beacon 里那个 token，两个不一样
 
 # 建库：npx wrangler d1 create ga-report
 # 把输出的 database_id 贴到下面，再跑 migration（--local 和 --remote 各一次）
@@ -35,3 +37,4 @@ database_name = "ga-report"
 database_id = "26e56676-1164-4b29-bed5-b31fb697051e"
 
 # 用 `wrangler secret put GOOGLE_SA_KEY` 设（贴整份服务账号 JSON），别写进这个文件
+# 用 `wrangler secret put CF_API_TOKEN` 设（权限只要 Account Analytics → Read），也别写进这个文件

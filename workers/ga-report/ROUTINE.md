@@ -22,7 +22,7 @@ curl -sf "${AUTH[@]}" "$BASE/status"
 | 方法 | 路径 | 给你什么 |
 |---|---|---|
 | GET | `/status` | 各来源上次同步的时间与错误、GA 与 GSC 最新有数据的日期、收录状态 |
-| GET | `/data?from=YYYY-MM-DD&to=YYYY-MM-DD` | 这段期间的逐日数字（`ga_daily`、`gsc_daily`），以及排行：`pages`、`channels`、`queries`、`gsc_pages` |
+| GET | `/data?from=YYYY-MM-DD&to=YYYY-MM-DD` | 这段期间的逐日数字（`ga_daily`、`gsc_daily`），以及排行：`pages`、`channels`、`queries`、`gsc_pages`；打开速度：`speed`（按装置）、`speed_pages`（按页面，慢的排前面） |
 | GET | `/reports?limit=8` | 以前的报告，每条建议带 `status`：`done`（做了）/ `skipped`（不做）/ `open`（还没按） |
 | GET | `/experiments` | 全部已开始的实验：`started_on`（开始日）、`check_on`（检查日）、`due`（到期了还没判）、`result`，加上成绩 `summary` |
 | POST | `/reports` | 交报告，见最后一节 |
@@ -53,6 +53,7 @@ GSC 的数字晚 2～3 天。期间最后几天 GSC 没数是正常的，报告�
 - **小数字要老实。** 一周 WhatsApp 点击常常只有个位数，2 → 4 是「+100%」但可能只是运气。样本小就直说「还看不出趋势」，拿更长的期间（例如最近 4 周）来判断。
 - **找原因要有证据。** 变化要连到具体的东西：哪个来源、哪一页、哪个搜索词、哪次上线（git log）。连不上就说不知道，不要编。
 - **SEO 看这几样**：曝光与点击的变化；排名进步或退步最多的搜索词；新出现的搜索词；有曝光但点击率很低的页面（标题或描述可以改）；没被收录的地址。
+- **打开速度**（`speed`，来自 Cloudflare 量的真实访客）：每项有 `_n`（次数）、`_good`（快）、`_poor`（慢）、`_p75`（LCP / INP 是毫秒）。`_good / _n` 到 75% 就算 Google 合格。先看手机（`device = mobile`）的 LCP。都合格就一句带过，**不要为了有话说而提速度**；有一项不合格、或某页 `lcp_poor` 特别多，才写进报告并提建议（例如压那页的图）。次数少于 20 就说「次数少，先观察」。
 - **追踪上次的建议**：
   - `done`：实验在跑。还没到检查日就只说「在跑，X 月 X 日检查」，别提早下结论。
   - `skipped`：阿爽决定不做。除非有新证据，不要再提同一件事。

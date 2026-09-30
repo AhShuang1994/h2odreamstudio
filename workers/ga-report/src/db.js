@@ -12,6 +12,12 @@ const TABLES = {
   gsc_daily: ["date", "clicks", "impressions", "position"],
   gsc_queries: ["date", "query", "clicks", "impressions", "position"],
   gsc_pages: ["date", "page", "clicks", "impressions", "position"],
+  speed: [
+    "date", "device", "path", "visits",
+    "lcp_n", "lcp_good", "lcp_poor", "lcp_p75",
+    "inp_n", "inp_good", "inp_poor", "inp_p75",
+    "cls_n", "cls_good", "cls_poor", "cls_p75",
+  ],
 };
 
 const CHUNK = 5000; // 一个 JSON 参数装多少行。D1 单个参数上限 2MB，5000 行远低于它
@@ -98,7 +104,7 @@ export async function rangeData(db, from, to, { dailyOnly = false } = {}) {
   const q = (sql) => db.prepare(sql).bind(from, to).all().then((r) => r.results);
   const list = async (sql) => (dailyOnly ? [] : q(sql));
 
-  const [ga, organic, gsc, channels, pages, queries, gscPages] = await Promise.all([
+  const [ga, organic, gsc, channels, pages, queries, gscPages, speed, speedPages] = await Promise.all([
     q("SELECT * FROM ga_daily WHERE date BETWEEN ? AND ? ORDER BY date"),
     q(
       `SELECT date, sessions FROM ga_channels
@@ -127,6 +133,8 @@ export async function rangeData(db, from, to, { dailyOnly = false } = {}) {
        FROM gsc_pages WHERE date BETWEEN ? AND ? GROUP BY page
        ORDER BY impressions DESC LIMIT 30`,
     ),
+    list(speedSql("device")),
+    list(`${speedSql("path")} ORDER BY lcp_poor DESC, lcp_n DESC LIMIT 30`),
   ]);
 
   const organicBy = new Map(organic.map((r) => [r.date, r.sessions]));
@@ -139,15 +147,37 @@ export async function rangeData(db, from, to, { dailyOnly = false } = {}) {
     pages,
     queries,
     gsc_pages: gscPages,
+    speed,
+    speed_pages: speedPages,
   };
+}
+
+/**
+ * 打开速度按 by（装置或页面）合计：次数直接加；p75 不能加，
+ * 就把每一格的 p75 按次数加权，取累计到 75% 的那一格。每格只有一两次时就是真的 p75，
+ * 次数多了是估计，页面上写「约」。
+ */
+function speedSql(by) {
+  const p75 = (m) => `(SELECT v FROM (
+      SELECT ${m}_p75 AS v, SUM(${m}_n) OVER (ORDER BY ${m}_p75 ROWS UNBOUNDED PRECEDING) AS cum,
+             SUM(${m}_n) OVER () AS total
+      FROM r WHERE ${by} = g.${by} AND ${m}_n > 0 AND ${m}_p75 IS NOT NULL
+    ) WHERE cum >= 0.75 * total ORDER BY v LIMIT 1) AS ${m}_p75`;
+  return `WITH r AS (SELECT * FROM speed WHERE date BETWEEN ? AND ?)
+    SELECT ${by}, SUM(visits) AS visits,
+      SUM(lcp_n) AS lcp_n, SUM(lcp_good) AS lcp_good, SUM(lcp_poor) AS lcp_poor, ${p75("lcp")},
+      SUM(inp_n) AS inp_n, SUM(inp_good) AS inp_good, SUM(inp_poor) AS inp_poor, ${p75("inp")},
+      SUM(cls_n) AS cls_n, SUM(cls_good) AS cls_good, SUM(cls_poor) AS cls_poor, ${p75("cls")}
+    FROM r AS g GROUP BY ${by}`;
 }
 
 /** 页面顶部要的：各来源同步得怎样、GSC 最新到哪天、收录几条 */
 export async function status(db) {
-  const [sync, gscLatest, gaLatest, index] = await Promise.all([
+  const [sync, gscLatest, gaLatest, speedLatest, index] = await Promise.all([
     db.prepare("SELECT * FROM sync_state").all().then((r) => r.results),
     db.prepare("SELECT MAX(date) AS d FROM gsc_daily").first(),
     db.prepare("SELECT MAX(date) AS d FROM ga_daily").first(),
+    db.prepare("SELECT MAX(date) AS d FROM speed").first(),
     db
       .prepare("SELECT url, verdict, coverage, last_crawl, checked_at FROM index_status ORDER BY url")
       .all()
@@ -158,6 +188,7 @@ export async function status(db) {
     sync,
     ga_latest: gaLatest?.d ?? null,
     gsc_latest: gscLatest?.d ?? null,
+    speed_latest: speedLatest?.d ?? null,
     index: {
       total: index.length,
       checked: checked.length,

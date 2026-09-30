@@ -120,6 +120,14 @@ summary { cursor: pointer; }
 }
 .tip b { font-weight: 600; }
 
+/* ── 打开速度 ── */
+.card h3 { font-size: 14px; color: var(--ink-muted); margin: 16px 0 8px; }
+.speed-device .kpis { margin-bottom: 0; }
+.speed-device .kpi .value { font-size: 24px; }
+.grade { display: block; font-size: 13px; color: var(--ink-muted); }
+.grade.good { color: var(--up); }
+.grade.poor { color: var(--down); }
+
 /* ── 表 ── */
 .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
 .grid2 > .card { margin-bottom: 16px; }
