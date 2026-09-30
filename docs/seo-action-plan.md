@@ -86,7 +86,7 @@
 - [x] 建 Claude routines「网站周报」「网站月报」（README 的 F.2），建好先按 Run now 测一次，报告页最上面要出现建议（2026-09-29，Opus 5.5，周一 / 每月 1 号 09:07；测试成功）
 - [x] 新版网站（Next.js）装回 GA4（2026-09-29）：9 月 25 日上线时漏掉了，第一份周报发现的。**9/25 到装回之间的 GA 数字不完整**，别拿来比
 - [ ] Cloudflare API token 加上 Zone → Analytics → Read 与 Zone → DNS → Read（只选 `h2o-dreamer-studio.com` 这个域名）
-- [ ] 报告页接上真实访客的打开速度（Cloudflare Web Analytics）：建 Account Analytics → Read 的 token，放进 Worker secret `CF_API_TOKEN`，见 `workers/ga-report/README.md` 的 G
+- [x] 报告页接上真实访客的打开速度（Cloudflare Web Analytics）：建 Account Analytics → Read 的 token，放进 Worker secret `CF_API_TOKEN`，见 `workers/ga-report/README.md` 的 G（2026-09-30，第一次同步成功）
 
 接好之后，数字与 Claude 的周报、月报都在 `/app/report/`（要登录，见 ADR-0009）。仓库是公开的，**真实数字不要写回这份文件**。
 
