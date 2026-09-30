@@ -79,8 +79,11 @@ export function Shell({ lang, children }: { lang: Lang; children: ReactNode }) {
             defer 保序，Lenis 必须排在前面。见 public/js/motion.js。 */}
         <script src={assetUrl("/js/lenis.min.js")} defer />
         <script src={assetUrl("/js/motion.js")} defer />
-        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
-        <Script id="ga-init" strategy="afterInteractive">
+        {/* lazyOnload：等页面 load 完、浏览器空下来才拉 gtag.js。它压缩后
+            173 KiB，占首页全部 JS 的将近一半，不该跟首屏抢带宽和主线程。
+            代价是 load 之前就离开或点 WhatsApp 的访客记不到，这几秒里很少见。 */}
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="lazyOnload" />
+        <Script id="ga-init" strategy="lazyOnload">
           {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${GA_ID}');`}
         </Script>
       </body>
