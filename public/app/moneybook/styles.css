@@ -392,6 +392,9 @@ body.xfer-mode .amount-box .amount{color:var(--xfer)}
   padding:6px 12px;font-size:var(--t-xs);font-weight:500;
 }
 .ib-acts button:active{background:var(--s3)}
+.in-xfer{margin-top:var(--sp-2)}
+.in-xfer .field{border-color:var(--xfer)}
+.in-xfer .field input{text-align:right}
 .card p+p{margin-top:var(--sp-2)}
 .code{
   display:block;width:100%;margin-top:var(--sp-2);padding:10px 12px;

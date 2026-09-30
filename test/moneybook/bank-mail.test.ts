@@ -184,6 +184,99 @@ describe("小帐本 · 银行交易邮件", () => {
     });
   });
 
+  describe("进帐：每一笔都问转帐还是收入（ADR-0005）", () => {
+    const cimb = JSON.parse(readFileSync(join(__dirname, "fixtures", "bank-mail", "cimb-my-received.json"), "utf8")).mail;
+    const received = (id: string, amount = "317.06", account = "7462") => ({
+      id,
+      receivedAt: "2026-09-29T01:00:00.000Z",
+      mail: { ...cimb, body: cimb.body.replace("RM39.79", `RM${amount}`).replace("******XXXX", `******${account}`) },
+    });
+
+    it("进帐邮件留在待入帐等使用者选，不自动记、不问卡片对应、不算外币消费", () => {
+      const s = crossBorder();
+      L.mapCard(s, "CIMB", { currency: "MYR", card: false });   // 就算这家银行对应过也一样
+      const r = L.receiveInbox(s, [received("a")], "2026-09-29");
+      expect(r).toMatchObject({ added: 0, pending: 1, unparsed: 0 });
+      expect(s.records).toEqual([]);
+      expect(L.unmappedCards(s)).toEqual([]);
+      expect(L.foreignPending(s)).toEqual([]);
+      expect(L.incomingPending(s)).toEqual([
+        expect.objectContaining({ id: "a", kind: "in", amount: 317.06, currency: "MYR", account: "7462", cardName: "CIMB", date: "2026-09-29" }),
+      ]);
+    });
+
+    it("选转帐：填走出多少 SGD，记成一笔 SGD → MYR 转帐，汇率算得出来", () => {
+      const s = crossBorder();
+      L.receiveInbox(s, [received("a")], "2026-09-29");
+      const rec = L.settleIncoming(s, "a", { as: "transfer", fromAmount: 100 });
+      expect(rec).toMatchObject({ type: "transfer", amount: 100, currency: "SGD", toAmount: 317.06, toCurrency: "MYR", date: "2026-09-29" });
+      expect(L.rateOf(rec)).toBeCloseTo(3.1706);
+      expect(L.incomingPending(s)).toEqual([]);
+      expect(L.monthlySummary(s, "MYR", "2026-09")).toMatchObject({ income: 0, transferIn: 317.06 });
+    });
+
+    it("选收入：记成那一侧的收入，备注写银行与尾号", () => {
+      const s = crossBorder();
+      L.receiveInbox(s, [received("a")], "2026-09-29");
+      const rec = L.settleIncoming(s, "a", { as: "income" });
+      expect(rec).toMatchObject({ type: "income", amount: 317.06, currency: "MYR", note: "CIMB ****7462" });
+      expect(s.cats.income.some((c: any) => c.id === rec.cat)).toBe(true);
+      expect(L.incomingPending(s)).toEqual([]);
+    });
+
+    it("每一笔各问各的：答过一次，下一笔还是留在待入帐", () => {
+      const s = crossBorder();
+      L.receiveInbox(s, [received("a")], "2026-09-29");
+      L.settleIncoming(s, "a", { as: "income" });
+      L.receiveInbox(s, [received("b", "50.00")], "2026-09-29");
+      expect(L.incomingPending(s).map((p: any) => p.id)).toEqual(["b"]);
+    });
+
+    it("转帐少了 SGD 金额、帐本没有另一侧、币种不在帐本里：说清楚，那一笔留着", () => {
+      const s = crossBorder();
+      L.receiveInbox(s, [received("a")], "2026-09-29");
+      expect(() => L.settleIncoming(s, "a", { as: "transfer", fromAmount: 0 })).toThrow();
+
+      const one = L.defaultState();
+      one.currency = "MYR";
+      L.receiveInbox(one, [received("b")], "2026-09-29");
+      expect(() => L.settleIncoming(one, "b", { as: "transfer", fromAmount: 100 })).toThrow();
+      expect(L.settleIncoming(one, "b", { as: "income" }).currency).toBe("MYR");
+
+      const sgdOnly = L.defaultState();
+      L.receiveInbox(sgdOnly, [received("c")], "2026-09-29");
+      expect(() => L.settleIncoming(sgdOnly, "c", { as: "income" })).toThrow();
+
+      expect(L.incomingPending(s).map((p: any) => p.id)).toEqual(["a"]);
+      expect(L.incomingPending(sgdOnly).map((p: any) => p.id)).toEqual(["c"]);
+    });
+
+    it("自动记帐与手动记帐的默认侧不被进帐改掉", () => {
+      const s = crossBorder();
+      L.setActiveSide(s, "SGD");
+      L.receiveInbox(s, [received("a")], "2026-09-29");
+      L.settleIncoming(s, "a", { as: "income" });
+      expect(L.activeSide(s)).toBe("SGD");
+    });
+
+    it("重开 app 之后还在：种类与尾号都救得回来", () => {
+      const s = crossBorder();
+      L.receiveInbox(s, [received("a")], "2026-09-29");
+      const back = L.migrate(JSON.parse(JSON.stringify(s)));
+      expect(L.incomingPending(back)).toEqual(L.incomingPending(s));
+    });
+
+    it("没有金额的进帐（PayLah! 充值这类）照旧略过", () => {
+      const s = crossBorder();
+      const paylah = JSON.parse(readFileSync(join(__dirname, "fixtures", "bank-mail", "dbs-paylah-scan-pay.json"), "utf8")).mail;
+      const body = paylah.body
+        .replace("From:\tPayLah! Wallet (Mobile ending XXXX)", "From:\tDBS Account XXXX")
+        .replace("To:\tSOON SOON CHICKEN RICE", "To:\tPayLah! Wallet (Mobile ending XXXX)");
+      const r = L.receiveInbox(s, [{ id: "p", receivedAt: "2026-09-29T01:00:00.000Z", mail: { ...paylah, body } }], "2026-09-29");
+      expect(r).toMatchObject({ pending: 0, unparsed: 0 });
+    });
+  });
+
   describe("迁移与重新载入", () => {
     beforeEach(() => { L.BANK_RULES.push(fakeBank); });
     afterEach(() => { L.BANK_RULES.splice(L.BANK_RULES.indexOf(fakeBank), 1); });
@@ -249,10 +342,10 @@ describe("小帐本 · 银行交易邮件", () => {
       expect(s.apUnparsed[0].body).toContain("Confirmation code: 123456789");
     });
 
-    it("每家银行的规则都至少有一封消费样本", () => {
+    it("每家银行的规则都至少有一封带金额的样本（消费或进帐）", () => {
       for (const rule of L.BANK_RULES) {
-        const has = samples.some(s => s.expect?.bank === rule.bank && s.expect.direction === "out");
-        expect(has, `${rule.bank} 没有消费样本`).toBe(true);
+        const has = samples.some(s => s.expect?.bank === rule.bank && s.expect.amount > 0);
+        expect(has, `${rule.bank} 没有带金额的样本`).toBe(true);
       }
     });
   });

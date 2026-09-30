@@ -23,7 +23,8 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
   // 加了一家银行的规则（ledger.js 的 BANK_RULES）就在这里补上它的寄件地址
   const MAIL_SENDERS = [
     ['ibanking.alert@dbs.com', 'DBS 信用卡、PayNow'],
-    ['paylah.alert@dbs.com', 'DBS PayLah!']
+    ['paylah.alert@dbs.com', 'DBS PayLah!'],
+    ['noreply@notification.cimb.com', 'CIMB 进帐：每一笔问你是转帐还是收入']
   ];
 
   // 分类色定义在 CSS 的 --cat-1…--cat-10，主题要换整组就只改 CSS。
@@ -1102,6 +1103,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
 
       const unparsedBefore = state.apUnparsed.length;
       const foreignBefore = L.foreignPending(state).length;
+      const incomingBefore = L.incomingPending(state).length;
       const r = L.receiveInbox(state, opened, L.dateOf(new Date()));
       if (!save()) return;
       // 存好了才确认。确认没送到的话下次会再拉到同一批，apSeen 认得出来，不会记两次
@@ -1119,6 +1121,8 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       if (r.added) msg.push(`已自动记入 ${r.added} 笔` + (r.fallback ? `（${r.fallback} 笔归到「其他」）` : ''));
       if (L.unmappedCards(state).length) msg.push('有新卡或银行要确认');
       if (L.foreignPending(state).length > foreignBefore) msg.push('有外币消费要确认');
+      const newIn = L.incomingPending(state).length - incomingBefore;
+      if (newIn > 0) msg.push(`${newIn} 笔钱进来了，要选转帐还是收入`);
       if (r.unparsed > unparsedBefore) msg.push(`${r.unparsed - unparsedBefore} 封银行邮件认不得`);
       if (r.bad + broken) msg.push(`${r.bad + broken} 笔读不懂，已略过`);
       if (msg.length) toast(msg.join('，'));
@@ -1134,13 +1138,15 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
    * - 新卡或新银行：问一次在哪一侧、是不是信用卡
    * - 外币消费（ADR-0003）：邮件上的币种跟那一侧对不上，要使用者填折合多少
    * - 认不得的银行邮件：手记（预填猜到的金额）、复制原文给开发者补规则、或删掉
+   * - 进帐（ADR-0005）：每一笔都问转帐还是收入，转帐要填另一侧走出多少
    */
   function renderApCards() {
     const el = $('#ap-cards');
     const names = INBOX_API ? L.unmappedCards(state) : [];
     const foreign = INBOX_API ? L.foreignPending(state) : [];
     const unparsed = INBOX_API ? state.apUnparsed.slice().reverse() : [];
-    el.hidden = !names.length && !foreign.length && !unparsed.length;
+    const incoming = INBOX_API ? L.incomingPending(state) : [];
+    el.hidden = !names.length && !foreign.length && !unparsed.length && !incoming.length;
     if (el.hidden) { el.innerHTML = ''; return; }
     const acts = (id, copy) => `<span class="ib-acts">
         <button data-ib-record="${esc(id)}">记一笔</button>
@@ -1165,8 +1171,29 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
           ${acts(u.id, true)}
         </div>`).join('')}
       </div>` : '';
+    const incomingHtml = incoming.length ? `<div class="card ap-card">
+        <b>钱进来了：转帐还是收入？</b>
+        <p>银行的信上看不出钱是谁转来的，所以每一笔都要你选一次。从自己另一侧的户口搬过来的选「转帐」，别人付给你的选「收入」。</p>
+        ${incoming.map(p => {
+          const from = L.otherSide(state, p.currency);
+          return `<div class="ib-row" data-in="${esc(p.id)}">
+          <span class="t"><b>${esc(p.cardName)}${p.account ? ` ****${esc(p.account)}` : ''} 收到 ${esc(L.formatMoney(p.amount, p.currency))}</b>
+            <small>${esc(p.date.slice(5))}</small></span>
+          <span class="ib-acts">
+            ${from ? `<button data-in-xfer>转帐</button>` : ''}
+            <button data-in-income>收入</button>
+            <button class="danger" data-ib-drop="${esc(p.id)}">删掉</button>
+          </span>
+          ${from ? `<div class="in-xfer" hidden>
+            <label class="field"><span>从 ${esc(from)} 走出多少</span>
+              <input type="number" min="0" step="0.01" inputmode="decimal" placeholder="照转帐 app 上扣掉的数目填" /></label>
+            <button class="primary" data-in-ok>记成转帐</button>
+          </div>` : ''}
+        </div>`;
+        }).join('')}
+      </div>` : '';
     const two = L.hasSecondary(state);
-    el.innerHTML = names.map(name => {
+    el.innerHTML = incomingHtml + names.map(name => {
       const items = state.apPending.filter(p => p.cardName === name);
       const last = items[items.length - 1];
       const mail = items.every(p => p.via === 'mail');
@@ -1230,6 +1257,27 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
   }
 
   $('#ap-cards').addEventListener('click', e => {
+    const row = e.target.closest('[data-in]');
+    if (row && e.target.closest('[data-in-xfer]')) {
+      const box = $('.in-xfer', row);
+      box.hidden = false;
+      $('input', box).focus();
+      return;
+    }
+    if (row && (e.target.closest('[data-in-income]') || e.target.closest('[data-in-ok]'))) {
+      if (readOnly) return toast('资料读不懂，已停用写入以免覆盖。请先还原备份。');
+      const asTransfer = Boolean(e.target.closest('[data-in-ok]'));
+      try {
+        L.settleIncoming(state, row.dataset.in, asTransfer
+          ? { as: 'transfer', fromAmount: Number($('.in-xfer input', row).value) }
+          : { as: 'income' });
+      } catch (err) {
+        return toast(err.message);
+      }
+      save(); renderEntry(); renderSideSwitch();
+      toast(asTransfer ? '已记成转帐' : '已记成收入，分类是「其他」');
+      return;
+    }
     const rec = e.target.closest('[data-ib-record]');
     if (rec) return recordInboxItem(rec.dataset.ibRecord);
     const copy = e.target.closest('[data-ib-copy]');
@@ -1315,6 +1363,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
         </ol>
         <p class="muted small">之后银行每寄一封交易邮件，Gmail 就转过来，打开小帐本就已经记好。过滤器只管以后的邮件，以前的不会补转。</p>
         <p class="muted small">邮件在服务器上<b>只停留到小帐本打开的那一刻</b>：拉回这台手机之后一秒内就删掉，而且停留期间也是加密的，只有这台手机解得开。</p>
+        <p class="muted small"><b>银行邮件寄到 Hotmail / Outlook 的：</b>用浏览器开 outlook.live.com → 齿轮「Settings」→「Mail」→「Rules」→「Add new rule」。条件选「From」填银行的寄件地址，动作选 <b>「Redirect to（重定向到）」</b>填转寄地址，存档。一定要选 Redirect，不要选 Forward：Forward 会把寄件人换成你自己，小帐本就认不出是哪家银行。Hotmail 不寄确认信，存了就生效。</p>
         <p class="muted small"><b>以前在 iPhone 建过「电子邮件」自动化的，删掉它。</b>那条路拿不到邮件正文，而且两条都开着，同一封信会进来两次。</p>
         <p class="muted small">过滤器会转的寄件人：</p>
         ${MAIL_SENDERS.map(([addr, what]) => `<div class="cat-row"><i>✉️</i><span><code>${esc(addr)}</code><br><small class="muted">${esc(what)}</small></span></div>`).join("")}
