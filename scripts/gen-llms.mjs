@@ -46,7 +46,7 @@ const pages = exportedPages();
 function titleOf(page) {
   const html = readFileSync(join(OUT_DIR, page.file), "utf8");
   const title = /<title>([\s\S]*?)<\/title>/.exec(html)?.[1].trim() ?? page.path;
-  return title.replace(/\s*·\s*H2ODreamer Studio\s*$/, "");
+  return title.replace(/\s*[·|]\s*H2ODreamer Studio\s*$/, "");
 }
 
 const chinese = pages.filter((p) => p.lang === "zh");

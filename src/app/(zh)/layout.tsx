@@ -6,8 +6,8 @@ import { Shell } from "@/components/Shell";
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.h2o-dreamer-studio.com"),
   title: {
-    default: "H2ODreamer Studio · 网站设计",
-    template: "%s · H2ODreamer Studio",
+    default: "H2ODreamer Studio | 网站设计",
+    template: "%s | H2ODreamer Studio",
   },
   description:
     "H2ODreamer Studio：帮你迈出梦想的第一步。马来西亚柔佛的一人网站设计工作室，做网站设计、Shopify 迁移与婚礼电子请柬。",
