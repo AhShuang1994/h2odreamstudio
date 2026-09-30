@@ -67,6 +67,13 @@
   --color-accent-hover: #9aa0ff;
   --color-accent-press: #666cd8;
 
+  /* 主行动按钮的底色：同一个靛紫深一阶，只给「白字压在上面」用。
+     白字配 #7c82f0 对比度只有 3.3:1，小字要 4.5:1（WCAG AA，Lighthouse 会报）。
+     下面三个配白字分别是 5.2 / 4.6 / 6.1。链接、焦点环等「紫字压暗底」照用上面那组。 */
+  --color-accent-fill: #5b60d4;
+  --color-accent-fill-hover: #6469dc;
+  --color-accent-fill-press: #5055c4;
+
   /* 文字四阶。muted 与 subtle 比重画前提亮了一档：原先 #a2a9b6 / #6c7382
      在近黑底上与正文拉不开层级，段落与脚注糊成一片。 */
   --color-ink: #f3f5f9;

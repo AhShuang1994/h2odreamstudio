@@ -655,7 +655,7 @@ function DeckCard({
                 href={site.waLink(t(s.waMessage, lang))}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="whitespace-nowrap rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover active:bg-accent-press lg:px-5 lg:py-2.5"
+                className="whitespace-nowrap rounded-lg bg-accent-fill px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-fill-hover active:bg-accent-fill-press lg:px-5 lg:py-2.5"
               >
                 {t(s.cta, lang)}
               </a>

@@ -63,7 +63,7 @@ export function Button({
     "focus-visible:outline-accent";
   const styles =
     variant === "primary"
-      ? "bg-accent text-white hover:bg-accent-hover active:bg-accent-press"
+      ? "bg-accent-fill text-white hover:bg-accent-fill-hover active:bg-accent-fill-press"
       : "border border-hairline-strong bg-surface-1 text-ink hover:bg-surface-2";
   const cls = `${base} ${styles} ${className}`;
   if (external) {
