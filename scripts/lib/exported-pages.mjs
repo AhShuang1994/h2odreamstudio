@@ -95,6 +95,8 @@ export function exportedPages() {
           : "core",
       lastmod: lastmodOf(html),
       alternates: alternatesOf(head),
+      /** 页面自己要求不收录（privacy、terms）。sitemap 跳过它，llms.txt 照列。 */
+      noindex: /<meta name="robots" content="[^"]*noindex/i.test(head),
     });
   }
   return pages.sort((a, b) => a.path.localeCompare(b.path));

@@ -51,7 +51,9 @@ function entry(page) {
   return `  <url>\n${lines.join("\n")}\n  </url>`;
 }
 
-const pages = exportedPages();
+// noindex 的页面不进 sitemap：一边提交一边说「别收录」，GSC 会报
+// 「已提交的网址标记为 noindex」（docs/seo-lessons.md §5）。
+const pages = exportedPages().filter((p) => !p.noindex);
 const xml =
   `<?xml version="1.0" encoding="UTF-8"?>\n` +
   `<!-- 构建期生成，见 scripts/gen-sitemap.mjs。别手改：下次构建会覆盖。 -->\n` +

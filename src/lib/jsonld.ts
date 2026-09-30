@@ -91,3 +91,27 @@ export function faqNode(items: { q: Bilingual; a: Bilingual }[], lang: Lang) {
     })),
   };
 }
+
+/**
+ * 面包屑：首页 › 分区索引 › 本页。Google 在结果里把网址换成这条路径显示。
+ *
+ * 只给博客与案例拆解的文章页用，它们正好是三层。`path` 是本页地址，
+ * 分区索引取它的目录（`/blog/x` → `/blog/`），首页随语言走（`/` 或 `/zh`）。
+ */
+export function breadcrumbNode(path: string, lang: Lang, section: Bilingual, name: string) {
+  const items = [
+    { name: t({ en: "Home", cn: "首页" }, lang), path: lang === "zh" ? "/zh" : "/" },
+    { name: t(section, lang), path: path.replace(/[^/]+$/, "") },
+    { name, path },
+  ];
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      item: `${site.domain}${item.path === "/" ? "" : item.path}`,
+    })),
+  };
+}

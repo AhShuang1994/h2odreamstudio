@@ -69,6 +69,12 @@
 - [ ] "网页会自动重定向"的数量可能增加：**这是正常的**，旧的 `.html` 地址被归类为跳转，说明 Google 认得新地址了。
 - [ ] 如果出现"Google 选择的规范网页与用户指定的不同"，截图下来查原因。
 
+## 2b. 技术 SEO 修复之后（2026-09-30 修：sitemap 去掉 noindex 页、robots.txt 放行 CSS/JS、文章页加面包屑）
+
+- [ ] 部署后跑一遍 `seo-lessons.md` 的"上线后自检"
+- [ ] 用 [Rich Results Test](https://search.google.com/test/rich-results) 抽查一篇文章：要看到 `BreadcrumbList`、`BlogPosting`、`FAQPage`，没有错误
+- [ ] 1～2 周后：GSC → 增强功能 → **面包屑**出现，没有错误；"已提交的网址标记为 noindex"归零
+
 ## 3. 接下来 1 个月：按优先顺序
 
 1. [ ] **Google Business Profile（最重要）**：搜"web design Johor Bahru"或"新山 网站设计"时，排最前的通常是地图结果。先确认有没有登记商家资料，没有就立刻做，免费。
