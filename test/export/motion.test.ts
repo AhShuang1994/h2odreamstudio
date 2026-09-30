@@ -154,8 +154,9 @@ describe("导出产物 · 动效", () => {
       html.includes("H2O<!-- -->") || html.includes("Dreamer</span> Studio"),
       "out/404.html 退回成 Next 的内建 404 了，检查 src/app/(en)/404/page.tsx 还在不在",
     ).toBe(true);
+    // 开了 inlineCss 以后样式表是 <style data-href="/_next/static/css/…">，不是 <link>
     expect(html, "404 页缺样式表：内建页是白底系统字").toMatch(
-      /rel="stylesheet"[^>]*_next\/static\/css/,
+      /<style[^>]*data-href="\/_next\/static\/css\//,
     );
     expect(html, "404 页缺中文：中文访客走丢也只看到英文").toContain("这个页面走丢了");
     expect(html, "404 页必须是 noindex").toMatch(/name="robots"[^>]*noindex/);
