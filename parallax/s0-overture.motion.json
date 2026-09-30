@@ -12,31 +12,31 @@
     "keyframes": [
       {
         "t": 0,
-        "dropW": "startW",
+        "logoW": "startW",
         "orbScale": 0.75,
-        "label": "静止，只见一个小水滴轮廓"
+        "label": "静止，屏幕正中一个小小的 logo 剪影"
       },
       {
         "t": 260,
-        "dropW": "peekW",
+        "logoW": "peekW",
         "orbScale": 0.82,
-        "label": "缓缓张开，看清洞里是那颗球"
+        "label": "缓缓张开，看清是 logo、洞里是那颗球"
       },
       {
         "t": 900,
-        "dropW": "finalW",
+        "logoW": "finalW",
         "orbScale": 1,
-        "label": "猛冲穿过，遮罩越过视口边界"
+        "label": "一边猛冲一边把太阳拉到正中，从太阳里穿过去"
       }
     ],
-    "concurrent": "洞放大的同时，洞里的球体 scale 0.75 → 1 迎上来。「前景放大 + 后景 0.75→1 同步」是 ERA 四次穿透的通用配方 —— 少了后景那一半，穿过去会像撞墙。"
+    "concurrent": "洞放大的同时，洞里的球体 scale 0.75 → 1 迎上来。「前景放大 + 后景 0.75→1 同步」是 ERA 四次穿透的通用配方，少了后景那一半，穿过去会像撞墙。"
   },
   "breakpoints": {
     "desktop": {
-      "startW": 162,
-      "peekW": 234,
-      "finalW": 1872,
-      "finalWvw": 130,
+      "startW": 216,
+      "peekW": 288,
+      "finalW": 10377,
+      "finalWvw": 721,
       "coversViewport": true,
       "viewport": {
         "vw": 1440,
@@ -46,10 +46,10 @@
       }
     },
     "mobile": {
-      "startW": 77,
-      "peekW": 112,
-      "finalW": 909,
-      "finalWvw": 211,
+      "startW": 103,
+      "peekW": 138,
+      "finalW": 6273,
+      "finalWvw": 1459,
       "coversViewport": true,
       "viewport": {
         "vw": 430,
@@ -62,7 +62,7 @@
   "gates": [
     "首访才播：sessionStorage 记住",
     "减弱动态偏好下整段不执行",
-    "hero 文字必须在遮罩下方照常绘制，不能 opacity:0 —— 见 project.json 的 opening.gates"
+    "hero 文字必须在遮罩下方照常绘制，不能 opacity:0，见 project.json 的 opening.gates"
   ],
   "transition": {
     "in": {
