@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
@@ -11,7 +13,25 @@ const nextConfig = {
   // 改成 true 会让那 26 条全部变成需要跳转的地址。
   trailingSlash: false,
   images: { unoptimized: true },
+
+  // 把全站 CSS（约 17 KiB 压缩后）直接写进每页 <head> 的 <style>，
+  // 不再用 <link rel="stylesheet"> 去拉。外链样式表会挡住首屏渲染，
+  // Lighthouse「Render-blocking requests」估计多等 150 ms。
+  experimental: { inlineCss: true },
   outputFileTracingRoot: import.meta.dirname,
+
+  // Next 不管 browserslist，一律往共享 chunk 里塞一份旧浏览器补丁
+  // （Array.prototype.at / flat / Object.hasOwn / String.trimStart…），
+  // Lighthouse 记成「Legacy JavaScript」。这些在 Safari 15.4 / Chrome 93 起
+  // 就是原生的，这里把那个模块换成空的。
+  webpack(config, { isServer }) {
+    if (!isServer) {
+      config.resolve.alias[
+        fileURLToPath(import.meta.resolve("next/dist/build/polyfills/polyfill-module"))
+      ] = false;
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

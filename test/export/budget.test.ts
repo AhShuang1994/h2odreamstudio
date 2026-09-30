@@ -41,8 +41,18 @@ import { loadExport, mb } from "../helpers/export";
  * 2026-09-21 撞上了（从 main 同步新 demo 与作品区星河图 +4.7MB → 49.3MB），
  * 照上面说的动了那批图：35 张原图长边 5472 → 2560、WebP q80，23.1 → 6.8MB。
  * 上限没抬。
+ *
+ * 48 → 60MB（2026-09-30）：开了 `experimental.inlineCss`，消掉 Lighthouse 的
+ * 「Render-blocking requests」（外链样式表挡首屏，估 150ms）。
+ *
+ * **这 11MB 也不是站变胖了，是 inlineCss 的税。** 全站 CSS 约 87KB（内容页再
+ * 加 64KB）被写进每一页的 <style>，又被 RSC flight payload 再抄一份，每页
+ * 原始体积 +175~300KB。线上是压缩传输的：首页 br 22 → 42KB，文章页 18 → 50KB。
+ * 代价是第二页起不能再从缓存拿 CSS。这是有意的取舍，用户拍板要解决首屏警告。
+ *
+ * 上面「先问是不是原图回流」的顺序仍然有效。
  */
-const MAX_EXPORT_BYTES = 48 * 1024 * 1024;
+const MAX_EXPORT_BYTES = 60 * 1024 * 1024;
 
 describe("导出产物 · 体积预算", () => {
   it(`总体积不超过 ${mb(MAX_EXPORT_BYTES)}`, () => {
