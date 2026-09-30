@@ -1,3 +1,4 @@
+import { preload } from "react-dom";
 import { HERO_LAYERS, HERO_RIVER } from "@/content/parallax";
 import { assetUrl } from "@/lib/asset-url.mjs";
 
@@ -34,6 +35,10 @@ import { assetUrl } from "@/lib/asset-url.mjs";
 export function HeroStage() {
   const { void: base } = HERO_LAYERS;
 
+  // poster 是首页的 LCP。它挂在 <video> 上，浏览器按普通优先级排队；
+  // 在 <head> 里预加载并标 high，让它跟 HTML 一起抢在最前面。
+  preload(assetUrl(HERO_RIVER.poster), { as: "image", fetchPriority: "high" });
+
   return (
     <div
       aria-hidden
@@ -41,7 +46,7 @@ export function HeroStage() {
     >
       <div className="absolute inset-0" style={{ background: base.background }} />
 
-      {/* `data-orb` 是给序幕认的：穿过水滴那一下要把它从 0.75 放到 1。
+      {/* `data-orb` 是给序幕认的：穿过 logo 那一下要把它从 0.75 放到 1。
           原来挂在静态球体图上，球体现在是视频的第 0 帧，标记就跟过来。
 
           `preload="none"` 是 ADR-0008 的硬要求：首屏交给 poster，1.3MB 的视频
