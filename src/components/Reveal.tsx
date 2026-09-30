@@ -87,9 +87,12 @@ export function Reveal() {
               // 再切一次，把每个词当成一行：实测整页 16 个元素坏掉 14 个，
               // 一个四行标题被切成十行、区块高度翻三倍。重切改由下面自己做。
               autoSplit: false,
-              // 3.13 起 SplitText 自带无障碍处理：整段文本回填成 aria-label，
-              // 屏幕阅读器读到的是连续文本，不是被切碎的行
-              aria: "auto",
+              // ⚠️ 不要改回 "auto"。auto 会把整段文本塞进元素的 aria-label、再给每一行
+              // 加 aria-hidden，但 <p> 这类元素不允许 aria-label（Lighthouse 报
+              // 「Elements must only use permitted ARIA attributes」），不少读屏软件
+              // 直接忽略它，行又被藏了，结果整段读不到。这里只按行切、不拆字，
+              // 文字原样留在 DOM 里，读屏软件照读就是连续文本，不需要任何 aria。
+              aria: "none",
               onSplit(self) {
                 // 揭幕前的隐藏态由 CSS 类给（见 globals.css 与 head-inline.js），
                 // 这里改成由行遮罩接管，元素本身恢复可见
