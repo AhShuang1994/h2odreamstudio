@@ -228,6 +228,11 @@ function sanitizePending(r) {
   const currency = normalizeCurrency(r.currency);
   if (currency) p.currency = currency;
   if (r.via === 'mail') p.via = 'mail';
+  // 进帐（ADR-0005）同样要显式救援：丢了 kind，它会被当成一笔消费自动记成支出
+  if (r.kind === 'in' && currency) {
+    p.kind = 'in';
+    if (typeof r.account === 'string') p.account = r.account;
+  }
   return p;
 }
 
@@ -1040,6 +1045,8 @@ function settlePending(state) {
   let added = 0, fallback = 0;
   const keep = [];
   for (const p of state.apPending) {
+    // 进帐每一笔都要使用者自己选转帐还是收入（ADR-0005），卡片对应管不到它
+    if (p.kind === 'in') { keep.push(p); continue; }
     const m = mappingOf(state, p.cardName);
     // 外币消费：邮件上的币种跟这张卡那一侧对不上。折合多少只有帐单知道，交给使用者
     if (!m || (p.currency && p.currency !== m.currency)) { keep.push(p); continue; }
@@ -1070,7 +1077,8 @@ function settlePending(state) {
  * - bank：显示用的银行名，也是卡片对应里的卡名（`DBS`、`Maybank`）
  * - from：比对寄件人的正则
  * - parse(mail)：回 `{ direction: 'out', amount, currency, merchant }`（消费）、
- *   `{ direction: 'in' }`（入帐）、`{ direction: 'none' }`（OTP、通知这类），
+ *   `{ direction: 'in' }`（入帐，略过）或 `{ direction: 'in', amount, currency, account }`
+ *   （进帐，留着问转帐还是收入，ADR-0005）、`{ direction: 'none' }`（OTP、通知这类），
  *   是这家银行却读不懂就回 null，那封邮件会落到「认不得」清单
  */
 export const BANK_RULES = [
@@ -1097,6 +1105,17 @@ export const BANK_RULES = [
       if (!f) return null;
       if (/paylah! wallet/i.test(f.to)) return { direction: 'in' };
       return { direction: 'out', currency: f.currency, amount: f.amount, merchant: f.to };
+    }
+  },
+  {
+    // CIMB 的进帐通知（noreply@notification.cimb.com）：You've received RM39.79 in account
+    // ending ******1234 on 30SEP2026 10:09:08. 信上只写收钱的户口，看不出是谁转来的，所以
+    // 不自动记：每一笔都留在待入帐，问使用者是转帐还是收入（ADR-0005）
+    bank: 'CIMB',
+    from: /\bcimb\b/i,
+    parse({ body }) {
+      const m = /\breceived\s+(RM|MYR|SGD|S\$)\s?([\d,]+(?:\.\d{1,2})?)\s+in\s+(?:your\s+)?account\s+ending\s+[*xX•]*([0-9X]{4})\b/i.exec(body);
+      return m && { direction: 'in', currency: MAIL_CUR[m[1].toUpperCase()] || m[1], amount: m[2], account: m[3] };
     }
   },
   {
@@ -1146,6 +1165,11 @@ export function parseBankMail(mail, rules = BANK_RULES) {
     // 读不懂就让下一条试：同一个网域可能有好几种邮件（dbs.com 有刷卡也有 PayLah!）
     const r = rule.parse(m);
     if (!r) continue;
+    if (r.direction === 'in' && r.amount != null) {
+      const amount = parseAmount(r.amount);
+      if (!amount) continue;
+      return { bank: rule.bank, direction: 'in', amount, currency: normalizeCurrency(r.currency), account: String(r.account ?? '') };
+    }
     if (r.direction !== 'out') return { bank: rule.bank, direction: r.direction === 'in' ? 'in' : 'none' };
     const amount = parseAmount(r.amount);
     if (!amount) continue;
@@ -1220,6 +1244,14 @@ export function receiveInbox(state, items, today) {
         state.apUnparsed.push({ id: it.id, date, from: str(it.mail.from), subject: str(it.mail.subject), body: str(it.mail.body) });
         continue;
       }
+      // 进帐（ADR-0005）：留在待入帐，等使用者选转帐还是收入。不自动记，卡片对应也管不到
+      if (parsed.direction === 'in' && parsed.amount) {
+        state.apPending.push({
+          id: it.id, date, amount: parsed.amount, merchant: '', cardName: parsed.bank, via: 'mail',
+          currency: parsed.currency, kind: 'in', account: parsed.account
+        });
+        continue;
+      }
       if (parsed.direction !== 'out') continue;   // 入帐、OTP：不是花出去的钱
       // 解析完只留金额、商家、日期，原文到此为止
       const p = { id: it.id, date, amount: parsed.amount, merchant: parsed.merchant, cardName: parsed.bank, via: 'mail' };
@@ -1247,7 +1279,7 @@ export function receiveInbox(state, items, today) {
 
 /** 还没对应好的卡名。空卡名也算一张（快捷指令没给卡名时），界面上显示成「未知的卡」。 */
 export function unmappedCards(state) {
-  return [...new Set(state.apPending.filter(p => !mappingOf(state, p.cardName)).map(p => p.cardName))];
+  return [...new Set(state.apPending.filter(p => p.kind !== 'in' && !mappingOf(state, p.cardName)).map(p => p.cardName))];
 }
 
 /**
@@ -1256,9 +1288,49 @@ export function unmappedCards(state) {
  */
 export function foreignPending(state) {
   return state.apPending.flatMap(p => {
+    if (p.kind === 'in') return [];
     const m = mappingOf(state, p.cardName);
     return m && p.currency && p.currency !== m.currency ? [{ ...p, side: m.currency, card: m.card }] : [];
   });
+}
+
+// -- 进帐：每一笔都问转帐还是收入（ADR-0005）------------
+//
+// 银行的进帐通知只写收钱的户口，看不出钱是从你另一侧的户口搬过来的，还是别人付给你的。
+// 所以不像消费那样照卡片对应自动记：每一笔都留在待入帐，由使用者选。
+
+/** 在等使用者选转帐还是收入的进帐。 */
+export function incomingPending(state) {
+  return state.apPending.filter(p => p.kind === 'in');
+}
+
+/**
+ * 使用者选好了：`{ as: 'transfer', fromAmount }` 或 `{ as: 'income' }`。记下之后从待入帐拿掉。
+ *
+ * 转帐的另一半（从另一侧走出多少）邮件上没有，只能问人（同到帐金额：不猜汇率）。
+ * 记不下去就丢错，那一笔留在清单上。跟其他自动进帐一样，不改掉使用者手动记帐时的默认侧。
+ */
+export function settleIncoming(state, id, choice) {
+  const p = state.apPending.find(x => x.id === id && x.kind === 'in');
+  if (!p) throw new Error('这一笔已经处理过了');
+  if (!sides(state).includes(p.currency)) throw new Error(`帐本里没有 ${p.currency} 这一侧`);
+  const note = p.account ? `${p.cardName} ****${p.account}` : p.cardName;
+
+  const { lastSide, lastCard } = state;
+  let rec;
+  if (choice?.as === 'transfer') {
+    const from = otherSide(state, p.currency);
+    if (!from) throw new Error('帐本只有一侧，记不成转帐：先加第二币种');
+    rec = addTransfer(state, { amount: choice.fromAmount, currency: from, toAmount: p.amount, toCurrency: p.currency, date: p.date, note });
+  } else {
+    const cats = state.cats.income;
+    const cat = (cats.find(c => c.id === 'other_i') || cats[cats.length - 1])?.id || '';
+    rec = addRecord(state, { type: INCOME, amount: p.amount, currency: p.currency, cat, date: p.date, note });
+  }
+  state.lastSide = lastSide;
+  state.lastCard = lastCard;
+  state.apPending = state.apPending.filter(x => x !== p);
+  return rec;
 }
 
 /** 使用者手记了、或删掉了一笔待入帐或一封认不得的邮件：从清单里拿掉。 */
