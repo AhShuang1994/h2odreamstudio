@@ -64,3 +64,7 @@ checklist.html
 
 # wrangler pages dev 的本机状态（npm run preview 生成，4MB+）
 .wrangler/
+
+# 本机密钥（wrangler dev 读 .dev.vars）。线上的密钥用 `wrangler secret put`，别进仓库
+.env
+.dev.vars
