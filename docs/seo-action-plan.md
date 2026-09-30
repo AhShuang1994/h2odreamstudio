@@ -100,6 +100,8 @@
 
 跟 Claude 说：「用 `/copywriter` 做 2c 第 N 批」。每批写完先给你看，你点头了才改进去。
 
+- [x] **copywriter 技能加了 SEO Mode**（2026-09-30，[my-claude-skills#4](https://github.com/AhShuang1994/my-claude-skills/pull/4)，`SKILL.md` Part 2B）：写之前先查 Google 前几名，标题与描述给 A / B / C 三组，每条规则标明出处（Google 官方文档或 Ahrefs）。**长度以本节上表为准**（含站名），比技能里的通用估算优先。另外记住：FAQ 折叠问答从 2023 年 9 月起只给政府和卫生网站，我们的 `FAQPage` 标签照留，但搜索结果里不会出现折叠问答。
+
 **写法规则**：
 - 关键词放最前面（例如 "Website Cost in Malaysia 2026"），站名放最后。
 - 意思跟原本的 H1 一样，只是更短。不写页面上没有的承诺。
