@@ -143,7 +143,9 @@ export function SelectedWork({ lang }: { lang: Lang }) {
         lang={lang}
         items={selectedWork.items.map((w) => ({ ...w, img: assetUrl(w.img) }))}
         header={
-          <div className="flex flex-wrap items-end justify-between gap-6">
+          // key 只为压掉开发模式的「list 缺 key」误报：服务端组件的元素当 prop
+          // 传进客户端组件，再跟兄弟节点摆在一起，React 会当它在列表里（实测加了就消失）
+          <div key="header" className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <Eyebrow>{t(selectedWork.eyebrow, lang)}</Eyebrow>
               <SectionHeading>{t(selectedWork.heading, lang)}</SectionHeading>
