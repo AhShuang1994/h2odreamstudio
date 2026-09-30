@@ -64,6 +64,9 @@ const PIECE_DAYS = 7;
 const addDays = (date, n) => new Date(Date.parse(`${date}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
 
 export async function fetchSpeed({ token, accountId, siteTag, start, end }, fetchFn = fetch) {
+  // Windows PowerShell 的 secret put 会在开头塞 BOM、贴上时也可能多空白或换行。
+  // 这些字元进了 Authorization 标头，Cloudflare 直接回 400（跟 google.js 的 JSON 钥匙同一个坑）
+  token = token.trim(); // trim() 连 BOM（U+FEFF）一起去掉
   const rows = [];
   for (let from = start; from <= end; from = addDays(from, PIECE_DAYS)) {
     const to = addDays(from, PIECE_DAYS - 1);
@@ -86,7 +89,7 @@ async function fetchPiece({ token, accountId, siteTag, start, end }, fetchFn) {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ query: QUERY, variables: { account: accountId, filter } }),
   });
-  if (!res.ok) throw new Error(`Cloudflare ${res.status}：${(await res.text()).slice(0, 200)}`);
+  if (!res.ok) throw new Error(`Cloudflare ${res.status}：${(await res.text()).slice(0, 200) || "（没有说明）"}`);
   const rows = parseSpeed(await res.json());
   if (rows.length >= LIMIT) throw new Error(`Cloudflare 一次给了 ${LIMIT} 格，可能没拿全，要把 PIECE_DAYS 改小`);
   return rows;
