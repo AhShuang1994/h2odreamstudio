@@ -106,10 +106,34 @@ export function textOf(html) {
 }
 
 /**
+ * 图说的双语：`alt` 是属性不是内容，下面的 `collapse` 换不到它。
+ *
+ * 原稿写成 `alt="原稿那种语言" data-alt-en="…"`（服务页原稿是英文，就写
+ * `data-alt-cn`）。取该语言那一份换进 `alt`，没写就留原来的，两个属性一并删掉。
+ * 值原样搬进另一个属性，所以不用解码。
+ */
+function pickAlt(html, lang) {
+  const attr = lang === "zh" ? "data-alt-cn" : "data-alt-en";
+  let out = "";
+  let cursor = 0;
+  for (const tag of iterTags(html)) {
+    if (tag.isClose || !/\sdata-alt-(?:en|cn)=/.test(tag.raw)) continue;
+    const picked = attrOf(tag.raw, attr);
+    let raw = tag.raw.replace(/\s+data-alt-(?:en|cn)="[^"]*"/g, "");
+    if (picked !== null) raw = raw.replace(/\salt="[^"]*"/, () => ` alt="${picked}"`);
+    out += html.slice(cursor, tag.start) + raw;
+    cursor = tag.end;
+  }
+  return out + html.slice(cursor);
+}
+
+/**
  * 把每个带双语标注的元素塌成一种语言：内部内容换成该语言的标注值，
  * 两个标注属性一并删掉。这与原先那段运行时 JS 做的事逐字一致。
+ * 图说另走 `pickAlt`（原先那段 JS 不管 alt，英文页因此一直挂着中文图说）。
  */
-export function collapse(html, lang) {
+export function collapse(source, lang) {
+  const html = pickAlt(source, lang);
   const attr = lang === "zh" ? "data-lang-cn" : "data-lang-en";
   let out = "";
   let cursor = 0;
