@@ -75,6 +75,117 @@
 - [ ] 用 [Rich Results Test](https://search.google.com/test/rich-results) 抽查一篇文章：要看到 `BreadcrumbList`、`BlogPosting`、`FAQPage`，没有错误
 - [ ] 1～2 周后：GSC → 增强功能 → **面包屑**出现，没有错误；"已提交的网址标记为 noindex"归零
 
+## 2c. 缩短标题与描述（计划 2026-09-30 晚上做）
+
+**为什么**：2026-09-30 体检发现，56 个该收录的页面里有 34 个标题、39 个描述太长。Google 会把它们截断或自己改写，搜索结果里那一行就不是我们写的了。标题是搜索结果里最大的那行字，直接决定别人点不点。
+
+**这次不动网址**，只改 `<title>` 和 meta description，所以不算 `seo-lessons.md` §4 说的「迁移」，风险小。
+
+**长度上限**（含结尾的 ` · H2ODreamer Studio`，大约 20 个字元）：
+
+| | 标题 | 描述 |
+|---|---|---|
+| 英文 | ≤ 60 字元 | ≤ 155 字元 |
+| 中文 | ≤ 50 字元（约 30 个汉字 + 站名） | ≤ 80 字元 |
+
+### 第 0 步：先让 Claude 做好「另写标题」的功能（约 15 分钟）
+
+- [ ] **问题**：博客、案例、服务页的英文 `<title>` 直接取页面上的 `<h1>`（`src/lib/content/html.mjs` 的 `titleFromH1`），英文描述取正文第一段再截到 160 字（`descriptionFromBody`）。直接改 H1 会动到页面上看得到的文案（#65 冻结）。
+- [ ] **做法**：原稿 `<head>` 里可以另写一组短标题和描述，有写就用它，没写就照旧取 H1 和第一段。页面上看到的 H1 一个字都不动。
+- [ ] **加测试**：`test/export/seo.test.ts` 加长度检查，先用「棘轮」写法（超长页数不能比现在多，见 `test/README.md`）。全部改完后改成硬性上限。
+
+跟 Claude 说：「照 `docs/seo-action-plan.md` 2c 第 0 步做」。
+
+### 第 1～3 步：写新标题与描述
+
+跟 Claude 说：「用 `/copywriter` 做 2c 第 N 批」。每批写完先给你看，你点头了才改进去。
+
+**写法规则**：
+- 关键词放最前面（例如 "Website Cost in Malaysia 2026"），站名放最后。
+- 意思跟原本的 H1 一样，只是更短。不写页面上没有的承诺。
+- 能写具体的就写具体：价格（RM）、年份、Johor Bahru / 新山。
+- 描述要把话说完，别在句子中间被截断。描述里要有一个让人想点的理由。
+- 每页的标题和描述全站不能重复（测试会查）。
+
+加粗 = 超过上限。
+
+**第 1 批：英文、最接近下单的 12 页**
+
+| | 地址 | 类型 | 标题长度 | 描述长度 |
+|---|---|---|---|---|
+| [ ] | `/` | 核心页 | **80** | **264** |
+| [ ] | `/pricing` | 核心页 | 27 | **215** |
+| [ ] | `/contact` | 核心页 | 27 | **223** |
+| [ ] | `/about` | 核心页 | 25 | **191** |
+| [ ] | `/web-design-johor-bahru` | 服务页 | **73** | 145 |
+| [ ] | `/landing-page` | 服务页 | **68** | **158** |
+| [ ] | `/blog/website-cost-malaysia` | 博客 | **118** | 153 |
+| [ ] | `/blog/which-website-for-your-business` | 博客 | **114** | 152 |
+| [ ] | `/blog/wix-vs-hire-designer` | 博客 | **71** | **156** |
+| [ ] | `/blog/whatsapp-vs-website` | 博客 | **138** | 102 |
+| [ ] | `/blog/seo-vs-geo-ai-search` | 博客 | **88** | **158** |
+| [ ] | `/case-studies/serai-beauty-salon` | 案例 | **105** | **156** |
+
+**第 2 批：英文其余 15 页**
+
+| | 地址 | 类型 | 标题长度 | 描述长度 |
+|---|---|---|---|---|
+| [ ] | `/shopify-migration` | 服务页 | **68** | 155 |
+| [ ] | `/wedding-basic` | 服务页 | **82** | 144 |
+| [ ] | `/wedding-premium` | 服务页 | **70** | **156** |
+| [ ] | `/blog/social-media-vs-website` | 博客 | **112** | **156** |
+| [ ] | `/blog/website-no-traffic-loop` | 博客 | **103** | 155 |
+| [ ] | `/blog/website-process-what-to-expect` | 博客 | **111** | **160** |
+| [ ] | `/case-studies/` | 案例 | 47 | **160** |
+| [ ] | `/case-studies/cooltech-aircon` | 案例 | **121** | 152 |
+| [ ] | `/case-studies/glow-seoul-skincare` | 案例 | **84** | **159** |
+| [ ] | `/case-studies/muse-apparel-shopify` | 案例 | **80** | 152 |
+| [ ] | `/case-studies/wedding-basic-minimal` | 案例 | **86** | **160** |
+| [ ] | `/case-studies/wedding-basic-outdoor` | 案例 | **84** | **160** |
+| [ ] | `/case-studies/wedding-premium-cinematic` | 案例 | **63** | **160** |
+| [ ] | `/case-studies/wedding-premium-elegant` | 案例 | **106** | **160** |
+| [ ] | `/case-studies/wok-and-flame-fnb` | 案例 | **97** | 154 |
+
+**第 3 批：中文 22 页**（中文标题取原稿 `<title>`、描述取原稿 meta description，直接改原稿 head 就行）
+
+| | 地址 | 类型 | 标题长度 | 描述长度 |
+|---|---|---|---|---|
+| [ ] | `/zh` | 核心页 | 40 | **111** |
+| [ ] | `/zh/pricing` | 核心页 | 24 | **114** |
+| [ ] | `/zh/contact` | 核心页 | 23 | **125** |
+| [ ] | `/zh/blog/` | 博客 | 37 | **144** |
+| [ ] | `/zh/blog/website-cost-malaysia` | 博客 | 50 | **91** |
+| [ ] | `/zh/blog/which-website-for-your-business` | 博客 | 47 | **98** |
+| [ ] | `/zh/blog/wix-vs-hire-designer` | 博客 | 45 | **110** |
+| [ ] | `/zh/blog/whatsapp-vs-website` | 博客 | **59** | **81** |
+| [ ] | `/zh/blog/seo-vs-geo-ai-search` | 博客 | **53** | **157** |
+| [ ] | `/zh/blog/social-media-vs-website` | 博客 | 46 | **88** |
+| [ ] | `/zh/blog/website-no-traffic-loop` | 博客 | **54** | **97** |
+| [ ] | `/zh/blog/website-process-what-to-expect` | 博客 | **51** | **125** |
+| [ ] | `/zh/case-studies/` | 案例 | 49 | **102** |
+| [ ] | `/zh/case-studies/serai-beauty-salon` | 案例 | **71** | **153** |
+| [ ] | `/zh/case-studies/cooltech-aircon` | 案例 | **75** | **103** |
+| [ ] | `/zh/case-studies/glow-seoul-skincare` | 案例 | **70** | **134** |
+| [ ] | `/zh/case-studies/muse-apparel-shopify` | 案例 | **56** | **105** |
+| [ ] | `/zh/case-studies/wedding-basic-minimal` | 案例 | 50 | **96** |
+| [ ] | `/zh/case-studies/wedding-basic-outdoor` | 案例 | 46 | **99** |
+| [ ] | `/zh/case-studies/wedding-premium-cinematic` | 案例 | **51** | **102** |
+| [ ] | `/zh/case-studies/wedding-premium-elegant` | 案例 | **53** | **82** |
+| [ ] | `/zh/case-studies/wok-and-flame-fnb` | 案例 | **78** | **96** |
+
+核心页（`/`、`/about`、`/contact`、`/pricing` 中英版）的标题和描述在 `src/content/home.ts`、`about.ts`、`contact.ts`、`pricing.ts`，直接改那里。
+
+### 第 4 步：上线
+
+- [ ] `npm test` 全过（包括新的长度检查），开 PR、合并
+- [ ] 测试的「棘轮」改成硬性上限：以后新页面超长就构建失败
+- [ ] 上线后，GSC 对第 1 批的 12 页「请求编入索引」，让 Google 早点看到新标题
+
+### 第 5 步：2～4 周后看效果
+
+- [ ] GSC → 效果 → 网页：比较改之前与改之后 4 周的**点击率 (CTR)**。点击率 = 看到你的人里有多少人点进来。
+- [ ] 用 `site:h2o-dreamer-studio.com` 看搜索结果里显示的是不是我们写的标题。如果 Google 还在改写，记下是哪几页。
+
 ## 3. 接下来 1 个月：按优先顺序
 
 1. [ ] **Google Business Profile（最重要）**：搜"web design Johor Bahru"或"新山 网站设计"时，排最前的通常是地图结果。先确认有没有登记商家资料，没有就立刻做，免费。
