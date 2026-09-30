@@ -45,6 +45,26 @@
 2. 对主要页面点"请求编入索引"；
 3. 观察 2~4 周的"网页 → 索引编制"报告，确认没有新增"网页会自动重定向"或"Google 选择的规范网页与用户指定的不同"，再做下一件。
 
+## 5. noindex 的页面进了 sitemap（2026-09-30 发现）
+
+**发生了什么**：`/privacy` 与 `/terms` 页面上写着 `<meta name="robots" content="noindex">`，可是 sitemap 是扫 `out/` 自动生成的，只看有没有 canonical，把它们也收了进去。
+
+**为什么伤 SEO**：sitemap 在说"请收录"，页面在说"别收录"。GSC 会把它们列进"已提交的网址标记为 noindex"，Google 也会觉得这份 sitemap 不太可信。
+
+**规则**：页面写了 noindex，就不能出现在 sitemap。llms.txt 可以照列（它是给 AI 看的介绍，不是收录请求）。
+
+**谁在守**：`scripts/gen-sitemap.mjs` 自动跳过 noindex 的页面；`test/export/discovery.test.ts` 的"没有 noindex 的页面"。
+
+## 6. robots.txt 挡住了 CSS 与 JS（2026-09-30 发现）
+
+**发生了什么**：`robots.txt` 里写着 `Disallow: /css/` 和 `Disallow: /js/`，本意是"不让爬虫读代码"。可内容页的样式表、字体表和脚本就放在这两个目录。
+
+**为什么伤 SEO**：Google 收录前会先把页面"画"出来。挡掉样式和脚本，它看到的是一页没排版的文字，判断手机适配和版面时会误判。Google 官方文件明确说不要挡。
+
+**规则**：页面渲染要用的目录（`/css/`、`/js/`、`/_next/`、`/fonts/`）一律不能 Disallow。想藏的只能是页面用不到的东西。
+
+**谁在守**：`test/export/seo.test.ts` 的"没有挡住页面渲染要用的样式、脚本、字体"。
+
 ---
 
 ## 上线后自检
@@ -61,4 +81,16 @@ done | grep -v '^200 '
 
 # 抽查一页的 canonical 是否指向它自己
 curl -s $S/blog/seo-vs-geo-ai-search | grep -o '<link rel="canonical"[^>]*>'
+
+# 各种写法都要一步跳到规范地址（只跳一次，目标就是 canonical）
+for u in http://www.h2o-dreamer-studio.com/about https://h2o-dreamer-studio.com/about $S/about/ $S/about.html; do
+  printf '%s  ' "$u"; curl -s -o /dev/null -w '%{http_code} -> %{redirect_url}
+' "$u"
+done
+
+# 不存在的地址必须回 404，不能回 200（"软 404"会被当成重复页）
+curl -s -o /dev/null -w '%{http_code}
+' $S/this-page-does-not-exist
 ```
+
+2026-09-30 实测：以上全部通过（http→https、无 www→www、尾斜杠、`.html` 都是一步到位，不存在的地址回 404）。

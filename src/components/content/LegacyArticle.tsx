@@ -1,10 +1,17 @@
 import { JsonLd } from "@/components/JsonLd";
 import { ArticleToc } from "@/components/content/ArticleToc";
 import { visibleFaq } from "@/lib/content/html.mjs";
+import { breadcrumbNode } from "@/lib/jsonld";
 import { assetUrl, versionAssetRefs } from "@/lib/asset-url.mjs";
 import { localize, type Lang } from "@/lib/i18n";
 import type { ContentDoc } from "@/lib/content/doc.d.mts";
 import "@/styles/legacy-content.css";
+
+/** 有面包屑的分区，与它们在导航里的名字。服务页住在根上，没有中间那层。 */
+const CRUMB_SECTIONS: Record<string, { en: string; cn: string }> = {
+  blog: { en: "Blog", cn: "博客" },
+  "case-studies": { en: "Case Studies", cn: "案例拆解" },
+};
 
 /**
  * 内容页的正文外壳。
@@ -23,6 +30,7 @@ export function LegacyArticle({ doc, lang }: { doc: ContentDoc; lang: Lang }) {
   // 原稿里的图片与样式表引用在注入时接上内容指纹，原稿本身不动。
   const body = versionAssetRefs(doc.bodyHtml(lang, (href) => localize(href, lang)));
   const faq = visibleFaq(body);
+  const crumbSection = !doc.isIndex && CRUMB_SECTIONS[doc.section];
 
   return (
     <>
@@ -53,6 +61,18 @@ export function LegacyArticle({ doc, lang }: { doc: ContentDoc; lang: Lang }) {
               acceptedAnswer: { "@type": "Answer", text: f.answer },
             })),
           }}
+        />
+      )}
+
+      {crumbSection && (
+        <JsonLd
+          data={breadcrumbNode(
+            doc.urls[lang],
+            lang,
+            crumbSection,
+            // 中文标题取自原稿 <title>，带着站名尾巴，面包屑里不要
+            doc.title[lang].replace(/\s*·\s*H2ODreamer Studio\s*$/, ""),
+          )}
         />
       )}
 

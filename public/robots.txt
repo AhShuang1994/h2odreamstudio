@@ -1,10 +1,10 @@
 # robots.txt · H2ODreamer Studio
-# Standard crawlers: index the whole site, skip code / asset / demo folders.
+# Standard crawlers: index the whole site, skip asset / demo folders.
+# /css/ and /js/ stay open: Google renders pages with them, blocking them
+# makes pages look broken to Googlebot (docs/seo-lessons.md §6).
 
 User-agent: *
 Allow: /
-Disallow: /js/
-Disallow: /css/
 Disallow: /assets/
 Allow: /assets/blog/
 Allow: /assets/favicon.svg
@@ -15,7 +15,7 @@ Disallow: /scripts/
 # AI / LLM crawlers: explicitly welcomed so this site can be discovered and
 # cited by AI answer engines (ChatGPT, Claude, Perplexity, Google AI Overviews,
 # Copilot, etc.). They get the same access as everyone else: all content is
-# open, only the asset / code / demo folders stay private.
+# open, only the asset / demo folders stay private.
 User-agent: GPTBot
 User-agent: OAI-SearchBot
 User-agent: ChatGPT-User
@@ -28,8 +28,6 @@ User-agent: Applebot-Extended
 User-agent: CCBot
 User-agent: Bytespider
 Allow: /
-Disallow: /js/
-Disallow: /css/
 Disallow: /assets/
 Allow: /assets/blog/
 Allow: /assets/favicon.svg

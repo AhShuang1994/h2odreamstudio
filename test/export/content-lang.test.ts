@@ -235,10 +235,12 @@ describe("导出产物 · 内容页语言拆分", () => {
           /Quick answer|快速答案/i.test(source),
           `${rel} 原稿里没有「快速答案」块，它是本站流量策略的核心结构，见 CONTEXT.md`,
         ).toBe(true);
-        // 原稿里的块都要保下来，再加上从可见问答生成的那一个 FAQPage（#82）
+        // 原稿里的块都要保下来，再加上从可见问答生成的那一个 FAQPage（#82），
+        // 文章页（不是索引页）再加一个 BreadcrumbList
         const sourceBlocks =
           (source.match(/application\/ld\+json/g)?.length ?? 0) +
-          (/class="faq-item"/.test(source) ? 1 : 0);
+          (/class="faq-item"/.test(source) ? 1 : 0) +
+          (rel.endsWith("/index.html") ? 0 : 1);
 
         for (const file of [p.en.file, p.zh.file]) {
           const html = x.read(file);

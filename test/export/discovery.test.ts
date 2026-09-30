@@ -40,6 +40,15 @@ describe("导出产物 · 收录入口", () => {
   }
   const urls = new Set(canonical.values());
 
+  /** 页面自己写了 noindex 的地址（privacy、terms）：进 llms.txt，不进 sitemap。 */
+  const noindex = new Set(
+    [...canonical]
+      .filter(([file]) =>
+        /<meta name="robots" content="[^"]*noindex/i.test(x.read(file).split("</head>")[0]),
+      )
+      .map(([, url]) => url),
+  );
+
   /** 规范地址 → out/ 下的文件，用来判「这条地址是否可达」。 */
   const fileByUrl = new Map([...canonical].map(([file, url]) => [url, file]));
 
@@ -86,9 +95,19 @@ describe("导出产物 · 收录入口", () => {
 
     it("条目与实际导出的页面一一对应", () => {
       const listed = [...locs].sort();
-      const expected = [...urls].sort();
+      const expected = [...urls].filter((u) => !noindex.has(u)).sort();
       expect(listed.length, "sitemap 里有重复条目").toBe(new Set(locs).size);
       expect(listed, "sitemap 与导出的页面对不上").toEqual(expected);
+    });
+
+    /**
+     * 一边提交一边说「别收录」，GSC 报「已提交的网址标记为 noindex」。
+     * privacy 与 terms 在 sitemap 里躺过，见 docs/seo-lessons.md §5。
+     */
+    it("没有 noindex 的页面", () => {
+      const both = locs.filter((u) => noindex.has(u));
+      expect(both, `这些页面写了 noindex 却在 sitemap 里：\n  ${both.join("\n  ")}`).toEqual([]);
+      expect(noindex.size, "找不到 noindex 页面：privacy / terms 的 robots 标记丢了？").toBeGreaterThan(0);
     });
 
     it("中英两个语言树都在", () => {
