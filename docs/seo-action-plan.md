@@ -188,9 +188,19 @@
 
 ### 第 4 步：上线
 
-- [ ] `npm test` 全过（包括新的长度检查），开 PR、合并
+- [ ] `npm test` 全过（包括新的长度检查），开 PR、合并（第 1 批 #204 于 2026-09-30 上线，第 2 批 #209 于 2026-10-01 上线；第 3 批未做）
 - [ ] 测试的「棘轮」改成硬性上限：以后新页面超长就构建失败
-- [ ] 上线后，GSC 对第 1 批的 12 页「请求编入索引」，让 Google 早点看到新标题
+- [ ] 上线后，GSC 对改过的页「请求编入索引」，让 Google 早点看到新标题。每天约 10 条，分 3 天：
+
+**2026-10-01 提交前检查**：Google 搜 `site:h2o-dreamer-studio.com` 显示的还是旧标题（"Pricing - H2ODreamer Studio" 这类），还没重新抓取。
+
+| | 哪天 | 网址（前面加 `https://www.h2o-dreamer-studio.com`） |
+|---|---|---|
+| [x] | 第 1 天（2026-10-01 做完） | `/`、`/pricing`、`/web-design-johor-bahru`、`/landing-page`、`/blog/website-cost-malaysia`、`/blog/which-website-for-your-business`、`/blog/wix-vs-hire-designer`、`/blog/whatsapp-vs-website`、`/blog/seo-vs-geo-ai-search`、`/case-studies/serai-beauty-salon` |
+| [ ] | 第 2 天 | `/contact`、`/about`、`/shopify-migration`、`/wedding-basic`、`/wedding-premium`、`/blog/social-media-vs-website`、`/blog/website-no-traffic-loop`、`/blog/website-process-what-to-expect` |
+| [ ] | 第 3 天 | `/case-studies/`、`/case-studies/cooltech-aircon`、`/case-studies/glow-seoul-skincare`、`/case-studies/muse-apparel-shopify`、`/case-studies/wedding-basic-minimal`、`/case-studies/wedding-basic-outdoor`、`/case-studies/wedding-premium-cinematic`、`/case-studies/wedding-premium-elegant`、`/case-studies/wok-and-flame-fnb` |
+
+第 3 批（中文）上线后，再把改过的中文页加进来。
 
 ### 第 5 步：2～4 周后看效果
 
