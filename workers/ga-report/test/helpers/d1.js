@@ -68,12 +68,22 @@ class FakeD1 {
   }
 }
 
-export function freshDb() {
+const migrations = () => readdirSync(MIGRATIONS).filter((f) => f.endsWith(".sql")).sort();
+
+/** before：只跑到这个编号之前，用来测迁移碰到旧数据会怎样 */
+export function freshDb({ before } = {}) {
   const sqlite = new DatabaseSync(":memory:");
-  for (const f of readdirSync(MIGRATIONS).filter((f) => f.endsWith(".sql")).sort()) {
+  for (const f of migrations().filter((f) => !before || f < before)) {
     sqlite.exec(readFileSync(join(MIGRATIONS, f), "utf8"));
   }
   return new FakeD1(sqlite);
+}
+
+/** 补跑剩下的迁移（编号 ≥ from） */
+export function migrateFrom(db, from) {
+  for (const f of migrations().filter((f) => f >= from)) {
+    db.sqlite.exec(readFileSync(join(MIGRATIONS, f), "utf8"));
+  }
 }
 
 export const rows = (db, sql) => db.sqlite.prepare(sql).all().map((r) => ({ ...r }));

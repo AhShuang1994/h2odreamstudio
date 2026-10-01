@@ -454,6 +454,8 @@ function experimentMeta(s) {
 }
 
 const ownerTag = (s) => (s.source === "owner" ? el("span", { class: "tag" }, "你自己做的") : null);
+// 同一期重交时新版没再提这条：记录照留，标出来让人知道
+const retiredTag = (s) => (s.retired_at ? el("span", { class: "tag" }, "重交后没再提") : null);
 
 function suggestion(s) {
   const li = el("li", { "data-status": s.status });
@@ -481,7 +483,7 @@ function suggestion(s) {
       : [badge, el("button", { onclick: set("open") }, "撤销")];
   appendAll(
     li,
-    el("div", { class: "title" }, s.title, ownerTag(s)),
+    el("div", { class: "title" }, s.title, ownerTag(s), retiredTag(s)),
     s.detail ? el("div", { class: "detail" }, s.detail) : null,
     experimentMeta(s),
     el("div", { class: "actions" }, actions),
@@ -555,7 +557,12 @@ const KIND = { weekly: "周报", monthly: "月报" };
 
 function reportCard(r) {
   return [
-    el("p", { class: "report-meta" }, `${KIND[r.kind]} · ${r.period_start} 至 ${r.period_end} · 写于 ${r.created_at.slice(0, 10)}`),
+    el(
+      "p",
+      { class: "report-meta" },
+      `${KIND[r.kind]} · ${r.period_start} 至 ${r.period_end} · 写于 ${r.created_at.slice(0, 10)}` +
+        (r.updated_at ? ` · 重交于 ${r.updated_at.slice(0, 10)}` : ""),
+    ),
     reportBody(r.body),
     r.suggestions.length ? el("ul", { class: "sugg" }, r.suggestions.map(suggestion)) : null,
   ];

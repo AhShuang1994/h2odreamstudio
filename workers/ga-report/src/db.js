@@ -206,55 +206,148 @@ export async function listReports(db, limit) {
     .bind(limit)
     .all();
   if (!reports.length) return [];
+  // 重交时新版没再提的（retired_at 有值）排在后面，记录照留
   const { results: sugg } = await db
     .prepare(
       `SELECT * FROM suggestions WHERE report_id IN (SELECT value FROM json_each(?))
-       ORDER BY report_id, position`,
+       ORDER BY report_id, retired_at IS NOT NULL, position, id`,
     )
     .bind(JSON.stringify(reports.map((r) => r.id)))
     .all();
   return reports.map((r) => ({ ...r, suggestions: sugg.filter((s) => s.report_id === r.id) }));
 }
 
-/** 同一期（kind + period_start）重写就整份换掉，建议也跟着换 */
+/** 系统自动给的 key（旧建议、没带 key 的建议）。Claude 只能沿用，不能拿来起新的 */
+const AUTO_KEY = /^s\d+$/;
+
+/** 没带 key 的建议，只有这几栏跟旧的一字不差才算同一条。按「做了」之后会变的栏位不比 */
+const CONTENT = ["title", "detail", "hypothesis", "metric", "baseline", "check_weeks"];
+const sameContent = (row, s) =>
+  CONTENT.every((f) => row[f] === s[f]) && row.source === (s.source ?? "claude");
+
+/**
+ * 交报告。同一期（kind + period_start）重交是更新，不是换掉（ADR-0011）：
+ *
+ * - 报告留原来的 id，只换期间结束日与正文。
+ * - 建议先按 key 对；没带 key、或 key 对不上的，再找内容一字不差、还没被认走的旧建议。
+ *   对上了就原地更新文字与顺序。状态、开始日、实验结果一律不碰；实验开始了
+ *   （有 started_on），猜想、指标、基准、检查周数也不改，不然到期判的不是当初那个实验。
+ * - 对不上的当新建议加进去。新版没提到的旧建议只标 retired_at，不删。
+ *
+ * key 起成系统格式（s + 数字）却对不上 → 回 { error }，什么都不写。
+ */
 export async function saveReport(db, { kind, period_start, period_end, body, suggestions }) {
-  const old = await db
+  const report = await db
     .prepare("SELECT id FROM reports WHERE kind = ? AND period_start = ?")
     .bind(kind, period_start)
     .first();
-  if (old) {
-    await db.batch([
-      db.prepare("DELETE FROM suggestions WHERE report_id = ?").bind(old.id),
-      db.prepare("DELETE FROM reports WHERE id = ?").bind(old.id),
-    ]);
+  const existing = report
+    ? (
+        await db
+          .prepare("SELECT * FROM suggestions WHERE report_id = ? ORDER BY retired_at IS NOT NULL, position, id")
+          .bind(report.id)
+          .all()
+      ).results
+    : [];
+
+  const byKey = new Map(existing.map((r) => [r.key, r]));
+  const plan = suggestions.map((s, position) => ({ s, position, row: byKey.get(s.key) ?? null, matched: "key" }));
+  const claimed = new Set(plan.filter((p) => p.row).map((p) => p.row.id));
+  for (const p of plan) {
+    if (p.row) continue;
+    if (p.s.key !== undefined && AUTO_KEY.test(p.s.key)) {
+      return { error: `key "${p.s.key}" 是系统给的格式，这一期没有这条。新建议请自己起 key（例如 "jb-title"）` };
+    }
+    p.row = existing.find((r) => !claimed.has(r.id) && sameContent(r, p.s)) ?? null;
+    p.matched = p.row ? "content" : "new";
+    if (p.row) claimed.add(p.row.id);
   }
-  const { meta } = await db
-    .prepare(
-      `INSERT INTO reports (kind, period_start, period_end, body, created_at)
-       VALUES (?, ?, ?, ?, datetime('now'))`,
-    )
-    .bind(kind, period_start, period_end, body)
-    .run();
-  const id = meta.last_row_id;
-  if (suggestions.length) {
+
+  const reportId = "(SELECT id FROM reports WHERE kind = ?1 AND period_start = ?2)";
+  const statements = [
+    report
+      ? db
+          .prepare("UPDATE reports SET period_end = ?, body = ?, updated_at = datetime('now') WHERE id = ?")
+          .bind(period_end, body, report.id)
+      : db
+          .prepare(
+            `INSERT INTO reports (kind, period_start, period_end, body, created_at)
+             VALUES (?, ?, ?, ?, datetime('now'))`,
+          )
+          .bind(kind, period_start, period_end, body),
+  ];
+
+  // 先把这期全部旧建议标成「新版没提」，下面对上的再拿掉标记。只标，不删
+  if (report) {
+    statements.push(
+      db
+        .prepare(
+          `UPDATE suggestions SET retired_at = COALESCE(retired_at, datetime('now'))
+           WHERE report_id = ? AND id NOT IN (SELECT value FROM json_each(?))`,
+        )
+        .bind(report.id, JSON.stringify([...claimed])),
+    );
+  }
+
+  for (const { s, position, row } of plan.filter((p) => p.row)) {
+    statements.push(
+      db
+        .prepare(
+          `UPDATE suggestions SET position = ?1, title = ?2, detail = ?3,
+             hypothesis = CASE WHEN started_on IS NULL THEN ?4 ELSE hypothesis END,
+             metric = CASE WHEN started_on IS NULL THEN ?5 ELSE metric END,
+             baseline = CASE WHEN started_on IS NULL THEN ?6 ELSE baseline END,
+             check_weeks = CASE WHEN started_on IS NULL THEN ?7 ELSE check_weeks END,
+             key = ?8, retired_at = NULL
+           WHERE id = ?9`,
+        )
+        .bind(position, s.title, s.detail, s.hypothesis, s.metric, s.baseline, s.check_weeks, s.key ?? row.key, row.id),
+    );
+  }
+
+  const fresh = plan.filter((p) => !p.row).map(({ s, position }) => ({ ...s, position, key: s.key ?? null }));
+  if (fresh.length) {
     // 阿爽自己做的事（owner）进来就是「做了」，开始日由 Claude 从清单或 git log 找出来
-    await db
-      .prepare(
-        `INSERT INTO suggestions (report_id, position, title, detail, source, hypothesis, metric,
-                                  baseline, check_weeks, started_on, status, status_at)
-         SELECT ?, key, json_extract(value, '$.title'), json_extract(value, '$.detail'),
-                COALESCE(json_extract(value, '$.source'), 'claude'),
-                json_extract(value, '$.hypothesis'), json_extract(value, '$.metric'),
-                json_extract(value, '$.baseline'), json_extract(value, '$.check_weeks'),
-                json_extract(value, '$.started_on'),
-                CASE json_extract(value, '$.source') WHEN 'owner' THEN 'done' ELSE 'open' END,
-                CASE json_extract(value, '$.source') WHEN 'owner' THEN datetime('now') END
-         FROM json_each(?)`,
-      )
-      .bind(id, JSON.stringify(suggestions))
-      .run();
+    statements.push(
+      db
+        .prepare(
+          `INSERT INTO suggestions (report_id, position, key, title, detail, source, hypothesis, metric,
+                                    baseline, check_weeks, started_on, status, status_at)
+           SELECT ${reportId}, json_extract(value, '$.position'), json_extract(value, '$.key'),
+                  json_extract(value, '$.title'), json_extract(value, '$.detail'),
+                  COALESCE(json_extract(value, '$.source'), 'claude'),
+                  json_extract(value, '$.hypothesis'), json_extract(value, '$.metric'),
+                  json_extract(value, '$.baseline'), json_extract(value, '$.check_weeks'),
+                  json_extract(value, '$.started_on'),
+                  CASE json_extract(value, '$.source') WHEN 'owner' THEN 'done' ELSE 'open' END,
+                  CASE json_extract(value, '$.source') WHEN 'owner' THEN datetime('now') END
+           FROM json_each(?3)`,
+        )
+        .bind(kind, period_start, JSON.stringify(fresh)),
+    );
   }
-  return id;
+  // 没带 key 的给系统 key，下次 Claude 从 /reports 读到就能沿用
+  statements.push(
+    db.prepare(`UPDATE suggestions SET key = 's' || id WHERE report_id = ${reportId} AND key IS NULL`).bind(kind, period_start),
+  );
+
+  await db.batch(statements); // 一个交易：中间失败就整批不生效，旧的一样不丢
+
+  const { id } = await db.prepare("SELECT id FROM reports WHERE kind = ? AND period_start = ?").bind(kind, period_start).first();
+  const { results: now } = await db
+    .prepare("SELECT id, key, position, retired_at FROM suggestions WHERE report_id = ? ORDER BY position, id")
+    .bind(id)
+    .all();
+  const active = now.filter((r) => !r.retired_at);
+  return {
+    id,
+    created: !report,
+    suggestions: plan.map((p) => {
+      const r = active.find((a) => a.position === p.position);
+      return { id: r.id, key: r.key, matched: p.matched };
+    }),
+    retired: now.filter((r) => r.retired_at).map((r) => r.key),
+  };
 }
 
 /** 按「做了」那天就是实验开始日；撤销或不做，开始日和结果一起清掉 */
