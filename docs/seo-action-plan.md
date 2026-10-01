@@ -259,7 +259,7 @@
 | | 平台 | 网址 | 为什么 |
 |---|---|---|---|
 | [ ] | Bing Places | https://www.bingplaces.com | 可以直接从 Google 商家资料导入，5 分钟。Bing 地图，ChatGPT 搜索也用 Bing。**2026-09-28 已从 GBP 导入送出，Bing 说 7–12 天上线**，上线后拿网址加进 `sameAs` 再打勾 |
-| [ ] | Apple Business Connect | https://businessconnect.apple.com | iPhone 地图和 Siri 用它。**2026-09-28 公司账号已送审**（SSM 证书 + `h2odreamer.uk` 的 DNS TXT，主域名加不进去）。审核过了再做 Add Location，**不公开 SSM 上的地址** |
+| [ ] | Apple Business Connect | https://businessconnect.apple.com | iPhone 地图和 Siri 用它。**2026-09-28 公司账号已送审**（SSM 证书 + `h2odreamer.uk` 的 DNS TXT，主域名加不进去）。**2026-10-01 公司账号审核通过。** 下一步 Add Location：名称、电话、网站、营业时间照上表；地址那一步若有「没有店面 / 服务范围」的选项就选它（Johor Bahru），没有就先停，**不公开 SSM 上的 Kluang 住址**。地点上线后拿 Apple 地图链接加进 `sameAs` 再打勾 |
 | [x] | Facebook 专页 | https://www.facebook.com/h2odreamer.studio/ | 很多马来西亚老板在 FB 上找人。2026-09-29 开好，已加进 `sameAs` |
 | [x] | Instagram | 已有 `@h2odreamer.studio` | 确认 bio 链接是网站首页。2026-09-29 检查完，联系方式和 FB 专页都连好了 |
 | [x] | Threads | 跟 IG 同一个账号 | 个人资料放网站网址。2026-09-29 放好了，`sameAs` 等 LinkedIn 一起加 |
