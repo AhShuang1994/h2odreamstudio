@@ -95,8 +95,8 @@ export function PricingPage({ lang }: { lang: Lang }) {
                 <tr className="border-b border-hairline-strong">
                   <th scope="col" className="py-5 pr-4 font-normal text-ink-subtle" />
                   {webTiers.map((tier) => (
-                    <th key={tier.id} scope="col" className="py-5 pr-4 align-bottom">
-                      <div className="flex items-center gap-2">
+                    <th key={tier.id} scope="col" className="px-4 py-5 text-center align-bottom">
+                      <div className="flex items-center justify-center gap-2">
                         <span className="text-base font-semibold text-ink">
                           {t(tier.name, lang)}
                         </span>
@@ -123,7 +123,7 @@ export function PricingPage({ lang }: { lang: Lang }) {
                     {row.values.map((v, j) => (
                       <td
                         key={j}
-                        className={`py-4 pr-4 text-ink ${webTiers[j].popular ? "bg-surface-1" : ""}`}
+                        className={`px-4 py-4 text-center text-ink ${webTiers[j].popular ? "bg-surface-1" : ""}`}
                       >
                         <Cell v={v} lang={lang} />
                       </td>
@@ -133,7 +133,7 @@ export function PricingPage({ lang }: { lang: Lang }) {
                 <tr>
                   <td />
                   {webTiers.map((tier) => (
-                    <td key={tier.id} className="py-5 pr-4">
+                    <td key={tier.id} className="px-4 py-5 text-center">
                       <a href={tier.href} className="text-sm text-accent hover:underline">
                         {t({ cn: "详情 →", en: "Details →" }, lang)}
                       </a>
