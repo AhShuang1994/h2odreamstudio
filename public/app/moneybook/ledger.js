@@ -1043,7 +1043,7 @@ function settlePending(state) {
   // 自动进帐不能改掉使用者手动记帐时的默认值：addRecord 会顺手记下侧与刷卡
   const { lastSide, lastCard } = state;
   let added = 0, fallback = 0;
-  const keep = [];
+  const keep = [], recordIds = [];
   for (const p of state.apPending) {
     // 进帐每一笔都要使用者自己选转帐还是收入（ADR-0005），卡片对应管不到它
     if (p.kind === 'in') { keep.push(p); continue; }
@@ -1052,15 +1052,15 @@ function settlePending(state) {
     if (!m || (p.currency && p.currency !== m.currency)) { keep.push(p); continue; }
     const { cat, guessed } = guessCat(state, m.currency, p.merchant);
     if (!guessed) fallback++;
-    addRecord(state, {
+    recordIds.push(addRecord(state, {
       type: EXPENSE, amount: p.amount, currency: m.currency, cat, date: p.date, note: p.merchant, card: m.card
-    });
+    }).id);
     added++;
   }
   state.apPending = keep;
   state.lastSide = lastSide;
   state.lastCard = lastCard;
-  return { added, fallback };
+  return { added, fallback, recordIds };
 }
 
 // -- 银行交易邮件（ADR-0003）-------------------------------
@@ -1273,8 +1273,9 @@ export function receiveInbox(state, items, today) {
   const cutoff = dateOf(new Date(new Date(today + 'T00:00:00').getTime() - SEEN_DAYS * 864e5));
   state.apSeen = state.apSeen.filter(s => s.at >= cutoff);
   state.apUnparsed = state.apUnparsed.slice(-MAX_UNPARSED);
-  const { added, fallback } = settlePending(state);
-  return { added, pending: state.apPending.length, bad, fallback, unparsed: state.apUnparsed.length };
+  // recordIds：这次自动记下的那几笔，界面拿来「撤销」（不想记的就删掉，apSeen 记得这封，不会再进来）
+  const { added, fallback, recordIds } = settlePending(state);
+  return { added, recordIds, pending: state.apPending.length, bad, fallback, unparsed: state.apUnparsed.length };
 }
 
 /** 还没对应好的卡名。空卡名也算一张（快捷指令没给卡名时），界面上显示成「未知的卡」。 */
