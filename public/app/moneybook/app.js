@@ -1125,7 +1125,17 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       if (newIn > 0) msg.push(`${newIn} 笔钱进来了，要选转帐还是收入`);
       if (r.unparsed > unparsedBefore) msg.push(`${r.unparsed - unparsedBefore} 封银行邮件认不得`);
       if (r.bad + broken) msg.push(`${r.bad + broken} 笔读不懂，已略过`);
-      if (msg.length) toast(msg.join('，'));
+      if (!msg.length) return;
+      // 自动记下的不想要：按「撤销」就删掉，不必去明细一笔一笔找
+      toast(msg.join('，'), r.recordIds.length ? {
+        label: '撤销', onClick: () => {
+          r.recordIds.forEach(id => L.removeRecord(state, id));
+          save(); renderEntry(); renderSideSwitch();
+          if (view === 'list') renderList();
+          if (view === 'stats') renderStats();
+          toast('已撤销，这几笔不记');
+        }
+      } : undefined);
     } catch {
       // 离线、服务器没回应：什么都不做，下次打开再拉
     } finally {

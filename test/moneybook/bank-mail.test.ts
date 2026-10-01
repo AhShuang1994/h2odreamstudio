@@ -125,6 +125,17 @@ describe("小帐本 · 银行交易邮件", () => {
       ]);
     });
 
+    it("自动记下的那几笔回传 id，界面拿来撤销；撤销后同一封邮件不会再记一次", () => {
+      const s = crossBorder();
+      L.mapCard(s, "TestBank", { currency: "SGD", card: false });
+      const r = L.receiveInbox(s, [mail("a", "Spent SGD 3.00 at 7-ELEVEN"), mail("b", "Spent USD 20.00 at AMAZON")], TODAY);
+      expect(r.recordIds).toEqual([s.records[0].id]);
+      r.recordIds.forEach((id: string) => L.removeRecord(s, id));
+      expect(s.records).toEqual([]);
+      L.receiveInbox(s, [mail("a", "Spent SGD 3.00 at 7-ELEVEN")], TODAY);
+      expect(s.records).toEqual([]);
+    });
+
     it("银行对应到马币侧：邮件上的 MYR 直接进帐，SGD 反而是外币", () => {
       const s = crossBorder();
       L.mapCard(s, "TestBank", { currency: "MYR", card: false });
