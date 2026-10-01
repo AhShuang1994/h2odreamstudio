@@ -1204,7 +1204,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
       </div>` : '';
     const two = L.hasSecondary(state);
     el.innerHTML = incomingHtml + names.map(name => {
-      const items = state.apPending.filter(p => p.cardName === name);
+      const items = state.apPending.filter(p => p.cardName === name && p.kind !== 'in');
       const last = items[items.length - 1];
       const mail = items.every(p => p.via === 'mail');
       return `<div class="card ap-card" data-card="${esc(name)}">
@@ -1218,6 +1218,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
           <span class="check-t"><b>信用卡</b><small>勾了就带「卡」：下个月才从户口扣</small></span>
         </label>
         <button class="primary" data-ap-ok>确定</button>
+        <button class="ap-drop danger" data-ap-drop>不记，删掉${items.length > 1 ? `这 ${items.length} 笔` : '这一笔'}</button>
       </div>`;
     }).join('') + foreignHtml + unparsedHtml;
   }
@@ -1306,6 +1307,15 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     const sideBtn = e.target.closest('[data-ap-side] button');
     if (sideBtn) {
       $$('[data-ap-side] button', box).forEach(b => b.classList.toggle('on', b === sideBtn));
+      return;
+    }
+    // 不想记：只删掉在等的那几笔，不答对应。这家银行下一封邮件进来还是会再问
+    if (e.target.closest('[data-ap-drop]')) {
+      if (readOnly) return toast('资料读不懂，已停用写入以免覆盖。请先还原备份。');
+      const ids = state.apPending.filter(p => p.cardName === box.dataset.card && p.kind !== 'in').map(p => p.id);
+      if (!confirm(`删掉这 ${ids.length} 笔？它们不会记进帐本。`)) return;
+      ids.forEach(id => L.dropInboxItem(state, id));
+      save(); renderEntry(); toast('已删掉');
       return;
     }
     if (!e.target.closest('[data-ap-ok]')) return;
