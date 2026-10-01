@@ -103,7 +103,7 @@
 <meta name="en:description" content="…">
 ```
 
-`en:title` **不写站名**，会自动补上 ` | H2ODreamer Studio`（算长度时要算进去）。JSON-LD 的 headline 也会跟着换。测试基线：一开始标题 34、描述 39，第 1 批后标题 25、描述 31，每改完一批就把 `test/export/seo.test.ts` 里的 `BASELINE` 调低。
+`en:title` **不写站名**，会自动补上 ` | H2ODreamer Studio`（算长度时要算进去）。JSON-LD 的 headline 也会跟着换。测试基线：一开始标题 34、描述 39，第 1 批后标题 25、描述 31，第 2 批后标题 11、描述 22（剩下的全是中文页），每改完一批就把 `test/export/seo.test.ts` 里的 `BASELINE` 调低。
 
 ### 第 1～3 步：写新标题与描述
 
@@ -137,25 +137,25 @@
 | [x] | `/blog/seo-vs-geo-ai-search` | 博客 | **88** | **158** |
 | [x] | `/case-studies/serai-beauty-salon` | 案例 | **105** | **156** |
 
-**第 2 批：英文其余 15 页**
+**第 2 批：英文其余 15 页**（2026-10-01 写好并改进去：同样先查 google.com.my，每页 A / B / C，用推荐那组。**做完后英文页全部在上限内。** 另外 14 页的描述原本没超长、但被截在句子中间（结尾是「…」），照「描述要把话说完」一起重写；8 个案例都写明是概念作品，不写成真实客户）
 
 | | 地址 | 类型 | 标题长度 | 描述长度 |
 |---|---|---|---|---|
-| [ ] | `/shopify-migration` | 服务页 | **68** | 155 |
-| [ ] | `/wedding-basic` | 服务页 | **82** | 144 |
-| [ ] | `/wedding-premium` | 服务页 | **70** | **156** |
-| [ ] | `/blog/social-media-vs-website` | 博客 | **112** | **156** |
-| [ ] | `/blog/website-no-traffic-loop` | 博客 | **103** | 155 |
-| [ ] | `/blog/website-process-what-to-expect` | 博客 | **111** | **160** |
-| [ ] | `/case-studies/` | 案例 | 47 | **160** |
-| [ ] | `/case-studies/cooltech-aircon` | 案例 | **121** | 152 |
-| [ ] | `/case-studies/glow-seoul-skincare` | 案例 | **84** | **159** |
-| [ ] | `/case-studies/muse-apparel-shopify` | 案例 | **80** | 152 |
-| [ ] | `/case-studies/wedding-basic-minimal` | 案例 | **86** | **160** |
-| [ ] | `/case-studies/wedding-basic-outdoor` | 案例 | **84** | **160** |
-| [ ] | `/case-studies/wedding-premium-cinematic` | 案例 | **63** | **160** |
-| [ ] | `/case-studies/wedding-premium-elegant` | 案例 | **106** | **160** |
-| [ ] | `/case-studies/wok-and-flame-fnb` | 案例 | **97** | 154 |
+| [x] | `/shopify-migration` | 服务页 | **68** | 155 |
+| [x] | `/wedding-basic` | 服务页 | **82** | 144 |
+| [x] | `/wedding-premium` | 服务页 | **70** | **156** |
+| [x] | `/blog/social-media-vs-website` | 博客 | **112** | **156** |
+| [x] | `/blog/website-no-traffic-loop` | 博客 | **103** | 155 |
+| [x] | `/blog/website-process-what-to-expect` | 博客 | **111** | **160** |
+| [x] | `/case-studies/` | 案例 | 47 | **160** |
+| [x] | `/case-studies/cooltech-aircon` | 案例 | **121** | 152 |
+| [x] | `/case-studies/glow-seoul-skincare` | 案例 | **84** | **159** |
+| [x] | `/case-studies/muse-apparel-shopify` | 案例 | **80** | 152 |
+| [x] | `/case-studies/wedding-basic-minimal` | 案例 | **86** | **160** |
+| [x] | `/case-studies/wedding-basic-outdoor` | 案例 | **84** | **160** |
+| [x] | `/case-studies/wedding-premium-cinematic` | 案例 | **63** | **160** |
+| [x] | `/case-studies/wedding-premium-elegant` | 案例 | **106** | **160** |
+| [x] | `/case-studies/wok-and-flame-fnb` | 案例 | **97** | 154 |
 
 **第 3 批：中文 22 页**（中文标题取原稿 `<title>`、描述取原稿 meta description，直接改原稿 head 就行）
 

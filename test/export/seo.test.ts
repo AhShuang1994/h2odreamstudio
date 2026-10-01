@@ -76,7 +76,7 @@ describe("导出产物 · 技术 SEO", () => {
    */
   it("标题与描述不超过搜索结果的显示长度（棘轮）", () => {
     const LIMITS = { en: { title: 60, description: 155 }, zh: { title: 50, description: 80 } };
-    const BASELINE = { title: 25, description: 31 };
+    const BASELINE = { title: 11, description: 22 };
     const over = { title: [] as string[], description: [] as string[] };
     for (const [file, head] of heads) {
       if (/<meta name="robots" content="[^"]*noindex/.test(head)) continue;
