@@ -44,7 +44,7 @@ Cloudflare 后台开了 Web Analytics，网站每一页会被自动插一段 bea
 | GET | `/app/report/api/status` | 同步状态、GA / GSC 最新日期、收录状态 |
 | GET | `/app/report/api/data?from=&to=` | 逐日数字 + 这段期间的排行与打开速度（`speed` 按装置、`speed_pages` 按页面）。加 `&daily=only` 只给逐日数字 |
 | GET | `/app/report/api/reports?limit=` | 报告与建议 |
-| POST | `/app/report/api/reports` | Claude 交报告（格式见 `ROUTINE.md`） |
+| POST | `/app/report/api/reports` | Claude 交报告（格式见 `ROUTINE.md`）。同一期再交是更新：建议按 `key` 对上，按过的记录不丢（ADR-0011） |
 | GET | `/app/report/api/experiments` | 已开始的实验、到期没有、成绩（ADR-0010） |
 | POST | `/app/report/api/suggestions/:id` | `{status: "done" \| "skipped" \| "open"}`，或判实验 `{result: "effective" \| "ineffective" \| "unclear", note}` |
 | POST | `/app/report/api/sync` | 立刻同步一次，测试用 |
@@ -156,6 +156,19 @@ npx wrangler secret put GOOGLE_SA_KEY     # 贴整份 JSON 密钥的内容
    ```
 
 3. 照 E.4 手动同步一次，`speed` 要 `ok: true`。报告页「打开速度」那块会出现数字。第一次拉最近 31 天，之后每天往回补，补满 180 天。
+
+### H. 升级：同一期重交不丢记录（迁移 0004，ADR-0011）
+
+`0004_report_resubmit.sql` 只加栏位、给旧建议补 key（`s` + id），不删任何一行。**先迁移、再部署**：旧版 Worker 碰到多出来的栏位照常能用，反过来新版 Worker 碰到没迁移的库会出错。
+
+```bash
+cd workers/ga-report
+npx wrangler d1 export ga-report --remote --output .wrangler/ga-report-backup.sql   # 先备份。.wrangler/ 不进 git，文件有真实数字
+npx wrangler d1 migrations apply ga-report --remote
+npx wrangler deploy
+```
+
+迁移完可以对一下：`npx wrangler d1 execute ga-report --remote --command "SELECT COUNT(*), COUNT(key) FROM suggestions"`，两个数字要一样。报告页（`public/app/report/`）跟着网站照常 push 上线就好。
 
 ## 本机开发
 

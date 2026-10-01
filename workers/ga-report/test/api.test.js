@@ -122,14 +122,14 @@ test("按「做了」「不做」→ 记下来，下次 Claude 读得到", async
   assert.ok(s1.status_at);
 });
 
-test("同一期重写：旧报告整份换掉，不会出现两份", async () => {
+// 同一期重交：报告留原 id、建议记录不丢，细节见 resubmit.test.js
+test("同一期重交：不会出现两份，正文换新", async () => {
   const db = freshDb();
-  await call(db, "POST", "/reports", report);
-  await call(db, "POST", "/reports", { ...report, body: "重写版", suggestions: [] });
+  assert.equal((await call(db, "POST", "/reports", report)).status, 201);
+  assert.equal((await call(db, "POST", "/reports", { ...report, body: "重写版" })).status, 200);
   const list = await (await call(db, "GET", "/reports")).json();
   assert.equal(list.length, 1);
   assert.equal(list[0].body, "重写版");
-  assert.equal(rows(db, "SELECT COUNT(*) AS n FROM suggestions")[0].n, 0);
 });
 
 test("形状不对的报告进不了库", async () => {

@@ -23,9 +23,9 @@ curl -sf "${AUTH[@]}" "$BASE/status"
 |---|---|---|
 | GET | `/status` | 各来源上次同步的时间与错误、GA 与 GSC 最新有数据的日期、收录状态 |
 | GET | `/data?from=YYYY-MM-DD&to=YYYY-MM-DD` | 这段期间的逐日数字（`ga_daily`、`gsc_daily`），以及排行：`pages`、`channels`、`queries`、`gsc_pages`；打开速度：`speed`（按装置）、`speed_pages`（按页面，慢的排前面） |
-| GET | `/reports?limit=8` | 以前的报告，每条建议带 `status`：`done`（做了）/ `skipped`（不做）/ `open`（还没按） |
+| GET | `/reports?limit=8` | 以前的报告，每条建议带 `key`、`status`：`done`（做了）/ `skipped`（不做）/ `open`（还没按）；`retired_at` 有值 = 那一期重交时新版没再提，记录照留 |
 | GET | `/experiments` | 全部已开始的实验：`started_on`（开始日）、`check_on`（检查日）、`due`（到期了还没判）、`result`，加上成绩 `summary` |
-| POST | `/reports` | 交报告，见最后一节 |
+| POST | `/reports` | 交报告，见最后一节。同一期再交是更新，不是覆盖 |
 | POST | `/suggestions/<id>` | 判实验：`{"result": "effective" \| "ineffective" \| "unclear", "note": "……"}` |
 
 要是拿到 403：Access 的 service token 或 API credential 没设好。不要重试别的方法，直接结束，在输出里写清楚是 403。
@@ -109,6 +109,7 @@ GSC 的数字晚 2～3 天。期间最后几天 GSC 没数是正常的，报告�
 
 `suggestions`：周报 1～3 条，月报最多 5 条（`source: "owner"` 的不算在内）。每条都要：
 
+- `key`：这条建议在这一期里的固定代号，小写英文、数字、连字号，48 字以内，同一份里不能重复。例：`jb-title`。**同一期重交时，同一条建议一定要用同一个 key**，标题改了也一样；系统靠它把「做了 / 不做」、开始日、实验结果接回去。
 - `title`：一句动作，做完能打勾。例：「新山专页的 title 加上『新山』和起价」
 - `detail`：为什么（引用哪个数字）、怎么做。100～300 字。
 - `hypothesis`：猜想，一句话，要能被数字推翻。例：「title 写出地点和价格，点击率会从 1% 以下升到 2% 以上」
@@ -128,8 +129,8 @@ cat > /tmp/report.json <<'EOF'
   "period_end": "2026-09-27",
   "body": "## 一句话\n……",
   "suggestions": [
-    { "title": "……", "detail": "……", "hypothesis": "……", "metric": "……", "baseline": "……", "check_weeks": 6 },
-    { "title": "……", "detail": "……", "hypothesis": "……", "metric": "……", "baseline": "……", "check_weeks": 6,
+    { "key": "jb-title", "title": "……", "detail": "……", "hypothesis": "……", "metric": "……", "baseline": "……", "check_weeks": 6 },
+    { "key": "gbp-listing", "title": "……", "detail": "……", "hypothesis": "……", "metric": "……", "baseline": "……", "check_weeks": 6,
       "source": "owner", "started_on": "2026-09-20" }
   ]
 }
@@ -137,7 +138,16 @@ EOF
 curl -sf "${AUTH[@]}" -H "Content-Type: application/json" --data-binary @/tmp/report.json "$BASE/reports"
 ```
 
-回 `{"id": …}` 就是成功。同一期重交会整份覆盖（按过的「做了 / 不做」也会清掉），所以只交一次。
-回 400 会说哪里格式不对，改好再交。
+第一次交回 201，同一期再交回 200，都带 `{"id": …, "suggestions": [{"id", "key", "matched"}], "retired": [...]}`。`matched` 是 `key`（按 key 对上）、`content`（没带 key，靠内容一字不差对上）或 `new`（新加的）。
+回 400 会说哪里格式不对，改好再交，什么都不会写进去。
+
+**同一期可以再交**（修正文、补数据、任务重跑都行），不会弄丢阿爽按过的东西：
+
+- 报告留原来的 id，正文与 `period_end` 换成新的。
+- 建议按 `key` 对上的，标题、说明、顺序换新；**状态、开始日、实验结果、判定理由一律不动**。实验已经开始的（有 `started_on`），`hypothesis`、`metric`、`baseline`、`check_weeks` 也不会被新版改掉。
+- 新的 `key` 当新建议加在这期里。新版没提到的旧建议不会删，只标 `retired_at`，实验照算。
+- 重交前先 `GET /reports` 找出那一期，**沿用每条建议的 `key`**。旧建议的 key 是系统给的（`s` 加数字，例如 `s12`），照抄就好；不要自己起 `s` 加数字的新 key，会被 400 挡掉。
+- 没带 `key` 的建议（旧格式）只有内容一字不差时才对得上；改过一个字就会当成新的一条，旧的那条标「没再提」，结果页面上多出一条。所以一定要带 `key`。
+- 不要为了「换掉」某条建议而重交：拿掉的建议记录还在。阿爽不想做的，她自己会按「不做」。
 
 最后在输出里用两三句话说：写了哪一期、几条建议、判了几个实验、有没有数据问题。

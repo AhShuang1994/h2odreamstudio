@@ -19,6 +19,7 @@ import {
 
 const API = "/app/report/api";
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const KEY = /^[a-z0-9][a-z0-9-]{0,47}$/;
 
 /** 马来西亚时间的今天。实验开始日、到期日都用它，跟报告期间同一套 */
 const todayMyt = () => new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
@@ -40,7 +41,11 @@ function checkReport(r) {
   if (!DATE.test(r.period_start ?? "") || !DATE.test(r.period_end ?? "")) return "日期格式是 YYYY-MM-DD";
   if (typeof r.body !== "string" || !r.body.trim() || r.body.length > 20000) return "body 要 1～20000 字";
   if (!Array.isArray(r.suggestions) || r.suggestions.length > 10) return "suggestions 最多 10 条";
+  const keys = r.suggestions.map((s) => s?.key).filter((k) => k !== undefined);
+  if (new Set(keys).size !== keys.length) return "同一份报告里 key 不能重复";
   for (const s of r.suggestions) {
+    // key 可以不给（旧格式），给了就要是小写字母、数字、连字号
+    if (s?.key !== undefined && !(typeof s.key === "string" && KEY.test(s.key))) return "key 只能是小写字母、数字、连字号，1～48 字";
     if (typeof s?.title !== "string" || !s.title.trim() || s.title.length > 200) return "每条建议的 title 要 1～200 字";
     if (typeof s.detail !== "string" || s.detail.length > 2000) return "每条建议的 detail 最多 2000 字";
     // 每条建议都是实验（ADR-0010）：少一样就没办法事后验证
@@ -88,7 +93,10 @@ async function route(request, env, ctx) {
     const body = await request.json().catch(() => null);
     const problem = checkReport(body);
     if (problem) return bad(problem);
-    return json({ id: await saveReport(env.DB, body) }, 201);
+    // 同一期重交是更新：回 200，第一次交回 201
+    const saved = await saveReport(env.DB, body);
+    if (saved.error) return bad(saved.error);
+    return json(saved, saved.created ? 201 : 200);
   }
 
   const m = /^\/suggestions\/(\d+)$/.exec(path);
