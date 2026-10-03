@@ -103,7 +103,7 @@
 <meta name="en:description" content="…">
 ```
 
-`en:title` **不写站名**，会自动补上 ` | H2ODreamer Studio`（算长度时要算进去）。JSON-LD 的 headline 也会跟着换。测试基线：一开始标题 34、描述 39，第 1 批后标题 25、描述 31，第 2 批后标题 11、描述 22（剩下的全是中文页），每改完一批就把 `test/export/seo.test.ts` 里的 `BASELINE` 调低。
+`en:title` **不写站名**，会自动补上 ` | H2ODreamer Studio`（算长度时要算进去）。JSON-LD 的 headline 也会跟着换。测试基线：一开始标题 34、描述 39，第 1 批后标题 25、描述 31，第 2 批后标题 11、描述 22，第 3 批后归 0，测试已改成硬性上限。
 
 ### 第 1～3 步：写新标题与描述
 
@@ -157,39 +157,39 @@
 | [x] | `/case-studies/wedding-premium-elegant` | 案例 | **106** | **160** |
 | [x] | `/case-studies/wok-and-flame-fnb` | 案例 | **97** | 154 |
 
-**第 3 批：中文 22 页**（中文标题取原稿 `<title>`、描述取原稿 meta description，直接改原稿 head 就行）
+**第 3 批：中文 22 页**（2026-10-03 写好并改进去：先查 google.com.my 中文前几名，每页 A / B / C，`/zh/blog/website-no-traffic-loop` 用 B（「网站没流量怎么办」是大家搜的原话），其余用 A。只改超长的项；`/zh/pricing`、`/zh/contact` 原本是「价格方案」「联系我」这种空词，也一起换了。首页与博客目录页的站名移到最后。**做完后全站中英文都在上限内。** 查到的事：马来西亚华人多搜「网页设计」，不是「网站设计」，首页标题用前者）
 
 | | 地址 | 类型 | 标题长度 | 描述长度 |
 |---|---|---|---|---|
-| [ ] | `/zh` | 核心页 | 40 | **111** |
-| [ ] | `/zh/pricing` | 核心页 | 24 | **114** |
-| [ ] | `/zh/contact` | 核心页 | 23 | **125** |
-| [ ] | `/zh/blog/` | 博客 | 37 | **144** |
-| [ ] | `/zh/blog/website-cost-malaysia` | 博客 | 50 | **91** |
-| [ ] | `/zh/blog/which-website-for-your-business` | 博客 | 47 | **98** |
-| [ ] | `/zh/blog/wix-vs-hire-designer` | 博客 | 45 | **110** |
-| [ ] | `/zh/blog/whatsapp-vs-website` | 博客 | **59** | **81** |
-| [ ] | `/zh/blog/seo-vs-geo-ai-search` | 博客 | **53** | **157** |
-| [ ] | `/zh/blog/social-media-vs-website` | 博客 | 46 | **88** |
-| [ ] | `/zh/blog/website-no-traffic-loop` | 博客 | **54** | **97** |
-| [ ] | `/zh/blog/website-process-what-to-expect` | 博客 | **51** | **125** |
-| [ ] | `/zh/case-studies/` | 案例 | 49 | **102** |
-| [ ] | `/zh/case-studies/serai-beauty-salon` | 案例 | **71** | **153** |
-| [ ] | `/zh/case-studies/cooltech-aircon` | 案例 | **75** | **103** |
-| [ ] | `/zh/case-studies/glow-seoul-skincare` | 案例 | **70** | **134** |
-| [ ] | `/zh/case-studies/muse-apparel-shopify` | 案例 | **56** | **105** |
-| [ ] | `/zh/case-studies/wedding-basic-minimal` | 案例 | 50 | **96** |
-| [ ] | `/zh/case-studies/wedding-basic-outdoor` | 案例 | 46 | **99** |
-| [ ] | `/zh/case-studies/wedding-premium-cinematic` | 案例 | **51** | **102** |
-| [ ] | `/zh/case-studies/wedding-premium-elegant` | 案例 | **53** | **82** |
-| [ ] | `/zh/case-studies/wok-and-flame-fnb` | 案例 | **78** | **96** |
+| [x] | `/zh` | 核心页 | 40 | **111** |
+| [x] | `/zh/pricing` | 核心页 | 24 | **114** |
+| [x] | `/zh/contact` | 核心页 | 23 | **125** |
+| [x] | `/zh/blog/` | 博客 | 37 | **144** |
+| [x] | `/zh/blog/website-cost-malaysia` | 博客 | 50 | **91** |
+| [x] | `/zh/blog/which-website-for-your-business` | 博客 | 47 | **98** |
+| [x] | `/zh/blog/wix-vs-hire-designer` | 博客 | 45 | **110** |
+| [x] | `/zh/blog/whatsapp-vs-website` | 博客 | **59** | **81** |
+| [x] | `/zh/blog/seo-vs-geo-ai-search` | 博客 | **53** | **157** |
+| [x] | `/zh/blog/social-media-vs-website` | 博客 | 46 | **88** |
+| [x] | `/zh/blog/website-no-traffic-loop` | 博客 | **54** | **97** |
+| [x] | `/zh/blog/website-process-what-to-expect` | 博客 | **51** | **125** |
+| [x] | `/zh/case-studies/` | 案例 | 49 | **102** |
+| [x] | `/zh/case-studies/serai-beauty-salon` | 案例 | **71** | **153** |
+| [x] | `/zh/case-studies/cooltech-aircon` | 案例 | **75** | **103** |
+| [x] | `/zh/case-studies/glow-seoul-skincare` | 案例 | **70** | **134** |
+| [x] | `/zh/case-studies/muse-apparel-shopify` | 案例 | **56** | **105** |
+| [x] | `/zh/case-studies/wedding-basic-minimal` | 案例 | 50 | **96** |
+| [x] | `/zh/case-studies/wedding-basic-outdoor` | 案例 | 46 | **99** |
+| [x] | `/zh/case-studies/wedding-premium-cinematic` | 案例 | **51** | **102** |
+| [x] | `/zh/case-studies/wedding-premium-elegant` | 案例 | **53** | **82** |
+| [x] | `/zh/case-studies/wok-and-flame-fnb` | 案例 | **78** | **96** |
 
 核心页（`/`、`/about`、`/contact`、`/pricing` 中英版）的标题和描述在 `src/content/home.ts`、`about.ts`、`contact.ts`、`pricing.ts`，直接改那里。
 
 ### 第 4 步：上线
 
 - [ ] `npm test` 全过（包括新的长度检查），开 PR、合并（第 1 批 #204 于 2026-09-30 上线，第 2 批 #209 于 2026-10-01 上线；第 3 批未做）
-- [ ] 测试的「棘轮」改成硬性上限：以后新页面超长就构建失败
+- [x] 测试的「棘轮」改成硬性上限：以后新页面超长就构建失败（2026-10-03）
 - [ ] 上线后，GSC 对改过的页「请求编入索引」，让 Google 早点看到新标题。每天约 10 条，分 3 天：
 
 **2026-10-01 提交前检查**：Google 搜 `site:h2o-dreamer-studio.com` 显示的还是旧标题（"Pricing - H2ODreamer Studio" 这类），还没重新抓取。

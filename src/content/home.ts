@@ -5,11 +5,11 @@ import type { Bilingual } from "./site";
 
 export const homeMeta = {
   title: {
-    cn: "马来西亚网站设计 · H2ODreamer Studio｜帮小生意踏出线上第一步",
+    cn: `马来西亚网页设计，小生意网站 ${prices.starter} 起 | H2ODreamer Studio`,
     en: "Web Design Malaysia for Small Businesses | H2ODreamer Studio",
   } as Bilingual,
   description: {
-    cn: `马来西亚柔佛的网站设计工作室，创始人阿爽一对一帮小生意上线：落地页 ${prices.starter} 起、5 页企业官网 ${prices.standard} 起、Shopify 迁移 ${prices.shopify} 起、婚礼电子请柬。中英双语，WhatsApp 免费咨询。`,
+    cn: `柔佛一人网站设计工作室，阿爽亲自做：落地页 ${prices.starter} 起、5 页官网 ${prices.standard} 起，没有强制月费。WhatsApp 免费咨询。`,
     en: `One designer in Johor builds your website personally: landing pages from ${prices.starter}, 5-page sites from ${prices.standard}. No compulsory monthly fee. Free WhatsApp chat.`,
   } as Bilingual,
 };
