@@ -81,6 +81,20 @@ export function budgetFor(maxSubrequests, maxRoutes, perRoute) {
 }
 
 /**
+ * 只留下数字跟上一次不一样的班次。
+ *
+ * 座位数一整天不动，每 5 分钟照写一次的话大半是重复的
+ * （实测线上 504 行里只有 33 行真的有变动）。D1 免费版一天 10 万行写入，
+ * 这一条就是能同时盯几条线路的天花板。
+ *
+ * 没有上一次的（prev 是 null）一定要写 —— 没有基准就无从判断有没有放位。
+ * 少写不影响判定：lastSeats 读的是最后一行，而最后一行永远等于当下的值。
+ */
+export function changedOnly(trips, prevByTrain) {
+  return trips.filter((t) => prevByTrain.get(t.hourMinute) !== t.seats);
+}
+
+/**
  * 有票事件：上一次 <= 基线、这一次 > 基线，才算真的放出位子。
  * 第一次观察（prev 为 null）不算 —— 没有基准，无法判断是不是刚放的。
  */
@@ -92,12 +106,17 @@ export function detectReleases(trips, prevByTrain, baseline) {
 }
 
 /**
- * 进行中的 offer 该怎么结算。
- * 先看座位再看过期：位子没了就当他订走了，哪怕窗口还没到。
+ * 进行中的 offer 该怎么关掉。**这里只关 offer，不碰钱。**
+ *
+ * 位子没了只代表「有人订走了」，不代表是收到通知的那个人 ——
+ * 这条线每次只放 0–1 个位，那几分钟里全马来西亚都在抢。所以是 `gone`，
+ * 不是 `booked`。扣点只有一条路：他自己按「我订到了」。
+ *
+ * 还是要关掉，否则一个不回应的人会挡住整个队伍。
  */
 export function settleDecision(offer, currentSeats, baseline, nowIso) {
   if (currentSeats === undefined || currentSeats === null) return null;
-  if (currentSeats <= baseline) return "taken";
+  if (currentSeats <= baseline) return "gone";
   if (nowIso >= offer.expires_at) return "passed";
   return null;
 }
@@ -138,6 +157,8 @@ export async function runPoll(env, deps) {
   };
   const budgeted = { ...deps, send };
 
+  await settleMemberships(env, budgeted, now, today);
+
   const all = await db.activeRoutes(env.DB, today);
   const { routes, skipped } = capRoutes(all, budget.routes);
   if (skipped.length > 0) await warnAdmins(env, budgeted, all.length, skipped);
@@ -166,18 +187,19 @@ export async function runPoll(env, deps) {
       continue;
     }
 
-    // seat_log 照记全部班次（试跑期的数据），但只有还没开走的才参与判定
+    // seat_log 全部班次都记（试跑期的数据），但只有还没开走的才参与判定
     const trips = fetched.filter((t) => !hasDeparted(date, t.hourMinute, now));
     const seatsNow = new Map(trips.map((t) => [t.hourMinute, t.seats]));
 
-    // 上一次的值必须在写入新记录之前读，否则读到的就是自己刚写的
+    // 上一次的值必须在写入新记录之前读，否则读到的就是自己刚写的。
+    // 全部班次都读，不只没开走的 —— 下面要靠它挑出哪几行值得写。
     const prev = new Map();
-    for (const t of trips) {
+    for (const t of fetched) {
       prev.set(t.hourMinute, await db.lastSeats(env.DB, direction, date, t.hourMinute));
     }
 
     await settlePending(env, budgeted, { direction, date, seatsNow, baseline });
-    await db.logSeats(env.DB, direction, date, fetched);
+    await db.logSeats(env.DB, direction, date, changedOnly(fetched, prev));
 
     const releases = detectReleases(trips, prev, baseline);
     for (const r of releases) {
@@ -193,6 +215,40 @@ export async function runPoll(env, deps) {
         });
       }
     }
+  }
+}
+
+/**
+ * 试用快到期就预告，已经到期或点数归零就停掉盯梢。
+ *
+ * 一定要出声。最糟的失败模式不是「停掉」，是「装死」——
+ * 他以为有人在帮他盯，其实没有。这个坑踩过一次了。
+ *
+ * 不需要「通知过没」的标记：lapsedWatchers 只捞「还有 active 盯梢的人」，
+ * 停完一次自然就捞不到了。预告才要标记，否则每 5 分钟提醒一次。
+ */
+async function settleMemberships(env, deps, now, today) {
+  const nowIso = now.toISOString();
+
+  const soon = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+  for (const u of await db.trialEndingSoon(env.DB, nowIso, soon)) {
+    await db.markTrialWarned(env.DB, u.chat_id, nowIso);
+    await deps.send(
+      u.chat_id,
+      `⏳ 试用快到期了（${u.trial_until.slice(0, 10)}）。\n\n` +
+        `到期之后盯梢会全部停掉，也收不到挂票通知。\n` +
+        `想继续的话找管理员充值 RM5 换 5 点。`,
+    );
+  }
+
+  for (const u of await db.lapsedWatchers(env.DB, nowIso, today)) {
+    await db.deactivateAllWatches(env.DB, u.chat_id);
+    await deps.send(
+      u.chat_id,
+      `你的盯梢已经全部停掉了 —— 点数用完 / 试用到期。\n\n` +
+        `充值 RM5 换 5 点就能继续。\n` +
+        `现在你还是可以打 /list 看挂票，也可以 /share 挂自己的票。`,
+    );
   }
 }
 
@@ -227,16 +283,8 @@ async function settlePending(env, deps, { direction, date, seatsNow, baseline })
     );
     if (!decision) continue;
 
+    // 只关 offer，不扣钱。扣点唯一的路是他自己按「我订到了」。
     await db.settleOffer(env.DB, offer.id, decision);
-
-    if (decision === "taken") {
-      await db.adjustPoints(env.DB, offer.chat_id, -1, "booked", offer.id);
-      await deps.send(
-        offer.chat_id,
-        `已扣 1 点：${ROUTES[direction].label} ${date} ${hhmm(offer.hour_minute)}\n\n` +
-          `如果这个位不是你订的，回 /appeal 我人工退给你。`,
-      );
-    }
   }
 }
 
@@ -276,7 +324,10 @@ async function offerToNext(env, deps, { direction, date, trip, route, windowMinu
       `${date} ${hhmm(trip.hourMinute)} ${trip.train}\n` +
       `座位数 ${trip.seats} · ${trip.fare}\n\n` +
       `https://online.ktmb.com.my/\n\n` +
-      `${windowMinutes} 分钟内没订，就传给排在你后面的人。\n` +
-      `订到会自动扣 1 点（#${offerId}）。`,
+      `${windowMinutes} 分钟内没动作，就传给排在你后面的人。\n` +
+      `订到了记得按下面那颗钮（#${offerId}）。`,
+    // 扣点只认这颗钮。系统不替他判断「位子没了 = 他订的」——
+    // 那 5 分钟里谁都可能抢走，猜错就是跟朋友要错钱。
+    { inline_keyboard: [[{ text: "✅ 我订到了", callback_data: `got:${offerId}` }]] },
   );
 }

@@ -68,13 +68,38 @@ export function freshDb() {
 }
 
 /** 直接塞资料，省得每个测试写一堆 INSERT */
-export function seed(db, { users = [], watches = [], seatLog = [], offers = [] }) {
+export function seed(
+  db,
+  { users = [], watches = [], seatLog = [], offers = [], listings = [] },
+) {
   const sq = db.sqlite;
   for (const u of users) {
     sq.prepare(
-      `INSERT INTO users (chat_id,name,points,is_admin,created_at)
-       VALUES (?,?,?,?,datetime('now'))`,
-    ).run(u.chat_id, u.name ?? null, u.points ?? 0, u.is_admin ?? 0);
+      `INSERT INTO users (chat_id,name,points,is_admin,trial_until,first_topup_at,created_at)
+       VALUES (?,?,?,?,?,?,datetime('now'))`,
+    ).run(
+      u.chat_id,
+      u.name ?? null,
+      u.points ?? 0,
+      u.is_admin ?? 0,
+      u.trial_until ?? null,
+      u.first_topup_at ?? null,
+    );
+  }
+  for (const l of listings) {
+    sq.prepare(
+      `INSERT INTO listings (chat_id,direction,date,hour_minute,qty,fare,gender,active,created_at)
+       VALUES (?,?,?,?,?,?,?,?,datetime('now'))`,
+    ).run(
+      l.chat_id,
+      l.direction,
+      l.date,
+      l.hour_minute,
+      l.qty ?? 1,
+      l.fare ?? "MYR 27.00",
+      l.gender ?? "M",
+      l.active ?? 1,
+    );
   }
   for (const w of watches) {
     sq.prepare(

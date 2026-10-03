@@ -21,10 +21,12 @@ export default {
     // 省得人去终端贴 token —— 贴错或贴漏才是真风险。
     // 公开也无所谓：它只会把 webhook 指回自己，重复调用结果一样。
     if (url.pathname === "/setup") {
+      // 每个人的菜单按他现在那一层推。平常在 /topup 与降级时自动更新，
+      // 这里是重推全部 —— 加了新指令之后跑一次就好。
       const { results } = await env.DB.prepare(
-        "SELECT chat_id FROM users WHERE is_admin = 1",
+        "SELECT chat_id, points, is_admin, trial_until FROM users",
       ).all();
-      await registerCommands(env, results.map((r) => r.chat_id));
+      await registerCommands(env, results);
 
       const res = await fetch(
         `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/setWebhook`,

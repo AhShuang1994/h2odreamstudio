@@ -40,9 +40,13 @@ test("detectReleases：基线可调", () => {
   assert.equal(detectReleases(trips, prev, 2).length, 1, "基线 2 时 3 个位算");
 });
 
-test("settleDecision：位子没了就当他订走了", () => {
+test("settleDecision：位子没了就关掉 offer，但不认定是谁订的", () => {
   const offer = { expires_at: "2026-08-15T10:03:00.000Z" };
-  assert.equal(settleDecision(offer, 4, 4, "2026-08-15T10:01:00.000Z"), "taken");
+  assert.equal(
+    settleDecision(offer, 4, 4, "2026-08-15T10:01:00.000Z"),
+    "gone",
+    "那几分钟里谁都可能抢走，所以是 gone 不是 booked —— 扣点只认他自己按的钮",
+  );
 });
 
 test("settleDecision：窗口内位子还在，继续等", () => {

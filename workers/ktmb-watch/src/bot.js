@@ -8,6 +8,7 @@
 import { searchTrips } from "./ktmb.js";
 import * as db from "./db.js";
 import { ROUTES, hhmm, nowInMY, liveTrains, hasDeparted } from "./watch.js";
+import { isPaid, inTrial, grantTrial, TRIAL_DAYS } from "./membership.js";
 
 const API = "https://api.telegram.org/bot";
 
@@ -35,12 +36,27 @@ export const sender = (token) => (chatId, text, keyboard) =>
 
 /* ---------- 指令菜单 ---------- */
 
-/** 输入框旁边那个 Menu 键里列的东西，用户不用自己打字 */
+/**
+ * 输入框旁边那个 Menu 键里列的东西，用户不用自己打字。
+ *
+ * 分三层是体面问题不是安全问题 —— 免费会员看到 /start 会点，点了被拒，
+ * 第一次用就吃闭门羹。真正的防线是代码里的 isPaid / is_admin 判断。
+ */
+export const FREE_COMMANDS = [
+  { command: "list", description: "看现在挂着什么票" },
+  { command: "share", description: "我有票要挂出来" },
+  { command: "invite", description: "拿邀请链接给朋友" },
+  { command: "my", description: "我的资料" },
+];
+
 export const USER_COMMANDS = [
   { command: "start", description: "开始盯一班车" },
+  { command: "list", description: "看现在挂着什么票" },
+  { command: "share", description: "我有票要挂出来" },
   { command: "my", description: "我盯了什么、剩几点、排第几" },
-  { command: "stats", description: "这条线最近真的放过几次位" },
   { command: "cancel", description: "取消一条盯梢" },
+  { command: "stats", description: "这条线最近真的放过几次位" },
+  { command: "invite", description: "拿邀请链接给朋友" },
   { command: "appeal", description: "申诉刚才那次扣点" },
 ];
 
@@ -53,19 +69,29 @@ export const ADMIN_COMMANDS = [
   { command: "mode", description: "切轮流制 / 同时通知" },
 ];
 
+/** 这个人现在该看到哪一份 */
+export function commandsFor(user, nowIso) {
+  if (user?.is_admin) return ADMIN_COMMANDS;
+  return isPaid(user, nowIso) ? USER_COMMANDS : FREE_COMMANDS;
+}
+
+export const menuSetter = (token) => (chatId, commands) =>
+  call(token, "setMyCommands", {
+    commands,
+    scope: { type: "chat", chat_id: chatId },
+  });
+
 /** 把指令菜单推给 Telegram。部署后打一次 /setup 就好 */
-export async function registerCommands(env, adminChatIds) {
+export async function registerCommands(env, users) {
   const token = env.TELEGRAM_BOT_TOKEN;
+  // 名单外的人只看得到最保守的那份
   await call(token, "setMyCommands", {
-    commands: USER_COMMANDS,
+    commands: FREE_COMMANDS,
     scope: { type: "default" },
   });
-  for (const chatId of adminChatIds) {
-    await call(token, "setMyCommands", {
-      commands: ADMIN_COMMANDS,
-      scope: { type: "chat", chat_id: chatId },
-    });
-  }
+  const nowIso = new Date().toISOString();
+  const setMenu = menuSetter(token);
+  for (const u of users) await setMenu(u.chat_id, commandsFor(u, nowIso));
 }
 
 /* ---------- 日期工具 ---------- */
@@ -117,6 +143,42 @@ const dateKeyboard = (dir, now, daysAhead) => {
   ];
 };
 
+/* ----- 挂票的菜单。callback 一律 s: 开头，跟盯梢那套分开 ----- */
+
+const shareDirectionKeyboard = () => [
+  [{ text: "去程 " + ROUTES.KJ.label, callback_data: "s:dir:KJ" }],
+  [{ text: "回程 " + ROUTES.JK.label, callback_data: "s:dir:JK" }],
+];
+
+const shareDateKeyboard = (dir, now, daysAhead) => {
+  const { last } = dateWindow(now, daysAhead);
+  return upcomingSundays(now, 4)
+    .filter((d) => d <= last)
+    .map((d) => [{ text: `礼拜日 ${d}`, callback_data: `s:date:${dir}:${d}` }]);
+};
+
+// 挂票只挑一班，不像盯梢可以多选
+const shareTrainKeyboard = (dir, date, trips) =>
+  trips.map((t) => [
+    {
+      text: `${hhmm(t.hourMinute)} ${t.train}`,
+      callback_data: `s:tr:${dir}:${date}:${t.hourMinute}`,
+    },
+  ]);
+
+const qtyKeyboard = () => [
+  [1, 2, 3, 4].map((n) => ({ text: `${n} 张`, callback_data: `s:qty:${n}` })),
+];
+
+// 买家是顶着票上那个人的身份上车，男女对不上被查的风险差很多，
+// 所以他在答应之前得知道。名字与证件号一律不存。
+const genderKeyboard = () => [
+  [
+    { text: "票上是男生", callback_data: "s:g:M" },
+    { text: "票上是女生", callback_data: "s:g:F" },
+  ],
+];
+
 function trainKeyboard(dir, date, trips, selected) {
   return [
     ...trips.map((t) => [
@@ -155,6 +217,8 @@ export async function handleUpdate(update, env, deps = {}) {
   const search = deps.search ?? searchTrips;
   const now = deps.now ? deps.now() : nowInMY();
 
+  const setMenu = deps.setMenu ?? menuSetter(env.TELEGRAM_BOT_TOKEN);
+
   if (update.callback_query) {
     if (!deps.send) {
       await call(env.TELEGRAM_BOT_TOKEN, "answerCallbackQuery", {
@@ -164,21 +228,26 @@ export async function handleUpdate(update, env, deps = {}) {
     return handleCallback(update.callback_query, env, send, search, now);
   }
   if (update.message?.text) {
-    return handleMessage(update.message, env, send, search, now);
+    return handleMessage(update.message, env, send, search, now, setMenu);
   }
 }
 
 /* ---------- 文字讯息 ---------- */
 
-async function handleMessage(msg, env, send, search, now) {
+async function handleMessage(msg, env, send, search, now, setMenu) {
   const chatId = msg.chat.id;
   const text = msg.text.trim();
   const user = await db.getUser(env.DB, chatId);
 
   // 管理员指令要先于白名单检查（管理员自己也在 users 表里）
   if (user?.is_admin && text.startsWith("/")) {
-    const handled = await handleAdmin(text, env, send, chatId);
+    const handled = await handleAdmin(text, env, send, chatId, setMenu);
     if (handled) return;
+  }
+
+  // 邀请链接：/start inv<邀请人的 chat_id>
+  if (!user && text.startsWith("/start ")) {
+    return acceptInvite(chatId, text.slice(7).trim(), env, send, setMenu, now);
   }
 
   if (!user) {
@@ -191,12 +260,27 @@ async function handleMessage(msg, env, send, search, now) {
   const [cmd] = text.split(/\s+/);
   switch (cmd) {
     case "/start":
+      // 盯梢是付费的东西。免费会员放进菜单只会走到底才被拒，更难看。
+      if (!isPaid(user, now.toISOString())) return offerUpgrade(chatId, send);
       await db.clearDraft(env.DB, chatId);
       return send(chatId, "要盯哪个方向？", directionKeyboard());
     case "/my":
       return showMine(chatId, env, send, now);
     case "/cancel":
       return startCancel(chatId, env, send, now);
+    case "/share":
+      await db.clearListingDraft(env.DB, chatId);
+      return send(chatId, "你那张票是哪个方向？", shareDirectionKeyboard());
+    case "/list":
+      return showListings(chatId, env, send, now);
+    case "/invite":
+      return send(
+        chatId,
+        `把这条链接丢给朋友，他点了就进来了：\n\n` +
+          `https://t.me/${env.BOT_USERNAME ?? "your_bot"}?start=inv${chatId}\n\n` +
+          `他进来是免费会员：能挂票、能看 /list，收不到自动通知。\n` +
+          `第一次挂票会拿到 ${TRIAL_DAYS} 天试用。`,
+      );
     case "/appeal":
       return appeal(chatId, env, send);
     case "/stats":
@@ -372,6 +456,285 @@ async function handleCallback(cq, env, send, search, now) {
     const ok = await db.cancelWatch(env.DB, chatId, Number(data.slice(3)));
     return send(chatId, ok ? "取消了。" : "找不到这条，可能已经取消过。");
   }
+
+  // ----- 挂票 -----
+
+  if (data.startsWith("s:dir:")) {
+    await db.saveListingDraft(env.DB, chatId, {
+      direction: data.slice(6),
+      date: null,
+      hour_minute: null,
+      qty: null,
+      gender: null,
+      fare: null,
+      trips: null,
+    });
+    return send(
+      chatId,
+      "哪一天？",
+      shareDateKeyboard(data.slice(6), now, Number(env.MAX_DAYS_AHEAD ?? 28)),
+    );
+  }
+
+  if (data.startsWith("s:date:")) {
+    const [dir, date] = data.slice(7).split(":");
+    const route = ROUTES[dir];
+    if (!route) return send(chatId, STALE);
+
+    let trips;
+    try {
+      trips = await search({ from: route.from, to: route.to, date });
+    } catch (err) {
+      return send(chatId, `查不到 ${date} 的班次：${err.message}`);
+    }
+    const live = trips.filter((t) => !hasDeparted(date, t.hourMinute, now));
+    if (live.length === 0) return send(chatId, `${date} 这天没有还没开走的班次。`);
+
+    await db.saveListingDraft(env.DB, chatId, {
+      direction: dir,
+      date,
+      trips: JSON.stringify(live),
+    });
+    return send(chatId, "哪一班？", shareTrainKeyboard(dir, date, live));
+  }
+
+  if (data.startsWith("s:tr:")) {
+    const [dir, date, hm] = data.slice(5).split(":");
+    const draft = await db.getListingDraft(env.DB, chatId);
+    if (!draft || draft.direction !== dir || draft.date !== date) {
+      return send(chatId, STALE);
+    }
+    // 票价从缓存里那班车抓，不让他自己填 —— 全程不用打字，
+    // 而且「不能加价」这条规矩才有个能对照的锚。
+    const trips = draft.trips ? JSON.parse(draft.trips) : [];
+    const t = trips.find((x) => x.hourMinute === Number(hm));
+    await db.saveListingDraft(env.DB, chatId, {
+      hour_minute: Number(hm),
+      fare: t?.fare ?? null,
+    });
+    return send(chatId, "有几张？", qtyKeyboard());
+  }
+
+  if (data.startsWith("s:qty:")) {
+    const draft = await db.getListingDraft(env.DB, chatId);
+    if (!draft?.hour_minute) return send(chatId, STALE);
+    await db.saveListingDraft(env.DB, chatId, { qty: Number(data.slice(6)) });
+    return send(chatId, "票上那个人是男是女？\n（买的人要顶着这个身份上车）", genderKeyboard());
+  }
+
+  if (data.startsWith("s:g:")) {
+    const draft = await db.getListingDraft(env.DB, chatId);
+    if (!draft?.qty) return send(chatId, STALE);
+    return finishListing(chatId, { ...draft, gender: data.slice(4) }, env, send, now);
+  }
+
+  if (data.startsWith("want:")) {
+    return wantListing(chatId, Number(data.slice(5)), env, send);
+  }
+
+  if (data.startsWith("sold:")) {
+    const ok = await db.closeListing(env.DB, Number(data.slice(5)), chatId);
+    return send(chatId, ok ? "下架了。" : "找不到这张，可能已经下架过。");
+  }
+
+  // 「✅ 我订到了」—— 全系统唯一会扣钱的地方
+  if (data.startsWith("got:")) {
+    const offer = await db.claimOffer(env.DB, Number(data.slice(4)), chatId);
+    if (!offer) return send(chatId, "这个已经处理过了。");
+
+    // 订到了就别再盯这条 —— 一颗钮两件事，省得他还要自己去 /cancel
+    await db.cancelWatch(env.DB, chatId, offer.watch_id);
+
+    const user = await db.getUser(env.DB, chatId);
+    if (inTrial(user, new Date().toISOString())) {
+      return send(
+        chatId,
+        `记下了，这次不扣点 —— 你还在试用期。\n\n` +
+          `那条盯梢已经停掉了。试用完想继续的话，充值 RM5 换 5 点。`,
+      );
+    }
+
+    await db.adjustPoints(env.DB, chatId, -1, "booked", offer.id);
+    const left = (await db.getUser(env.DB, chatId)).points;
+    return send(
+      chatId,
+      `扣 1 点，余额 ${left}。那条盯梢也停掉了。\n\n` +
+        `按错了的话回 /appeal，我人工退给你。`,
+    );
+  }
+}
+
+/**
+ * 邀请链接进来的人。
+ *
+ * 这不是自助注册 —— 邀请人得是真的会员，随便编一个 ID 进不来。
+ * 它只是把「管理员一个一个加」这个瓶颈拿掉：挂票板要有货，
+ * 供货的那一边人太少就是一块空板。
+ */
+async function acceptInvite(chatId, payload, env, send, setMenu, now) {
+  const m = /^inv(\d+)$/.exec(payload);
+  const inviter = m ? await db.getUser(env.DB, Number(m[1])) : null;
+  if (!inviter) {
+    return send(
+      chatId,
+      `这是邀请制服务，你还不在名单上。\n\n你的 ID 是 ${chatId}\n把这串号码发给管理员，他加你进来。`,
+    );
+  }
+
+  await db.addUser(env.DB, chatId, null, 0, inviter.chat_id);
+  await setMenu(chatId, commandsFor({ points: 0 }, now.toISOString()));
+
+  await send(
+    inviter.chat_id,
+    `👋 你邀请的人（${chatId}）进来了。`,
+  );
+  return send(
+    chatId,
+    `欢迎 👋 你已经是会员了。\n\n` +
+      `现在可以：\n` +
+      `• /list 看看有谁挂了用不到的票\n` +
+      `• /share 把自己用不到的票挂上来 —— **第一次挂票送 ${TRIAL_DAYS} 天试用**\n\n` +
+      `试用期内跟付费会员一样：有位马上通知你，别人挂票也第一时间推给你。`,
+  );
+}
+
+/** 免费会员想盯车时给的两条路。别只说「不行」。 */
+const offerUpgrade = (chatId, send) =>
+  send(
+    chatId,
+    `盯车是付费会员的功能，你现在还不是。\n\n` +
+      `两条路：\n` +
+      `1️⃣ 手上有用不到的票？打 /share 挂上来 —— 第一次挂票送你 ${TRIAL_DAYS} 天试用\n` +
+      `2️⃣ 直接充值 RM5 换 5 点，找管理员\n\n` +
+      `在那之前你还是可以打 /list 看别人挂了什么票。`,
+  );
+
+/* ---------- 挂票 ---------- */
+
+const GENDER = { M: "男生", F: "女生" };
+
+const listingLine = (l) =>
+  `${ROUTES[l.direction]?.label ?? l.direction}\n` +
+  `${l.date} ${hhmm(l.hour_minute)} · ${l.qty} 张 · 票上是${GENDER[l.gender] ?? "?"}` +
+  (l.fare ? `\n原价 ${l.fare}` : "");
+
+/** 挂上去、送试用、推给在盯那班车的付费会员 */
+async function finishListing(chatId, draft, env, send, now) {
+  const id = await db.createListing(env.DB, chatId, {
+    direction: draft.direction,
+    date: draft.date,
+    hour_minute: draft.hour_minute,
+    qty: draft.qty,
+    fare: draft.fare,
+    gender: draft.gender,
+  });
+  await db.clearListingDraft(env.DB, chatId);
+
+  const listing = { ...draft, id };
+  const watchers = await pushListing(chatId, listing, env, send, now);
+
+  // 第一次挂票送 30 天试用，一辈子一次。这是转化工具不是供货工具 ——
+  // 挂票的人本来就有 RM7-27 的动机（退票拿不回全额），不靠这个才肯挂。
+  const trial = await grantTrial(env.DB, chatId, now.toISOString(), TRIAL_DAYS);
+
+  const parts = [
+    `挂上去了 👍\n\n${listingLine(listing)}`,
+    watchers > 0
+      ? `已经通知 ${watchers} 个在盯这班车的人。`
+      : `目前没人在盯这班车。有人打 /list 就看得到。`,
+    `卖掉了记得按一下下面那颗钮，别让人白问。`,
+  ];
+  if (trial) {
+    parts.push(
+      `\n🎁 第一次挂票，送你 30 天试用（到 ${trial.slice(0, 10)}）。\n` +
+        `试用期内跟付费会员一样：能盯车、有位马上通知你，抢到也不扣点。`,
+    );
+  }
+
+  return send(chatId, parts.join("\n\n"), {
+    inline_keyboard: [[{ text: "✅ 卖掉了", callback_data: `sold:${id}` }]],
+  });
+}
+
+/**
+ * 推给正在盯这班车的**付费会员**。免费会员收不到 —— 推送就是付费买的东西。
+ *
+ * 发讯息也吃 Cloudflare 那 50 个对外请求，所以数着发。人多到发不完时
+ * 宁可少发几条，也不能整次执行炸掉。
+ */
+async function pushListing(sellerId, l, env, send, now) {
+  const watchers = await db.watchersOf(env.DB, l.direction, l.date, l.hour_minute);
+  const targets = watchers.filter(
+    (w) => w.chat_id !== sellerId && isPaid(w, now.toISOString()),
+  );
+
+  let budget = Number(env.MAX_SUBREQUESTS ?? 50) - 5;
+  let sent = 0;
+  for (const w of targets) {
+    if (budget <= 0) {
+      console.error(`请求额度用完，${w.chat_id} 这次没收到挂票通知`);
+      break;
+    }
+    budget -= 1;
+    sent += 1;
+    await send(
+      w.chat_id,
+      `🎫 有人挂了一张你在盯的票\n\n${listingLine(l)}\n\n` +
+        `要的话按下面，我帮你转告卖家。`,
+      { inline_keyboard: [[{ text: "我要这张", callback_data: `want:${l.id}` }]] },
+    );
+  }
+  return sent;
+}
+
+/** bot 当门铃：转告卖家，不把双方的联络方式丢出来 */
+async function wantListing(chatId, listingId, env, send) {
+  const l = await db.getListing(env.DB, listingId);
+  if (!l || !l.active) return send(chatId, "这张已经不在了。");
+  if (l.chat_id === chatId) return send(chatId, "这是你自己挂的。");
+
+  const me = await db.getUser(env.DB, chatId);
+  await send(
+    l.chat_id,
+    `🙋 有人要你那张票\n\n${listingLine(l)}\n\n` +
+      `想要的是：${me?.name ?? chatId}\n` +
+      `你主动私讯他谈就好。谈成了按「卖掉了」下架。`,
+    { inline_keyboard: [[{ text: "✅ 卖掉了", callback_data: `sold:${l.id}` }]] },
+  );
+  return send(chatId, `已经帮你转告卖家了，等他私讯你。\n\n${listingLine(l)}`);
+}
+
+/** /list —— 免费会员唯一看得到挂票的地方 */
+async function showListings(chatId, env, send, now) {
+  const today = now.toISOString().slice(0, 10);
+  const all = await db.openListings(env.DB, today);
+  const live = all.filter((l) => !hasDeparted(l.date, l.hour_minute, now));
+
+  if (live.length === 0) {
+    return send(
+      chatId,
+      "目前没有人挂票。\n\n手上有用不到的票的话，打 /share 挂上来。",
+    );
+  }
+
+  return send(
+    chatId,
+    `目前挂着 ${live.length} 张：`,
+    undefined,
+  ).then(async () => {
+    for (const l of live) {
+      const mine = l.chat_id === chatId;
+      await send(chatId, listingLine(l), {
+        inline_keyboard: [
+          [
+            mine
+              ? { text: "✅ 卖掉了", callback_data: `sold:${l.id}` }
+              : { text: "我要这张", callback_data: `want:${l.id}` },
+          ],
+        ],
+      });
+    }
+  });
 }
 
 /** 拉当天班次给用户勾 */
@@ -523,7 +886,7 @@ async function showStats(chatId, env, send, now) {
 
 /* ---------- 管理员 ---------- */
 
-async function handleAdmin(text, env, send, adminChatId) {
+async function handleAdmin(text, env, send, adminChatId, setMenu) {
   const [cmd, a, b] = text.split(/\s+/);
 
   if (cmd === "/adduser") {
@@ -533,6 +896,13 @@ async function handleAdmin(text, env, send, adminChatId) {
     }
     await db.addUser(env.DB, Number(a), b ?? null);
     await send(adminChatId, `加了 ${a}。用 /topup ${a} 5 给点数。`);
+    // 也通知本人 —— 他多半在被加之前就打过一次 /start 吃了闭门羹，
+    // 没人叫他，他不会再打第二次。
+    await send(
+      Number(a),
+      `✅ 你的号已经开通了。\n\n打 /start 开始盯车：选方向 → 选日期 → 勾班次。\n` +
+        `有位的那一刻我发讯息给你。`,
+    );
     return true;
   }
 
@@ -544,7 +914,11 @@ async function handleAdmin(text, env, send, adminChatId) {
     const n = Number(b);
     const reason = cmd === "/topup" ? "topup" : "refund";
     await db.adjustPoints(env.DB, Number(a), n, reason);
+    // 退点不算「付过钱」—— 这个标记记的是他什么时候开始付的
+    if (reason === "topup") await db.markFirstTopup(env.DB, Number(a));
     const u = await db.getUser(env.DB, Number(a));
+    // 充完值他就跨层了，Menu 键要跟着换，否则还是免费版那四个
+    await setMenu(Number(a), commandsFor(u, new Date().toISOString()));
     await send(adminChatId, `${a} 现在有 ${u.points} 点。`);
     await send(
       Number(a),
