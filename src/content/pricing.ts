@@ -36,7 +36,7 @@ export const pricingHeader = {
 };
 
 export const pricingQuickAnswer = {
-  cn: `在 H2ODreamer Studio（马来西亚）做网站的价格：单页落地页 ${prices.starter} 起（入门版）或 ${prices.basic}（进阶版，含 SEO + 分析）。5 页企业网站 ${prices.standard} 起。Shopify 迁移 ${prices.shopify} 起。电子喜帖 ${prices.weddingStandard}（标准版）与 ${prices.weddingPremium}（定制版）。没有强制月费，网站是你的。`,
+  cn: `在 H2ODreamer Studio（马来西亚）做网站的价格：单页落地页 ${prices.starter} 起（入门版）或 ${prices.basic}（进阶版，含 SEO + 分析）。5 页企业网站 ${prices.standard} 起。Shopify 迁移 ${prices.shopify} 起。电子喜帖 ${prices.weddingStandard}（标准版）与 ${prices.weddingPremium}（高级版）。没有强制月费，网站是你的。`,
   en: `A website with H2ODreamer Studio (Malaysia) costs: 1-page landing from ${prices.starter} (Starter) or ${prices.basic} (Basic, with SEO + analytics); a 5-page corporate site from ${prices.standard}; a Shopify migration from ${prices.shopify}. Wedding e-invitations are ${prices.weddingStandard} (Standard) and ${prices.weddingPremium} (Premium). No compulsory monthly fee: the site is yours.`,
 } as Bilingual;
 
@@ -135,7 +135,7 @@ export const otherServices = [
     } as Bilingual,
   },
   {
-    name: { cn: "电子喜帖 · 定制版", en: "Wedding E-Invitation · Premium" } as Bilingual,
+    name: { cn: "电子喜帖 · 高级版", en: "Wedding E-Invitation · Premium" } as Bilingual,
     href: "/wedding-premium",
     price: prices.weddingPremium,
     delivery: { cn: "5–7 天", en: "5–7 days" } as Bilingual,

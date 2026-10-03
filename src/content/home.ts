@@ -217,7 +217,7 @@ const serviceItems: ServiceCard[] = [
     },
     {
       id: "wedding-premium",
-      pill: { cn: "定制版", en: "Premium" } as Bilingual,
+      pill: { cn: "高级版", en: "Premium" } as Bilingual,
       group: { cn: "婚礼与电商", en: "Wedding & E-Commerce" } as Bilingual,
       badge: { cn: "热门", en: "Popular" } as Bilingual,
       title: { cn: "婚礼电子请柬", en: "Wedding E-Invitation" } as Bilingual,
@@ -243,7 +243,7 @@ const serviceItems: ServiceCard[] = [
       href: "/wedding-premium",
       cta: { cn: "做我的定制请柬", en: "Design my premium invite" } as Bilingual,
       waMessage: {
-        cn: "Hi H2ODreamer！我想做定制版电子喜帖。",
+        cn: "Hi H2ODreamer！我想做高级版电子喜帖。",
         en: "Hi H2ODreamer! I'd like the Premium wedding e-invitation.",
       } as Bilingual,
     },
