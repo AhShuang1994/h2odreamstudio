@@ -69,5 +69,5 @@ npm run test:watch  # 改断言时用
 | ~~#94 内容页字体~~ | ✅ 已完成，`fonts.test.ts`（字体表存在且抄全、引用的 woff2 真实存在、引了主样式表的页面都引字体表、除样板站与小红书落地页外没有页面对外取字体） |
 | ~~#88 遮罩视差~~ | ✅ 已完成，`motion.test.ts`（视差只出现在案例缩略图与创始人照片所在的页，每页有上限） |
 | ~~#98 小帐本跨境记帐~~ | ✅ 已完成，`moneybook/ledger.test.ts`（v1→v2 迁移与畸形资料救援、两侧独立、转帐两侧同动、汇率派生、家用、固定收支分侧补记、**单币种回归**、预算分侧）、`app/**` 已加入收录排除清单与 `robots.txt` 的 Disallow |
-| 技术 SEO（2026-09-30） | `seo.test.ts`（标题与描述不重复、标题与描述长度（棘轮，docs/seo-action-plan.md 2c 改完归 0）、一个 H1、viewport、图片 alt 与宽高、无 http 资源、全站 JSON-LD 可解析、文章页面包屑、robots.txt 不挡渲染资源）。`discovery.test.ts` 加了「sitemap 里没有 noindex 的页面」 |
+| 技术 SEO（2026-09-30） | `seo.test.ts`（标题与描述不重复、标题与描述长度（硬性上限，见 docs/seo-action-plan.md 2c）、一个 H1、viewport、图片 alt 与宽高、无 http 资源、全站 JSON-LD 可解析、文章页面包屑、robots.txt 不挡渲染资源）。`discovery.test.ts` 加了「sitemap 里没有 noindex 的页面」 |
 | #92 性能预算 | 首屏 JS < 200KB、首屏总重 < 800KB（不含视频）。破线即失败 |

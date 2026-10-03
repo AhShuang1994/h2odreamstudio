@@ -70,13 +70,11 @@ describe("导出产物 · 技术 SEO", () => {
   /**
    * 太长的标题与描述，Google 会截断或自己改写，搜索结果里那一行就不是我们写的了。
    * 上限含结尾的站名，见 docs/seo-action-plan.md 2c。noindex 的页不进搜索结果，不算。
-   *
-   * 棘轮：2c 改完之前做不到 0。超长的页数只许降不许升，改完一批就把基线调低。
-   * 2c 第 4 步归 0 后改成硬约束。
+   * 新页面超长就失败：英文在原稿 head 写 en:title / en:description，中文直接改原稿
+   * <title> / meta description。
    */
-  it("标题与描述不超过搜索结果的显示长度（棘轮）", () => {
+  it("标题与描述不超过搜索结果的显示长度", () => {
     const LIMITS = { en: { title: 60, description: 155 }, zh: { title: 50, description: 80 } };
-    const BASELINE = { title: 11, description: 22 };
     const over = { title: [] as string[], description: [] as string[] };
     for (const [file, head] of heads) {
       if (/<meta name="robots" content="[^"]*noindex/.test(head)) continue;
@@ -89,8 +87,8 @@ describe("导出产物 · 技术 SEO", () => {
         if (values[key].length > limit[key]) over[key].push(`${file}: ${key} ${values[key].length} > ${limit[key]}`);
       }
     }
-    expect(over.title.length, over.title.join("\n")).toBeLessThanOrEqual(BASELINE.title);
-    expect(over.description.length, over.description.join("\n")).toBeLessThanOrEqual(BASELINE.description);
+    expect(over.title, over.title.join("\n")).toEqual([]);
+    expect(over.description, over.description.join("\n")).toEqual([]);
   });
 
   it("每页恰好一个 <h1>", () => {
