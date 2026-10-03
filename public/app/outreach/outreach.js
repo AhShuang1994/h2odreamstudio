@@ -30,7 +30,7 @@
       openDm: "开 FB / IG 主页", map: "地图", tick: "标记已发",
       untick: "取消", noPhone: "这家 Google 上没留电话 —— 复制讯息，上门或翻他们的社群",
       doneTitle: "今天做完了 🎉", doneBody: "明天再来 3 家。想现在多发也可以，但别超过 6 家。",
-      more: "再拉 3 家",
+      more: "再拉 3 家", movedToast: "发过的已移到「已发出的」",
       allDone: function (n) { return n + " 家全部发完了 🎉"; },
       allDoneBody: "接下来就是等回覆，然后追第二条讯息。",
       sent: "已发", replied: "有回覆", replyQ: "有回覆？", yes: "有", no: "—",
@@ -66,7 +66,7 @@
       openDm: "Open FB / IG page", map: "Map", tick: "Mark sent",
       untick: "Undo", noPhone: "No phone on their listing — copy the text and walk in, or find them on social",
       doneTitle: "Done for today 🎉", doneBody: "Three more tomorrow. You can pull more now, but don't go past six.",
-      more: "Pull 3 more",
+      more: "Pull 3 more", movedToast: "Sent ones moved to “Sent”",
       allDone: function (n) { return "All " + n + " sent 🎉"; },
       allDoneBody: "Now wait for replies, then send follow-up one.",
       sent: "Sent", replied: "Replied", replyQ: "Replied?", yes: "Yes", no: "—",
@@ -199,7 +199,9 @@
   var lang = "zh";
   var masked = false;
   // sent: id -> {at, v, replied} · days: "YYYY-MM-DD|channel" -> [id] · vpick: id -> "A"|"B"|"C"
-  var state = { sent: {}, days: {}, vpick: {} };
+  // moved: "YYYY-MM-DD|channel" -> [id]，按「再拉 3 家」时已发的那几家，从今天的卡片移走、
+  // 只留在「已发出的」表里。days 不动：版本轮流与天数都靠它。
+  var state = { sent: {}, days: {}, vpick: {}, moved: {} };
   var filter = "m";                     // view preference, per device
 
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -220,13 +222,15 @@
         state.sent = p.sent || {};
         state.days = p.days || {};
         state.vpick = p.vpick || {};
+        state.moved = p.moved || {};
       }
     } catch (e) { /* corrupt — carry on empty */ }
     var sl = lsGet(LS_KEY + ":lang");
     if (sl === "en" || sl === "zh") lang = sl;
     var sf = lsGet(LS_KEY + ":filter");
     if (sf === "m" || sf === "l" || sf === "all") filter = sf;
-    masked = lsGet(LS_KEY + ":mask") === "1";
+    // 预设打码：没按过「打码」的装置一打开就是遮住的，录屏不会漏
+    masked = lsGet(LS_KEY + ":mask") !== "0";
   }
 
   function save() { lsSet(LS_KEY, JSON.stringify(state)); }
@@ -276,8 +280,11 @@
       .slice(0, DAILY).map(function (l) { return l.id; });
     if (!extra.length) return;
     state.days[k] = have.concat(extra);
+    state.moved[k] = (state.moved[k] || []).concat(
+      have.filter(function (id) { return state.sent[id]; }));
     save();
     render();
+    toast(T[lang].movedToast);
   }
 
   /** Which template this shop gets, in order of authority:
@@ -544,6 +551,9 @@
       return;
     }
 
+    // 移走的只认已发的：万一之后被取消，它会回到卡片上，不会凭空消失
+    var moved = state.moved[dayKey()] || [];
+    ids = ids.filter(function (id) { return moved.indexOf(id) === -1 || !state.sent[id]; });
     var pending = ids.filter(function (id) { return !state.sent[id]; });
     document.getElementById("today-count").textContent =
       (ids.length - pending.length) + " / " + ids.length;
