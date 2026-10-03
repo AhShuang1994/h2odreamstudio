@@ -35,6 +35,14 @@ describe("导出产物 · 资源版本号", () => {
     ).toEqual([]);
   });
 
+  it("JB 外联台的 JS、CSS 带着当前内容指纹（它没有 service worker）", () => {
+    const x = loadExport();
+    const html = x.read("app/outreach/index.html");
+    for (const file of ["outreach.js", "outreach.css"]) {
+      expect(html, file).toContain(`"${file}?v=${md5(`app/outreach/${file}`)}"`);
+    }
+  });
+
   it("版本号表没有被打进客户端 JS 包", () => {
     const x = loadExport();
     // 号码表整张进包时，里面会出现「"/assets/…": "8 位十六进制"」这种条目
