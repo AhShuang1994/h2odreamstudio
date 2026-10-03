@@ -20,6 +20,10 @@ _Avoid_: 我们、本工作室、团队
 服务价格的下限，永远以 `/pricing` 页的档位为唯一真相；首页、`llms.txt`、JSON-LD 全部向它看齐。数字只存在 [`src/content/prices.json`](./src/content/prices.json) 一份，改它一处全站跟着变。
 _Avoid_: 报价、价格（单独使用时含糊）
 
+**喜帖档位**：
+婚礼电子喜帖的两档：**标准版 / Standard**（`weddingStandard`）与**高级版 / Premium**（`weddingPremium`）。网址里的 `wedding-basic` 是历史遗留，不改。
+_Avoid_: 基础版、Basic（英文 Basic 是落地页的进阶版）、定制版
+
 ### 页面类型
 
 **核心页**：
