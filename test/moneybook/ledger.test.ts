@@ -1337,6 +1337,77 @@ describe("小帐本 · ledger 核心", () => {
 
     // 订阅、保费、卡上的分期是刷卡消费里最稳定的一块，而它们在这个 app 里是**规则**
     // 不是记录。规则标不了刷卡的话，「本月刷卡」会系统性偏小（#127）。
+    // 信用卡按结帐日出账单，不按自然月。设了结帐日 N，「九月」这一期就是 9/(N+1) 到 10/N：
+    // 10 月 1–4 号刷的，跟九月的一起出现在 10/4 那张账单上。没设就照旧是自然月。
+    describe("结帐日：刷卡按账单周期算", () => {
+      function withDay(day: number) {
+        const s = L.defaultState();
+        L.setCloseDay(s, "SGD", day);
+        for (const [date, amount] of [["2026-09-04", 1], ["2026-09-05", 10], ["2026-09-30", 20], ["2026-10-04", 40], ["2026-10-05", 80]] as const) {
+          L.addRecord(s, { type: "expense", amount, currency: "SGD", cat: "food", date, card: true });
+        }
+        return s;
+      }
+
+      it("结帐日 4 号：九月这一期是 9/5 到 10/4，10 月头几天算进九月", () => {
+        expect(L.cardCycle(withDay(4), "SGD", "2026-09")).toEqual({ from: "2026-09-05", to: "2026-10-04", amount: 70 });
+      });
+
+      it("结帐日 3 号：九月这一期是 9/4 到 10/3", () => {
+        expect(L.cardCycle(withDay(3), "SGD", "2026-09")).toEqual({ from: "2026-09-04", to: "2026-10-03", amount: 31 });
+      });
+
+      it("没设结帐日：照旧是自然月，跟 cardSpentOnSide 一样", () => {
+        const s = withDay(4);
+        L.setCloseDay(s, "SGD", 0);
+        expect(L.cardCycle(s, "SGD", "2026-09")).toEqual({ from: "2026-09-01", to: "2026-09-30", amount: 31 });
+        expect(L.cardSpentOnSide(s, "SGD", "2026-09")).toBe(31);
+      });
+
+      it("一期接一期，中间不漏一天：28 号结帐，平年二月那期从 3/1 开始", () => {
+        const s = L.defaultState();
+        L.setCloseDay(s, "SGD", 28);
+        expect(L.cardCycle(s, "SGD", "2027-01").to).toBe("2027-02-28");
+        expect(L.cardCycle(s, "SGD", "2027-02")).toMatchObject({ from: "2027-03-01", to: "2027-03-28" });
+      });
+
+      it("只收 1–28 号：29 号以后二月没有，其他值等于不设", () => {
+        const s = L.defaultState();
+        for (const bad of [29, 31, -1, 2.5, NaN]) {
+          L.setCloseDay(s, "SGD", bad);
+          expect(L.closeDayOf(s, "SGD"), String(bad)).toBe(0);
+        }
+        L.setCloseDay(s, "SGD", 4);
+        expect(L.closeDayOf(s, "SGD")).toBe(4);
+      });
+
+      it("按侧各设各的，马币那侧不受新币结帐日影响", () => {
+        const s = withDay(4);
+        L.setSecondaryCurrency(s, "MYR");
+        L.addRecord(s, { type: "expense", amount: 300, currency: "MYR", cat: "food", date: "2026-10-02", card: true });
+        expect(L.cardCycle(s, "MYR", "2026-10")).toEqual({ from: "2026-10-01", to: "2026-10-31", amount: 300 });
+        expect(L.cardCycle(s, "SGD", "2026-09").amount).toBe(70);
+      });
+
+      it("重新载入还在；换主币种时跟着改名", () => {
+        const s = withDay(4);
+        expect(L.closeDayOf(L.loadState(JSON.stringify(s)).state, "SGD")).toBe(4);
+        L.setPrimaryCurrency(s, "MYR");
+        expect(L.closeDayOf(s, "MYR")).toBe(4);
+        expect(L.closeDayOf(s, "SGD")).toBe(0);
+      });
+
+      it("旧资料没有结帐日；坏掉的值丢掉", () => {
+        expect(L.migrate({ currency: "SGD", records: [] }).closeDays).toEqual({});
+        expect(L.migrate({ currency: "SGD", closeDays: { sgd: 4, MYR: 31, X: "a" } }).closeDays).toEqual({ SGD: 4 });
+      });
+
+      it("趋势图不受影响：刷卡那段仍是自然月，才会是当月支出的子集", () => {
+        const t = L.trend(withDay(4), "SGD", "2026-10", 2);
+        expect(t.map((m: any) => m.card)).toEqual([31, 120]);
+      });
+    });
+
     describe("固定收支与分期也能标成刷卡", () => {
       /** 一条刷卡的订阅、一条现金的房租。 */
       function rules() {

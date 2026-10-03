@@ -50,6 +50,7 @@ export function defaultState() {
     lastSide: null,               // 上次记帐落在哪一侧（story 8）
     lastCard: false,              // 上次记帐有没有勾刷卡（#125）
     budgets: {},                  // 按币种各持一份月预算
+    closeDays: {},                // 按币种各一个信用卡结帐日（1–28），没设 = 刷卡按自然月算
     cats: structuredCloneish(DEFAULT_CATS),
     recurring: [],
     records: [],
@@ -266,6 +267,7 @@ export function migrate(data) {
     lastSide: null,
     lastCard: data.lastCard === true,
     budgets: {},
+    closeDays: {},
     cats: sanitizeCats(data.cats),
     recurring: [],
     records: [],
@@ -288,6 +290,10 @@ export function migrate(data) {
   } else {
     const legacy = round2(data.budget);
     if (legacy > 0) state.budgets[primary] = legacy;
+  }
+
+  if (data.closeDays && typeof data.closeDays === 'object' && !Array.isArray(data.closeDays)) {
+    for (const [code, v] of Object.entries(data.closeDays)) setCloseDay(state, normalizeCurrency(code), v);
   }
 
   if (Array.isArray(data.records)) {
@@ -418,6 +424,10 @@ export function setPrimaryCurrency(state, code) {
     state.budgets[c] = state.budgets[old];
     delete state.budgets[old];
   }
+  if (state.closeDays[old] != null) {
+    state.closeDays[c] = state.closeDays[old];
+    delete state.closeDays[old];
+  }
   // 卡片对应也挂在侧上：不跟着改名，那几张卡下次刷就会被当成新卡重问一遍
   for (const m of Object.values(state.cardMap)) {
     if (m.currency === old) m.currency = c;
@@ -509,6 +519,44 @@ export function cardSpentOnSide(state, currency, month) {
     sum += r.amount;
   }
   return round2(sum);
+}
+
+/**
+ * 信用卡结帐日：账单截到每月几号（含当天）。按侧各一个，跟预算一样。
+ * 只收 1–28：二月没有 29 号以后，「每月 30 号」在二月说不清。没设回 0 = 自然月。
+ */
+export function closeDayOf(state, currency) {
+  return state.closeDays?.[currency] || 0;
+}
+
+export function setCloseDay(state, currency, day) {
+  const n = Number(day);
+  state.closeDays ||= {};
+  if (currency && Number.isInteger(n) && n >= 1 && n <= 28) state.closeDays[currency] = n;
+  else delete state.closeDays[currency];
+  return state;
+}
+
+/**
+ * 统计页的「这一期刷卡」：`month` 那一期的起讫日期与合计，日期是 YYYY-MM-DD、含头尾。
+ *
+ * 设了结帐日 N，`month` 这一期是 month/(N+1) 到下个月 N 号：结帐日 4 号的话，10 月 1–4 号
+ * 刷的跟九月的一起出现在 10/4 那张账单上，所以算进九月。没设就是自然月，金额同 cardSpentOnSide。
+ * 起日用 Date 自己进位：28 号结帐、平年二月的「2/29」就是 3/1，一期接一期不漏一天。
+ *
+ * 只有这一行用账单周期。趋势图仍按自然月（cardSpentOnSide），刷卡那段才会是当月支出的子集。
+ */
+export function cardCycle(state, currency, month) {
+  const n = closeDayOf(state, currency);
+  const [y, mo] = month.split('-').map(Number);
+  const from = n ? dateOf(new Date(y, mo - 1, n + 1)) : `${month}-01`;
+  const to = n ? dateOf(new Date(y, mo, n)) : `${month}-${pad(lastDayOfMonth(month))}`;
+  let sum = 0;
+  for (const r of state.records) {
+    if (r.type !== EXPENSE || !isCard(r) || r.currency !== currency) continue;
+    if (r.date >= from && r.date <= to) sum += r.amount;
+  }
+  return { from, to, amount: round2(sum) };
 }
 
 /**
