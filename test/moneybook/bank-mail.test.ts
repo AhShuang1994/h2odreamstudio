@@ -337,6 +337,12 @@ describe("小帐本 · 银行交易邮件", () => {
       expect(L.parseBankMail({ ...paylah.mail, body })).toEqual({ bank: "DBS PayLah!", direction: "in" });
     });
 
+    it("FairPrice 收据：纯文字版金额在下一行也认得，Total savings 不会被当成付的钱", () => {
+      const fp = samples.find(s => s.expect?.bank === "FairPrice");
+      const body = "Total savings\n$4.03\nTotal\n$30.25";
+      expect(L.parseBankMail({ ...fp.mail, body: `Your payment is complete\n${body}` })).toEqual(fp.expect);
+    });
+
     it("Gmail 的转发确认信进认不得清单，不被当成验证码略过：使用者要从这里抄确认码（ADR-0004）", () => {
       const s = L.defaultState();
       L.receiveInbox(s, [{

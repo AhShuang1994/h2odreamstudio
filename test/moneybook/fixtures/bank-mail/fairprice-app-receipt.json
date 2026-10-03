@@ -1,0 +1,14 @@
+{
+  "mail": {
+    "from": "FairPrice <XXXX>",
+    "subject": "Your FairPrice Group app receipt",
+    "body": "FairPriceGroup\nEvery Day, Made A Little Better\n\nYour payment is complete\n\nHi XXXX,\n\nThis is your summary for Payment Ref. C-XXXX.\n\nSummary\nTotal $30.25\nPaid By $30.25\nVisa (**** XXXX)\nTotal savings $4.03\nYou've earned 15.12 Linkpoints\n\nView purchase details"
+  },
+  "expect": {
+    "bank": "FairPrice",
+    "direction": "out",
+    "amount": 30.25,
+    "currency": "SGD",
+    "merchant": "FairPrice"
+  }
+}

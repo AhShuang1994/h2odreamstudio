@@ -1129,6 +1129,19 @@ export const BANK_RULES = [
       const f = dbsFields(body);
       return f && { direction: 'out', currency: f.currency, amount: f.amount, merchant: f.to };
     }
+  },
+  {
+    // FairPrice Group app 里付款后寄的收据（Your payment is complete）：Total $30.25。
+    // 在 app 里付钱 DBS 不寄刷卡邮件，这封就是唯一的记录。不是银行，所以单独算一张「卡」，
+    // 照卡片对应问一次记在哪张卡。只在新加坡，$ 就是新币。
+    // 「Total savings $4.03」是省下的钱：Total 后面紧跟金额的那一行才是付的钱
+    bank: 'FairPrice',
+    from: /fairprice/i,
+    parse({ subject, body }) {
+      if (!/payment is complete|app receipt/i.test(`${subject}\n${body}`)) return null;
+      const m = /^\s*Total\s*:?\s*(?:S\$|SGD\s?|\$)\s?([\d,]+(?:\.\d{1,2})?)/im.exec(body);
+      return m && { direction: 'out', currency: 'SGD', amount: m[1], merchant: 'FairPrice' };
+    }
   }
 ];
 
