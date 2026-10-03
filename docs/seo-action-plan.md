@@ -272,3 +272,28 @@
 
 1. 在上表打勾，写日期。
 2. 把该平台的**个人资料网址**记下来，交给 Claude 加进网站结构化数据的 `sameAs`（网址放 `src/content/site.ts`，`src/lib/jsonld.ts` 引用，目前有 Instagram、Facebook）。`sameAs` 告诉 Google 和 AI "这些账号都是同一家工作室"，见 `GEO-CHECKLIST.md` §3。
+
+## 6. 定期更新内容（长期，每月一次）
+
+**查证结果（2026-10-03）**：「不更新，Google 就以为你不经营了」这个说法**不对**。Google 的 John Mueller 说过，发文频率不是排名因素，新内容也不会因为「新」就排得比较前面。只改日期、不改内容，Google 明确说不要这样做。
+
+**但定期更新还是要做**，理由不一样：
+
+- **新文章 = 多一个被搜到的机会**。每一篇对应一个老板会搜的问题。
+- **有些内容会过时**：标题写了「2026」、页面上有价格的，过了年或改了价就变成旧资料，别人不想点，AI 也不敢引用。
+- **更新多的站，Google 来得比较勤**。新页面被收录得快（这不等于排名高）。
+- **FAQ 补真实客户问过的问题**，最贴近别人真的会搜的话。
+
+**每月做一次**（每月 1 号的「网站月报」出来后一起看）：
+
+- [ ] 发 1 篇新 blog（中英两版）。题目从客户真的问过的问题来。
+- [ ] 挑 1 篇旧文章，补新资料、新例子或新 FAQ。**内容真的改了**，才把页面上的更新日期和 JSON-LD 的 `dateModified` 改成今天。
+- [ ] `src/content/prices.json` 改价时，所有写到价格的页面一起改。
+
+**固定日期**：
+
+- [ ] **2027 年 1 月**：所有标题、描述、正文里写「2026」的页面，改成 2027 并真的更新内容（最要紧的是 `/blog/website-cost-malaysia`，标题就是 "Website Cost in Malaysia 2026"）。先跑 `grep -rl "2026" src/content` 找出来。
+
+**不要做**：只改日期不改内容；为了「看起来有更新」改几个字；把旧文章删掉重发一篇差不多的。
+
+来源：[Search Engine Journal：Mueller 谈发文频率](https://www.searchenginejournal.com/how-freshness-works/457485/)、[Google Search Central：日期怎么写](https://developers.google.com/search/blog/2019/03/help-google-search-know-best-date-for)。
