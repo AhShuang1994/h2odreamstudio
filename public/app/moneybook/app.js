@@ -546,13 +546,19 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     // 「有没有刷过卡」是它出现的条件，不是一个开关（比照第二币种）。
     // 切到收入时也整块消失：收入不会刷卡，显示 0 等于暗示它可能。
     // 有过之后，某个月一笔都没刷仍然照常显示 0：「这个月我没刷卡」是一条信息。
+    // 设了结帐日就按账单周期算，标题直接写出起讫日期：这一期跟自然月不一样，不写清楚会被当成算错
     const showCard = statsType === 'expense' && L.hasCard(state);
+    const cyc = showCard ? L.cardCycle(state, side, curMonth) : null;
+    const md = d => `${Number(d.slice(5, 7))}/${Number(d.slice(8))}`;
+    const closeDay = L.closeDayOf(state, side);
     $('#card-sum').innerHTML = showCard ? `<div class="card">
         <div class="cat-row" style="border:none;padding:0">
-          <span>本月刷卡</span>
-          <b class="tnum">${money(L.cardSpentOnSide(state, side, curMonth))}</b>
+          <span>${closeDay ? `${md(cyc.from)} – ${md(cyc.to)} 刷卡` : '本月刷卡'}</span>
+          <b class="tnum">${money(cyc.amount)}</b>
         </div>
-        <p class="muted small" style="margin-top:6px">≈ 下个月要还的钱，以银行账单为准</p>
+        <p class="muted small" style="margin-top:6px">${closeDay
+          ? `≈ ${md(cyc.to)} 结帐的那张账单，以银行账单为准`
+          : '≈ 下个月要还的钱，以银行账单为准'}</p>
       </div>` : '';
 
     // 本月转帐：不在分类占比里（汇款不该盖住真实的消费结构），但要说出来，
@@ -909,6 +915,7 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     $('#set-currency2').value = state.currency2 || '';
     $('#ver').textContent = `小帐本 v${VERSION} · 共 ${state.records.length} 笔记录`;
     renderBudgetSettings();
+    renderCloseDaySettings();
     renderRecurring();
     renderCatEditor();
     renderApSettings();
@@ -932,6 +939,27 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
     L.setBudget(state, c, Number(input.value) || 0);
     save();
     toast(L.budgetOf(state, c) ? `${c} 预算已设定` : `已取消 ${c} 预算`);
+  });
+
+  /** 信用卡结帐日也跟着分侧，写法照抄预算那一段。 */
+  function renderCloseDaySettings() {
+    $('#closeday-settings').innerHTML = L.sides(state).map(c => `
+      <div class="card row">
+        <span>${L.hasSecondary(state) ? esc(c) + ' 那侧' : '每月几号结帐'}</span>
+        <input type="number" min="1" max="28" step="1" inputmode="numeric" placeholder="不设 = 1 号到月底" class="mini wide"
+               data-closeday="${esc(c)}" value="${L.closeDayOf(state, c) || ''}" aria-label="${esc(c)} 信用卡结帐日" />
+      </div>`).join('');
+  }
+
+  $('#closeday-settings').addEventListener('change', e => {
+    const input = e.target.closest('input[data-closeday]');
+    if (!input) return;
+    const c = input.dataset.closeday;
+    L.setCloseDay(state, c, Number(input.value));
+    save();
+    const n = L.closeDayOf(state, c);
+    input.value = n || '';
+    toast(n ? `${c} 刷卡按每月 ${n} 号结帐算` : `${c} 刷卡改回按自然月算`);
   });
 
   $('#set-currency').addEventListener('change', e => {
