@@ -1,0 +1,18 @@
+{
+  "name": "JB 外联台",
+  "short_name": "外联台",
+  "description": "找没有网站的 JB 店家，每天发 3 家。",
+  "lang": "zh-Hans",
+  "start_url": "./",
+  "scope": "./",
+  "id": "/app/outreach/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07080b",
+  "theme_color": "#07080b",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

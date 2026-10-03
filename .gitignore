@@ -68,3 +68,8 @@ checklist.html
 # 本机密钥（wrangler dev 读 .dev.vars）。线上的密钥用 `wrangler secret put`，别进仓库
 .env
 .dev.vars
+
+# JB 外联台的明文名单（店名、电话）。仓库是公开的，只准提交加密后的
+# public/app/outreach/leads.enc.json（scripts/outreach-encrypt.mjs 产生）
+leads.json
+JBoutreachconsole*.html

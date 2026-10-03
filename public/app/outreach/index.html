@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>JB 外联台</title>
+  <!-- 只给阿爽自己用。名单是加密的（leads.enc.json），密码在浏览器里解开。
+       不收录、不装 GA。 -->
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#07080b" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <!-- iOS 加到主屏幕：全屏开，录屏时没有网址列 -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="外联台" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="outreach.css" />
+</head>
+<body>
+
+<!-- ══ 锁屏 ══ -->
+<section class="lock" id="lock">
+  <img class="orb" src="/assets/bg-1.webp" alt="" aria-hidden="true" width="1024" height="1024" />
+  <form class="lock-card" id="lock-form" autocomplete="on">
+    <p class="brand">H2ODreamer Studio</p>
+    <h1 id="lock-title">JB 外联台</h1>
+    <p class="lock-sub" id="lock-sub">客户名单已加密，输入密码解锁。</p>
+    <!-- 让密码管理器认得这是哪个帐号 -->
+    <input type="text" name="username" value="jb-outreach" autocomplete="username" hidden />
+    <label class="field">
+      <span class="sr" id="pw-label">密码</span>
+      <input type="password" id="pw" name="password" autocomplete="current-password"
+             placeholder="密码" required />
+    </label>
+    <label class="check">
+      <input type="checkbox" id="remember" checked />
+      <span id="remember-label">记住这台装置</span>
+    </label>
+    <button class="btn primary block" id="unlock" type="submit">解锁</button>
+    <p class="lock-err" id="lock-err" role="alert"></p>
+  </form>
+</section>
+
+<!-- ══ 主画面 ══ -->
+<div class="app" id="app" hidden>
+  <header class="topbar">
+    <div class="tb-brand">
+      <span class="tb-orb" aria-hidden="true"></span>
+      <span class="tb-name">JB 外联台</span>
+    </div>
+    <div class="tb-actions">
+      <button class="icon-btn" id="mask-btn" aria-pressed="false" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path class="slash" d="M4 4l16 16" stroke="currentColor" stroke-width="1.8"/></svg>
+        <span id="mask-label">打码</span>
+      </button>
+      <div class="seg" role="group" aria-label="语言">
+        <button id="lang-zh" aria-pressed="true" type="button">中</button>
+        <button id="lang-en" aria-pressed="false" type="button">EN</button>
+      </div>
+      <button class="icon-btn" id="lock-btn" type="button" aria-label="锁上">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <p class="eyebrow" id="subline">医疗 · 美容 · 没网站的店</p>
+      <div class="pnums">
+        <span class="pbig" id="p-done">0</span>
+        <span class="pof" id="p-of">/ 0 已发出</span>
+      </div>
+      <div class="bar"><span id="p-bar"></span></div>
+      <div class="kpis">
+        <div class="kpi"><span class="k-n" id="k-rep">0</span><span class="k-l" id="k-rep-l">有回覆</span></div>
+        <div class="kpi"><span class="k-n" id="k-rate">—</span><span class="k-l" id="k-rate-l">回覆率</span></div>
+        <div class="kpi"><span class="k-n" id="k-day">0</span><span class="k-l" id="k-day-l">天</span></div>
+      </div>
+    </section>
+
+    <div class="sechead">
+      <h2 id="today-h">今天要发的</h2>
+      <span class="rule"></span>
+      <span class="count" id="today-count"></span>
+    </div>
+    <div class="filters" id="filters" role="group" aria-label="渠道"></div>
+    <div id="today"></div>
+
+    <div class="sechead">
+      <h2 id="stats-h">哪个版本有效</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="stats" id="stats"></div>
+
+    <details class="panel" id="log-panel">
+      <summary><span id="log-h">已发出的</span><span class="n" id="log-n"></span></summary>
+      <div class="tablewrap"><table>
+        <thead><tr>
+          <th id="th-date">日期</th><th id="th-shop">店家</th><th id="th-var">版本</th>
+          <th id="th-rev">评论</th><th id="th-reply">有回覆</th>
+        </tr></thead>
+        <tbody id="log-body"></tbody>
+      </table></div>
+    </details>
+
+    <details class="panel" id="all-panel">
+      <summary><span id="all-h">全部名单</span><span class="n" id="all-n"></span></summary>
+      <div class="tablewrap"><table>
+        <thead><tr>
+          <th id="th-pri">优先</th><th id="th-shop2">店家</th><th id="th-cat">类型</th>
+          <th id="th-score">评分</th><th id="th-rev2">评论</th>
+          <th id="th-phone">电话</th><th id="th-kind">号码类型</th><th id="th-area">地区</th>
+          <th id="th-status">状态</th><th id="th-map">地图</th>
+        </tr></thead>
+        <tbody id="all-body"></tbody>
+      </table></div>
+    </details>
+
+    <p class="note" id="note"></p>
+    <p class="device-note" id="device-note"></p>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="outreach.js"></script>
+</body>
+</html>
