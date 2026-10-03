@@ -226,7 +226,8 @@
     if (sl === "en" || sl === "zh") lang = sl;
     var sf = lsGet(LS_KEY + ":filter");
     if (sf === "m" || sf === "l" || sf === "all") filter = sf;
-    masked = lsGet(LS_KEY + ":mask") === "1";
+    // 预设打码：没按过「打码」的装置一打开就是遮住的，录屏不会漏
+    masked = lsGet(LS_KEY + ":mask") !== "0";
   }
 
   function save() { lsSet(LS_KEY, JSON.stringify(state)); }
