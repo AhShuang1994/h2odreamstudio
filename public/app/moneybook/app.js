@@ -24,7 +24,8 @@ import { generateKeyPair, open as openSealed } from './inbox-crypto.js';
   const MAIL_SENDERS = [
     ['ibanking.alert@dbs.com', 'DBS 信用卡、PayNow'],
     ['paylah.alert@dbs.com', 'DBS PayLah!'],
-    ['noreply@notification.cimb.com', 'CIMB 进帐：每一笔问你是转帐还是收入']
+    ['noreply@notification.cimb.com', 'CIMB 进帐：每一笔问你是转帐还是收入'],
+    ['fairprice', 'FairPrice app 里付款的收据（寄件人里有 fairprice 就认）']
   ];
 
   // 分类色定义在 CSS 的 --cat-1…--cat-10，主题要换整组就只改 CSS。

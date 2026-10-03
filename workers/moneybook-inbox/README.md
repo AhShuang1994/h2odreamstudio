@@ -55,6 +55,7 @@ npx wrangler deploy
 | `ibanking.alert@dbs.com` | DBS 信用卡、PayNow |
 | `paylah.alert@dbs.com` | DBS PayLah! |
 | `noreply@notification.cimb.com` | CIMB 进帐：每一笔问转帐还是收入（ADR-0005） |
+| `fairprice` | FairPrice app 里付款的收据。规则只认寄件人里有 fairprice，准确地址还没抄到 |
 
 加了新银行的规则，也要把寄件地址补进这张表与 `MAIL_SENDERS`，使用者的过滤器要跟着加。
 
