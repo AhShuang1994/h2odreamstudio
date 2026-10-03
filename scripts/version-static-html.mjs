@@ -47,3 +47,16 @@ for (const src of walk(PUBLIC)) {
   }
 }
 console.log(`version-static-html: ${changed} 个静态页接上了资源指纹`);
+
+// JB 外联台（app/outreach）没有 service worker，而 Cloudflare 让浏览器把 .js / .css
+// 缓存一年：它的 JS 与 CSS 是同目录的相对引用，上面那套只认 /assets、/css、/js，
+// 所以在这里单独接上指纹。页面本身是 max-age=0，换了指纹浏览器就会去拿新的。
+const OUTREACH = join(OUT, "app/outreach");
+const outreachPage = join(OUTREACH, "index.html");
+const outreachHtml = readFileSync(outreachPage, "utf8");
+const outreachNext = outreachHtml.replace(
+  /(src|href)="(outreach\.(?:js|css))(?:\?v=\w+)?"/g,
+  (_, attr, file) =>
+    `${attr}="${file}?v=${createHash("md5").update(readFileSync(join(OUTREACH, file))).digest("hex").slice(0, 8)}"`,
+);
+writeFileSync(outreachPage, outreachNext);
